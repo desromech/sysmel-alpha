@@ -174,6 +174,57 @@ enum PixelFormat valueType: UInt32; values: #{
         }
     }.
 
+    method componentCount => UInt32 := {
+        self selectCase: #{
+        (R32_Typeless, D32_Float, R32_Float, R32_UInt, R32_SInt, R16_Typeless,
+        R16_Float, D16_UNorm, R16_UNorm, R16_UInt, R16_SNorm, R16_SInt,
+        R8_Typeless, R8_UNorm, R8_UInt, R8_SNorm, R8_SInt, A8_UNorm, R1_UNorm,
+        EAC_R11_UNorm, EAC_R11_SNorm, R4_UNorm, A4_UNorm) asValueInSetPattern : {
+            return: 1
+        }.
+
+        ## 2 component.
+        (R32G32_Typeless, R32G32_Float, R32G32_UInt, R32G32_SInt,
+        R32G8X24_Typeless, R16G16_Typeless, R16G16_Float, R16G16_UNorm,
+        R16G16_UInt, R16G16_SNorm, R16G16_SInt, R8G8_Typeless, R8G8_UNorm,
+        R8G8_UInt, R8G8_SNorm, R8G8_SInt, R4G4_UNorm, HI8LO8_UNorm) asValueInSetPattern : {
+            return: 2
+        }.
+
+        ## 3 component.
+        (R32G32B32_Typeless, R32G32B32_Float, R32G32B32_UInt, R32G32B32_SInt, BC1_Typeless,
+        BC1_UNorm, BC1_UNormSRGB, B5G6R5_UNorm, B8G8R8X8_Typeless, B8G8R8X8_UNormSRGB,
+        ETC2_R8G8B8_UNorm, ETC2_R8G8B8_UNormSRGB, R8G8B8_UNorm, R8G8B8_UNormSRGB, R8G8B8_SNorm,
+        B8G8R8_UNorm, B8G8R8_UNormSRGB, ETC1_R8G8B8_UNorm, ETC1_R8G8B8_UNormSRGB) asValueInSetPattern : {
+            return: 3
+        }.
+
+        ## 4 component.
+        (R32G32B32A32_Typeless, R32G32B32A32_Float, R32G32B32A32_UInt,
+        R32G32B32A32_SInt, R16G16B16A16_Typeless, R16G16B16A16_Float, R16G16B16A16_UNorm,
+        R16G16B16A16_UInt, R16G16B16A16_SNorm, R16G16B16A16_SInt, R10G10B10A2_Typeless,
+        R10G10B10A2_UNorm, R10G10B10A2_UInt, R8G8B8A8_Typeless, R8G8B8A8_UNorm,
+        R8G8B8A8_UNormSRGB, R8G8B8A8_UInt, R8G8B8A8_SNorm, R8G8B8A8_SInt,
+        BC2_Typeless, BC2_UNorm, BC2_UNormSRGB, BC3_Typeless, BC3_UNorm,
+        BC3_UNormSRGB, BC4_Typeless, BC4_UNorm, BC4_SNorm, BC5_Typeless,
+        BC5_UNorm, BC5_SNorm, B5G5R5A1_UNorm, B8G8R8A8_UNorm, B8G8R8A8_Typeless,
+        B8G8R8A8_UNormSRGB, ETC2_R8G8B8A1_UNorm, ETC2_R8G8B8A1_UNormSRGB,
+        ETC2_R8G8B8A8_UNorm, ETC2_R8G8B8A8_UNormSRGB,
+        ASTC4X4_UNorm, ASTC4X4_UNormSRGB, ASTC5X4_UNorm, ASTC5X4_UNormSRGB,
+        ASTC5X5_UNorm, ASTC5X5_UNormSRGB, ASTC6X5_UNorm, ASTC6X5_UNormSRGB,
+        ASTC6X6_UNorm, ASTC6X6_UNormSRGB, ASTC8X5_UNorm, ASTC8X5_UNormSRGB,
+        ASTC8X6_UNorm, ASTC8X6_UNormSRGB, ASTC8X8_UNorm, ASTC8X8_UNormSRGB,
+        ASTC10X5_UNorm, ASTC10X5_UNormSRGB, ASTC10X6_UNorm, ASTC10X6_UNormSRGB,
+        ASTC10X8_UNorm, ASTC10X8_UNormSRGB, ASTC10X10_UNorm, ASTC10X10_UNormSRGB,
+        ASTC12X10_UNorm, ASTC12X10_UNormSRGB, ASTC12X12_UNorm, ASTC12X12_UNormSRGB,
+        B4G4R4A4_UNorm, B4G4R4A4_UNormSRGB, ETC1_R8G8B8A4_UNorm, ETC1_R8G8B8A4_UNormSRGB) asValueInSetPattern : {
+            return: 4
+        }.
+
+        _ : {return: 0}
+        }
+    }.
+
     method bytesPerPixel => UInt32 := {
         self selectCase: #{
 
@@ -223,6 +274,8 @@ enum PixelFormat valueType: UInt32; values: #{
             B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_Typeless,
             B8G8R8A8_UNormSRGB, B8G8R8X8_Typeless, B8G8R8X8_UNormSRGB,
 
+            R16G16_Typeless, R16G16_Float, R16G16_UNorm, R16G16_UInt, R16G16_SNorm, R16G16_SInt,
+
         ) asValueInSetPattern : {
             return: 4
         }.
@@ -230,6 +283,8 @@ enum PixelFormat valueType: UInt32; values: #{
         ## 8 Bytes.
         (
             R32G32_Typeless, R32G32_Float, R32G32_UInt, R32G32_SInt, D32_Float_S8X24_UInt, R32G8X24_Typeless,
+            R16G16B16A16_Typeless, R16G16B16A16_Float, R16G16B16A16_UNorm, R16G16B16A16_UInt,
+            R16G16B16A16_SNorm, R16G16B16A16_SInt,
         ) asValueInSetPattern : {
             return: 8
         }.

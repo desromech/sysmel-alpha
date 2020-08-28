@@ -51,6 +51,15 @@ sealed template GenericBox(ST: Type)
     const inline method extent => Vector3
         := max - min.
 
+    const inline method width => Scalar
+        := max x - min x.
+
+    const inline method height => Scalar
+        := max y - min y.
+
+    const inline method depth => Scalar
+        := max z - min z.
+
     const inline method translatedBy: (translation: Vector3) ::=> SelfType
         := SelfType min: min + translation max: max + translation.
 
