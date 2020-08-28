@@ -1,6 +1,7 @@
 namespace GPUBlockConversion definition: {
 template CollectionMapShader(MF: _FunctionType ref)
 := class definition: {
+	<gpu>
 	compileTime constant MapFunction := MF.
 	compileTime constant FunctionType := MapFunction typeOfExpression baseType.
 	compileTime constant InputType := FunctionType argumentTypes first.
@@ -39,6 +40,7 @@ template CollectionMapShader(MF: _FunctionType ref)
 
 template BinaryReductionShader(RF: _FunctionType ref)
 := class definition: {
+	<gpu>
 	compileTime constant ReductionFunction := RF.
 	compileTime constant FunctionType := ReductionFunction typeOfExpression baseType.
 	compileTime constant ElementType := FunctionType argumentTypes first.
@@ -113,6 +115,7 @@ template BinaryReductionShader(RF: _FunctionType ref)
 
 template IntervalGeneratorShader(ET: Type)
 := class definition: {
+	<gpu>
 	compileTime constant ElementType := ET.
 
 	struct OutputBuffer definition: {
