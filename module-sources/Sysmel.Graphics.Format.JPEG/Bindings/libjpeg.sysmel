@@ -4,6 +4,12 @@ compileTime constant JPEG_LIB_VERSION := 80.
 
 compileTime constant JDIMENSION := UInt32.
 
+compileTime if: Compiler compilationTarget isWindows then: {
+    compileTime constant JBoolean := UInt8.
+} else: {
+    compileTime constant JBoolean := UInt32.
+}.
+
 enum J_COLOR_SPACE valueType: UInt32; values: #{
     JCS_UNKNOWN: 0.
     JCS_GRAYSCALE:.
@@ -70,14 +76,14 @@ compileTime constant JPEG_COM        := 16rFE.
 
 struct JQUANT_TBL definition: {
     public field quantval type: (UInt16 array: DCTSIZE2).
-    public field sent_table type: Int32.
+    public field sent_table type: JBoolean.
 }.
 
 struct JHUFF_TBL definition: {
     public field bits type: (UInt8 array: 17).
 
     public field huffval type: (UInt8 array: 256).
-    public field sent_table type: Int32.
+    public field sent_table type: JBoolean.
 }.
 
 class jpeg_common_fields definition: {
@@ -85,7 +91,7 @@ class jpeg_common_fields definition: {
     public field mem type: jpeg_memory_mgr pointer.
     public field progress type: jpeg_progress_mgr pointer.
     public field client_data type: Void pointer.
-    public field is_decompressor type: Int32.
+    public field is_decompressor type: JBoolean.
     public field global_state type: Int32.
 }.
 
@@ -186,20 +192,20 @@ class jpeg_decompress_struct superclass: jpeg_common_fields; definition: {
 
     public field output_gamma type: Float64.
 
-    public field buffered_image type: Int32.
+    public field buffered_image type: JBoolean.
     public field raw_data_out type: Int32.
 
     public field dct_method type: J_DCT_METHOD.
-    public field do_fancy_upsampling type: Int32.
-    public field do_block_smoothing type: Int32.
+    public field do_fancy_upsampling type: JBoolean.
+    public field do_block_smoothing type: JBoolean.
 
-    public field quantize_colors type: Int32.
+    public field quantize_colors type: JBoolean.
     public field dither_mode type: J_DITHER_MODE.
-    public field two_pass_quantize type: Int32.
+    public field two_pass_quantize type: JBoolean.
     public field desired_number_of_colors type: Int32.
-    public field enable_1pass_quant type: Int32.
-    public field enable_external_quant type: Int32.
-    public field enable_2pass_quant type: Int32.
+    public field enable_1pass_quant type: JBoolean.
+    public field enable_external_quant type: JBoolean.
+    public field enable_2pass_quant type: JBoolean.
 
     public field output_width type: JDIMENSION.
     public field output_height type: JDIMENSION.
@@ -229,9 +235,9 @@ class jpeg_decompress_struct superclass: jpeg_common_fields; definition: {
 
     public field comp_info type: jpeg_component_info pointer.
 
-    public field is_baseline type: Int32.
-    public field progressive_mode type: Int32.
-    public field arith_code type: Int32.
+    public field is_baseline type: JBoolean.
+    public field progressive_mode type: JBoolean.
+    public field arith_code type: JBoolean.
 
     public field arith_dc_L type: (UInt8 array: NUM_ARITH_TBLS).
     public field arith_dc_U type: (UInt8 array: NUM_ARITH_TBLS).
@@ -239,17 +245,17 @@ class jpeg_decompress_struct superclass: jpeg_common_fields; definition: {
 
     public field restart_interval type: UInt32.
 
-    public field saw_JFIF_marker type: Int32.
+    public field saw_JFIF_marker type: JBoolean.
 
     public field JFIF_major_version type: UInt8.
     public field JFIF_minor_version type: UInt8.
     public field density_unit type: UInt8.
     public field X_density type: UInt16.
     public field Y_density type: UInt16.
-    public field saw_Adobe_marker type: Int32.
+    public field saw_Adobe_marker type: JBoolean.
     public field Adobe_transform type: UInt8.
 
-    public field CCIR601_sampling type: Int32.
+    public field CCIR601_sampling type: JBoolean.
 
     public field marker_list type: jpeg_saved_marker_ptr.
 

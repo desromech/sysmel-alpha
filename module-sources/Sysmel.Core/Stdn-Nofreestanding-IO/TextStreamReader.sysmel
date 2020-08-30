@@ -107,7 +107,7 @@ class TextStreamReader definition: {
         let newline mutable := self peekChar8.
         newline = '\r' ifTrue: {
             self nextChar8.
-            newline := self nextChar8
+            newline := self peekChar8
         }.
         newline = '\n' ifTrue: {
             self nextChar8

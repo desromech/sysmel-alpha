@@ -6,7 +6,9 @@ self platform name selectCase: {
 
     ].
     #windows -> [
-
+        | folder |
+        folder := 'windows/' , self architecture name.
+        self importLibrary: 'freetype' fromLibFolder: folder , '/lib' binFolder: folder , '/bin'
     ].
     [true] -> []
 }.
