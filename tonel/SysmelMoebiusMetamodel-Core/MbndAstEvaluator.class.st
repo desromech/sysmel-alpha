@@ -203,7 +203,9 @@ MbndAstEvaluator >> visitExpandedHostMessageSendNode: node [
 	receiver := (self visitNode: node receiver) unwrapMbndValue.
 	selector := (self visitNode: node selector) unwrapMbndValue.
 	arguments := node arguments collect: [ :arg| (self visitNode: arg) unwrapMbndValue ].
-	result := receiver perform: selector withArguments: arguments.
+	MbndHostMessageEvaluationScope withValue: scope do: [
+		result := receiver perform: selector withArguments: arguments.
+	]. 
 	^ MbndValue value: result type: node type
 ]
 

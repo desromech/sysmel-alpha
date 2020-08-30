@@ -37,7 +37,9 @@ MbndMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 		(self class lookupSelector: selector) ifNotNil: [ :method |
 			currentAnalyzer := analyzer.
 			[ 
-				result := self perform: selector withArguments: node arguments.
+				MbndHostMessageEvaluationScope withValue: analyzer scope do: [
+					result := self perform: selector withArguments: node arguments.
+				].
 				^ result == self
 					ifTrue: [ node receiver ]
 					ifFalse: [ result ]

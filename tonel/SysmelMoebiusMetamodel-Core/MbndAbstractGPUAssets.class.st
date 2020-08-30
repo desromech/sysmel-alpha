@@ -12,7 +12,7 @@ Class {
 MbndAbstractGPUAssets class >> findAssets [
 	| location testElement |
 	location := Smalltalk imageDirectory.
-	testElement := 'bindings/sysmel/Bindings.AbstractGPU' asFileReference.
+	testElement := 'bindings/sysmel/module-sources/Bindings.AbstractGPU' asFileReference.
 	(location resolve: testElement) exists ifFalse: [
 		location := IceLibgitRepository repositoriesLocation asFileReference / #'ronsaldo' / #'abstract-gpu'
 	].

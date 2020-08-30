@@ -25,9 +25,12 @@ BaselineOfSysmel >> baseline: spec [
 		spec baseline: #'AbstractGPU' with: [
 				spec
 					repository: 'github://ronsaldo/abstract-gpu/tonel' ].
+		spec baseline: #'WBT' with: [
+				spec
+					repository: 'github://ronsaldo/wbt/tonel' ].
 		spec
 			package: #'SysmelMoebiusMetamodel-Core' with: [
-				spec requires: #(#Slovim)
+				spec requires: #(#Slovim #WBT)
 			].
 		spec
 			package: #'SysmelMoebiusMetamodel-Core-Tests' with: [

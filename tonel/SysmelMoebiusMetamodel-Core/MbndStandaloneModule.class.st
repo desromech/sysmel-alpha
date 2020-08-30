@@ -9,7 +9,9 @@ Class {
 		'linkerArguments',
 		'linkerImportModule',
 		'modificationTime',
-		'importedIndirectModules'
+		'importedIndirectModules',
+		'thirdPartyLibraryDependencies',
+		'requiredResources'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -104,6 +106,34 @@ MbndStandaloneModule >> addLinkerArguments: arguments [
 	self linkerArguments addAll: arguments
 ]
 
+{ #category : #adding }
+MbndStandaloneModule >> addResourcesDirectory: directoryName [
+	| workingDirectory location |
+	workingDirectory := MbndHostMessageEvaluationScope value
+		ifNil: [ FileSystem workingDirectory ]
+		ifNotNil: [ :scope | scope workingDirectory ].
+	location := workingDirectory resolve: directoryName.
+	(location exists and: [ location isDirectory ]) ifTrue: [
+		| parentDir|
+		parentDir := location asAbsolute canonicalize.
+		self requiredResources addAll: (parentDir allChildren
+			select: [ :eachFile | eachFile isFile ]
+			thenCollect: [ :eachFile | {(eachFile relativeTo: parentDir) fullName . eachFile fullName} ]
+		)
+	]
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addThirdPartyLibraryDependencies: dependenciesName [
+	dependenciesName do: [ :each | self addThirdPartyLibraryDependency: each ]
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addThirdPartyLibraryDependency: dependencyName [
+	self compilationEnvironment validateThirdPartyDependencyName: dependencyName.
+	self thirdPartyLibraryDependencies add: dependencyName
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> allImportedModules [
 	"This performs a topological sort of all of the imported modules."
@@ -148,10 +178,75 @@ MbndStandaloneModule >> allLinkerArguments [
 					into: out
 			].
 		
-			out nextPutAll: each linkerArguments
+			out nextPutAll: each linkerArguments.
 		].
 
 		out nextPutAll: self linkerArguments.
+	].
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> allRequiredResources [
+	| resourcesSet |
+	resourcesSet := Set new.
+	^ Array streamContents: [ :out |
+		self allImportedModules do: [:each |
+			each importedIndirectModules do: [ :eachImportedModule |
+				self compilationEnvironment fetchIndirectModuleRequiredResources: eachImportedModule
+					removeDuplicatesWith: resourcesSet
+					into: out
+			].
+		
+			each requiredResources do: [ :eachResource |
+				(resourcesSet includes: eachResource) ifFalse: [
+					resourcesSet add: eachResource.
+					out nextPut: eachResource
+				]
+			].
+		].
+
+		self requiredResources do: [ :eachResource |
+			(resourcesSet includes: eachResource) ifFalse: [
+				resourcesSet add: eachResource.
+				out nextPut: eachResource
+			]
+		].
+	].
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> allThirdPartyLibrariesLinkerArguments [
+	^ Array streamContents: [ :out |
+		self compilationEnvironment fetchThirdPartyLibrariesLinkerFlags: self allThirdPartyLibraryDependencies into: out.
+	].
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> allThirdPartyLibraryDependencies [
+	| thirdPartyDepSet |
+	thirdPartyDepSet := Set new.
+	^ Array streamContents: [ :out |
+		self allImportedModules do: [:each |
+			each importedIndirectModules do: [ :eachImportedModule |
+				self compilationEnvironment fetchIndirectModuleThirdPartyLibraries: eachImportedModule
+					removeDuplicatesWith: thirdPartyDepSet
+					into: out
+			].
+		
+			each thirdPartyLibraryDependencies do: [ :eachDep |
+				(thirdPartyDepSet includes: eachDep) ifFalse: [
+					thirdPartyDepSet add: eachDep.
+					out nextPut: eachDep
+				]
+			].
+		].
+
+		self thirdPartyLibraryDependencies do: [ :eachDep |
+			(thirdPartyDepSet includes: eachDep) ifFalse: [
+				thirdPartyDepSet add: eachDep.
+				out nextPut: eachDep
+			]
+		].
 	].
 ]
 
@@ -243,7 +338,9 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 		#externalTemplateInstances . self externalTemplateInstances encodeGraphForMessagePackWith: graphEncoder.
 		#nonTrivialSpecialStructures . (self specialStructures select: [ :each | each isNonTrivial ]) asArray encodeGraphForMessagePackWith: graphEncoder.
 		#linkerArguments . self linkerArguments asArray.
-		#linkerImportModule . linkerImportModule
+		#linkerImportModule . linkerImportModule .
+		#thirdPartyLibraryDependencies . self thirdPartyLibraryDependencies asArray.
+		#requiredResources . self requiredResources asArray.
 	}.
 	self importedModules ifEmpty: [
 		resultTail := resultTail ,
@@ -532,7 +629,9 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	externalTemplateInstances := encodedFields at: #externalTemplateInstances.
 	linkerArguments := encodedFields at: #linkerArguments.
 	linkerImportModule := encodedFields at: #linkerImportModule ifAbsent: [nil].
-	
+	thirdPartyLibraryDependencies := encodedFields at: #thirdPartyLibraryDependencies ifAbsent: [ nil ].
+	requiredResources := encodedFields at: #requiredResources ifAbsent: [ nil ].
+
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
 	]
@@ -559,6 +658,32 @@ MbndStandaloneModule >> optimizationLevel [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> outputExportResourcesListTo: outputFileName [
+	outputFileName asFileReference writeStreamDo: [ :out |
+		out truncate.
+		self allRequiredResources do: [ :each |
+			out nextPutAll: each first; lf.
+			out nextPutAll: each second; lf.
+		].
+	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> outputExportThirdPartyPackagesTo: outputFileName [
+	outputFileName asFileReference writeStreamDo: [ :out |
+		out truncate.
+		self allThirdPartyLibraryDependencies do: [ :each |
+			out nextPutAll: each; lf
+		].
+	]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> requiredResources [
+	^ requiredResources ifNil: [requiredResources := OrderedCollection new]
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> restoreMonolithicSubmoduleState: state [
 	name := state first.
 	sourceLocations := state second.
@@ -574,6 +699,11 @@ MbndStandaloneModule >> sourceLocations [
 { #category : #accessing }
 MbndStandaloneModule >> sourceLocations: anObject [
 	sourceLocations := anObject
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> thirdPartyLibraryDependencies [
+	^ thirdPartyLibraryDependencies ifNil: [ thirdPartyLibraryDependencies := OrderedCollection new ]
 ]
 
 { #category : #writing }
@@ -608,7 +738,7 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	MbndProfiler component: #lirCodeGeneration with: [ 
 		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
 	].
-	lowLevelModule linkerArguments: self allLinkerArguments.
+	lowLevelModule linkerArguments: self allLinkerArguments , self allThirdPartyLibrariesLinkerArguments.
 	linkerImportModule isNil ifTrue: [
 		(#(assembly llvm_assembly object) includes: writeMode) ifTrue: [ 
 				linkerImportModule := outputFileReference basename

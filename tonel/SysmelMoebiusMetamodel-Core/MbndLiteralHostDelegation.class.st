@@ -40,7 +40,10 @@ MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	arguments := node arguments collect: [:each | each value].
 	
 	"Compute the result."
-	result := receiver perform: hostSelector withArguments: arguments.
+	MbndHostMessageEvaluationScope withValue: analyzer scope do: [
+		result := receiver perform: hostSelector withArguments: arguments.
+	].
+
 	^ (result asMoebiusLiteralValueNodeWithTarget: analyzer compilationTarget)
 		position: node;
 		yourself

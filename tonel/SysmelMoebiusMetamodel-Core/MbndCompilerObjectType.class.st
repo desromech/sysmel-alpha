@@ -47,7 +47,9 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 		self error: 'Cannot send message {1} to compiler object {2}.' format: {selector printString . receiver printString} at: node
 	].
 
-	result := receiver perform: selector value withArguments: arguments.
+	MbndHostMessageEvaluationScope withValue: analyzer scope do: [
+		result := receiver perform: selector value withArguments: arguments.
+	].
 	^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 ]
 
