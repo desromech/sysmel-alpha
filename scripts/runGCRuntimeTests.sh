@@ -7,4 +7,4 @@ fi
 
 ./sysmelc -o out-gc-tests -object tests/RuntimeLibrariesTests.sysmel
 mkdir -p artifacts/test-results/$PLATFORM_NAME
-out-gc-tests/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/gcRuntimeLibrariesTests.txt
+out-gc-tests/dist/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/gcRuntimeLibrariesTests.txt

@@ -7,4 +7,4 @@ fi
 
 ./sysmelc -no-rtti -o out-native-tests -object tests/RuntimeLibrariesTests.sysmel
 mkdir -p artifacts/test-results/$PLATFORM_NAME
-out-native-tests/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/nativeRuntimeLibrariesTests.txt
+out-native-tests/dist/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/nativeRuntimeLibrariesTests.txt
