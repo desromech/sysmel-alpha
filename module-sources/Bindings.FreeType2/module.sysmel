@@ -1,2 +1,2 @@
-Compiler addLinkerArguments: #("-lfreetype");
+Compiler addThirdPartyLibraryDependency: #libfreetype2;
     loadPackage: #"FreeType2-Bindings".

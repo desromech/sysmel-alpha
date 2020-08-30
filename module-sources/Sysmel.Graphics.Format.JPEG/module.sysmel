@@ -1,6 +1,4 @@
-compileTime if: Compiler compilationTarget isLinux || Compiler compilationTarget isOSX then: {
-    Compiler addLinkerArguments: #("-ljpeg").
-}.
+Compiler addThirdPartyLibraryDependency: #libjpeg.
 
 Compiler
     importModulesNamed: #(

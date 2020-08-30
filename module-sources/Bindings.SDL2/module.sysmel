@@ -1,4 +1,4 @@
-Compiler addLinkerArguments: #("-lSDL2");
+Compiler addThirdPartyLibraryDependency: #SDL2;
     loadPackages: #(
         #"SDL2-Bindings"
         #"InitDriver"

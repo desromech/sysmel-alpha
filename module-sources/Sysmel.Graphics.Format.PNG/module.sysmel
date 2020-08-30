@@ -1,6 +1,4 @@
-compileTime if: Compiler compilationTarget isLinux || Compiler compilationTarget isOSX then: {
-    Compiler addLinkerArguments: #("-lpng16").
-}.
+Compiler addThirdPartyLibraryDependency: #libpng.
 
 Compiler
     importModulesNamed: #(
