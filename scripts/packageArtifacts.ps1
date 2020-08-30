@@ -13,6 +13,7 @@ foreach($element in "pharo-vm",
 }
 
 Copy-Item -Recurse -Path "module-sources/*" -Destination "$DIST/module-sources"
-Copy-Item -Recurse -Path "pharo-local/iceberg/**/abstract-gpu/bindings/sysmel/*" -Destination "$DIST/module-sources"
-Copy-Item -Recurse -Path "third-party/*" -Destination "$DIST/third-party/third-party"
-Copy-Item -Recurse -Path "pharo-local/phanapi/libs/abstract-gpu/" -Destination "$DIST/third-party/abstract-gpu"
+Copy-Item -Recurse -Path "third-party/*" -Destination "$DIST/third-party"
+Copy-Item -Recurse -Path "pharo-local/iceberg/**/abstract-gpu/bindings/sysmel/module-sources/*" -Destination "$DIST/module-sources"
+Copy-Item -Recurse -Path "pharo-local/iceberg/**/abstract-gpu/bindings/sysmel/third-party/*" "$DIST/third-party"
+Copy-Item -Recurse -Path "pharo-local/phanapi/libs/abstract-gpu/*" -Destination "$DIST/third-party/abstract-gpu"
