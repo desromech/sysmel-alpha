@@ -355,7 +355,7 @@ class NativeMemoryHeap definition: {
         slab _ isCompletelyFree ifTrue: {return: void}.
 
         let hasFreedElement mutable := false.
-        0 until: slab _ elementCount do: {:i :: Void |
+        0 until: slab _ elementCount do: {:(UIntPointer)i :: Void |
             (slab _ isMarkedElement: i) ifTrue: {
                 let elementAddress := (slab reinterpretCastTo: UInt8 pointer) + (SlabHeaderSize + slab _ elementSize*i).
                 ##Stdn stdout << "Slab " << i << " elementAddress " << elementAddress << " " << slab _ elementCount << " " << slab _ elementSize; nl.

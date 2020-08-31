@@ -398,7 +398,7 @@ Object definition: {
     const method getUInt64: (key: Stdn String const ref) ::=> UInt64
         := valueToUInt64(self at: key).
 
-    const method getUInt64: (key: Stdn String const ref) default: (defaultValue: UInt64) ::=> UIntPointer := {
+    const method getUInt64: (key: Stdn String const ref) default: (defaultValue: UInt64) ::=> UInt64 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
             return: valueToUInt64(value)
         }.
@@ -409,7 +409,7 @@ Object definition: {
     const method getInt64: (key: Stdn String const ref) ::=> Int64
         := valueToInt64(self at: key).
 
-    const method getInt64: (key: Stdn String const ref) default: (defaultValue: Int64) ::=> IntPointer := {
+    const method getInt64: (key: Stdn String const ref) default: (defaultValue: Int64) ::=> Int64 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
             return: valueToInt64(value)
         }.
