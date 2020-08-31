@@ -613,6 +613,48 @@ enum PixelFormat valueType: UInt32; values: #{
         _ : self.
         }
     }.
+
+    method normalizationDecodingFactor => Float32 := {
+        self selectCase: #{
+        (R16G16B16A16_UNorm, R16G16_UNorm, D16_UNorm, R16_UNorm, R16_SNorm,)
+            asValueInSetPattern : {1.0f / ((1<<16) - 1) }.
+
+        (R16G16_SNorm, R16G16B16A16_SNorm,)
+            asValueInSetPattern : {1.0f / ((1<<15) - 1)}.
+
+        (R8G8B8A8_UNorm, R8G8B8A8_UNormSRGB, R8G8_UNorm, R8_UNorm, A8_UNorm,
+        BC1_UNorm, BC1_UNormSRGB, BC2_UNorm, BC2_UNormSRGB, BC3_UNorm,
+        BC3_UNormSRGB, BC4_UNorm, BC5_UNorm,
+        B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB,
+        ETC2_R8G8B8_UNorm, ETC2_R8G8B8_UNormSRGB,
+        ETC2_R8G8B8A8_UNorm, ETC2_R8G8B8A8_UNormSRGB,
+        ASTC4X4_UNorm, ASTC4X4_UNormSRGB, ASTC5X4_UNorm, ASTC5X4_UNormSRGB, ASTC5X5_UNorm,
+        ASTC5X5_UNormSRGB, ASTC6X5_UNorm, ASTC6X5_UNormSRGB, ASTC6X6_UNorm,
+        ASTC6X6_UNormSRGB, ASTC8X5_UNorm, ASTC8X5_UNormSRGB, ASTC8X6_UNorm,
+        ASTC8X6_UNormSRGB, ASTC8X8_UNorm, ASTC8X8_UNormSRGB, ASTC10X5_UNorm,
+        ASTC10X5_UNormSRGB, ASTC10X6_UNorm, ASTC10X6_UNormSRGB, ASTC10X8_UNorm,
+        ASTC10X8_UNormSRGB, ASTC10X10_UNorm, ASTC10X10_UNormSRGB, ASTC12X10_UNorm,
+        ASTC12X10_UNormSRGB, ASTC12X12_UNorm, ASTC12X12_UNormSRGB,
+        R8G8B8_UNorm, R8G8B8_UNormSRGB, B8G8R8_UNorm, B8G8R8_UNormSRGB,
+        ETC1_R8G8B8_UNorm, ETC1_R8G8B8_UNormSRGB, ETC1_R8G8B8A4_UNorm,
+        ETC1_R8G8B8A4_UNormSRGB, HI8LO8_UNorm,)
+            asValueInSetPattern : {1.0f / ((1<<8) - 1)}.
+
+        (BC4_SNorm, BC5_SNorm, R8G8B8A8_SNorm, R8G8_SNorm, R8_SNorm, R8G8B8_SNorm,)
+            asValueInSetPattern : {1.0f / ((1<<7) - 1)}.
+
+        (EAC_R11_UNorm, EAC_R11G11_UNorm,)
+            asValueInSetPattern : {1.0f / ((1<<11) - 1)}.
+
+        (EAC_R11_SNorm, EAC_R11G11_SNorm,)
+            asValueInSetPattern : {1.0f / ((1<<10) - 1)}.
+
+        (B4G4R4A4_UNorm, B4G4R4A4_UNormSRGB, R4_UNorm, A4_UNorm, R4G4_UNorm,)
+            asValueInSetPattern : {1.0f / ((1<<4) - 1)}.
+
+        _ : 1.0f
+        }
+    }
 }.
 
 }. ## End of namespace Core
