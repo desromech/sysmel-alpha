@@ -64,6 +64,9 @@ class WindowSystem superclass: Object; definition: {
     protected field mainLoopDeterministicsTicks type: Stdn Chrono Time.
     protected field mainLoopFrameCount type: UInt32.
 
+    const method mainLoopFrameCount => UInt32
+        := mainLoopFrameCount.
+
     ## Run the default main loop.
     virtual method runMainLoop => Int32 := {
         mainLoopOldTicks := Stdn Chrono now().
