@@ -64,7 +64,6 @@ Trait {
 		'simpleBlockClosureClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
-	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 

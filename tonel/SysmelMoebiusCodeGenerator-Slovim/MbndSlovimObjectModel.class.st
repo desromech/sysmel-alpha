@@ -170,7 +170,10 @@ MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue wi
 	]).
 
 	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: dynamicLiteralName valueType: initialValue type storage: SLVMType gcStorage.
-	literalGlobal makePrivate; initialValue: initialValue.
+	literalGlobal
+		makePrivate;
+		omitDebugInformation: true;
+		initialValue: initialValue.
 	
 	convertedValue value: literalGlobal targetType: targetType.
 	^ convertedValue

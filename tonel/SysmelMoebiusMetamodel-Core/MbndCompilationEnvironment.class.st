@@ -259,8 +259,9 @@ MbndCompilationEnvironment >> copyResourceIntoDistFolder: each [
 	destFileReference := self validOutputResourcesDirectory resolve: each first asFileReference.
 	sourceFileReference := each second asFileReference.
 	sourceFileReference isFile ifFalse: [ ^ self ].
-	(destFileReference isFile and: [destFileReference modificationTime > sourceFileReference modificationTime]) ifTrue: [ ^ self ].
+	(destFileReference isFile and: [destFileReference modificationTime asUnixTime > sourceFileReference modificationTime asUnixTime ]) ifTrue: [ ^ self ].
 	destFileReference parent ensureCreateDirectory.
+	destFileReference exists ifTrue: [ destFileReference delete ].
 	sourceFileReference copyTo: destFileReference
 ]
 

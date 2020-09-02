@@ -270,7 +270,7 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 
 	"Put meta types inside their instance type."
 	(programEntity isMbndType and: [programEntity isMetaType]) ifTrue: [ 
-		programEntity name isMbndAnonymousSymbol ifTrue: [
+		programEntity hasAnonymousName ifTrue: [
 			self extractProgramEntityNestedNameComponents: programEntity instanceType into: out.
 			out nextPut: #'..meta..'.
 			^ self
@@ -298,7 +298,7 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 	].
 
 	validName := programEntity name.
-	validName isMbndAnonymousSymbol ifTrue: [
+	programEntity hasAnonymousName ifTrue: [
 		(programEntity parent isNotNil and: [programEntity parent isTemplateInstance]) ifTrue: [ ^ self ].
 		validName := self generatedNameForAnynomousEntity: programEntity
 	].
@@ -451,6 +451,11 @@ MbndSlovimSymbolNameMangler >> mangleProgramEntityNestedNameComponents: componen
 MbndSlovimSymbolNameMangler >> mangleProgramEntityQualifiedContentName: programEntity [
 	programEntity accept: self.
 
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> mangleProgramModule: module componentNamed: componentName [
+	^ self mangleNestedNameComponents: {module name . '..m..' . componentName}
 ]
 
 { #category : #visiting }

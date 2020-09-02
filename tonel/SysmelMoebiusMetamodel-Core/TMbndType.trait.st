@@ -14,7 +14,6 @@ Trait {
 		'implicitConversionRules'
 	],
 	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
-	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 

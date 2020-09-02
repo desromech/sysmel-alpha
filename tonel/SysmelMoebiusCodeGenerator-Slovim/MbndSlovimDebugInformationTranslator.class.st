@@ -62,11 +62,12 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType members
 ]
 
 { #category : #visiting }
-MbndSlovimDebugInformationTranslator >> createForModuleStaticConstructorSetup: controllerFunctionType [
+MbndSlovimDebugInformationTranslator >> createForModule: module staticConstructorSetup: controllerFunctionType [
 	^ SLVMDebugSubprogram new
-		name: '[ModuleConstructorSetup]';
+		name: module name , '[ModuleConstructorSetup]';
 		isLocal: true;
 		isDefinition: true;
+		emitLinkageName: true;
 		type: (self translateDebugType: controllerFunctionType);
 		yourself
 ]
@@ -74,7 +75,8 @@ MbndSlovimDebugInformationTranslator >> createForModuleStaticConstructorSetup: c
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> createForShader: functionMethod controllerWithFunctionType: controllerFunctionType [
 	^ SLVMDebugSubprogram new
-		name:  functionMethod qualifiedName  , '[ShaderController]';
+		name: functionMethod qualifiedName , '[ShaderController]';
+		emitLinkageName: true;
 		isLocal: true;
 		isDefinition: true;
 		type: (self translateDebugType: controllerFunctionType);
@@ -87,6 +89,7 @@ MbndSlovimDebugInformationTranslator >> createForTrampolineWithFunctionType: fun
 		name: #'<trampoline>';
 		isLocal: true;
 		isDefinition: true;
+		emitLinkageName: true;
 		type: (self translateDebugType: functionType);
 		yourself
 ]
@@ -116,12 +119,12 @@ MbndSlovimDebugInformationTranslator >> setCommonDebugSubprogram: debugSubprogra
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> setCommonDebugType: debugType informationFrom: typeEntity [
-	typeEntity name isMbndAnonymousSymbol ifFalse: [ 
+	typeEntity hasAnonymousName ifFalse: [ 
 		debugType name: typeEntity name
 	].
 
 	(typeEntity isMetaType and: [ typeEntity instanceType isNotNil ]) ifTrue: [ 
-		self assert: typeEntity name isMbndAnonymousSymbol.
+		self assert: typeEntity hasAnonymousName.
 		debugType
 			name: '__Type__';
 			parentScope: (self translateSuperDebugType: typeEntity instanceType)
@@ -357,10 +360,10 @@ MbndSlovimDebugInformationTranslator >> visitConcreteFunclet: funclet [
 MbndSlovimDebugInformationTranslator >> visitConcreteFunctionMethod: method [
 	| debugInfo |
 	debugInfo := SLVMDebugSubprogram new.
-	method name isMbndAnonymousSymbol ifFalse: [ 
+	debugInfo emitLinkageName: true.
+	method hasAnonymousName ifFalse: [ 
 		debugInfo
-			name: method name;
-			emitLinkageName: true
+			name: method name
 	].
 
 	translatedEntities at: method put: debugInfo.
@@ -372,10 +375,11 @@ MbndSlovimDebugInformationTranslator >> visitConcreteFunctionMethod: method [
 MbndSlovimDebugInformationTranslator >> visitConcreteMessageMethod: method [
 	| debugInfo |
 	debugInfo := SLVMDebugSubprogram new.
-	method name isMbndAnonymousSymbol ifFalse: [ 
+	debugInfo emitLinkageName: true.
+	
+	method hasAnonymousName ifFalse: [ 
 		debugInfo
-			name: '[', method name , ']';
-			emitLinkageName: true
+			name: '[', method name , ']'
 	].
 
 	translatedEntities at: method put: debugInfo.
@@ -521,6 +525,7 @@ MbndSlovimDebugInformationTranslator >> visitGlobalVariable: globalVariable [
 	self flag: 'TODO: Translate myself properly'.
 	^ (SLVMDebugVariable scope: nil name: globalVariable name asPrettySymbolName)
 		type: (self translateDebugType: globalVariable valueType);
+		emitLinkageName: true;
 		yourself.
 ]
 
@@ -753,6 +758,7 @@ MbndSlovimDebugInformationTranslator >> visitStructureType: structureType [
 	self setCommonDebugType: debugType informationFrom: structureType.
 	
 	debugType
+		identifier: (self mangleProgramEntityName: structureType);
 		byteSize: structureType instanceSize;
 		byteAlignment: structureType instanceAlignment.
 
@@ -821,6 +827,7 @@ MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 	self setCommonDebugType: debugType informationFrom: unionType.
 	
 	debugType
+		identifier: (self mangleProgramEntityName: unionType);
 		byteSize: unionType instanceSize;
 		byteAlignment: unionType instanceAlignment.
 		

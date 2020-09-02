@@ -764,12 +764,13 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule: spirVModule withN
 	spirVModuleBlob := SLVMGlobalVariable module: ssaModule name: nil valueType: (SLVMArrayType baseType: SLVMType ucharType elements: spirVModuleBlobData size) storage: SLVMType genericStorage.
 	spirVModuleBlob
 		readOnly: true;
+		omitDebugInformation: true;
 		initialValue: (SLVMConstant array: spirVModuleBlob valueType blob: spirVModuleBlobData).
 	
 	spirVModuleInfoGlobal := SLVMGlobalVariable module: ssaModule name: nil
 		valueType: (self translateType: self compilationTarget shaderModuleInfo)
 		storage: SLVMType genericStorage.
-	
+	spirVModuleInfoGlobal omitDebugInformation: true.
 	self setEmbeddedShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal.
 
 	spirVModuleInfoGlobal initialValue: (
@@ -812,16 +813,28 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModules [
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable [
-	| valueType globalDtorFunctionType dtor |
+	| valueType globalDtorFunctionType dtor csymbol unmangledName |
 	globalVariable needsDestructor ifFalse: [ ^ self ].
 	
 	valueType := globalVariable valueType.
 	self assert: valueType hasTrivialFinalization not.
 	globalDtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
-
-	dtor := self translateCompilerGeneratedMethodNamed: nil functionType: globalDtorFunctionType
+	csymbol := self newSymbolNameMangler mangleProgramEntityName: globalVariable suffixes: {#'..dtor..'}.
+	unmangledName := globalVariable qualifiedName , '[dtor]'.
+	
+	dtor := self translateCompilerGeneratedMethodNamed: csymbol functionType: globalDtorFunctionType
 		at: globalVariable definitionNode
 		with: [:ssaFunction :builder :functionCodeGenerator |
+		ssaFunction unmangledName: unmangledName.
+			self isEmittingDebugInformation ifTrue: [
+				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					name: unmangledName;
+					isLocal: true;
+					isDefinition: true;
+					emitLinkageName: true;
+					type: (self translateDebugType: globalDtorFunctionType);
+					yourself).
+		].
 		builder
 			call: (self translateProgramEntity: valueType finalizeMethod) ssaValue arguments: { ssaGlobalVariable };
 			returnVoid
@@ -843,15 +856,16 @@ MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods: records [
-	| globalCtor builder atExit atExitArgumentType |
+	| globalCtor builder atExit atExitArgumentType csymbol |
 	records ifEmpty: [ ^ self ].
-	globalCtor := SLVMFunction module: ssaModule name: nil functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
+	csymbol := self newSymbolNameMangler mangleProgramModule: sourceModule componentNamed: #ConstructorSetup.
+	globalCtor := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	
 	builder := SLVMBuilder on: globalCtor.
 	builder newBasicBlockHere: #entry.
 	self isEmittingDebugInformation ifTrue: [
 		globalCtor
-			debugInformation: (self debugInformationTranslator createForModuleStaticConstructorSetup: self compilationTarget voidType => self compilationTarget voidType);
+			debugInformation: (self debugInformationTranslator createForModule: sourceModule staticConstructorSetup: self compilationTarget voidType => self compilationTarget voidType);
 			debugSourceLocation: (self convertDebugPosition: self validSourcePosition).
 			
 		builder pushDebugSourcePosition: (self convertDebugPosition: self validSourcePosition scope: nil)
@@ -894,6 +908,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: se
 	].
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
+	ssaGlobal omitDebugInformation: true.
 	ssaGlobal
 		unmangledName: (self unmangledNameForShaderEntity: field) , ('[{1}:{2}]' format: {set asString . binding asString});
 		propertyAt: #set put: set;
@@ -915,6 +930,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderSta
 	].
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storage.
+	ssaGlobal omitDebugInformation: true.
 	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , ('[{1}:{2}]' format: {shaderStage . storage , (location ifNil: [ '' ] ifNotNil: [':' , location asString])}).
 	location ifNotNil: [
 		ssaGlobal propertyAt: #location put: location.
@@ -932,6 +948,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forSharedStorageWith
 	ssaValueType := self translateType: valueType.
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storageType.
+	ssaGlobal omitDebugInformation: true.
 	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , '[' , storageType , ']'.
 	^ ssaGlobal
 ]
@@ -948,6 +965,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
 	ssaValueType := self translateStructureType: valueType baseType withKind: structureKind.
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
+	ssaGlobal omitDebugInformation: true.
 	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , '[pushConstants]'.
 	^ ssaGlobal
 ]
@@ -959,16 +977,30 @@ MbndSlovimCodeModuleGenerator >> generateIdentityHash [
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable [
-	| globalCtorFunctionType ctor valueType |
+	| globalCtorFunctionType ctor valueType csymbol unmangledName |
 	globalVariable needsConstructor ifFalse: [ ^ self ].
 	
 	valueType := globalVariable valueType.
 	globalCtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+	csymbol := self newSymbolNameMangler mangleProgramEntityName: globalVariable suffixes: {#'..ctor..'}.
+	unmangledName := globalVariable qualifiedName , '[ctor]'.
 	
 	globalVariable initialValueKind = #default ifTrue: [
-		ctor := self translateCompilerGeneratedMethodNamed: nil functionType: globalCtorFunctionType
+		ctor := self translateCompilerGeneratedMethodNamed: csymbol functionType: globalCtorFunctionType
 			at: globalVariable definitionNode
 			with: [:ssaFunction :builder :functionCodeGenerator |
+			ssaFunction unmangledName: unmangledName.
+
+			self isEmittingDebugInformation ifTrue: [
+				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					name: unmangledName;
+					isLocal: true;
+					isDefinition: true;
+					emitLinkageName: true;
+					type: (self translateDebugType: globalCtorFunctionType);
+					yourself).
+			].
+		
 			valueType hasTrivialInitialization ifFalse: [ 
 				builder call: (self translateProgramEntity: valueType initializeMethod) ssaValue arguments: { ssaGlobalVariable }
 			].
@@ -979,14 +1011,17 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 
 	(#(move copy) includes: globalVariable initialValueKind) ifTrue: [
 		self assert: globalVariable initialValueFunclet isNotNil.
-		ctor := self translateCompilerGeneratedMethodNamed: nil functionType: globalCtorFunctionType
+		ctor := self translateCompilerGeneratedMethodNamed: csymbol functionType: globalCtorFunctionType
 			at: globalVariable definitionNode
 			with: [ :ssaFunction :builder :functionCodeGenerator |
 			| funcletValue |
+			ssaFunction unmangledName: unmangledName.
 			self isEmittingDebugInformation ifTrue: [
 				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					name: unmangledName;
 					isLocal: true;
 					isDefinition: true;
+					emitLinkageName: true;
 					type: (self translateDebugType: globalCtorFunctionType);
 					yourself).
 				(self translateProgramEntityDebugInformation: globalVariable initialValueFunclet)
@@ -1026,23 +1061,24 @@ MbndSlovimCodeModuleGenerator >> generateNonInlineLiteralValue: nonInlineLiteral
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity [
-	| result |
+	| result prefix |
 	generatedNameTable at: programEntity ifPresent: [ :existent | ^ existent ].
 	
+	prefix := sourceModule name , '.'.
 	programEntity isVTablePointerField ifTrue: [
 		result := '__vtable' , programEntity slotIndex asString.
 		generatedNameTable at: programEntity put: result.
 		^ result.
 	].
 	programEntity isCompileTimeVariable ifTrue: [
-		result := '__compileTimeVariable' , anonSymbolCount asString.
+		result := prefix , '__compileTimeVariable' , anonSymbolCount asString.
 		anonSymbolCount := anonSymbolCount + 1.
 		generatedNameTable at: programEntity put: result.
 		^ result.
 	].
 	self assert: programEntity isTemplateInstance not.
 
-	result := '___anon' , anonSymbolCount asString , '___'.
+	result := prefix , '___anon' , anonSymbolCount asString , '___'.
 	anonSymbolCount := anonSymbolCount + 1.
 	generatedNameTable at: programEntity put: result.
 	^ result
@@ -1160,6 +1196,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFun
 		ssaTypeInfoType := self translateType: typeInfoClass.
 		ssaTypeInfoType isPointerType ifTrue: [ ssaTypeInfoType := ssaTypeInfoType baseType ].
 		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: ssaTypeInfoType storage: (typeInfoClass hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
+		ssaClosureTypeInfo omitDebugInformation: true.
 		typeInfoClass isGarbageCollectedType ifTrue: [
 			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateDynamicObjectInstanceContent: typeInfoObjectInstance).
 		] ifFalse: [ 
@@ -1286,7 +1323,10 @@ MbndSlovimCodeModuleGenerator >> getOrCreateObjectMethodDispatchTrampolineWithTy
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getOrCreateShaderEntryPointInfoFor: concreteMethod [
 	^ shaderEntryPointInfoDictionary at: concreteMethod ifAbsentPut: [
-		SLVMGlobalVariable module: ssaModule name: nil valueType: (self translateType: self compilationTarget shaderEntryPointInfo) storage: SLVMType genericStorage 
+		| var |
+		var := SLVMGlobalVariable module: ssaModule name: nil valueType: (self translateType: self compilationTarget shaderEntryPointInfo) storage: SLVMType genericStorage.
+		var omitDebugInformation: true.
+		var
 	].
 ]
 
@@ -1301,6 +1341,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateSpecialSingletonNamed: singletonName
 
 	sourceModule == self compilationEnvironment coreModule ifTrue: [ 
 		singletonVar := SLVMGlobalVariable module: ssaModule name: mangledName valueType: ssaPointerType baseType storage: ssaPointerType storage.
+		singletonVar omitDebugInformation: true.
 		singletonVar makePublic.
 		singletonVar unmangledName: singletonName.
 		singletonVar initialValue: (self literalValueGenerator translateObject: singletonClass content: singletonClass makeInstance).
@@ -1965,6 +2006,7 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	].
 
 	ssaProgramEntityInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: programEntity) valueType: ssaProgramEntityInfoType baseType storage: ssaProgramEntityInfoType storage.
+	ssaProgramEntityInfo omitDebugInformation: true.
 	self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
 	ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
 	
@@ -2771,6 +2813,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 			module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: module) valueType: moduleInfoSSAType baseType storage: (moduleInfoClass hasGarbageCollectedAddressSpace
 		ifTrue: [SLVMType gcStorage]
 		ifFalse: [SLVMType genericStorage]).
+		moduleInfoSSAValue omitDebugInformation: true.
 		self setProgramEntity: module ssaValue: moduleInfoSSAValue.
 		ssaModule addHighLevelEntity: module mapToGlobalValue: moduleInfoSSAValue.
 	].
@@ -2948,7 +2991,8 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	csymbol := self mangleProgramEntityName: vtableField.
 	
 	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
-	ssaVTableDefinition unmangledName: unmangledName.
+	ssaVTableDefinition unmangledName: unmangledName;
+		omitDebugInformation: true.
 	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
 	ssaModule addHighLevelEntity: vtableField mapToGlobalValue: ssaVTableDefinition.
 
