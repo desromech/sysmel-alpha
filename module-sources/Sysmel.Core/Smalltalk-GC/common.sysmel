@@ -5,7 +5,7 @@ useNamespace: Stdn Reflection.
 
 compileTime constant RootIterationBlock := ((GCObjectHeader pointer pointer) => Void) nativeStackBlockClosure.
 
-struct ModuleGCRootPointerDescriptor definition: {
+struct GCRootPointersDescriptor definition: {
     public field pointer type: GCObjectHeader pointer pointer.
     public field count type: UIntPointer.
 
@@ -13,6 +13,23 @@ struct ModuleGCRootPointerDescriptor definition: {
         0 until: count do: {:i :: Void |
             block(pointer[i] address)
         }
+    }.
+}.
+
+#**
+ * I am a small box for holding a gc pointer in a safe way.
+ *#
+struct GCRootBox definition: {
+    public field pointer type: GCObjectHeader pointer.
+
+    method initialize => Void := {
+        <nogc>
+        NativeCollector uniqueInstance registerGCRootPointer: pointer address
+    }.
+
+    method finalize => Void := {
+        <nogc>
+        NativeCollector uniqueInstance unregisterGCRootPointer: pointer address
     }.
 }.
 

@@ -325,7 +325,7 @@ MethodDictionary definition: {
 
     method keysDo: aBlock := {
         0 until: array __private __data size do: {:i :: Void |
-            let key := array[i].
+            let key := array __private __data[i].
             key ifNotNil: {
                 aBlock value: key
             }
@@ -335,9 +335,9 @@ MethodDictionary definition: {
 
     method keysAndValuesDo: aBlock := {
         0 until: array __private __data size do: {:i :: Void |
-            let key := array[i].
+            let key := array __private __data[i].
             key ifNotNil: {
-                let value := values[i].
+                let value := values __private __data[i].
                 aBlock value: key value: value.
             }
         }.

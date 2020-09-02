@@ -4,11 +4,12 @@ namespace GC definition: {
 useNamespace: Stdn Reflection.
 
 class NativeCollector definition: {
-    field memoryHeap mutable type: Stdn Memory NativeMemoryHeap.
+    field memoryHeap mutable type: Stdn Memory GarbageCollectableMemoryHeap.
 
     field collectorMutex type: Stdn Mutex.
-    field moduleRootPointers type: Stdn Collections Vector(ModuleGCRootPointerDescriptor).
+    field moduleRootPointers type: Stdn Collections Vector(GCRootPointersDescriptor).
     field markingStack type: Stdn Collections Vector(GCObjectHeader pointer).
+    field explicitRootSet type: Stdn Collections Vector(GCObjectHeader pointer pointer). ## FIME: use a set here.
 
     field whiteColor type: UInt32.
     field grayColor type: UInt32.
@@ -26,6 +27,10 @@ class NativeCollector definition: {
         whiteColor := 0u.
         grayColor := 1u.
         blackColor := 2u.
+    }.
+
+    method finalize => Void := {
+        self garbageCollect
     }.
 
     method allocate: (objectSize: UIntPointer)
@@ -90,10 +95,11 @@ class NativeCollector definition: {
         }.
     }.
 
-    method registerModuleRoots: (descriptors: ModuleGCRootPointerDescriptor const arraySlice) ::=> Void := {
+    method registerModuleRoots: (descriptors: GCRootPointersDescriptor const arraySlice) ::=> Void := {
         <nogc>
         collectorMutex withLock: {
-            moduleRootPointers addAll: descriptors
+            ## FIXME: support the dynamic library loading case.
+            moduleRootPointers addAll: descriptors.
         }.
     }.
 
@@ -113,6 +119,7 @@ class NativeCollector definition: {
 
     method expandMarkingFrom: (object: GCObjectHeader pointer) ::=> Void := {
         <nogc>
+        Stdn assert: object __isImmediateValue not.
         Stdn assert: object _ __gcColor = grayColor.
 
         let protoObject := object reinterpretCastTo: Smalltalk ProtoObject.
@@ -128,8 +135,10 @@ class NativeCollector definition: {
 
     method enqueueNextObject: (object: GCObjectHeader pointer) ::=> Void := {
         <nogc>
+        Stdn assert: ((object reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: UIntPointer) ~~ 16r657a.
         object __isImmediateValue not && object _ __gcColor = whiteColor ifTrue: {
             object _ __gcColor: grayColor.
+            ##Stdn stdout << "enqueueNextObject " << object; nl.
             markingStack add: object
         }
     }.
@@ -146,7 +155,7 @@ class NativeCollector definition: {
         memoryHeap sweepAllocationsWhen: {:allocation :: Boolean8|
             let object := allocation reinterpretCastTo: GCObjectHeader pointer.
             let color := object _ __gcColor.
-            Stdn assert: color = whiteColor || color = blackColor.
+            Stdn assert: color ~= grayColor.
             #*color = whiteColor ifTrue: {
                 Stdn stdout << "sweep ["
                     << ((allocation reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: Void pointer)
@@ -163,7 +172,32 @@ class NativeCollector definition: {
             each rootsDo: block
         }.
 
+        explicitRootSet do: {:each :: Void |
+            block(each)
+        }.
+
         self allStackRootsDo: block.
+    }.
+
+    method allModuleRootsDo: (iterationBlock: RootIterationBlock) ::=> Void := {
+        moduleRootPointers do: {:each :: Void |
+            each rootsDo: iterationBlock
+        }
+    }.
+
+    method registerGCRootPointer: (rootPointer: GCObjectHeader pointer pointer) ::=> Void := {
+        <nogc>
+        collectorMutex withLock: {
+            rootPointer _ := nil.
+            explicitRootSet add: rootPointer
+        }
+    }.
+
+    method unregisterGCRootPointer: (rootPointer: GCObjectHeader pointer pointer) ::=> Void := {
+        <nogc>
+        collectorMutex withLock: {
+            explicitRootSet remove: rootPointer
+        }
     }.
 }.
 

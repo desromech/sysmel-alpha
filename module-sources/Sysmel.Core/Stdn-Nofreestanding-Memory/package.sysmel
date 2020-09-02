@@ -8,8 +8,10 @@ loadFileOnce: "NativeMemoryHeap.sysmel".
 ## Export the global memory heap primitives according to whether we are using LibC or not for them.
 if: Compiler useLibC then: {
 	loadFileOnce: "LibCGlobalMemoryHeap.sysmel".
+	loadFileOnce: "MallocBasedCollectableMemoryHeap.sysmel".
 } else: {
 	loadFileOnce: "GlobalMemoryHeap.sysmel".
+	compileTime GarbageCollectableMemoryHeap := NativeMemoryHeap.
 }.
 
 ## Native new and native delete.

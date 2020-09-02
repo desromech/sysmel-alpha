@@ -108,10 +108,13 @@ template Function(FT: Type)
 
     compileTime if: Compiler hasGarbageCollectedRuntime then: {
         method setGCBlockClosure: (blockClosure: GCBlockClosureType) ::=> Void := {
-            self reset.
-
-            type := WrapperType GCClosure.
-            (inlineStorage [0] address reinterpretCastTo: GCBlockClosureType pointer) _ := blockClosure.
+            let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Stdn GC GCRootBox pointer) _.
+            type = WrapperType GCClosure ifFalse: {
+                self reset.
+                rootBox initialize.
+                type := WrapperType GCClosure
+            }.
+            rootBox pointer: (blockClosure reinterpretCastTo: Stdn Reflection GCObjectHeader pointer).
         }.
 
         (method := (blockClosure: GCBlockClosureType)) => SelfType const ref := {
@@ -148,7 +151,8 @@ template Function(FT: Type)
 
         WrapperType GCClosure : {
             compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                inlineStorage [0] := nil.
+                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Stdn GC GCRootBox pointer) _.
+                rootBox finalize
             }.
         }.
         _ : {}
@@ -186,7 +190,8 @@ template Function(FT: Type)
 
             WrapperType GCClosure : {
                 compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                    let closure := other __private inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
+                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Stdn GC GCRootBox pointer) _.
+                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
                     self setGCBlockClosure: closure.
                 } else: {
                     error: "Unsupported function wrapper type for copy assignment."
@@ -235,10 +240,10 @@ template Function(FT: Type)
 
             WrapperType GCClosure : {
                 compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                    inlineStorage[0] := other __private inlineStorage[0].
-                    type := WrapperType GCClosure.
-                    other __private type := WrapperType Invalid.
-                    other __private inlineStorage[0] := nil.
+                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Stdn GC GCRootBox pointer) _.
+                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
+                    self setGCBlockClosure: closure.
+                    other reset.
                 } else: {
                     error: "Unsupported function wrapper type for copy assignment."
                 }.
@@ -274,7 +279,8 @@ template Function(FT: Type)
 
         WrapperType GCClosure : {
             compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                let closure := inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
+                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Stdn GC GCRootBox pointer) _.
+                let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
                 return: (closure applyWithArguments: arguments).
             }
             else: {

@@ -1,0 +1,45 @@
+namespace Stdn definition: {
+namespace Memory definition: {
+
+class MallocBasedCollectableMemoryHeap definition: {
+    compileTime constant SweepPredicateBlock := ((Void pointer) => Boolean8) nativeStackBlockClosure.
+
+    field mutex type: Stdn Mutex.
+    field currentAllocationList type: Stdn Collections Vector(Void pointer).
+    field survivingAllocationList type: Stdn Collections Vector(Void pointer).
+
+    method allocate: (size: UIntPointer) ::=> Void pointer := {
+        size == 0 ifTrue: {
+            return: nil
+        }.
+
+        let result := LibC malloc(size).
+        result ifNotNil: {
+            mutex withLock: {
+                currentAllocationList add: result
+            }
+        }.
+
+        result
+    }.
+
+    method sweepAllocationsWhen: (sweepPredicateBlock: SweepPredicateBlock) ::=> Void := {
+        mutex withLock: {
+            survivingAllocationList removeAll.
+            currentAllocationList do: {:each :: Void |
+                sweepPredicateBlock(each) ifTrue: {
+                    LibC free(each)
+                } ifFalse: {
+                    survivingAllocationList add: each
+                }
+            }.
+
+            survivingAllocationList swapWith: currentAllocationList
+        }.
+    }.
+}.
+
+compileTime constant GarbageCollectableMemoryHeap := MallocBasedCollectableMemoryHeap.
+
+} ## End of namespace Memory.
+} ## End of namespace Stdn.

@@ -2,38 +2,47 @@ namespace Smalltalk definition: {
 namespace Runtime definition: {
 
 useNamespace: Stdn GC.
+useNamespace: Stdn Reflection.
 
-function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
-    NativeCollector uniqueInstance registerModuleRoots: (rootPointerDescriptors until: rootPointerDescriptorCount).
+let hasInitialSymbolDeduplication mutable type: Boolean8.
 
-    withReflectionLockedWrite: {
-        ##Stdn stdout << "registerModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
+function deduplicateSymbolRoot(symbolRoot: GCObjectHeader pointer pointer) => Void := {
+    let rootPointer ref := (symbolRoot reinterpretCastTo: ProtoObject pointer) _.
+    let rootPointerClass := rootPointer class.
+    rootPointerClass == Symbol ifTrue: {
+        rootPointer := Symbol internSymbolInstance: (rootPointer reinterpretCastTo: Symbol)
+    } ifFalse: {
+        ## We need to apply this same transformation to the instance variables.
+        rootPointerClass __manipulateInstance: rootPointer gcSlotsWith: {:(ProtoObject pointer)slotPointer :: Void |
+            let originalSlotValue := slotPointer _.
+            originalSlotValue class == Symbol ifTrue: {
+                slotPointer _ := Symbol internSymbolInstance: (originalSlotValue reinterpretCastTo: Symbol)
+            }.
+        }.
+    }.
+}.
 
-        ## We need to iterate through all the root pointers in order to ensure that equal symbols have the same identities.
-        ## This is a special case of #become: where the garbage collector support is not actually required.
-        0 until: rootPointerDescriptorCount do: {:i :: Void |
-            let rootDescriptor ref := rootPointerDescriptors[i].
-            ##Stdn stdout << "descriptor count " << rootDescriptor count; nl.
-            0 until: rootDescriptor count do: {:j :: Void |
-                let rootPointer ref := (rootDescriptor pointer reinterpretCastTo: ProtoObject pointer) [j].
-                let rootPointerClass := rootPointer class.
-                rootPointerClass == Symbol ifTrue: {
-                    rootPointer := Symbol internSymbolInstance: (rootPointer reinterpretCastTo: Symbol)
-                } ifFalse: {
-                    ## We need to apply this same transformation to the instance variables.
-                    rootPointerClass __manipulateInstance: rootPointer gcSlotsWith: {:(ProtoObject pointer)slotPointer :: Void |
-                        let originalSlotValue := slotPointer _.
-                        originalSlotValue class == Symbol ifTrue: {
-                            slotPointer _ := Symbol internSymbolInstance: (originalSlotValue reinterpretCastTo: Symbol)
-                        }.
-                    }.
-                }.
-            }
-        }
+function ensureInitialSymbolDeduplication() => Void := {
+    hasInitialSymbolDeduplication ifTrue: {return: void}.
+    hasInitialSymbolDeduplication := true.
+
+    NativeCollector uniqueInstance allModuleRootsDo: {:each :: Void |
+        deduplicateSymbolRoot(each)
     }
 }.
 
-function unregisterModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
+function registerModuleRoots(rootPointerDescriptors: GCRootPointersDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
+    NativeCollector uniqueInstance registerModuleRoots: (rootPointerDescriptors until: rootPointerDescriptorCount).
+    hasInitialSymbolDeduplication ifTrue: {
+        0 until: rootPointerDescriptorCount do: {:i :: Void |
+            rootPointerDescriptors[i] rootsDo: {:each :: Void |
+                deduplicateSymbolRoot(each)
+            }
+        }
+    }.
+}.
+
+function unregisterModuleRoots(rootPointerDescriptors: GCRootPointersDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
     ## Stdn stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 }.
 

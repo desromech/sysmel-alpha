@@ -111,7 +111,7 @@ Class definition: {
 	method addSubclass: aSubclass ::=> Void := {
 		Smalltalk Runtime withReflectionLockedRead: {
 			(subclasses includes: aSubclass) ifFalse: {
-				subclasses := subclasses copyWith: aSubclass
+				subclasses := subclasses copyWith: aSubclass.
 			}.
 		}.
 	}.

@@ -98,6 +98,7 @@ gcclass Collection superclass: Object.
 ## Block closures
 gcclass BlockClosureHeaderClass superclass: Object.
 gcclass BlockClosure superclass: BlockClosureHeaderClass.
+gcclass SimpleBlockClosure superclass: BlockClosure.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
@@ -332,7 +333,7 @@ Metaclass definition: {
 
 ## GCLayout
 GCLayout definition: {
-	compileTime constant BitsPerWord := UIntPointer instanceSize castTo: UIntPointer.
+	compileTime constant BitsPerWord := UIntPointer instanceSize *8 castTo: UIntPointer.
 
 	field variableDataIsGCPointers public type: Boolean8.
     field bitmap public type: UIntPointer array.
@@ -607,30 +608,37 @@ Association definition: {
 
 macro method generateBasicAtAccessorsForArrayField: arrayField elementType: elementType := ``{
 	method basicAt: (index: UIntPointer) ::=> `,elementType := {
+		index < 1 || index > `,arrayField size ifTrue: {(self errorSubscriptBounds: index)}.
 		return: (`,arrayField at: index)
 	}.
 
 	method basicAt: (index: UIntPointer) put: (value: `,elementType) ::=> `,elementType := {
+		index < 1 || index > `,arrayField size ifTrue: {(self errorSubscriptBounds: index)}.
 		(`,arrayField at: index) := value.
 		return: value
 	}.
 
 	method basicSubscriptAt: (index: UIntPointer) ::=> `,elementType ref := {
+		index >= `,arrayField size ifTrue: { (self errorSubscriptBounds: index + 1) }.
+
 		return: `,arrayField[index]
 	}.
 }.
 
 macro method generateAtAccessorsForArrayField: arrayField elementType: elementType := ``{
 	method at: (index: UIntPointer) ::=> ProtoObject := {
+		index < 1 || index > `,arrayField size ifTrue: {(self errorSubscriptBounds: index)}.
 		return: (`,arrayField at: index)
 	}.
 
 	method at: (index: UIntPointer) put: (value: `,elementType) ::=> `,elementType := {
+		index < 1 || index > `,arrayField size ifTrue: {(self errorSubscriptBounds: index)}.
 		(`,arrayField at: index) := value.
 		return: value
 	}.
 
 	method subscriptAt: (index: UIntPointer) ::=> `,elementType ref := {
+		index >= `,arrayField size ifTrue: { (self errorSubscriptBounds: index + 1)}.
 		return: `,arrayField[index]
 	}.
 }.
@@ -835,6 +843,10 @@ BlockClosure definition: {
 	}.
 }.
 
+SimpleBlockClosure definition: {
+    field __captures protected type: ProtoObject array.
+}.
+
 ##-----------------------------------------------------------------------------
 ## Object perform
 Object definition: {
@@ -987,6 +999,7 @@ Compiler compilationTarget managedObjectModel
 
 	blockClosureHeaderClass: BlockClosureHeaderClass;
 	blockClosureClass: BlockClosure;
+	simpleBlockClosureClass: SimpleBlockClosure;
 	gcBlockClosureAllocationFunction: gcBlockClosureAllocator;
     yourself
 }.

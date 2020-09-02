@@ -200,6 +200,8 @@ ExtensionMethod definition: {
 namespace Runtime definition: {
 
 function callModuleStartUp(module: ModuleInformation) => Void := {
+    ensureInitialSymbolDeduplication().
+
     module startUp
 }.
 

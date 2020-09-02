@@ -93,6 +93,15 @@ gcclass SubscriptOutOfBounds superclass: Error; definition: {
     public field subscript.
     public field lowerBound.
     public field upperBound.
+
+    meta definition: {
+        method signalFor: index
+            := self new
+                subscript: index;
+                lowerBound: nil;
+                upperBound: nil;
+                signal
+    }
 }.
 
 gcclass Halt superclass: Exception; definition: {
@@ -127,6 +136,9 @@ Object extend: {
 
     method shouldNotImplement
         := ShouldNotImplement signal.
+
+    method errorSubscriptBounds: index
+        := SubscriptOutOfBounds signalFor: index.
 
 }.
 

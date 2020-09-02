@@ -76,8 +76,30 @@ class NativeCollector definition: {
         return: allocatedObject
 	}.
 
-    method registerModuleRoots: (descriptors: ModuleGCRootPointerDescriptor const arraySlice) ::=> Void := {
+    field rootRegistrationMutex type: Stdn Mutex.
+    field moduleRootPointers type: Stdn Collections Vector(GCRootPointersDescriptor).
+
+    method registerModuleRoots: (descriptors: GCRootPointersDescriptor const arraySlice) ::=> Void := {
         <nogc>
+        rootRegistrationMutex withLock: {
+            moduleRootPointers addAll: descriptors.
+        }.
+    }.
+
+    method allModuleRootsDo: (iterationBlock: RootIterationBlock) ::=> Void := {
+        rootRegistrationMutex withLock: {
+            moduleRootPointers do: {:each :: Void |
+                each rootsDo: iterationBlock
+            }
+        }.
+    }.
+
+    method registerGCRootPointer: (rootPointer: GCObjectHeader pointer pointer) ::=> Void := {
+        rootPointer _ := nil.
+    }.
+
+    method unregisterGCRootPointer: (rootPointer: GCObjectHeader pointer pointer) ::=> Void := {
+        rootPointer _ := nil
     }.
 }.
 

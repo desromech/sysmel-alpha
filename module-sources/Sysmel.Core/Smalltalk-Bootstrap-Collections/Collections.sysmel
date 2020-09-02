@@ -236,7 +236,7 @@ SequenceableCollection definition: {
 	method copyWithSize: (newSize: UIntPointer) := {
 		let result := self species new: newSize.
 		let copySize := newSize min: self size.
-		1 to: copySize + 1 do: {:i :: Void |
+		1 to: copySize do: {:i :: Void |
 			result at: i put: (self at: i)
 		}.
 		result
