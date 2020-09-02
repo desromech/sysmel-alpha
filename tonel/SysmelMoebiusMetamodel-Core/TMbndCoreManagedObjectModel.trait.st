@@ -60,9 +60,11 @@ Trait {
 		'gcShadowStackEnterFunction',
 		'gcShadowStackLeaveFunction',
 		'gcShadowStackLandingPadFunction',
-		'gcSafePointFunction'
+		'gcSafePointFunction',
+		'simpleBlockClosureClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
+	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -249,7 +251,7 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			undeclaredVariableClass workspaceVariableClass characterClass
 			largePositiveIntegerClass largeNegativeIntegerClass boxedFloat64Class fractionClass scaledDecimalClass
 			int32ToIntegerFunction uint32ToIntegerFunction int64ToIntegerFunction uint64ToIntegerFunction
-			uint32ToCharacterFunction float64ToFloatFunction blockClosureHeaderClass blockClosureClass
+			uint32ToCharacterFunction float64ToFloatFunction blockClosureHeaderClass blockClosureClass simpleBlockClosureClass
 			gcBlockClosureAllocationFunction objectToUInt32Function objectToInt32Function objectToUInt64Function
 			objectToInt64Function objectToChar32Function objectToFloat64Function
 			objectToBoolean8Function messageClass moduleRootRegistrationFunction
@@ -679,6 +681,16 @@ TMbndCoreManagedObjectModel >> scaledDecimalClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> scaledDecimalClass: anObject [
 	scaledDecimalClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> simpleBlockClosureClass [
+	^ simpleBlockClosureClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> simpleBlockClosureClass: anObject [
+	simpleBlockClosureClass := anObject.
 ]
 
 { #category : #accessing }

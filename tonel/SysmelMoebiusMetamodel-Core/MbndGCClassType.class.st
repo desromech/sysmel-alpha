@@ -349,12 +349,6 @@ MbndGCClassType >> programEntityInformationData [
 	^ result
 ]
 
-{ #category : #'type composition' }
-MbndGCClassType >> ref [
-	<compileTime>
-	^ self refFor: #gc
-]
-
 { #category : #testing }
 MbndGCClassType >> requiresDynamicMethodWrappers [
 	^ true

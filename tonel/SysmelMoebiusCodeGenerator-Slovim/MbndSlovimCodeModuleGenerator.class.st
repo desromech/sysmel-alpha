@@ -429,6 +429,21 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 	^ self mangleProgramEntityName: programEntity
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> currentGCStrategyName [
+	self compilationEnvironment hasGarbageCollectedRuntime ifFalse: [ ^ nil ].
+
+	self compilationEnvironment hasPreciseGarbageCollector ifTrue: [
+		self compilationEnvironment hasGarbageCollectionStackMap ifTrue: [ 
+			^ #sysmelPlugin
+		] ifFalse: [ 
+			^ #sysmelShadowStack
+		].
+	].
+
+	^ nil
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
 	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugInformationTranslator new codeModuleGenerator: self ]
@@ -706,8 +721,8 @@ MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: fu
 
 	ssaFunction makePrivate.
 	
-	(allowGC and: [sourceModule hasGarbageCollectionStackMap]) ifTrue: [
-		ssaFunction gcStrategy: #sysmel
+	allowGC ifTrue: [
+		ssaFunction gcStrategy: self currentGCStrategyName
 	].
 	
 	self createFunctionCodeGenerator
@@ -779,7 +794,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModules [
 
 	shaderEntryPoints ifEmpty: [^ nil].
 	
-	shaderSSAModule disableSLVMOptimizations: MbndStandaloneModule disableSLVMOptimizations.
+	shaderSSAModule disableSLVMOptimizations: shaderCompilationTarget shouldDisableSLVMOptimizations.
 	multiSpirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
 	sourceModule embeddedShaderCopyOutputFile ifNotNil: [ :filename |
 		multiSpirVModule saveTo: filename.
@@ -1695,15 +1710,7 @@ MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity translation: tr
 MbndSlovimCodeModuleGenerator >> setupGCStrategyFor: ssaFunction generatedFrom: functionMethod [
 	self compilationEnvironment hasGarbageCollectedRuntime ifFalse: [ ^ self ].
 	functionMethod isNoGC ifTrue: [ ^ self ].
-	self compilationEnvironment hasPreciseGarbageCollector ifTrue: [
-		self compilationEnvironment hasGarbageCollectionStackMap ifTrue: [ 
-			ssaFunction gcStrategy: #sysmelPlugin
-		] ifFalse: [ 
-			ssaFunction gcStrategy: #sysmelShadowStack
-		].
-	].
-
-
+	ssaFunction gcStrategy: self currentGCStrategyName
 ]
 
 { #category : #visiting }
@@ -2322,16 +2329,17 @@ MbndSlovimCodeModuleGenerator >> visitAssociationType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
-	| ssaFunctionType ssaClosureDefinition csymbol unmangledName kind normalFunctionType |
+	| ssaFunctionType ssaClosureDefinition csymbol unmangledName kind normalFunctionType addressSpace |
 	ssaFunctionType := self translateType: blockClosureMethod type functionType.
 	
 	csymbol := self csymbolForProgramEntity: blockClosureMethod.
 	unmangledName := self unmangledNameForProgramEntity: blockClosureMethod.
 
 	kind := (blockClosureMethod closureKind = #gc ifTrue: [ #gc ] ifFalse: [#nativeStack]).
+	addressSpace := kind = #gc ifTrue: SLVMType gcStorage ifFalse: SLVMType genericStorage.
 	normalFunctionType := blockClosureMethod boundType prependArguments: {blockClosureMethod type}.
 
-	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.
+	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType addressSpace: addressSpace.
 	ssaClosureDefinition
 		kind: kind;
 		name: csymbol;

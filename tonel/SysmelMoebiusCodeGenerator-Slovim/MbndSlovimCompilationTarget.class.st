@@ -84,6 +84,16 @@ MbndSlovimCompilationTarget class >> llvm_x86_64 [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> sasm_x86 [
+	^ self slvmCompilationTargetNamed: #x86
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> sasm_x86_64 [
+	^ self slvmCompilationTargetNamed: #x86_64
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> slvmCompilationTargetNamed: slvmTargetName [
 	^ self basicNew
 		slvmCompilationTargetNamed: slvmTargetName;
@@ -450,6 +460,11 @@ MbndSlovimCompilationTarget >> setForWindows [
 { #category : #initialization }
 MbndSlovimCompilationTarget >> setNoExceptionModel [
 	slvmCompilationTarget setNoExceptionModel
+]
+
+{ #category : #asserting }
+MbndSlovimCompilationTarget >> shouldDisableSLVMOptimizations [
+	^ slvmCompilationTarget isSAsmCompilationTarget not
 ]
 
 { #category : #accessing }

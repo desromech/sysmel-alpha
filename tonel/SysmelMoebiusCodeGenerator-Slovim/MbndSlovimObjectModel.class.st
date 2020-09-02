@@ -41,7 +41,8 @@ Class {
 		'gcShadowStackRootCountField',
 		'gcShadowStackRootsField',
 		'gcSafePointFunction',
-		'gcShadowStackLandingPadFunction'
+		'gcShadowStackLandingPadFunction',
+		'simpleGCBlockClosureDynamicCaptureCountSlotIndex'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -95,8 +96,8 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 	| prototype mbndFunctionType header dynamicCallAdapterSlotIndex numArgsSlotIndex dynamicCallAdapter capturedTypes closureTypeInfo |
 	prototype := super constructClosurePrototypeFor: closureDefinition.
 	mbndFunctionType := closureDefinition propertyAt: #mbndFunctionType.
+	capturedTypes := closureDefinition captures collect: [ :each | each propertyAt: #mbndType ].
 	closureDefinition kind = #nativeStack ifTrue: [
-		capturedTypes := closureDefinition captures collect: [ :each | each propertyAt: #mbndType ].
 		closureTypeInfo := moduleCodeGenerator getOrCreateNativeClosureTypeInfoFor: mbndFunctionType withCaptures: capturedTypes for: prototype.
 		closureTypeInfo ifNotNil: [
 			prototype slots at: 1 put: closureTypeInfo
@@ -110,6 +111,24 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 		numArgsSlotIndex := self gcBlockClosureHeaderNumArgsSlotIndex + 1.
 
 		header := self gcBlockClosureHeaderConstant copy.
+		(capturedTypes anySatisfy: [:each | each hasGarbageCollectedAddressSpace not and: [each isPOD not ]]) ifTrue: [
+			self halt
+		] ifFalse: [
+			| dynamicCaptureCount |
+			dynamicCaptureCount := 0.
+			capturedTypes do: [ :each |
+				each hasGarbageCollectedAddressSpace ifTrue: [ 
+					each isArrayType ifTrue: [
+						dynamicCaptureCount := dynamicCaptureCount + each elements.
+					] ifFalse: [ 
+						dynamicCaptureCount := dynamicCaptureCount + 1
+					]
+				]
+			].
+			header slots at: simpleGCBlockClosureDynamicCaptureCountSlotIndex + 1 put:
+				((header slots at: simpleGCBlockClosureDynamicCaptureCountSlotIndex + 1) copy value: dynamicCaptureCount)
+		].
+
 		header slots
 			at: dynamicCallAdapterSlotIndex put: (
 				SLVMConstant value: dynamicCallAdapter bitcast: (header slots at: dynamicCallAdapterSlotIndex) type
@@ -195,6 +214,7 @@ MbndSlovimObjectModel >> createBoxedFloatInstance: aFloat [
 { #category : #'code generation' }
 MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	| function builder boxedMessage result convertedResult |
+	self halt.
 	function := SLVMFunction pointerSize: target pointerSize functionType: functionType.
 	function
 		compilationTarget: target;
@@ -335,11 +355,12 @@ MbndSlovimObjectModel >> gcBlockClosureHeaderConstant [
 	gcBlockClosureHeaderConstant ifNil:[
 		headerLiteralValue := managedObjectModel blockClosureHeaderClass makeInstance: 0 identityHash: 0.
 		
-		"Transplant the vtable from the block closure into the header object."
-		blockClosureLiteralValue := managedObjectModel blockClosureClass makeInstance: 0 identityHash: 0.
+		"Transplant the vtable from the simple block closure into the header object."
+		blockClosureLiteralValue := managedObjectModel simpleBlockClosureClass makeInstance: 0 identityHash: 0.
 		headerLiteralValue slots at: 1 put: blockClosureLiteralValue slots first.
 		
 		gcBlockClosureHeaderConstant := moduleCodeGenerator translateDynamicObjectInstanceContent: headerLiteralValue.
+		simpleGCBlockClosureDynamicCaptureCountSlotIndex := managedObjectModel simpleBlockClosureClass variableDataSizeField slotIndex
 	]. 
 	^ gcBlockClosureHeaderConstant
 ]

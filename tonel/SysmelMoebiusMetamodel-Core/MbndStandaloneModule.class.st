@@ -19,11 +19,6 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
-{ #category : #accessing }
-MbndStandaloneModule class >> disableSLVMOptimizations [
-	^ true
-]
-
 { #category : #'instance creation' }
 MbndStandaloneModule class >> for: aCompilationEnvironment [
 	^ self basicNew initializeWithCompilationEnvironment: aCompilationEnvironment; yourself
@@ -289,7 +284,7 @@ MbndStandaloneModule >> decodeImportedSSAModules: importedSSAModules [
 
 { #category : #accessing }
 MbndStandaloneModule >> disableSLVMOptimizations [
-	^ self class disableSLVMOptimizations
+	^ self compilationTarget shouldDisableSLVMOptimizations
 ]
 
 { #category : #'as yet unclassified' }
@@ -440,6 +435,23 @@ MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 			out truncate; nextPutAll: publicModuleEncodedMessage
 		]
 	].
+]
+
+{ #category : #writing }
+MbndStandaloneModule >> generateLowLevelTargetCodeModule [
+	| ssaModule |
+	ssaModule := self generateTargetCodeModule.
+	ssaModule disableSLVMOptimizations: self disableSLVMOptimizations.
+	ssaModule disableSLVMOptimizations ifFalse: [ 
+		self optimizationLevel > 0 ifTrue: [ 
+			ssaModule optimizeGlobalVariables
+		].
+	].
+
+	^ MbndProfiler component: #lirCodeGeneration with: [ 
+		ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
+	].
+
 ]
 
 { #category : #parameters }
@@ -725,19 +737,8 @@ MbndStandaloneModule >> writeLLVMAssemblyToFileNamed: outputFileName [
 MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	| lowLevelModule ssaModule outputFileReference |
 	self finishSemanticAnalysis.
-	ssaModule := self generateTargetCodeModule.
 	outputFileReference := outputFileName asFileReference.
-	
-	ssaModule disableSLVMOptimizations: self disableSLVMOptimizations.
-	ssaModule disableSLVMOptimizations ifFalse: [ 
-		self optimizationLevel > 0 ifTrue: [ 
-			ssaModule optimizeGlobalVariables
-		].
-	].
-
-	MbndProfiler component: #lirCodeGeneration with: [ 
-		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
-	].
+	lowLevelModule := self generateLowLevelTargetCodeModule.
 	lowLevelModule linkerArguments: self allLinkerArguments , self allThirdPartyLibrariesLinkerArguments.
 	linkerImportModule isNil ifTrue: [
 		(#(assembly llvm_assembly object) includes: writeMode) ifTrue: [ 

@@ -135,6 +135,16 @@ MbndCompilationEnvironment class >> materializeObjectWithType: objectType earlyF
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> sasm_x86 [
+	^ self compilationTarget: MbndSlovimCompilationTarget sasm_x86
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> sasm_x86_64 [
+	^ self compilationTarget: MbndSlovimCompilationTarget sasm_x86_64
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> spirv_vulkan [
 	^ self compilationTarget: MbndSlovimCompilationTarget spirv_vulkan
 ]
@@ -477,6 +487,11 @@ MbndCompilationEnvironment >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #writing }
+MbndCompilationEnvironment >> generateLowLevelTargetCodeModule [
+	^ self validCurrentModule generateLowLevelTargetCodeModule
 ]
 
 { #category : #evaluation }
