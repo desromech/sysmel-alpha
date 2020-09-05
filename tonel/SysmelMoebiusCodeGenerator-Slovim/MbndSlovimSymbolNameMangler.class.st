@@ -332,6 +332,18 @@ MbndSlovimSymbolNameMangler >> initialize [
 	ommitModuleName := false.
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimSymbolNameMangler >> mangleGeneratedMethodOfKind: methodKind withType: functionType [
+	^ (ByteString streamContents: [ :outStream |
+		output := outStream.
+		substitutionDictionary := Dictionary new.
+		self emitSubstitutionElement: methodKind.
+		output nextPut: $I.
+		self mangleType: functionType.
+		output nextPut: $E.
+	]) asSymbol
+]
+
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> mangleNestedNameComponents: components [
 	^ self mangleNestedNameComponents: components prefix: #_Z

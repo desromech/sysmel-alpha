@@ -702,34 +702,10 @@ MbndSlovimCodeModuleGenerator >> forbiddenExceptionHandlingFunction [
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: functionType allowGC: allowGC debugInformationWith: debugInformationBlock with: codeGenerationBlock [
-	| ssaFunctionType ssaFunction dummyMethod |
-	ssaFunctionType := self translateType: functionType.
-	dummyMethod := MbndDummyMethod new
-		type: functionType;
-		boundType: functionType;
-		receiverType: self compilationTarget voidType;
-		yourself.
-
-	ssaFunction := SLVMFunction module: ssaModule name: nil functionType: ssaFunctionType.
-
-	self isEmittingDebugInformation ifTrue: [
-		ssaFunction
-			debugInformation: debugInformationBlock value;
-			debugSourceLocation: (self convertDebugPosition: self validSourcePosition)
-	].
-
-	ssaFunction makePrivate.
-	
-	allowGC ifTrue: [
-		ssaFunction gcStrategy: self currentGCStrategyName
-	].
-	
-	self createFunctionCodeGenerator
-			buildSSAFunction: ssaFunction definitionWithMethod: dummyMethod
-			withCodeGenerationBlock: codeGenerationBlock.
-
-	^ ssaFunction
+MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodOfKind: methodKind withType: functionType allowGC: allowGC debugInformationWith: debugInformationBlock with: codeGenerationBlock [
+	| methodName |
+	methodName := self newSymbolNameMangler mangleGeneratedMethodOfKind: methodKind withType: functionType.
+	^ self generateCompilerGeneratedMethod: methodName withType: functionType allowGC: allowGC debugInformationWith: debugInformationBlock with: codeGenerationBlock
 ]
 
 { #category : #'code generation' }
@@ -755,6 +731,37 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 	ssaModule nonInlineLiterals do: [ :each | self generateNonInlineLiteralValue: each ].
 	self ensureRequiredStructuresAreDefined.
 	^ ssaModule
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> generateCompilerGeneratedMethod: methodName withType: functionType allowGC: allowGC debugInformationWith: debugInformationBlock with: codeGenerationBlock [
+	| ssaFunctionType ssaFunction dummyMethod |
+	ssaFunctionType := self translateType: functionType.
+	dummyMethod := MbndDummyMethod new
+		type: functionType;
+		boundType: functionType;
+		receiverType: self compilationTarget voidType;
+		yourself.
+
+	ssaFunction := SLVMFunction module: ssaModule name: methodName functionType: ssaFunctionType.
+
+	self isEmittingDebugInformation ifTrue: [
+		ssaFunction
+			debugInformation: debugInformationBlock value;
+			debugSourceLocation: (self convertDebugPosition: self validSourcePosition)
+	].
+
+	ssaFunction makePrivate.
+	
+	allowGC ifTrue: [
+		ssaFunction gcStrategy: self currentGCStrategyName
+	].
+	
+	self createFunctionCodeGenerator
+			buildSSAFunction: ssaFunction definitionWithMethod: dummyMethod
+			withCodeGenerationBlock: codeGenerationBlock.
+
+	^ ssaFunction
 ]
 
 { #category : #'code generation' }
@@ -849,16 +856,20 @@ MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods [
 	| sortedConstructionRecords |
 	constructionRecords ifEmpty: [ ^ self ].
 	sortedConstructionRecords := constructionRecords sorted: [ :a :b | a priority < b priority ].
-	(self groupConstructionRecordsByPriority: sortedConstructionRecords) do: [ :eachGroup |
-		self generateGlobalConstructionSetupMethods: eachGroup
+	(self groupConstructionRecordsByPriority: sortedConstructionRecords) doWithIndex: [ :eachGroup :groupIndex |
+		self generateGlobalConstructionSetupMethods: eachGroup groupIndex: groupIndex
 	]
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods: records [
+MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods: records groupIndex: groupIndex [
 	| globalCtor builder atExit atExitArgumentType csymbol |
 	records ifEmpty: [ ^ self ].
-	csymbol := self newSymbolNameMangler mangleProgramModule: sourceModule componentNamed: #ConstructorSetup.
+	
+	csymbol := self newSymbolNameMangler mangleProgramModule: sourceModule
+		componentNamed: (groupIndex > 1
+		ifTrue: [#ConstructorSetup , groupIndex asString]
+		ifFalse: [#ConstructorSetup]).
 	globalCtor := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	
 	builder := SLVMBuilder on: globalCtor.
@@ -1116,7 +1127,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 		functionTypeWithArguments: {functionType pointer} , (functionType argumentTypes collect: [ :arg | dynamicObjectType ])
 		returnType: dynamicObjectType.
 	^ dynamicFunctionCallsAdapters at: adapterFunctionType ifAbsentPut: [ 
-		self generateAnonCompilerGeneratedMethodWithType: adapterFunctionType allowGC: true
+		self generateAnonCompilerGeneratedMethodOfKind: #DynamicFunctionCallAdapter withType: adapterFunctionType allowGC: true
 		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: adapterFunctionType ]
 		with: [:ssaFunction :builder :functionCodeGenerator |
 			| calledFunction result |
@@ -1224,7 +1235,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeMethodDispatchTrampolineWithTy
 		"methodFunctionPointer" messageFunctionType pointer . "selector" dynobjectType
 	}.
 	
-	trampoline := self generateAnonCompilerGeneratedMethodWithType: trampolineFunctionType allowGC: true
+	trampoline := self generateAnonCompilerGeneratedMethodOfKind: #NativeMethodDispatchTrampoline withType: trampolineFunctionType allowGC: true
 	debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
 	with: [:ssaFunction :builder :functionCodeGenerator |
 		| calledFunction nativeArguments result |
@@ -1269,7 +1280,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateObjectMethodDispatchTrampolineWithTy
 	}.
 	
 	trampoline := objectMethodDispatchTrampolines at: messageFunctionType ifAbsentPut: [
-		self generateAnonCompilerGeneratedMethodWithType: trampolineFunctionType allowGC: true
+		self generateAnonCompilerGeneratedMethodOfKind: #ObjectMethodDispatchTrampoline withType: trampolineFunctionType allowGC: true
 		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
 		with: [:ssaFunction :builder :functionCodeGenerator |
 			| selector methodObject result receiver unmarshalledArguments marshalledArguments marshalledArgumentsStoragePointer unmarshalledResult |

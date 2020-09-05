@@ -42,7 +42,8 @@ Class {
 		'gcShadowStackRootsField',
 		'gcSafePointFunction',
 		'gcShadowStackLandingPadFunction',
-		'simpleGCBlockClosureDynamicCaptureCountSlotIndex'
+		'simpleGCBlockClosureDynamicCaptureCountSlotIndex',
+		'functionContextMetadata'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -256,13 +257,19 @@ MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType
 
 { #category : #visiting }
 MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
-	| literals compiledMethod |
-	literals := aFunction dynamicLiterals.
-	compiledMethod := managedObjectModel compiledMethodClass makeInstance: literals size identityHash: 0.
+	^ functionContextMetadata at: aFunction ifAbsentPut: [ 
+		| literals compiledMethod literalSymbol |
+		literals := aFunction dynamicLiterals.
+		compiledMethod := managedObjectModel compiledMethodClass makeInstance: literals size identityHash: 0.
 
-	compiledMethod setField: #entryPoint value: aFunction.
-	compiledMethod slots last slots: (literals collect: [:each | each value] as: Array).
-	^ compiledMethod
+		compiledMethod setField: #entryPoint value: aFunction.
+		compiledMethod slots last slots: (literals collect: [:each | each value] as: Array).
+		literalSymbol := aFunction name , '..compiledMethod..'.
+		self convertDynamicLiteralToConstant: compiledMethod withName: literalSymbol.
+		compiledMethod
+	].
+
+
 ]
 
 { #category : #'code generation' }
@@ -461,6 +468,7 @@ MbndSlovimObjectModel >> initialize [
 	super initialize.
 	convertedLiteralContent := IdentityDictionary new.
 	convertedLiteralGlobals := IdentityDictionary new.
+	functionContextMetadata := IdentityDictionary new.
 ]
 
 { #category : #accessing }

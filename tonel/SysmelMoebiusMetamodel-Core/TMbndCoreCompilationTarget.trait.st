@@ -72,6 +72,7 @@ Trait {
 		'exceptionCleanUpEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -1596,6 +1597,11 @@ TMbndCoreCompilationTarget >> primitiveVectorTypeFor: elementType elements: vect
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #'constructor priorities' }
+TMbndCoreCompilationTarget >> runtimeInitializationPriority [
+	^ self normalConstructorPriority - 200
 ]
 
 { #category : #accessing }

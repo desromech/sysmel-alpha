@@ -31,7 +31,9 @@ MbndSlovimFunctionGCSysmelShadowStackLoweringPass >> convertAllocasInGCRootList:
 	].
 
 	gcRootVariables ifEmpty: [ ^ self ].
-	
+
+	"We need to mark as never inline in order to guarantee an ordering constraint."
+	aFunction inlineMode: #never.	
 	rootValueType := (shadowStackRecordStructure types at: rootsFieldIndex + 1) baseType.
 	rootArrayType := SLVMArrayType baseType: rootValueType elements: gcRootVariables size.
 	rootsStorage := SLVMAlloca pointerSize: rootValueType size valueType: rootArrayType.
