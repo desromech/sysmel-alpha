@@ -184,13 +184,13 @@ class AtomicFileStream definition: {
     }
 }.
 
-global stdinFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
-global stdoutFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
+global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
+global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
     bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block).
-global stderrFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
+global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
 
 }. ## End of namespace IO
 
-global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
-global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
+global stdout mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stderrFile address.
 }. ## End of namespace Stdn
