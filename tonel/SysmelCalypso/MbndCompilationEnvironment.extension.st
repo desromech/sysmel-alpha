@@ -15,16 +15,17 @@ MbndCompilationEnvironment >> browseWithCalypso [
 	environmentBackend := (MbndRGEnvironmentBackend for: environment)
 		compilationEnvironment: self;
 		targetModule: currentModule;
+		targetDirectory: currentModule sourceLocations last asFileReference;
 		loadingEnvironment: true;
 		yourself.
 	environment backend: environmentBackend.
 	environment announcer suspendAllWhile: [
-		loadedModules do: [ :each |
+		loadedModules reject: [:e | e == currentModule] thenDo: [ :each |
 			| modulePackage|
-			modulePackage := environment ensurePackageNamed: each name asSymbol.
+			modulePackage := environment ensurePackageNamed: ('[Import]' , each name) asSymbol.
 			each emitSmalltalkClassDeclarationsIntoRGEnvironment: environment package: modulePackage.
 		].
-		environment ensurePackageNamed: currentModule name asSymbol.
+		currentModule addSmalltalkPackagesFromFileSystemIntoRGEnvironment: environment
 	].
 
 	environment adoptForBrowser.
