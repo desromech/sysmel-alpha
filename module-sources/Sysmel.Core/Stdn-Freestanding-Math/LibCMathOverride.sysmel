@@ -9,7 +9,7 @@ inline function ceil externC(x: Float64) => Float64
     := Stdn Math ceil(x).
 
 inline function fmod externC(x: Float64, y: Float64) => Float64
-    := Stdn Math fmod(x).
+    := Stdn Math fmod(x, y).
 
 inline function cos externC(x: Float64) => Float64
     := Stdn Math cos(x).
@@ -45,7 +45,7 @@ inline function sinf externC(x: Float32) => Float32
     := Stdn Math sinf(x).
 
 inline function tanf externC(x: Float32) => Float32
-    := Stdn Math tanf(x)
+    := Stdn Math tanf(x).
 
 inline function atanf externC(angle: Float32) => Float32
     := Stdn Math atanf(angle).

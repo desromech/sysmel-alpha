@@ -9,4 +9,6 @@ useNamespace: Stdn Math Geometry.
 class LabelNorph superclass: StringNorph; definition: {
 }.
 
+compileTime constant LabelNorphPtr := LabelNorph sharedPointer.
+
 }. ## End of namespace Norphic

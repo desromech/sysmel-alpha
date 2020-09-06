@@ -31,4 +31,6 @@ class SimpleButtonNorph superclass: AbstractButtonNorph; definition: {
     }.
 }.
 
+compileTime constant SimpleButtonNorphPtr := SimpleButtonNorph sharedPointer.
+
 }. ## End of namespace Norphic

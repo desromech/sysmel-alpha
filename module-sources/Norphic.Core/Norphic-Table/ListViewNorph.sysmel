@@ -32,4 +32,6 @@ class ListViewNorph superclass: TableViewNorph; definition: {
     }.
 }.
 
+compileTime constant ListViewNorphPtr := ListViewNorph sharedPointer.
+
 }. ## End of namespace Norphic

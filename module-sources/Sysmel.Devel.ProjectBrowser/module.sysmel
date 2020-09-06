@@ -3,5 +3,6 @@ Compiler
         #"Norphic.Core"
     );
     loadPackages: #(
-        #"ProjectBrowser-Core"
+        #"ProjectBrowser-Model"
+        #"ProjectBrowser-UI"
     ).

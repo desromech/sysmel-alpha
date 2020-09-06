@@ -103,4 +103,6 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         := selectedRows includes: rowIndex.
 }.
 
+compileTime constant TableViewNorphPtr := TableViewNorph sharedPointer.
+
 }. ## End of namespace Norphic

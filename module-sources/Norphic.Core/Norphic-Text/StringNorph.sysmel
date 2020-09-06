@@ -47,4 +47,6 @@ class StringNorph superclass: Norph; definition: {
         := false.
 }.
 
+compileTime constant StringNorphPtr := StringNorph sharedPointer.
+
 }. ## End of namespace Norphic

@@ -23,7 +23,8 @@ compileTime if: OnlyRuntimeCoreTests not then: {
 
 	compileTime if: Compiler hasGarbageCollectedRuntime then: {
 	    Compiler importModulesNamed: #(
-			#"Sysmel.Smalltalk.VM"
+			#"Sysmel.Smalltalk.GUI.Tests"
+			#"Sysmel.Smalltalk.VM.Tests"
 		).
 	}.
 }.

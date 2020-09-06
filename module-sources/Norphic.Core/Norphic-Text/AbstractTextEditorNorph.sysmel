@@ -72,4 +72,6 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     }.
 }.
 
+compileTime constant AbstractTextEditorNorphPtr := AbstractTextEditorNorph sharedPointer.
+
 }. ## End of namespace Norphic

@@ -12,4 +12,6 @@ class TextAreaNorph superclass: AbstractTextEditorNorph; definition: {
     }.
 }.
 
+compileTime constant TextAreaNorphPtr := TextAreaNorph sharedPointer.
+
 }. ## End of namespace Norphic

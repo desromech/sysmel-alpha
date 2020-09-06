@@ -20,4 +20,6 @@ class TextInputNorph superclass: AbstractTextEditorNorph; definition: {
     }.
 }.
 
+compileTime constant TextInputNorphPtr := TextInputNorph sharedPointer.
+
 }. ## End of namespace Norphic
