@@ -3,20 +3,20 @@ namespace Math definition: {
 
 compileTime constant Epsilon := 1.0e-12.
 
-inline function trunc externC(x: Float64) => Float64
+inline function trunc(x: Float64) => Float64
     := (x castTo: Int64).
 
-inline function floor externC(x: Float64) => Float64 := {
+inline function floor(x: Float64) => Float64 := {
     let f := trunc(x).
     f = x || x >= 0 ifTrue: f ifFalse: f - 1
 }.
 
-inline function ceil externC(x: Float64) => Float64 := {
+inline function ceil(x: Float64) => Float64 := {
     let f := trunc(x).
     f = x || x <= 0 ifTrue: f ifFalse: f + 1
 }.
 
-inline function fmod externC(x: Float64, y: Float64) => Float64
+inline function fmod(x: Float64, y: Float64) => Float64
     := x - (trunc(x/y) * y).
 
 inline function computeCosineQuarterCycle(x: Float64) => Float64 := {
@@ -44,7 +44,7 @@ inline function computeCosineHalfCycle(x: Float64) => Float64 := {
         ifFalse: {computeCosineQuarterCycle(x)}
 }.
 
-inline function positiveCos externC(value: Float64) => Float64 := {
+inline function positiveCos(value: Float64) => Float64 := {
     let x mutable := value.
     x < 0 ifTrue: {x := x negated}.
     x >= Float64 twoPi ifTrue: {x := fmod(x, Float64 twoPi)}.
@@ -53,7 +53,7 @@ inline function positiveCos externC(value: Float64) => Float64 := {
         ifFalse: {computeCosineHalfCycle(x)}.
 }.
 
-inline function cos externC(value: Float64) => Float64
+inline function cos(value: Float64) => Float64
     := sin(value + Float64 halfPi).##positiveCos(value < 0 ifTrue: value negated ifFalse: value).
 
 inline function computeSineQuarterCycle(x: Float64) => Float64 := {
@@ -92,13 +92,13 @@ inline function positiveSine(value: Float64) => Float64 := {
     }.
 }.
 
-inline function sin externC(value: Float64) => Float64 := {
+inline function sin(value: Float64) => Float64 := {
     value < 0
         ifTrue: { positiveSine(value negated) negated }
         ifFalse: { positiveSine(value) }
 }.
 
-inline function tan externC(value: Float64) => Float64
+inline function tan(value: Float64) => Float64
     := sin(value) / cos(value).
 
 inline function positiveAtan(value: Float64) => Float64 := {
@@ -117,13 +117,13 @@ inline function positiveAtan(value: Float64) => Float64 := {
     theta
 }.
 
-inline function atan externC(value: Float64) => Float64 := {
+inline function atan(value: Float64) => Float64 := {
     value < 0
         ifTrue: {positiveAtan(value negated) negated}
         ifFalse: {positiveAtan(value)}
 }.
 
-inline function atan2 externC(y: Float64, x: Float64) => Float64 := {
+inline function atan2(y: Float64, x: Float64) => Float64 := {
     let ysignBit := (y reinterpretCastTo: UInt64) >> 63.
     let xsignBit := (x reinterpretCastTo: UInt64) >> 63.
     ## Math function ported from
@@ -151,7 +151,10 @@ inline function atan2 externC(y: Float64, x: Float64) => Float64 := {
 }.
 
 function raiseToIntegerPower(x: Float64, i: UInt32) => Float64 := {
+    x = 0 && i == 0 ifTrue: {return: Float64 nan}.
     i = 0 ifTrue: {return: 1}.
+    i = 1 ifTrue: {return: x}.
+    i = 2 ifTrue: {return: x*x}.
     x = 1 ifTrue: {return: 1}.
     x = 0 ifTrue: {return: 0}.
 
@@ -192,42 +195,41 @@ function positiveExp(value: Float64) => Float64 := {
     base * correction
 }.
 
-inline function exp externC(value: Float64) => Float64 := {
+inline function exp(value: Float64) => Float64 := {
     value < 0 ifTrue: {return: positiveExp(value)}.
     value = 0 ifTrue: {return: 1.0}.
     positiveExp(value)
 }.
 
-
-inline function truncf externC(x: Float32) => Float32
+inline function truncf(x: Float32) => Float32
     := (x castTo: Int64).
 
-inline function floorf externC(x: Float32) => Float32 := {
+inline function floorf(x: Float32) => Float32 := {
     let f := truncf(x).
     f = x || x >= 0 ifTrue: f ifFalse: f - 1
 }.
 
-inline function ceilf externC(x: Float32) => Float32 := {
+inline function ceilf(x: Float32) => Float32 := {
     let f := truncf(x).
     f = x || x <= 0 ifTrue: f ifFalse: f + 1
 }.
 
-inline function cosf externC(value: Float32) => Float32
+inline function cosf(value: Float32) => Float32
     := cos(value) castTo: Float32.
 
-inline function sinf externC(value: Float32) => Float32
+inline function sinf(value: Float32) => Float32
     := sin(value) castTo: Float32.
 
-inline function tanf externC(value: Float32) => Float32
+inline function tanf(value: Float32) => Float32
     := tan(value) castTo: Float32.
 
-inline function atanf externC(angle: Float32) => Float32
+inline function atanf(angle: Float32) => Float32
     := atanf(angle) castTo: Float32.
 
-inline function atan2f externC(y: Float32, x: Float32) => Float32
+inline function atan2f(y: Float32, x: Float32) => Float32
     := atan2(y, x) castTo: Float32.
 
-inline function expf externC(value: Float32) => Float32
+inline function expf(value: Float32) => Float32
     := exp(value) castTo: Float32.
 
 

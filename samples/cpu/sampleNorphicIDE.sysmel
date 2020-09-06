@@ -6,7 +6,7 @@ Compiler
 Stdn MainEntryPoint: {:args :: Int32 |
     Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createDefaultWindowSystem().
 
-    let windowSystem := Stdn Graphics GUI WindowSystem validActiveWindowSystem.
+    let windowSystem := Stdn Graphics GUI WindowSystem activeWindowSystem.
     windowSystem ifNil: {
         return: 0
     }.
@@ -18,5 +18,5 @@ Stdn MainEntryPoint: {:args :: Int32 |
     Smalltalk ProjectBrowser new open.
 
     ## Run the actual main loop.
-    return: windowSystem _ runMainLoop.
+    windowSystem _ runMainLoop.
 }.

@@ -1,3 +1,5 @@
+loadFileOnce: "MathFunctions.sysmel".
+
 compileTime if: Compiler compilationTarget isDesktopPC not then: {
-    loadFileOnce: "MathFunctions.sysmel".
+    loadFileOnce: "LibCMathOverride.sysmel".
 }.

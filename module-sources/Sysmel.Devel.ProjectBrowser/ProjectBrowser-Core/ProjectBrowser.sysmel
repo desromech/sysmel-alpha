@@ -5,7 +5,7 @@ gcclass ProjectBrowser definition: {
     protected field norphicWindow type: SystemWindowNorph sharedPointer.
 
     method open := {
-        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem validActiveWindowSystem
+        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem activeWindowSystem
             title: "Project Browser" asMutableString extent: Int32x2(800, 400).
         self
     }.

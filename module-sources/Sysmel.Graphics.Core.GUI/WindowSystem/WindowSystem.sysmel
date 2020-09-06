@@ -8,7 +8,7 @@ class WindowCreationInfo.
 #**
  * I represent an interface into a window system window.
  *#
-class WindowSystem superclass: Object; definition: {
+class WindowSystem superclass: SharedObject; definition: {
     public field targetFrameRate type: Stdn Chrono Time.
 
     protected field globalEventHandlers type: Stdn Collections Vector(EventHandlerPtr).
@@ -19,8 +19,20 @@ class WindowSystem superclass: Object; definition: {
         method activeWindowSystem: (aWindowSystem: WindowSystemRef const ref) ::=> Void
             := MainWindowSystem := aWindowSystem.
 
-        method validActiveWindowSystem => WindowSystemRef
+        method activeWindowSystem => WindowSystemRef
             := MainWindowSystem.
+
+        method mainLoopOfStarted: (windowSystem: WindowSystem ref) ::=> Void := {
+            MainWindowSystem ifNil: {
+                MainWindowSystem := windowSystem asSharedPointer
+            }
+        }.
+
+        method mainLoopOfEnded: (windowSystem: WindowSystem ref) ::=> Void := {
+            MainWindowSystem getPointer == windowSystem address ifTrue: {
+                MainWindowSystem reset
+            }
+        }.
     }.
 
     method registerGlobalEventHandler: (globalHandler: EventHandlerPtr const ref) ::=> Void := {
@@ -69,19 +81,25 @@ class WindowSystem superclass: Object; definition: {
 
     ## Run the default main loop.
     virtual method runMainLoop => Int32 := {
-        mainLoopOldTicks := Stdn Chrono now().
-        mainLoopAccumulatedTicks := 0.
-        mainLoopStartTicks := Stdn Chrono now().
+        try: {
+            SelfType mainLoopOfStarted: self.
+            mainLoopOldTicks := Stdn Chrono now().
+            mainLoopAccumulatedTicks := 0.
+            mainLoopStartTicks := Stdn Chrono now().
 
-        compileTime if: Compiler compilationTarget isWebAssembly then: {
-            Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, targetFrameRate castTo: Int32, 1).
-        } else: {
+            compileTime if: Compiler compilationTarget isWebAssembly then: {
+                Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, targetFrameRate castTo: Int32, 1).
+            } else: {
 
-            until: self isQuitting do: {
-                self mainLoopIteration.
+                until: self isQuitting do: {
+                    self mainLoopIteration.
 
-                self sleepUntilNextFrame.
+                    self sleepUntilNextFrame.
+                }.
             }.
+        }
+        finally: {
+            SelfType mainLoopOfEnded: self
         }.
 
         return: 0

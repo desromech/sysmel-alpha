@@ -69,7 +69,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         }.
 
         let extent := creationInfo extent.
-        let flags mutable type: UInt32 := 0.
+        let flags mutable type: UInt32 := SDL_WINDOW_ALLOW_HIGHDPI.
         creationInfo hidden ifTrue: {
             flags := flags | SDL_WINDOW_HIDDEN
         } ifFalse: {

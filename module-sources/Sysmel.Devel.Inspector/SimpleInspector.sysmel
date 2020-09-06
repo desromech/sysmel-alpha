@@ -75,7 +75,7 @@ gcclass SimpleInspector definition: {
     }.
 
     method open := {
-        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem validActiveWindowSystem
+        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem activeWindowSystem
             title: "Inspector" asMutableString extent: Int32x2(400, 400).
         self
             createWidgets;
