@@ -18,12 +18,18 @@ Trait {
 		'addedClasses'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
 { #category : #'as yet unclassified' }
 TMbndModule >> accept: aVisitor [
 	^ aVisitor visitModule: self
+]
+
+{ #category : #accessing }
+TMbndModule >> activePackageName [
+	^ nil
 ]
 
 { #category : #adding }

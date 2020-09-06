@@ -26,6 +26,11 @@ MbndAbstractScope class >> parent: aParent [
 ]
 
 { #category : #accessing }
+MbndAbstractScope >> activePackageName [
+	^ parent ifNotNil: [ parent activePackageName ]
+]
+
+{ #category : #accessing }
 MbndAbstractScope >> compilationEnvironment [
 	^ parent compilationEnvironment
 ]

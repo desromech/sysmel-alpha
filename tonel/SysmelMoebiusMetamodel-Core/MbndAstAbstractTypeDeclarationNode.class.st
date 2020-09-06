@@ -1,6 +1,9 @@
 Class {
 	#name : #MbndAstAbstractTypeDeclarationNode,
 	#superclass : #MbndAstAbstractProgramEntityDeclarationNode,
+	#instVars : [
+		'packageName'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 

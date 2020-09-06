@@ -11,7 +11,8 @@ Class {
 		'modificationTime',
 		'importedIndirectModules',
 		'thirdPartyLibraryDependencies',
-		'requiredResources'
+		'requiredResources',
+		'activePackageName'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -84,6 +85,11 @@ MbndStandaloneModule class >> materializeObjectWithType: objectType earlyFields:
 { #category : #serialization }
 MbndStandaloneModule class >> messagePackTypeName [
 	^ #StandaloneModule
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> activePackageName [
+	^ activePackageName
 ]
 
 { #category : #adding }
@@ -601,15 +607,19 @@ MbndStandaloneModule >> linkerImportModule [
 
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadPackage: packageName [
+	| oldActivePackageName |
 	self loadedPackageStates at: packageName ifPresent: [ :state |
 		state == #loading ifTrue: [ self error: 'Circular package dependency for package: {1}' format: {packageName} ].
 		^ self
 	] ifAbsentPut: [#loading].
 
-	(self evaluateModuleLevelFilesIfExists: packageName asFileReference / 'package.sysmel') ifFalse: [
-		self error: 'Failed to load package {1}: no sources have been found.' format: {packageName}
-	].
-	
+	oldActivePackageName := activePackageName.
+	[
+		activePackageName := packageName.
+		(self evaluateModuleLevelFilesIfExists: packageName asFileReference / 'package.sysmel') ifFalse: [
+			self error: 'Failed to load package {1}: no sources have been found.' format: {packageName}
+		].
+	] ensure: [ activePackageName := oldActivePackageName ].
 	loadedPackageStates at: packageName put: #loaded.
 ]
 

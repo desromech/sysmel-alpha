@@ -34,6 +34,7 @@ MbndAbstractTypeMetaBuilder >> ensureTypeDeclarationNode [
 		flags: flags;
 		position: position;
 		name: name;
+		category: metaBuilderScope activePackageName;
 		yourself
 ]
 

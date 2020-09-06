@@ -60,6 +60,11 @@ MbndNamespace >> asLiteralValueNode [
 ]
 
 { #category : #accessing }
+MbndNamespace >> category [
+	^ #Namespaces
+]
+
+{ #category : #accessing }
 MbndNamespace >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
 ]

@@ -3003,6 +3003,7 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 			owner setLocalSymbol: type name value: type.
 		].
 	].
+	type category ifNil: [ type category: node category ].
 	result binding: type.
 
 	type enqueueDelayedSemanticAnalysis.

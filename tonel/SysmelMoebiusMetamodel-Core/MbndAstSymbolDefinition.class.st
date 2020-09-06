@@ -6,7 +6,8 @@ Class {
 	#instVars : [
 		'name',
 		'binding',
-		'ownerProgramEntity'
+		'ownerProgramEntity',
+		'category'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -21,11 +22,22 @@ MbndAstSymbolDefinition >> binding: anObject [
 	binding := anObject
 ]
 
+{ #category : #accessing }
+MbndAstSymbolDefinition >> category [
+	^ category
+]
+
+{ #category : #accessing }
+MbndAstSymbolDefinition >> category: anObject [
+	category := anObject
+]
+
 { #category : #serialization }
 MbndAstSymbolDefinition >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#flags . flags.
 		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#category . category.
 		#binding. binding encodeGraphForMessagePackWith: graphEncoder.
 		#ownerProgramEntity. ownerProgramEntity.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
@@ -42,6 +54,7 @@ MbndAstSymbolDefinition >> materializeWithGraphDecoder: graphDecoder withFields:
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	flags := encodedFields at: #flags.
 	name := encodedFields at: #name.
+	category := encodedFields at: #category.
 	binding := encodedFields at: #binding.
 	ownerProgramEntity := encodedFields at: #ownerProgramEntity.
 ]

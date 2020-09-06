@@ -8,6 +8,7 @@ Class {
 	#classTraits : 'TMbndBasicType classTrait',
 	#instVars : [
 		'name',
+		'category',
 		'parent',
 		'children',
 		'pendingDefinitionFragments'
@@ -245,6 +246,16 @@ MbndBasicType >> analyzeValueAsPatternMatchingPattern: node with: analyzer [
 		yourself)
 ]
 
+{ #category : #accessing }
+MbndBasicType >> category [
+	^ category
+]
+
+{ #category : #accessing }
+MbndBasicType >> category: anObject [
+	category := anObject
+]
+
 { #category : #adding }
 MbndBasicType >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
@@ -261,6 +272,7 @@ MbndBasicType >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ { 
 		#flags . flags.
 		#name . name.
+		#category . category.
 		#definitionModule . definitionModule encodeGraphForMessagePackWith: graphEncoder.
 		#supertype . supertype encodeGraphForMessagePackWith: graphEncoder.
 		#type . type encodeGraphForMessagePackWith: graphEncoder.
@@ -459,6 +471,7 @@ MbndBasicType >> materializeWithGraphDecoder: graphDecoder withFields: encodedFi
 	flags := encodedFields at: #flags.
 	definitionModule := encodedFields at: #definitionModule.
 	name := encodedFields at: #name ifAbsent: [ nil ].
+	category := encodedFields at: #category ifAbsent: [ nil ].
 	supertype := encodedFields at: #supertype ifAbsent: [ nil ].
 	type := encodedFields at: #type ifAbsent: [ nil ].
 	self addFlag: #imported.

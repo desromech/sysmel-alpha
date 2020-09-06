@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -44,6 +45,11 @@ TMbndAbstractProgramEntity >> analyzePragmaInDefinitionBodyWithSelector: selecto
 { #category : #testing }
 TMbndAbstractProgramEntity >> canHaveNamespaces [
 	^ false
+]
+
+{ #category : #accessing }
+TMbndAbstractProgramEntity >> category [
+	^ nil
 ]
 
 { #category : #accessing }

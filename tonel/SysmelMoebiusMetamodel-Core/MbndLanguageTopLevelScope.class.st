@@ -34,6 +34,11 @@ MbndLanguageTopLevelScope class >> materializeObjectWithType: objectType earlyFi
 	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
 ]
 
+{ #category : #accessing }
+MbndLanguageTopLevelScope >> activePackageName [
+	^ module activePackageName
+]
+
 { #category : #initialization }
 MbndLanguageTopLevelScope >> addTopLevelMacros [
 	"This is the place for adding top-level macros."

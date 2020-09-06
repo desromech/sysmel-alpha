@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndModuleScope >> activePackageName [
+	^ module activePackageName
+]
+
+{ #category : #accessing }
 MbndModuleScope >> module [
 	^ module
 ]

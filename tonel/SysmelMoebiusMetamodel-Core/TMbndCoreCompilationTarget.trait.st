@@ -156,6 +156,16 @@ TMbndCoreCompilationTarget >> associationKey: keyType value: valueType [
 	^ associationTypes getOrCreateInstanceWithArguments: { keyType . valueType }
 ]
 
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> basicTypeCategory [
+	^ 'BasicType'
+]
+
+{ #category : #'builder methods' }
+TMbndCoreCompilationTarget >> basicTypes [
+	^ basicTypes asArray
+]
+
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
 	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asGCBlockClosureType
@@ -467,7 +477,9 @@ TMbndCoreCompilationTarget >> encodeGraphForMessagePackWith: graphEncoder [
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 	basicType module ifNil: [ 
-		basicType definitionModule: coreDefinitionsModule.
+		basicType
+			category: self basicTypeCategory;
+			definitionModule: coreDefinitionsModule.
 	].
 
 	basicType name ~= basicType class typeName ifTrue: [ 
@@ -954,6 +966,7 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 	MbndBasicType withAllSubclassesDo: [ :sc |
 		sc typeName ifNotNil: [
 			basicType := sc basicNew
+				category: self basicTypeCategory;
 				definitionModule: coreDefinitionsModule.
 			basicTypes at: sc typeName put: basicType.
 		]
