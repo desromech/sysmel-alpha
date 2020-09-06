@@ -189,6 +189,12 @@ MbndSlovimLiteralValueGenerator >> visitFunctionType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitGCBlockClosureType: closureType [
+	literalValue ifNil: [ ^ self visitPointerType: closureType ].
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitGCClassType: type [
 	| objectModel targetType |
 	targetType := self translateType: type.

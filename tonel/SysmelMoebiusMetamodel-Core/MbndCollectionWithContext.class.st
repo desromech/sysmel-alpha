@@ -48,6 +48,8 @@ MbndCollectionWithContext >> initialize [
 { #category : #accessing }
 MbndCollectionWithContext >> lineColumnAt: aPosition [
 	| newlineList start end m v bestResult line column el |
+	aPosition ifNil: [ ^ #(01 1) ].
+	aPosition <= 1 ifTrue: [ ^ #(01 1) ].
 	newlineList := self newlines.
 	start := 1.
 	end := newlineList size + 1.

@@ -8,10 +8,3 @@ Class {
 MbndPharoEmbeddedDoItLanguage class >> languageName [
 	^ #pharoEmbedded
 ]
-
-{ #category : #scope }
-MbndPharoEmbeddedDoItLanguage >> constructTopLevelLanguageScopeFor: aModule [
-	^ (MbndGenericLanguageTopLevelScope for: aModule)
-		languageName: self languageName;
-		yourself
-]

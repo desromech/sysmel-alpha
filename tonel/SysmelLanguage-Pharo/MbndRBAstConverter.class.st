@@ -106,6 +106,30 @@ MbndRBAstConverter >> visitMessageNode: messageNode [
 ]
 
 { #category : #visiting }
+MbndRBAstConverter >> visitMethodNode: aMethodNode [
+	| arguments pragmas body position prototype |
+	arguments := aMethodNode arguments collect: [ :arg | self convertArgumentNode: arg ].
+	pragmas := aMethodNode pragmas collect: [ :each | self visitNode: each ].
+	body := self visitNode: aMethodNode body.
+	self flag: 'Fixme: avoid having to add this explicit self'.
+	body := builder sequence: {
+		body.
+		builder identifier: #self
+	}.
+	pragmas ifNotEmpty: [
+		self halt.
+	].
+
+	position := self sourcePositionFromNode: aMethodNode.
+	prototype := (builder messagePrototypeSelector: aMethodNode selector arguments: arguments returnType: nil)
+		position: position;
+		yourself.
+	^ (builder messagePrototype: prototype definitionBody: body)
+		position: position;
+		yourself
+]
+
+{ #category : #visiting }
 MbndRBAstConverter >> visitReturnNode: returnNode [
 	^ (builder return: (self visitNode: returnNode value))
 		position: (self sourcePositionFromNode: returnNode)

@@ -405,6 +405,41 @@ MbndStandaloneModule >> evaluateModuleLevelFilesIfExists: fileName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> evaluateTonelPackageNamed: packageName inRepository: repositoryDirectory [
+	| mcDefinitions astBuilder definitionNodes packageDirectory convertedPackageExpression language |
+	mcDefinitions := (TonelReader on: repositoryDirectory fileName: packageName) definitions.
+	packageDirectory := repositoryDirectory / packageName.
+	
+	astBuilder := MbndAstBuilder forModule: self.
+	definitionNodes := mcDefinitions
+		collect: [:each | each buildMbndASTNodeForTonelPackageIn: packageDirectory with: astBuilder]
+		thenSelect: [ :each | each isNotNil ].
+		
+	convertedPackageExpression := astBuilder namespace: #Smalltalk definition: (astBuilder sequence: definitionNodes).
+	self evaluatedFileSet addAll: (packageDirectory children
+		select: [:each | each isFile and: [each extension = 'st']]).
+
+	language := self getLanguageNamedFromCache: #pharoMethod.
+	^ self analyzeAndEvaluateAST: convertedPackageExpression inScope: (self newSourceEvaluationScopeForLanguage: language withWorkingDirectory: packageDirectory)
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> evaluateTonelPackageNamedIfExists: packageName [
+	| suffix location result |
+	suffix := packageName asFileReference / 'package.st'.
+	result := false. 
+	sourceLocations do: [ :each |
+		location := each resolve: suffix.
+		(location exists and: [ location isFile ]) ifTrue: [
+			result := true.
+			self evaluateTonelPackageNamed: packageName inRepository: each
+		] 
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportExportLinkerFlagsTo: outputFileName [
 	outputFileName asFileReference writeStreamDo: [ :out |
 		out truncate.
@@ -615,10 +650,14 @@ MbndStandaloneModule >> loadPackage: packageName [
 
 	oldActivePackageName := activePackageName.
 	[
+		| hasSysmelSources hasTonelSources |
 		activePackageName := packageName.
-		(self evaluateModuleLevelFilesIfExists: packageName asFileReference / 'package.sysmel') ifFalse: [
+		hasSysmelSources := (self evaluateModuleLevelFilesIfExists: packageName asFileReference / 'package.sysmel').
+		hasTonelSources := self evaluateTonelPackageNamedIfExists: packageName.
+		(hasSysmelSources or: [hasTonelSources]) ifFalse: [
 			self error: 'Failed to load package {1}: no sources have been found.' format: {packageName}
 		].
+		.
 	] ensure: [ activePackageName := oldActivePackageName ].
 	loadedPackageStates at: packageName put: #loaded.
 ]
