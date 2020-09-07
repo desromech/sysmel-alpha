@@ -1,0 +1,6 @@
+Compiler loadPackages: #(
+    #"Kernel"
+    #"Collections-Sequenceable"
+    #"Collections-Unordered"
+    Colors
+).

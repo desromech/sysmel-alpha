@@ -44,7 +44,7 @@ gcclass SimpleBrowser definition: {
     }.
 
     method initializePresentation := {
-        let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+        let nspace := (__global Smalltalk castTo: ProtoObject) sharedNamespace.
         classBindings := nspace associations select: {:each :: ProtoObject | each value isClass}.
 
         classesListView _ when: NorphSelectionChangedEvent do: {:(NorphEvent ref)event :: Void |

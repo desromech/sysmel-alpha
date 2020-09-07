@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+gcclass ProcessSpecificVariable definition: {
+
+}.
+
+}. ## End of namespace Smalltalk

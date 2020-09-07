@@ -2,7 +2,7 @@ namespace Smalltalk definition: {
 namespace __Internal definition: {
 
 function callProcessEntryPoint(processPointer: Void pointer) => IntPointer := {
-    (processPointer reinterpretCastTo: Smalltalk Process)
+    (processPointer reinterpretCastTo: __global Smalltalk Process)
         nativeThreadEntryPoint
 }.
 }.

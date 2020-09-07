@@ -1,1 +1,3 @@
 loadFileOnce: "Process.sysmel".
+loadFileOnce: "ProcessSpecificVariable.sysmel".
+loadFileOnce: "DynamicVariable.sysmel".

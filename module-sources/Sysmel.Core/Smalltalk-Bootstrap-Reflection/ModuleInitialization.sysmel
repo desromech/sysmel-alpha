@@ -42,7 +42,7 @@ ModuleInformation definition: {
     method startUp => Void := {
         ##Stdn stdout << "Module startup: " << name; nl.
         ## Fix the parent relationships.
-        Smalltalk Runtime withReflectionLockedWrite: {
+        __global Smalltalk Runtime withReflectionLockedWrite: {
             parent := nil.
             globalNamespace ifNotNil: {
                 globalNamespace setupProgramEntityParent: self fromModule: self.
@@ -130,7 +130,7 @@ NamespaceInformation definition: {
         := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
 
     method associationAt: key ifAbsent: aBlock := {
-        Smalltalk Runtime withReflectionLockedRead: {
+        __global Smalltalk Runtime withReflectionLockedRead: {
             moduleNamespaces do: {:eachModuleNamespace :: Void |
                 eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
                     return: found
@@ -143,7 +143,7 @@ NamespaceInformation definition: {
 
     method associations := {
         let result := OrderedCollection new.
-        Smalltalk Runtime withReflectionLockedRead: {
+        __global Smalltalk Runtime withReflectionLockedRead: {
             moduleNamespaces do: {:eachModuleNamespace :: Void |
                 result addAll: eachModuleNamespace localSymbolTable associations
             }.
@@ -154,7 +154,7 @@ NamespaceInformation definition: {
 
     method keys := {
         let result := OrderedCollection new.
-        Smalltalk Runtime withReflectionLockedRead: {
+        __global Smalltalk Runtime withReflectionLockedRead: {
             moduleNamespaces do: {:eachModuleNamespace :: Void |
                 result addAll: eachModuleNamespace localSymbolTable keys
             }.

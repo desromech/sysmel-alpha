@@ -53,9 +53,9 @@ function leaveReflectionLockedRead() => Void := {
 }.
 
 macro method withReflectionLockedRead: aBlock := ``{
-    Smalltalk Runtime enterReflectionLockedRead().
+    __global Smalltalk Runtime enterReflectionLockedRead().
     try: `,aBlock finally: {
-        Smalltalk Runtime leaveReflectionLockedRead()
+        __global Smalltalk Runtime leaveReflectionLockedRead()
     }
 }.
 
@@ -113,9 +113,9 @@ function leaveReflectionLockedWrite() => Void := {
 }.
 
 macro method withReflectionLockedWrite: aBlock := ``{
-    Smalltalk Runtime enterReflectionLockedWrite().
+    __global Smalltalk Runtime enterReflectionLockedWrite().
     try: `,aBlock finally: {
-        Smalltalk Runtime leaveReflectionLockedWrite()
+        __global Smalltalk Runtime leaveReflectionLockedWrite()
     }
 }.
 

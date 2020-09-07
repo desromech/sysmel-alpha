@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+gcclass DynamicVariable superclass: ProcessSpecificVariable; definition: {
+
+}.
+
+}. ## End of namespace Smalltalk

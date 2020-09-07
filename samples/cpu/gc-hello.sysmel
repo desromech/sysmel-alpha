@@ -162,11 +162,11 @@ Stdn MainEntryPoint: {:args :: Int32 |
     testWriteFile().
     testMessageNotUnderstood().
 
-    Stdn stdout << (Smalltalk Object name -- " with concat"); nl.
-    Stdn stdout << (Smalltalk Object name -- " with concat") asStdnMutableString; nl.
+    Stdn stdout << (__global Smalltalk Object name -- " with concat"); nl.
+    Stdn stdout << (__global Smalltalk Object name -- " with concat") asStdnMutableString; nl.
 
     Stdn stdout << "Printing Smalltalk global values"; nl.
-    let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+    let nspace := (__global Smalltalk castTo: ProtoObject) sharedNamespace.
     nspace associations do: {:each :: Void |
         Stdn stdout << each; nl.
     }.

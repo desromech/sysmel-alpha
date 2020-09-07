@@ -20,10 +20,10 @@ Behavior definition: {
 	method ensureIsAddedToSuperClass := self.
 
 	method subclassesDo: aBlock
-		:= Smalltalk Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
+		:= __global Smalltalk Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
 
 	method allSubclassesDo: aBlock := {
-		Smalltalk Runtime withReflectionLockedRead: {
+		__global Smalltalk Runtime withReflectionLockedRead: {
 			self subclassesDo: {:cls :: Void |
 				aBlock value: cls.
 				cls allSubclassesDo: aBlock
@@ -33,7 +33,7 @@ Behavior definition: {
 	}.
 
 	method withAllSubclassesDo: aBlock := {
-		Smalltalk Runtime withReflectionLockedRead: {
+		__global Smalltalk Runtime withReflectionLockedRead: {
 			aBlock value: self.
 			self allSubclassesDo: aBlock
 		}
@@ -109,7 +109,7 @@ Class definition: {
 	}.
 
 	method addSubclass: aSubclass ::=> Void := {
-		Smalltalk Runtime withReflectionLockedRead: {
+		__global Smalltalk Runtime withReflectionLockedRead: {
 			(subclasses includes: aSubclass) ifFalse: {
 				subclasses := subclasses copyWith: aSubclass.
 			}.

@@ -1,0 +1,11 @@
+Compiler importModulesNamed: #(
+    #"Smalltalk.Runtime.Core"
+    #"Norphic.Core"
+); loadPackages: #(
+    Announcement
+    Model
+    #"Spec2-Layout"
+    #"Spec2-Core"
+
+    ## #"Spec2-Transmission"
+).

@@ -112,7 +112,7 @@ Metaclass extend: {
 }.
 
 Stdn BasicValuePrinter extend: {
-    method printOn: (aStream: Smalltalk ProtoObject) ::=> Void := {
+    method printOn: (aStream: __global Smalltalk ProtoObject) ::=> Void := {
         0 until: bufferSize do: {:(UIntPointer)i :: Void |
             aStream nextPut: buffer[i]
         }

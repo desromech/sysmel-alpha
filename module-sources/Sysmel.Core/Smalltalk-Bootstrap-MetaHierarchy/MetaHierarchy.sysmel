@@ -120,6 +120,10 @@ gcclass Stream superclass: Object.
 ## Multi-threading
 gcclass Process superclass: Object.
 
+gcclass Locale superclass: Object.
+gcclass Smalltalk superclass: Object.
+gcclass OSPlatform superclass: Object.
+
 ## ProtoObject
 ProtoObject type supertype: Class.
 
@@ -592,7 +596,9 @@ Object definition: {
 		:= self identityHash.
 
 	method -> value
-		:= Association basicNew key: self; value: value; yourself
+		:= Association basicNew key: self; value: value; yourself.
+
+	method flag: flag := self.
 }.
 
 LookupKey definition: {
@@ -644,22 +650,22 @@ macro method generateAtAccessorsForArrayField: arrayField elementType: elementTy
 }.
 
 String definition: {
-	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
-	Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
+	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
+	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
 }.
 
 ByteArray definition: {
 	field __data protected type: UInt8 array.
 
-	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
-	Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
+	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
+	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
 }.
 
 Array definition: {
     field __data protected type: ProtoObject array.
 
-	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
-	Smalltalk generateAtAccessorsForArrayField: __data elementType: ProtoObject.
+	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
+	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: ProtoObject.
 }.
 
 HashedCollection definition: {
