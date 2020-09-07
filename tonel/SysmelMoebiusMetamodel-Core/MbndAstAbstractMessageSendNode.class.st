@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndAstAbstractMessageSendNode,
 	#superclass : #MbndAstNode,
+	#traits : 'TMbndFlagContainer',
+	#classTraits : 'TMbndFlagContainer classTrait',
 	#instVars : [
 		'receiver',
 		'selector',
@@ -23,6 +25,7 @@ MbndAstAbstractMessageSendNode >> arguments: anObject [
 MbndAstAbstractMessageSendNode >> asExpandedDynamicMessageSend [
 	^ MbndAstExpandedDynamicMessageSendNode new
 		position: position;
+		flags: self flags;
 		receiver: receiver;
 		selector: selector;
 		arguments: arguments;
@@ -33,6 +36,7 @@ MbndAstAbstractMessageSendNode >> asExpandedDynamicMessageSend [
 MbndAstAbstractMessageSendNode >> asExpandedMessageSend [
 	^ MbndAstExpandedMessageSendNode new
 		position: position;
+		flags: self flags;
 		receiver: receiver;
 		selector: selector;
 		arguments: arguments;
@@ -43,6 +47,7 @@ MbndAstAbstractMessageSendNode >> asExpandedMessageSend [
 MbndAstAbstractMessageSendNode >> asUnexpandedMessageSend [
 	^ MbndAstUnexpandedMessageSendNode new
 		position: position;
+		flags: self flags;
 		receiver: receiver;
 		selector: selector;
 		arguments: arguments;
@@ -55,6 +60,7 @@ MbndAstAbstractMessageSendNode >> encodeFieldsForMessagePackWith: graphEncoder [
 		#receiver . receiver encodeGraphForMessagePackWith: graphEncoder.
 		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
 		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#flags . flags
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -78,6 +84,7 @@ MbndAstAbstractMessageSendNode >> materializeWithGraphDecoder: graphDecoder with
 	receiver := encodedFields at: #receiver.
 	selector := encodedFields at: #selector.
 	arguments := encodedFields at: #arguments.
+	flags := encodedFields at: #flags.
 ]
 
 { #category : #parsing }
@@ -118,4 +125,14 @@ MbndAstAbstractMessageSendNode >> selector [
 { #category : #accessing }
 MbndAstAbstractMessageSendNode >> selector: anObject [
 	selector := anObject
+]
+
+{ #category : #asserting }
+MbndAstAbstractMessageSendNode >> shouldBeExpandedToDynamicMessage [
+	^ self hasFlag: #shouldBeExpandedToDynamicMessage
+]
+
+{ #category : #asserting }
+MbndAstAbstractMessageSendNode >> shouldBeExpandedToDynamicMessage: value [
+	^ self setFlag: #shouldBeExpandedToDynamicMessage value: value
 ]

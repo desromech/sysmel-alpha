@@ -7923,15 +7923,15 @@ global globalHandle2 externC mutable type: Resource.
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 nil)))
-			(nil call void () ((global 4 nil)))
+			(nil call void () ((global 6 '_ZN10TestModule13globalHandle28..ctor..E')))
+			(nil call void () ((global 4 '_ZN10TestModule12globalHandle8..ctor..E')))
 			(nil returnVoid void () ())
 		)
 	)
@@ -7973,14 +7973,14 @@ global globalHandle2 externC mutable type: Resource; constructionPriority: 0.
 	ctor := ssaModule globalConstructors first.
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 nil)))
+			(nil call void () ((global 6 '_ZN10TestModule13globalHandle28..ctor..E')))
 			(nil returnVoid void () ())
 		)
 	)
@@ -7989,14 +7989,14 @@ function nil cdecl void
 	ctor := ssaModule globalConstructors second.
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..17ConstructorSetup2E' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 4 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule12globalHandle8..ctor..E')))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8033,14 +8033,14 @@ global globalHandle externC mutable type: Resource';
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8078,14 +8078,14 @@ global globalHandle externC mutable := Resource basicNewValue handle: 42';
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8123,14 +8123,14 @@ global globalHandle externC mutable type: Resource := Resource basicNewValue han
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8171,14 +8171,14 @@ global globalHandle externC mutable := Resource for: 42';
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 nil)))))
+			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8188,7 +8188,7 @@ function nil cdecl void
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization4 [
-	| global dtor globalDtor callInstruction ctor globalCtor |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -8219,14 +8219,14 @@ global globalHandle externC mutable type: Resource := Resource for: 42';
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 nil)))))
+			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8236,7 +8236,7 @@ function nil cdecl void
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorPriority [
-	| global dtor globalDtor callInstruction ctor globalCtor |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -8263,14 +8263,14 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 '_ZN10TestModule12globalHandle8..dtor..E')))))
 			(nil returnVoid void () ())
 		)
 	)
@@ -8317,14 +8317,14 @@ global globalHandle externC mutable type: Resource := (Resource newValue handle:
 
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
-function nil cdecl void
+function '_ZN10TestModule5..m..16ConstructorSetupE' cdecl void
 	arguments (
 	)
 	literals (
 	)
 	blocks (
 		(()
-			(nil call void () ((global 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule12globalHandle8..ctor..E')))
 			(nil returnVoid void () ())
 		)
 	)

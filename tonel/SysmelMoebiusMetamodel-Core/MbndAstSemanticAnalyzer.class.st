@@ -711,7 +711,7 @@ MbndAstSemanticAnalyzer >> visitAggregateConstructionWithOrderedElementsNode: no
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
-	| result defaultArgumentType |
+	| result |
 	result := node copy.
 	
 	result name isMbndAstNode ifTrue: [
@@ -728,6 +728,7 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 	result initialValue ifNil: [
 		result valueType ifNil: [
+			| defaultArgumentType |
 			defaultArgumentType := scope defaultArgumentType.
 			defaultArgumentType ifNil: [ 
 				self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
@@ -891,6 +892,13 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	result
 		arguments: (self visitNodesAndCollect: result arguments);
 		returnType: (result returnType ifNotNil: [self evaluateTypeExpression: result returnType]).
+	result returnType ifNil: [
+		| defaultReturnType |
+		defaultReturnType := scope defaultReturnType.
+		defaultReturnType ifNil: [ self error: 'Block closure requires an explicit return type.' at: result
+		].
+		result returnType: defaultReturnType
+	].
 
 	"Create the block closure program entity."
 	owner := scope lookupProgramEntityForNewDefinitions.
@@ -1612,9 +1620,13 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	| result valueType globalVariable owner initialValueFunclet |
 	result := node copy.
 	
+	(result valueType isNil and: [ result initialValue isNil ]) ifTrue: [ 
+		result valueType: scope defaultVariableType
+	].
+
 	"Make sure the value type is evaluated."
 	result valueType ifNotNil: [ 
-		result valueType: (self evaluateTypeExpression: node valueType).
+		result valueType: (self evaluateTypeExpression: result valueType).
 	] ifNil: [
 		result initialValue ifNil: [
 			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { result name asPrettySymbolName } at: node
@@ -1826,6 +1838,9 @@ MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
 	self assert: result blockNode isBlockClosureNode.
 	result blockNode blockClosureProgramEntity makeBlockClosureWithImmediateActivation.
 	result type: result blockNode returnType.
+	result blockNode blockClosureProgramEntity hasExplicitReturnStatement ifTrue: [
+		result type: self compilationTarget returnType
+	].
 	^ result
 ]
 
@@ -3013,27 +3028,35 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
-	| result definitionScope superType |
+	| result definitionScope |
 	result := node copy.
 	result declaration: (self analyzeNodeIfNeeded: result declaration ensurePartOfDefinitionFlagIsMarked).
-	
+
 	"Evaluate the supertype"
-	superType := nil.
 	node superTypeNode ifNotNil: [ :superTypeNode |
-		superType := self evaluateTypeExpression: superTypeNode.
+		superTypeNode isMbndType ifTrue: [
+			result binding setSupertypeFromDefinition: superTypeNode
+		] ifFalse: [ 
+			result binding addPendingDefinitionFragment: (MbndPendingDefinitionSupertype new
+				type: result binding;
+				module: module;
+				node: superTypeNode;
+				scope: scope;
+				yourself)
+		].
 	] ifNil: [
 		typeKindClass == MbndGCClassType ifTrue: [ 
-			superType := self compilationTarget defaultGCClassSuperClass
+			result binding addPendingDefinitionFragment: (MbndPendingDefinitionEnsureDefaultSupertype new
+				type: result binding;
+				module: module;
+				scope: scope;
+				yourself).
 		]
-	].
-
-	superType ifNotNil: [ 
-		result binding setSupertypeFromDefinition: superType
 	].
 
 	"Set the defined flag"
 	result binding markAsDefined.
-	
+
 	"Create a new lexical scope for the definition body."	
 	definitionScope := ((result binding programEntityScope parent: scope) newLexicalScopeAt: result).
 	

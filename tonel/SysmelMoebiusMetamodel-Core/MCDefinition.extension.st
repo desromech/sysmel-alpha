@@ -9,3 +9,8 @@ MCDefinition >> buildMbndASTNodeForTonelPackageIn: packageDirectory with: builde
 MCDefinition >> buildMbndASTNodeWith: builder [
 	^ nil
 ]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
+MCDefinition >> mbndDefinitionSortKey [
+	^ 0
+]

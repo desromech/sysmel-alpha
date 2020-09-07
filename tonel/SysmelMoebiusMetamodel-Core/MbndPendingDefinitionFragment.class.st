@@ -14,6 +14,11 @@ MbndPendingDefinitionFragment >> evaluate [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+MbndPendingDefinitionFragment >> isSupertypeDefinition [
+	^ false
+]
+
 { #category : #accessing }
 MbndPendingDefinitionFragment >> module [
 	^ module

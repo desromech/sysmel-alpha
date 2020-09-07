@@ -72,6 +72,7 @@ Trait {
 		'exceptionCleanUpEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -230,7 +231,7 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 
 	"Promote to dynobject type."
 	(leftType isGarbageCollectedType or: [ rightType isGarbageCollectedType ]) ifTrue: [ 
-		(leftType isGarbageCollectedType and: [ rightType isGarbageCollectedType ]) ifTrue: [ 
+		(leftType isGCClassType and: [ rightType isGCClassType ]) ifTrue: [ 
 			(leftType isSubtypeOf: rightType) ifTrue: [ ^ rightType ].
 			(rightType isSubtypeOf: leftType) ifTrue: [ ^ leftType ].
 			"TODO: Find a common ancestor"
@@ -800,8 +801,8 @@ TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 		(UInt16 Float32 Float32)
 		(Int32 Float32 Float32)
 		(UInt32 Float32 Float32)
-		(Int64 Float32 nil)
-		(UInt64 Float32 nil)
+		(Int64 Float32 Float64)
+		(UInt64 Float32 Float64)
 
 		"Integer float64."
 		(Int8 Float64 Float64)

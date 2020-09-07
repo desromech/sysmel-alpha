@@ -79,5 +79,10 @@ BaselineOfSysmel >> baseline: spec [
 			package: #'SysmelGPUBlocks-AbstractGPU-Tests' with: [
 				spec requires: #(#'SysmelGPUBlocks-Core-Tests')
 			].
+		spec
+			package: #'SysmelCalypso' with: [
+				spec requires: #(#'SysmelMoebiusMetamodel-Core' #'SysmelLanguage-Pharo')
+			].
+
 	].
 ]

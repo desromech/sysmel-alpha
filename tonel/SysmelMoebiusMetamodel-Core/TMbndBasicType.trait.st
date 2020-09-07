@@ -5,6 +5,7 @@ Trait {
 		'type'
 	],
 	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -40,6 +41,11 @@ TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	].
 
 	^ nil
+]
+
+{ #category : #'type hierarchy' }
+TMbndBasicType >> evaluateSuperTypePendingDefinitionFragments [
+	
 ]
 
 { #category : #testing }
@@ -125,6 +131,7 @@ TMbndBasicType >> setSupertypeFromDefinition: newSupertype [
 
 { #category : #'type hierarchy' }
 TMbndBasicType >> supertype [
+	self evaluateSuperTypePendingDefinitionFragments.
 	^ supertype
 ]
 
@@ -153,6 +160,9 @@ TMbndBasicType >> supertype: aType [
 { #category : #'type hierarchy' }
 TMbndBasicType >> type [
 	<compileTime>
+	self isMetaType ifTrue: [ 
+		self evaluateSuperTypePendingDefinitionFragments.
+	].
 	^ type
 ]
 

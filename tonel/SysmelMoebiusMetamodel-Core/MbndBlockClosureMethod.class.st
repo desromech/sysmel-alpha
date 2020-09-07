@@ -207,7 +207,7 @@ MbndBlockClosureMethod >> evaluateApplicationWithCapturedValues: capturedValues 
 	self ensureSemanticAnalysis.
 	self assert: argumentValues size = arguments size.
 	
-	self pragmaAt: #intrinsic: ifPresent: [ :intrinsic |
+	self intrinsicName ifNotNil: [ :intrinsic |
 		self halt
 	].
 
@@ -255,6 +255,11 @@ MbndBlockClosureMethod >> getOrCreateCapturedVariableDefinition: originalVariabl
 		capturedVariables add: capturedVariable.
 		capturedVariable
 	].
+]
+
+{ #category : #'semantic analysis' }
+MbndBlockClosureMethod >> hasExplicitReturnStatement [
+	^ self analyzedBody expression expression type isReturnType
 ]
 
 { #category : #adding }

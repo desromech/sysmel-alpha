@@ -1813,7 +1813,7 @@ MbndSlovimFunctionCodeGenerator >> initializeNonLocalReturnContext [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> makeDynamicArrayInstanceWithFixedSize: fixedSize [
-	| arrayClass method requiredArgumentType receiver argument constructor |
+	| arrayClass method requiredArgumentType receiver argument constructor methodGroup |
 	arrayClass := self compilationTarget managedObjectModel arrayClass.
 	fixedSize = 0 ifTrue: [
 		| emptyArray |
@@ -1821,10 +1821,10 @@ MbndSlovimFunctionCodeGenerator >> makeDynamicArrayInstanceWithFixedSize: fixedS
 		^ slvmBuilder bitCast: emptyArray target: (self translateType: arrayClass)
 	].
 
-	method := arrayClass type lookupOverloadedSelector: #basicNew:.
-	self assert: method isNotNil.
-	self assert: method isConcreteMethod.
-	self assert: method boundType argumentTypes size = 1.
+	methodGroup := arrayClass type lookupOverloadedSelector: #basicNew:.
+	method := methodGroup isMethodGroup ifTrue: [
+		methodGroup overloadedEntities detect: [ :each | each boundType argumentTypes size = 1 and: [ each boundType argumentTypes first isPrimitiveIntegerType ] ].
+	] ifFalse: [ methodGroup ].
 	
 	requiredArgumentType := method boundType argumentTypes first.
 	self assert: requiredArgumentType isPrimitiveIntegerType.
@@ -1950,8 +1950,8 @@ MbndSlovimFunctionCodeGenerator >> setupSSAFunction: aSSAFunction definitionWith
 	concreteMethod isConcreteMethod ifTrue: [ 
 		self assert: concreteMethod analyzedBody isNotNil.
 	
-		concreteMethod pragmaAt: #intrinsic: ifPresent: [ :pragma |
-			(self generateMethodBodyForIntrinsic: pragma arguments first value) ifTrue: [ ^ true ]
+		concreteMethod intrinsicName ifNotNil: [ :intrinsicName |
+			(self generateMethodBodyForIntrinsic: intrinsicName) ifTrue: [ ^ true ]
 		].
 	].
 
@@ -2454,11 +2454,10 @@ MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
-	| functionValue argumentValues intrinsicName expectedResultType hiddenReceiverArgument hiddenReceiverArgumentIndex |
+	| functionValue expectedResultType hiddenReceiverArgument hiddenReceiverArgumentIndex |
 	functionValue := nil.
 	node function isMethodReferenceNode ifTrue: [ 
-		node function binding pragmaAt: #intrinsic: ifPresent: [ :pragma |
-			intrinsicName := pragma arguments first value.
+		node function binding intrinsicName ifNotNil: [ :intrinsicName |
 			(EvaluationOnlyIntrinsics includes: intrinsicName) ifFalse: [
 				functionValue := codeModuleGenerator intrinsicConstantBuiltInFunction: (IntrinsicTargetMap at: intrinsicName ifAbsent: [ intrinsicName ]) withType: node function binding type.
 			].

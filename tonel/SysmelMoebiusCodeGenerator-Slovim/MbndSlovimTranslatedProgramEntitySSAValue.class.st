@@ -9,8 +9,8 @@ Class {
 
 { #category : #'as yet unclassified' }
 MbndSlovimTranslatedProgramEntitySSAValue >> generateExpandedMessageSendNode: node with: codeGenerator [
-	programEntity pragmaAt: #intrinsic: ifPresent: [ :pragma |
-		^ codeGenerator generateExpandedMessageSendNode: node withIntrinsicName: pragma arguments first value
+	programEntity intrinsicName ifNotNil: [ :intrinsicName |
+		^ codeGenerator generateExpandedMessageSendNode: node withIntrinsicName: intrinsicName
 	].
 	^ codeGenerator generateExpandedMessageSendNode: node withDeclaredMethod: programEntity
 ]

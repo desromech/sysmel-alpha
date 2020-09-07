@@ -8,3 +8,8 @@ Class {
 MbndPharoEmbeddedDoItLanguage class >> languageName [
 	^ #pharoEmbedded
 ]
+
+{ #category : #'as yet unclassified' }
+MbndPharoEmbeddedDoItLanguage >> strictPharoMode [
+	^ false
+]

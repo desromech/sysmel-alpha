@@ -407,7 +407,10 @@ MbndStandaloneModule >> evaluateModuleLevelFilesIfExists: fileName [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> evaluateTonelPackageNamed: packageName inRepository: repositoryDirectory [
 	| mcDefinitions astBuilder definitionNodes packageDirectory convertedPackageExpression language |
-	mcDefinitions := (TonelReader on: repositoryDirectory fileName: packageName) definitions.
+	mcDefinitions := (TonelReader on: repositoryDirectory fileName: packageName) definitions
+		sorted: [:a :b |
+		a mbndDefinitionSortKey < b mbndDefinitionSortKey
+	].
 	packageDirectory := repositoryDirectory / packageName.
 	
 	astBuilder := MbndAstBuilder forModule: self.

@@ -20,6 +20,18 @@ MbndVoidType >> accept: aVisitor [
 	^ aVisitor visitVoidType: self
 ]
 
+{ #category : #adding }
+MbndVoidType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	
+	self
+		addConversionRule: (MbndConcretizeUndefinedTypeConversionRule when: [:source :target |
+			source isReturnType not and:
+			[target withoutTopDecorations isGarbageCollectedType and: [target withoutTopDecorations == self compilationTarget dynamicObjectType]]
+	])
+
+]
+
 { #category : #'default values' }
 MbndVoidType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self

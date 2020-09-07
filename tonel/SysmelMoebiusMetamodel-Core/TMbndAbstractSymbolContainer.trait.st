@@ -86,7 +86,7 @@ TMbndAbstractSymbolContainer >> findOrAddGlobalVariableNamed: name valueType: va
 		type: type;
 		yourself.
 	self addChild: globalVariable.
-	self setLocalSymbol: name value: globalVariable.
+	self setLocalSymbol: name valueToGlobalVariable: globalVariable.
 	globalVariable enqueueDelayedSemanticAnalysis.
 	^ globalVariable
 ]
@@ -146,4 +146,9 @@ TMbndAbstractSymbolContainer >> lookupSymbol: aSymbol [
 { #category : #'member symbols' }
 TMbndAbstractSymbolContainer >> setLocalSymbol: symbol value: value [
 	self explicitRequirement
+]
+
+{ #category : #'overloaded methods' }
+TMbndAbstractSymbolContainer >> setLocalSymbol: name valueToGlobalVariable: globalVariable [
+	self setLocalSymbol: name value: globalVariable.
 ]

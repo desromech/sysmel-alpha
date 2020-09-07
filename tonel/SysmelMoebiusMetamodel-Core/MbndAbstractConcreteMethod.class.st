@@ -299,7 +299,7 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 	self assert: receiverType isVoidType = receiverValue isNil.
 	self assert: argumentValues size = argumentsWithoutReceiver size.
 	
-	self pragmaAt: #intrinsic: ifPresent: [ :intrinsic |
+	self intrinsicName ifNotNil: [ :intrinsic |
 		self halt
 	].
 

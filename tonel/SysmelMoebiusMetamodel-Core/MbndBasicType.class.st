@@ -347,6 +347,24 @@ MbndBasicType >> evaluateAllPendingDefinitionFragments [
 ]
 
 { #category : #'as yet unclassified' }
+MbndBasicType >> evaluateAllPendingDefinitionFragmentsThat: aBlock [
+	| toEvaluate |
+	self isStrictMetaType ifTrue: [ 
+		self instanceType ifNotNil: [:it | it evaluateAllPendingDefinitionFragmentsThat: aBlock ]
+	].
+
+	(pendingDefinitionFragments isNil or: [pendingDefinitionFragments isEmpty]) ifTrue: [ ^ self ].
+	toEvaluate := pendingDefinitionFragments select: aBlock.
+	pendingDefinitionFragments := pendingDefinitionFragments reject: aBlock.
+	toEvaluate do: [ :each | each evaluate ]
+]
+
+{ #category : #'type hierarchy' }
+MbndBasicType >> evaluateSuperTypePendingDefinitionFragments [
+	self evaluateAllPendingDefinitionFragmentsThat: [ :each | each isSupertypeDefinition ]
+]
+
+{ #category : #'as yet unclassified' }
 MbndBasicType >> fullName [
 	^ name ifNil: [ ^ self printString ]
 ]
@@ -577,6 +595,14 @@ MbndBasicType >> recordOverloadedMethodAddition: method withSelector: selector [
 		]
 	].
 
+]
+
+{ #category : #initialization }
+MbndBasicType >> setLocalSymbol: symbol valueToGlobalVariable: globalVariable [
+	self setLocalSymbol: symbol value: globalVariable.
+	(self type isMetaType and: [ self type instanceType == self ]) ifTrue: [ 
+		self type setLocalSymbol: symbol value: globalVariable.
+	].
 ]
 
 { #category : #initialization }

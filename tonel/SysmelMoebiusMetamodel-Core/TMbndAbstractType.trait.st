@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -267,7 +268,7 @@ TMbndAbstractType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyze
 		^ st analyzeUnboundUnexpandedMessageSendNode: node with: analyzer
 	].
 
-	^ analyzer visitNode: node asExpandedMessageSend
+	^ analyzer visitNode: (node receiver type expandUnexpandedMessageSend: node)
 ]
 
 { #category : #'semantic analysis' }
@@ -613,6 +614,15 @@ TMbndAbstractType >> defaultValueAt: aPosition [
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> defaultVariableType [
 	^ nil
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> expandUnexpandedMessageSend: node [
+	(self isGarbageCollectedType and: [ node shouldBeExpandedToDynamicMessage ]) ifTrue: [ 
+		^ node asExpandedDynamicMessageSend
+	].
+	
+	^ node asExpandedMessageSend
 ]
 
 { #category : #'meta builder factories' }

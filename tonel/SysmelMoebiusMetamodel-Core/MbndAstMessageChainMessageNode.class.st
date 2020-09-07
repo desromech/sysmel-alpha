@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndAstMessageChainMessageNode,
 	#superclass : #MbndAstNode,
+	#traits : 'TMbndFlagContainer',
+	#classTraits : 'TMbndFlagContainer classTrait',
 	#instVars : [
 		'selector',
 		'arguments'
@@ -27,6 +29,7 @@ MbndAstMessageChainMessageNode >> arguments: anObject [
 MbndAstMessageChainMessageNode >> asUnexpandedMessageSend [
 	^ MbndAstUnexpandedMessageSendNode new
 		position: self;
+		flags: self flags;
 		selector: selector;
 		arguments: arguments;
 		yourself
@@ -37,6 +40,7 @@ MbndAstMessageChainMessageNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
 		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#flags . flags
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -50,6 +54,7 @@ MbndAstMessageChainMessageNode >> materializeWithGraphDecoder: graphDecoder with
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	selector := encodedFields at: #selector.
 	arguments := encodedFields at: #arguments.
+	flags := encodedFields at: #flags.
 ]
 
 { #category : #accessing }
@@ -60,4 +65,14 @@ MbndAstMessageChainMessageNode >> selector [
 { #category : #accessing }
 MbndAstMessageChainMessageNode >> selector: anObject [
 	selector := anObject
+]
+
+{ #category : #asserting }
+MbndAstMessageChainMessageNode >> shouldBeExpandedToDynamicMessage [
+	^ self hasFlag: #shouldBeExpandedToDynamicMessage
+]
+
+{ #category : #asserting }
+MbndAstMessageChainMessageNode >> shouldBeExpandedToDynamicMessage: value [
+	^ self setFlag: #shouldBeExpandedToDynamicMessage value: value
 ]

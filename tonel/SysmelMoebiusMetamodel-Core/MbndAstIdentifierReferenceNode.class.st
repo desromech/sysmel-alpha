@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndAstIdentifierReferenceNode,
 	#superclass : #MbndAstNode,
+	#traits : 'TMbndFlagContainer',
+	#classTraits : 'TMbndFlagContainer classTrait',
 	#instVars : [
 		'symbol'
 	],
@@ -26,6 +28,7 @@ MbndAstIdentifierReferenceNode >> asLiteralSymbolNodeFor: aCompilationTarget [
 MbndAstIdentifierReferenceNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#symbol . symbol encodeGraphForMessagePackWith: graphEncoder.
+		#flags . flags
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -43,6 +46,7 @@ MbndAstIdentifierReferenceNode >> isIdentifierReferenceNode [
 MbndAstIdentifierReferenceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	symbol := encodedFields at: #symbol.
+	flags := encodedFields at: #flags.
 ]
 
 { #category : #parsing }
@@ -56,6 +60,16 @@ MbndAstIdentifierReferenceNode >> parseAsArgumentDefinition [
 { #category : #parsing }
 MbndAstIdentifierReferenceNode >> parseAsFunctionArgumentsPrototype [
 	^ { self parseAsArgumentDefinition }
+]
+
+{ #category : #serialization }
+MbndAstIdentifierReferenceNode >> shouldBeAccessedAsDynamicObject [
+	^ self hasFlag: #shouldBeAccessedAsDynamicObject
+]
+
+{ #category : #serialization }
+MbndAstIdentifierReferenceNode >> shouldBeAccessedAsDynamicObject: aBoolean [
+	self setFlag: #shouldBeAccessedAsDynamicObject value: aBoolean
 ]
 
 { #category : #accessing }

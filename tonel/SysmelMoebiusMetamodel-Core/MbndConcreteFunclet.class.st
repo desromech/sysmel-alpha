@@ -36,6 +36,11 @@ MbndConcreteFunclet >> definitionBody [
 	^ definitionNode
 ]
 
+{ #category : #'semantic analysis' }
+MbndConcreteFunclet >> hasExplicitReturnStatement [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 MbndConcreteFunclet >> inferResultValueType [
 	self ensureSemanticAnalysis.

@@ -17,6 +17,11 @@ MbndAbstractNamespace >> fillProgramEntityInfoInstance: programEntityInfoInstanc
 	programEntityInfoInstance setField: #localSymbolTable ifExistsWith: [ self localSymbolTableInstanceObject ]
 ]
 
+{ #category : #composition }
+MbndAbstractNamespace >> mbndLiteralTypeWithTarget: compilationTarget [
+	^ compilationTarget namespaceType
+]
+
 { #category : #serialization }
 MbndAbstractNamespace >> messagePackTypeName [
 	^ self class messagePackTypeName

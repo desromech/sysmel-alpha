@@ -2,6 +2,7 @@ Class {
 	#name : #MbndAbstractSpecificMethod,
 	#superclass : #MbndAbstractMethod,
 	#instVars : [
+		'intrinsicName',
 		'receiverType',
 		'type',
 		'boundType',
@@ -93,6 +94,10 @@ MbndAbstractSpecificMethod >> analyzePragmaInDefinitionBodyWithSelector: selecto
 		self addFlag: selector.
 	].
 
+	(intrinsicName isNil and: [ selector == #intrinsic: ]) ifTrue: [
+		intrinsicName := arguments first value asSymbol.
+	].
+
 ]
 
 { #category : #'semantic analysis' }
@@ -180,6 +185,7 @@ MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
 		#type . self type encodeGraphForMessagePackWith: graphEncoder.
 		#boundType . self boundType encodeGraphForMessagePackWith: graphEncoder.
+		#intrinsicName . intrinsicName.
 	} , ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ { 
 		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
 		#typedSelector . typedSelector .
@@ -267,6 +273,20 @@ MbndAbstractSpecificMethod >> initialize [
 	lambdaChildren := OrderedCollection new.
 ]
 
+{ #category : #accessing }
+MbndAbstractSpecificMethod >> intrinsicName [
+	^ intrinsicName ifNil: [ self pragmaAt: #intrinsic: ifPresent: [ :pragma |
+			intrinsicName := pragma arguments first value asSymbol.
+		].
+		intrinsicName
+	]
+]
+
+{ #category : #accessing }
+MbndAbstractSpecificMethod >> intrinsicName: anObject [
+	intrinsicName := anObject
+]
+
 { #category : #testing }
 MbndAbstractSpecificMethod >> isAbstractSpecificMethod [
 	^ true
@@ -338,6 +358,7 @@ MbndAbstractSpecificMethod >> materializeWithGraphDecoder: graphDecoder withFiel
 	receiverType := encodedFields at: #receiverType.
 	type := encodedFields at: #type.
 	boundType := encodedFields at: #boundType.
+	intrinsicName := encodedFields at: #intrinsicName.
 
 	nonLocalResultVariable := encodedFields at: #nonLocalResultVariable ifAbsent: [nil].
 	typedSelector := encodedFields at: #typedSelector ifAbsent: [nil].

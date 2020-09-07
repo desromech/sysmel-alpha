@@ -34,7 +34,14 @@ MbndAbstractPharoLanguage >> convertParseError: message at: index in: sourceColl
 MbndAbstractPharoLanguage >> generateMoebiusASTFromRBAst: rbAST parsedFromSourceCollection: sourceCollection [
 	| astBuilder convertedAST |
 	astBuilder := MbndAstBuilder forModule: targetModule.
-	convertedAST := MbndRBAstConverter new convertAST: rbAST parsedFromSourceCollection: sourceCollection withBuilder: astBuilder.
+	convertedAST := MbndRBAstConverter new
+		strictPharoMode: self strictPharoMode;
+		convertAST: rbAST parsedFromSourceCollection: sourceCollection withBuilder: astBuilder.
 	self assert: convertedAST isMbndAstNode.
 	^ convertedAST
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractPharoLanguage >> strictPharoMode [
+	^ true
 ]

@@ -21,6 +21,16 @@ MbndRGEnvironmentBackend >> addBehavior: anRGBehavior to: anRGEnvironment [
 ]
 
 { #category : #environment }
+MbndRGEnvironmentBackend >> addExtensionMethod: anRGMethod to: aRGPackage [
+	| result |
+	result := super addExtensionMethod: anRGMethod to: aRGPackage.
+	aRGPackage package name = #unresolved ifTrue: [ ^ result ].
+	loadingEnvironment ifTrue: [ ^ result ].
+	self savePackageExtensionsToTone: aRGPackage.
+	^ result
+]
+
+{ #category : #environment }
 MbndRGEnvironmentBackend >> addLocalMethod: anRGMethod to: anRGBehavior [
 	| result |
 	result := super addLocalMethod: anRGMethod to: anRGBehavior.
@@ -58,6 +68,19 @@ MbndRGEnvironmentBackend >> compilationEnvironment: anObject [
 	compilationEnvironment := anObject
 ]
 
+{ #category : #environment }
+MbndRGEnvironmentBackend >> deleteBehaviorFromTonel: behavior [
+	| className classTargetDirectory |
+	behavior package name = #unresolved ifTrue: [ ^ self ].
+	className := behavior instanceSide name.
+	className ifNil: [ ^ self ].
+	(behavior package name beginsWith: '[Import]') ifTrue: [ ^ self ].
+	
+	classTargetDirectory := targetDirectory / behavior package name.
+	(classTargetDirectory / (behavior name , '.class.st')) ensureDelete.
+	(classTargetDirectory / (behavior name , '.trait.st')) ensureDelete.
+]
+
 { #category : #accessing }
 MbndRGEnvironmentBackend >> loadingEnvironment [
 	^ loadingEnvironment
@@ -75,11 +98,22 @@ MbndRGEnvironmentBackend >> notSupportedOperation [
 
 { #category : #environment }
 MbndRGEnvironmentBackend >> removeBehavior: anRGBehavior from: anRGEnvironment [
-	loadingEnvironment ifFalse: [
-		Transcript show: anRGBehavior; cr.
-	].
+	| result |
+	result := super removeBehavior: anRGBehavior from: anRGEnvironment.
+	anRGBehavior package name = #unresolved ifTrue: [ ^ result ].
+	loadingEnvironment ifTrue: [ ^ result ].
+	self deleteBehaviorFromTonel: anRGBehavior.
+	^ result
+]
 
-	^ super removeBehavior: anRGBehavior from: anRGEnvironment
+{ #category : #environment }
+MbndRGEnvironmentBackend >> removeExtensionMethod: anRGMethod from: aRGPackage [
+	| result |
+	result := super removeExtensionMethod: anRGMethod from: aRGPackage.
+	aRGPackage package name = #unresolved ifTrue: [ ^ result ].
+	loadingEnvironment ifTrue: [ ^ result ].
+	self savePackageExtensionsToTone: aRGPackage.
+	^ result
 ]
 
 { #category : #environment }
@@ -114,6 +148,7 @@ MbndRGEnvironmentBackend >> saveBehaviorToTonel: behavior [
 	behavior package name = #unresolved ifTrue: [ ^ self ].
 	className := behavior instanceSide name.
 	className ifNil: [ ^ self ].
+	(behavior package name beginsWith: '[Import]') ifTrue: [ ^ self ].
 	
 	behaviors := {behavior instanceSide . behavior classSide}.
 	definitions := OrderedCollection new.
@@ -126,6 +161,35 @@ MbndRGEnvironmentBackend >> saveBehaviorToTonel: behavior [
 	classTargetDirectory ensureCreateDirectory.
 	
 	(TonelWriter on: classTargetDirectory) writePartialSnapshot: (MCSnapshot fromDefinitions: definitions).
+]
+
+{ #category : #environment }
+MbndRGEnvironmentBackend >> savePackageExtensionsToTone: package [
+	| definitions packageTargetDirectory |
+	package name = #unresolved ifTrue: [ ^ self ].
+	(package name beginsWith: '[Import]') ifTrue: [ ^ self ].
+	
+	definitions := OrderedCollection new.
+	definitions
+		addAll: (package extensionMethods collect: [:each | each asMCDefinition]).
+
+	packageTargetDirectory := targetDirectory / package name.
+	packageTargetDirectory ensureCreateDirectory.
+	packageTargetDirectory children do: [ :each |
+		(each basename endsWith: '.extension.st') ifTrue: [ each delete ]
+	].
+	
+	(TonelWriter on: packageTargetDirectory) writePartialSnapshot: (MCSnapshot fromDefinitions: definitions).
+]
+
+{ #category : #environment }
+MbndRGEnvironmentBackend >> setCommentFor: anRGBehavior to: anRGComment [
+	| result |
+	result := super setCommentFor: anRGBehavior to: anRGComment.
+	anRGBehavior package name = #unresolved ifTrue: [ ^ result ].
+	loadingEnvironment ifTrue: [ ^ result ].
+	self saveBehaviorToTonel: anRGBehavior.
+	^ result
 ]
 
 { #category : #environment }
@@ -142,7 +206,13 @@ MbndRGEnvironmentBackend >> setSourceCodeFor: anRGMethod to: anObject [
 	| result |
 	result := super setSourceCodeFor: anRGMethod to: anObject.
 	loadingEnvironment ifTrue: [ ^ result ].
-	self saveBehaviorToTonel: anRGMethod parent.
+	anRGMethod isExtension ifTrue: [
+		anRGMethod package name = #unresolved ifFalse: [ 
+			self savePackageExtensionsToTone: anRGMethod package.
+		].
+	] ifFalse: [ 
+		self saveBehaviorToTonel: anRGMethod parent.
+	].
 	^ result
 	
 ]

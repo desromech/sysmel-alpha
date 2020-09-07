@@ -50,7 +50,7 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 	blockNode := basicExpansion blockNode.
 	bodyNode := blockNode.
 	blockNode isBlockClosureNode ifTrue: [
-		blockNode arguments size < node argumentNodes size ifTrue: [ 
+		node argumentNodes size < blockNode arguments size ifTrue: [ 
 			self error: 'Insufficient number of arguments for inline block expansion. Only {1} arguments are provided.' format: { node argumentNodes size asString } at: node
 		].
 	
