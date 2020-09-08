@@ -83,6 +83,7 @@ gcclass Collection superclass: Object.
     gcclass SequenceableCollection superclass: Collection.
 		gcclass ArrayedCollection superclass: SequenceableCollection.
 			gcclass Array superclass: ArrayedCollection.
+				gcclass WeakArray weakSubclass superclass: Array.
 			gcclass ByteArray superclass: ArrayedCollection.
 			gcclass FloatArray superclass: ArrayedCollection.
 			gcclass IntegerArray superclass: ArrayedCollection.
@@ -93,6 +94,8 @@ gcclass Collection superclass: Object.
 		gcclass Interval superclass: SequenceableCollection.
 		gcclass LinkedList superclass: SequenceableCollection.
 		gcclass OrderedCollection superclass: SequenceableCollection.
+	gcclass WeakRegistry superclass: Collection.
+	gcclass WeakFinalizationList superclass: Collection.
 
 
 ## Block closures

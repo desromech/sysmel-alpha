@@ -1,6 +1,29 @@
 namespace Smalltalk definition: {
 
 gcclass Semaphore superclass: Object; definition: {
+    field handle type: Stdn Semaphore.
+
+    meta definition: {
+        method forMutualExclusion
+            := self new signal
+    }.
+
+    method signal := {
+        handle signal.
+        self.
+    }.
+
+    method wait := {
+        handle wait.
+        self.
+    }.
+
+    method with: aBlock := {
+        try: {
+            handle wait.
+            aBlock value
+        } finally: {handle signal}
+    }.
 }.
 
 }. ## End of namespace Smalltalk

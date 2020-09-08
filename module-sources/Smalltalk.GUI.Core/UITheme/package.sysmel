@@ -1,0 +1,5 @@
+namespace Smalltalk definition: {
+    Smalltalk meta definition: {
+        method ui := UIThemeRegistry.
+    }.
+}.

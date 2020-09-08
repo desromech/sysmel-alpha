@@ -3,4 +3,5 @@ Compiler loadPackages: #(
     #"Collections-Sequenceable"
     #"Collections-Unordered"
     Colors
+    #"Announcements-Core"
 ).

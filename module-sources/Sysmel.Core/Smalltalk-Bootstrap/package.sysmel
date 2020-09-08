@@ -7,4 +7,5 @@ Compiler loadPackages: #(
     #"Smalltalk-Bootstrap-Reflection"
     #"Smalltalk-Bootstrap-Concurrency"
     #"Smalltalk-Bootstrap-Platform"
+    #"Smalltalk-Bootstrap-Finalization"
 ).

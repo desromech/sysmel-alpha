@@ -2,8 +2,8 @@ Compiler importModulesNamed: #(
     #"Smalltalk.Runtime.Core"
     #"Norphic.Core"
 ); loadPackages: #(
-    Announcement
-    Model
+    #"System-Model"
+    UITheme
     #"Spec2-Layout"
     #"Spec2-Core"
 

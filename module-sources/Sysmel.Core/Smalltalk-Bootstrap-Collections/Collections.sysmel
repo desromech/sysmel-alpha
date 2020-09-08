@@ -146,6 +146,25 @@ Collection definition: {
 
 	method copyWithout: anElement
 		:= self reject: {:each | each = anElement}.
+
+	method detect: aBlock ifNone: exceptionBlock
+		:= self detect: aBlock ifFound: {:element | element } ifNone: exceptionBlock.
+
+	method detect: aBlock ifFound: foundBlock
+		:= self detect: aBlock ifFound: foundBlock ifNone: {| nil }.
+
+	method detect: aBlock ifFound: foundBlock ifNone: exceptionBlock := {
+		self do: {:each :: Void |
+			(aBlock value: each) ifTrue: {
+				return: (foundBlock cull: each)
+			}
+		}.
+
+		exceptionBlock value
+	}.
+
+	method detect: aBlock
+		:= self detect: aBlock ifNone: {| self errorNotFound: aBlock}.
 }.
 
 UndefinedObject extend: {

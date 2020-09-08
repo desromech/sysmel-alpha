@@ -1,0 +1,15 @@
+namespace Smalltalk definition: {
+
+WeakArray definition: {
+    meta definition: {
+        method addWeakDependent: anObject := {
+
+        }.
+
+        method removeWeakDependent: anObject := {
+
+        }.
+    }.
+}.
+
+}. ## End of namespace Smalltalk

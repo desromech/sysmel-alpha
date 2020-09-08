@@ -1,6 +1,13 @@
 namespace Smalltalk definition: {
 
 gcclass Mutex superclass: Object; definition: {
+    field handle type: Stdn RecursiveMutex.
+
+    method critical: aBlock := {
+        handle withLock: {
+            aBlock value
+        }
+    }.
 }.
 
 }. ## End of namespace Smalltalk
