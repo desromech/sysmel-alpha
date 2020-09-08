@@ -6,4 +6,5 @@ Compiler loadPackages: #(
     #"Smalltalk-Bootstrap-Exceptions"
     #"Smalltalk-Bootstrap-Reflection"
     #"Smalltalk-Bootstrap-Concurrency"
+    #"Smalltalk-Bootstrap-Platform"
 ).

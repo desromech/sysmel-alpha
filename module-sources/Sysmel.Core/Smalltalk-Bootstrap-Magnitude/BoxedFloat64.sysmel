@@ -16,22 +16,22 @@ BoxedFloat64 extend: {
 		:= __float64Value abs.
 
 	method sign
-		:= __float64Value sign.
+		:= __float64Value sign castTo: IntPointer.
 
 	method floor
-		:= __float64Value floor.
+		:= __float64Value floor castTo: Int64.
 
 	method ceiling
-		:= __float64Value ceiling.
+		:= __float64Value ceiling castTo: Int64.
 
 	method truncated
-		:= __float64Value truncated.
+		:= __float64Value truncated castTo: Int64.
 
 	method rounded
-		:= __float64Value rounded.
+		:= __float64Value rounded castTo: Int64.
 
 	method fract
-		:= __float64Value fract.
+		:= __float64Value fract castTo: Int64.
 
 	method fractionPart
 		:= __float64Value fract.

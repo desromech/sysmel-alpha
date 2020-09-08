@@ -1,0 +1,49 @@
+namespace Smalltalk definition: {
+
+gcclass SessionManager superclass: Object; definition: {
+    global Default mutable.
+
+    meta definition: {
+        method default := {
+            Default ifNil: {Default := self new}.
+        }
+    }.
+
+    method registerGuiClassNamed: aClassName := {
+        self
+    }.
+
+    method registerGuiClassNamed: aClassName atPriority: anInteger := {
+        self
+    }.
+
+    method registerLast: aSessionHandler inCategory: aCategory := {
+        self
+    }.
+
+    method registerNetworkClassNamed: aClassName := {
+        self
+    }.
+
+    method registerSystemClassNamed: aClassName := {
+        self
+    }.
+
+    method registerSystemClassNamed: aClassName atPriority: anInteger := {
+        self
+    }.
+
+    method registerToolClassNamed: aClassName := {
+        self
+    }.
+
+    method registerUserClassNamed: aClassName := {
+        self
+    }.
+
+    method registerUserClassNamed: aClassName atPriority: anInteger := {
+        self
+    }.
+}.
+
+}. ## End of namespace Smalltalk

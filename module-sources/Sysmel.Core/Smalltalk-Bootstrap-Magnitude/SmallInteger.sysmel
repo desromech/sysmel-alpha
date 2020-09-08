@@ -153,6 +153,102 @@ SmallInteger extend: {
 		super <=> aNumber
 	}.
 
+	method bitAnd: aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a bitAnd: b)
+		}.
+
+        super bitAnd: aNumber
+    }.
+
+	method & aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a & b)
+		}.
+
+        super & aNumber
+    }.
+
+	method bitOr: aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a bitOr: b)
+		}.
+
+        super bitOr: aNumber
+    }.
+
+	method | aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a bitOr: b)
+		}.
+
+        super | aNumber
+    }.
+
+	method bitXor: aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a bitXor: b)
+		}.
+
+		super bitXor: aNumber
+	}.
+
+	method ^ aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: (a ^ b)
+		}.
+
+		super ^ aNumber
+	}.
+
+	method bitShift: aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b >= 0 ifTrue: {
+				## FIXME: Support the case with overflow.
+				return: a << b
+			} ifFalse: {
+				return: a >> b negated
+			}
+		}.
+
+        super bitAnd: aNumber
+    }.
+
+	method << aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			## FIXME: Support the case with overflow.
+			return: a << b
+		}.
+
+        super << aNumber
+    }.
+
+	method >> aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a >> b
+		}.
+
+		super >> aNumber
+	}.
+
     method + aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.

@@ -1,0 +1,16 @@
+namespace Smalltalk definition: {
+
+#*
+gcclass SmalltalkImage superclass: Object; definition: {
+    meta definition: {
+        method uniqueInstance
+            := self new
+    }.
+}.
+
+global Smalltalk := SmalltalkImage uniqueInstance.
+*#
+
+gcclass Smalltalk superclass: Object; definition: {}.
+
+}. ## End of namespace Smalltalk

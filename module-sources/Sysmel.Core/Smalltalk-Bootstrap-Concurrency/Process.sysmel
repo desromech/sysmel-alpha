@@ -7,7 +7,7 @@ function callProcessEntryPoint(processPointer: Void pointer) => IntPointer := {
 }.
 }.
 
-Process definition: {
+gcclass Process superclass: Object; definition: {
     field thread type: Stdn Thread.
     field threadResultValue.
     field entryPointBlock.

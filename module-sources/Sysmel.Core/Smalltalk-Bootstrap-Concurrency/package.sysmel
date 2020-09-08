@@ -1,3 +1,7 @@
 loadFileOnce: "Process.sysmel".
 loadFileOnce: "ProcessSpecificVariable.sysmel".
 loadFileOnce: "DynamicVariable.sysmel".
+loadFileOnce: "Semaphore.sysmel".
+loadFileOnce: "Mutex.sysmel".
+loadFileOnce: "Monitor.sysmel".
+loadFileOnce: "ConditionVariable.sysmel".

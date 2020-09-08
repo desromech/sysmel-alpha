@@ -270,6 +270,11 @@ SequenceableCollection definition: {
 		result
 	}.
 
+	compileTime compileLanguage: #pharoMethodEmbedded source: "
+		, other
+			^ self -- other
+	".
+
 	method first := self at: 1.
 	method second := self at: 2.
 	method third := self at: 3.

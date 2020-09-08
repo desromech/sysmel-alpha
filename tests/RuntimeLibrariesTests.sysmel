@@ -3,6 +3,12 @@ compileTime constant OnlyRuntimeCoreTests := false.
 Compiler
 	importModuleNamed: #"Sysmel.Core.Tests".
 
+compileTime if: Compiler hasGarbageCollectedRuntime then: {
+	Compiler importModulesNamed: #(
+		#"Smalltalk.Runtime.Core.Tests"
+	).
+}.
+
 compileTime if: OnlyRuntimeCoreTests not then: {
 	Compiler
 		importModulesNamed: #(
@@ -23,8 +29,8 @@ compileTime if: OnlyRuntimeCoreTests not then: {
 
 	compileTime if: Compiler hasGarbageCollectedRuntime then: {
 	    Compiler importModulesNamed: #(
-			#"Sysmel.Smalltalk.GUI.Tests"
-			#"Sysmel.Smalltalk.VM.Tests"
+			#"Smalltalk.GUI.Core.Tests"
+			#"Smalltalk.Interpreter.Tests"
 		).
 	}.
 }.

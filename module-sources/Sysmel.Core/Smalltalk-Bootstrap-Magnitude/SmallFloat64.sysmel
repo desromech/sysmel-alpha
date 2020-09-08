@@ -17,19 +17,19 @@ SmallFloat64 extend: {
 		:= self __decodeSmallFloat abs.
 
 	method sign
-		:= self __decodeSmallFloat sign.
+		:= self __decodeSmallFloat sign castTo: IntPointer.
 
 	method floor
-		:= self __decodeSmallFloat floor.
+		:= self __decodeSmallFloat floor castTo: Int64.
 
 	method ceiling
-		:= self __decodeSmallFloat ceiling.
+		:= self __decodeSmallFloat ceiling castTo: Int64.
 
 	method truncated
-		:= self __decodeSmallFloat truncated.
+		:= self __decodeSmallFloat truncated castTo: Int64.
 
 	method rounded
-		:= self __decodeSmallFloat rounded.
+		:= self __decodeSmallFloat rounded castTo: Int64.
 
 	method fract
 		:= self __decodeSmallFloat fract.

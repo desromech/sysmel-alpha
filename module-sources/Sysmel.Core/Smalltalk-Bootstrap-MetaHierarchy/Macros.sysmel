@@ -11,14 +11,19 @@ ProtoObject extend: {
     macro method ifFalse: falseAction ifTrue: trueAction :=
         ``(if: `,self == true then: `,trueAction __macroInlineBlock else: `,falseAction __macroInlineBlock).
 
-    ## TODO: Add higienic symbols.
-    macro method ifNil: nilAction :=
-        ``(if: `,self == nil then: `,nilAction __macroInlineBlock).
+    macro method ifNil: nilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer == nil then: `,nilAction __macroInlineBlock else: `,pointer
+        } asSequenceWithoutLexicalScope
+    }.
+
     macro method ifNotNil: notNilAction := {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.
-            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer)
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: nil
         } asSequenceWithoutLexicalScope
     }.
 

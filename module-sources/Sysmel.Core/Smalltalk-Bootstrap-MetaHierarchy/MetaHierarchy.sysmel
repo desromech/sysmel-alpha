@@ -102,6 +102,7 @@ gcclass SimpleBlockClosure superclass: BlockClosure.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
+gcclass Pragma superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
 
 ## Message
@@ -116,13 +117,6 @@ gcclass Stream superclass: Object.
 		gcclass ReadStream superclass: PositionableStream.
 		gcclass WriteStream superclass: PositionableStream.
 			gcclass LimitedWriteStream superclass: WriteStream.
-
-## Multi-threading
-gcclass Process superclass: Object.
-
-gcclass Locale superclass: Object.
-gcclass Smalltalk superclass: Object.
-gcclass OSPlatform superclass: Object.
 
 ## ProtoObject
 ProtoObject type supertype: Class.
@@ -217,11 +211,15 @@ TypeInformation definition: {
 ModuleInformation definition: {
 	public field name type: Symbol.
 	public field globalNamespace type: ModuleNamespaceInformation.
+	public field importedModules type: Array.
+	##public field importedIndirectModules type: Array.
 	public field extensionMacros type: Array.
 	public field extensionOverloadedMethods type: Array.
 	public field extensionMethods type: Array.
 	public field addedClasses type: Array.
 	public field addedGCClasses type: Array.
+
+	field started type: Boolean8.
 }.
 
 ModuleNamespaceInformation definition: {
@@ -849,6 +847,11 @@ BlockClosure definition: {
 	}.
 }.
 
+Symbol definition: {
+	method value: firstArg
+		:= firstArg perform: self.
+}.
+
 SimpleBlockClosure definition: {
     field __captures protected type: ProtoObject array.
 }.
@@ -982,6 +985,7 @@ Compiler compilationTarget managedObjectModel
 	systemDictionaryClass: SystemDictionary;
     methodDictionaryClass: MethodDictionary;
 	additionalMethodStateClass: AdditionalMethodState;
+	pragmaClass: Pragma;
 	messageClass: Message;
     symbolClass: Symbol;
     stringClass: String;

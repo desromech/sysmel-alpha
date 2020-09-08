@@ -1,0 +1,6 @@
+namespace Smalltalk definition: {
+
+gcclass Semaphore superclass: Object; definition: {
+}.
+
+}. ## End of namespace Smalltalk

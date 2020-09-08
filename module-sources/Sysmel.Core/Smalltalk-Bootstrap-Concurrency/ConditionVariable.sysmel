@@ -1,0 +1,6 @@
+namespace Smalltalk definition: {
+
+gcclass ConditionVariable superclass: Object; definition: {
+}.
+
+}. ## End of namespace Smalltalk

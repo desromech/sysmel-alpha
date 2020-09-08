@@ -17,6 +17,8 @@ Number extend: {
 	}.
 
 	method negative := self < 0.
+    method positive := self >= 0.
+    method isZero := self = 0.
 
 	method sign := {
 		self < 0 ifTrue: {return: -1}.
@@ -44,6 +46,36 @@ Number extend: {
 
     method % aNumber
         := self \\ aNumber.
+
+    method asInteger
+        := self truncated.
+
+    method to: stop by: step do: aBlock := {
+        let nextValue mutable type: ProtoObject := self.
+        step = 0 ifTrue: {self error: 'step must be non-zero'}.
+        step < 0 ifTrue: {
+            while: nextValue >= stop do: {
+                aBlock value: nextValue.
+                nextValue := nextValue + step
+            }.
+        } ifFalse: {
+            while: nextValue <= stop do: {
+                aBlock value: nextValue.
+                nextValue := nextValue + step
+            }.
+        }.
+
+        self
+    }.
+    method to: stop do: aBlock := {
+        let nextValue mutable type: ProtoObject  := self.
+        while: nextValue <= stop do: {
+            aBlock value: nextValue.
+            nextValue := nextValue + 1
+        }.
+
+        self
+    }.
 }.
 
 }. ## End of namespace Smalltalk
