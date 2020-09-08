@@ -665,9 +665,11 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 MbndSlovimCodeModuleGenerator >> fillModuleInfoInstance: moduleInfoInstance [
 	moduleInfoInstance
 		setField: #name ifExistsWith: [ sourceModule name asSymbol ];
+		setField: #importedModules ifExistsWith: [ sourceModule importedModules asArray ];
+		setField: #importedIndirectModules ifExistsWith: [ self halt . sourceModule importedIndirectModules asArray ];
 		setField: #globalNamespace ifExistsWith: [ sourceModule globalNamespace ];
-		setField: #addedGCClasses ifExistsWith: [ sourceModule addedGCClasses asArray ];
-		setField: #addedClasses ifExistsWith: [ sourceModule addedClasses asArray ].
+		setField: #addedGCClasses ifExistsWith: [ (self topologicalSortTypes: sourceModule addedGCClasses) asArray ];
+		setField: #addedClasses ifExistsWith: [ (self topologicalSortTypes: sourceModule addedGCClasses) asArray ].
 	
 	"self compilationTarget extensionMacroMessageClass ifNotNil: [
 		moduleInfoInstance
@@ -1884,6 +1886,32 @@ MbndSlovimCodeModuleGenerator >> sysmelAtExitFunction [
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> targetCodeModuleName [
 	^ targetCodeModuleName
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> topologicalSortType: type fromTypeSet: typeSet visitedSet: visitedSet into: result [
+	(visitedSet includes: type) ifTrue: [ ^ self ].
+	visitedSet add: type.
+	
+	type supertype ifNotNil: [ :supertype |
+		self topologicalSortType: type fromTypeSet: typeSet visitedSet: visitedSet into: result
+	].
+	
+	(typeSet includes: type) ifTrue: [ result add: type ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> topologicalSortTypes: types [
+	| result typeSet visitedSet |
+	result := OrderedCollection new.
+	typeSet := IdentitySet new.
+	typeSet addAll: types.
+	visitedSet := IdentitySet new.
+	types do: [ :each |
+		self topologicalSortType: each fromTypeSet: typeSet visitedSet: visitedSet into: result
+	].
+	
+	^ result
 ]
 
 { #category : #visiting }

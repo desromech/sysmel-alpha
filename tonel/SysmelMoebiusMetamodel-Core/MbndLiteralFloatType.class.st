@@ -14,6 +14,11 @@ MbndLiteralFloatType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget float64Type
 ]
 
+{ #category : #converting }
+MbndLiteralFloatType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget managedObjectModel floatClass ifNil: [ super asDynamicObjectTypeForLiteral ]
+]
+
 { #category : #'semantic analysis' }
 MbndLiteralFloatType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	| value valueSingleFloat |

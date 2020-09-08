@@ -9,6 +9,11 @@ MbndLiteralSymbolType class >> typeName [
 	^ #_LiteralSymbol
 ]
 
+{ #category : #converting }
+MbndLiteralSymbolType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget managedObjectModel symbolClass ifNil: [ super asDynamicObjectTypeForLiteral ]
+]
+
 { #category : #'testing methods' }
 MbndLiteralSymbolType >> isLiteralSymbolType [
 	^ true

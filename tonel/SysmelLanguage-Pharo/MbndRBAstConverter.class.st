@@ -138,7 +138,7 @@ MbndRBAstConverter >> visitLiteralArrayNode: node [
 
 { #category : #visiting }
 MbndRBAstConverter >> visitLiteralNode: node [
-	strictPharoMode ifTrue: [ ^ builder literal: node value type: self compilationTarget dynamicObjectType ].
+	strictPharoMode ifTrue: [ ^ builder literal: node value type: (node value mbndLiteralTypeWithTarget: self compilationTarget) asDynamicObjectTypeForLiteral ].
 	^ (node value asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 		position: (self sourcePositionFromNode: node)
 ]

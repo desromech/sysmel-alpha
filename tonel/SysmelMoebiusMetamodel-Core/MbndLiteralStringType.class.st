@@ -19,6 +19,11 @@ MbndLiteralStringType >> addDefaultConversionRules [
 		addConversionTo: self compilationTarget uint8Type const pointer rule: MbndLiteralStringToCStringBytePointerConversionRule.
 ]
 
+{ #category : #converting }
+MbndLiteralStringType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget managedObjectModel stringClass ifNil: [ super asDynamicObjectTypeForLiteral ]
+]
+
 { #category : #'testing methods' }
 MbndLiteralStringType >> isLiteralStringType [
 	^ true

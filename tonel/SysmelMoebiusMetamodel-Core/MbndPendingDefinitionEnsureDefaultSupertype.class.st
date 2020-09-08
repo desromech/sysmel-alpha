@@ -10,7 +10,9 @@ Class {
 { #category : #'public access' }
 MbndPendingDefinitionEnsureDefaultSupertype >> evaluate [
 	(type supertype isTrait or: [type supertype isNil]) ifTrue: [
-		type setSupertypeFromDefinition: module compilationTarget defaultGCClassSuperClass
+		module compilationTarget defaultGCClassSuperClass ifNotNil: [ :defaultSuperType |
+			type setSupertypeFromDefinition: defaultSuperType
+		].
 	].
 ]
 

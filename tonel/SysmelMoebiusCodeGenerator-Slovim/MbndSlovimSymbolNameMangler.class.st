@@ -199,8 +199,9 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArguments: instanceArguments 
 ]
 
 { #category : #visiting }
-MbndSlovimSymbolNameMangler >> escapeCharacterForMangling: c into: out [
+MbndSlovimSymbolNameMangler >> escapeCharacterForMangling: c keepDots: keepDots into: out [
 	((':.$<>+-*/%"''()#?!|&^~=' includes: c) or: [ c asInteger <= 32 or: [c asInteger >= 126] ]) ifTrue: [
+		(keepDots and: [ c = $. ]) ifTrue: [ ^ out nextPut: c ].
 		(CharacterSubstitutionTable at: c ifPresent: [:found | ^ out nextPutAll: found]).
 		^ out nextPutAll: '$x' ; nextPutAll: (c asInteger printStringBase: 16 length: 2 padded: true) asLowercase
 	].
@@ -210,12 +211,17 @@ MbndSlovimSymbolNameMangler >> escapeCharacterForMangling: c into: out [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> escapeNameForMangling: name [
+	^ self escapeNameForMangling: name keepDots: false
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> escapeNameForMangling: name keepDots: keepDots [
 	| result |
 	(name beginsWith: '..') ifTrue: [ ^ name ].
 	name ifNil: [ ^ '_anon' ].
 	result := ByteString streamContents: [ :out |
 		name do: [ :c |
-			self escapeCharacterForMangling: c into: out
+			self escapeCharacterForMangling: c keepDots: keepDots into: out 
 		]
 	].
 
@@ -337,10 +343,16 @@ MbndSlovimSymbolNameMangler >> mangleGeneratedMethodOfKind: methodKind withType:
 	^ (ByteString streamContents: [ :outStream |
 		output := outStream.
 		substitutionDictionary := Dictionary new.
+		output nextPutAll: '_Z'.
+
 		self emitSubstitutionElement: methodKind.
-		output nextPut: $I.
-		self mangleType: functionType.
-		output nextPut: $E.
+		functionType argumentTypes do: [ :argumentType |
+			self mangleType: (argumentType asConcreteTypeForAnalysisOfFunctionType: functionType)
+		].
+
+		self mangleType: (functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType).
+
+		functionType isCVariadic ifTrue: [ output nextPut: $z ]
 	]) asSymbol
 ]
 
@@ -417,8 +429,8 @@ MbndSlovimSymbolNameMangler >> mangleProgramEntityNestedName: programEntity [
 MbndSlovimSymbolNameMangler >> mangleProgramEntityNestedNameComponents: components [
 	| escapedComponents currentPrefix bestSubstitution hasAppliedSubstitution |
 	output nextPut: $N.
-	escapedComponents := components collect: [ :comp |
-		comp isArray ifTrue: [ comp ] ifFalse: [ self escapeNameForMangling: comp ].
+	escapedComponents := components collectWithIndex: [ :comp :index |
+		comp isArray ifTrue: [ comp ] ifFalse: [ self escapeNameForMangling: comp keepDots: index = 1  ].
 	].
 
 	currentPrefix := #().

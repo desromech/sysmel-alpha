@@ -9,6 +9,11 @@ MbndLiteralCharacterType class >> typeName [
 	^ #_LiteralCharacter
 ]
 
+{ #category : #converting }
+MbndLiteralCharacterType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget managedObjectModel characterClass ifNil: [ super asDynamicObjectTypeForLiteral ]
+]
+
 { #category : #'semantic analysis' }
 MbndLiteralCharacterType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	| literalValue |

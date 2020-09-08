@@ -61,9 +61,11 @@ Trait {
 		'gcShadowStackLeaveFunction',
 		'gcShadowStackLandingPadFunction',
 		'gcSafePointFunction',
-		'simpleBlockClosureClass'
+		'simpleBlockClosureClass',
+		'pragmaClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
+	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -243,7 +245,7 @@ TMbndCoreManagedObjectModel >> dictionaryClass: anObject [
 TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
 	^ Array streamContents: [:out |
 		#(
-			additionalBindingClass additionalMethodStateClass arrayClass associationClass
+			additionalBindingClass additionalMethodStateClass pragmaClass arrayClass associationClass
 			byteArrayClass classVariableClass compiledMethodClass dictionaryClass identityDictionaryClass
 			systemDictionaryClass methodDictionaryClass symbolClass stringClass integerClass floatClass
 			globalVariableClass messageLookupFunction trueClass falseClass boolClass
@@ -630,6 +632,16 @@ TMbndCoreManagedObjectModel >> objectToUInt64Function [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> objectToUInt64Function: anObject [
 	objectToUInt64Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> pragmaClass [
+	^ pragmaClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> pragmaClass: aPragmaClass [
+	pragmaClass := aPragmaClass
 ]
 
 { #category : #accessing }

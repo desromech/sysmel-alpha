@@ -197,7 +197,7 @@ TMbndAbstractType >> analyzeInitializationNode: node with: analyzer [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
-	self error: 'Cannout perform message to value of type {1}.' format: {self fullName} at: node
+	self error: 'Cannot perform message to value of type {1}.' format: {self fullName} at: node
 ]
 
 { #category : #'semantic analysis' }

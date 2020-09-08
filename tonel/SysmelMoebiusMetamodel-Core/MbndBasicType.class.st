@@ -246,6 +246,11 @@ MbndBasicType >> analyzeValueAsPatternMatchingPattern: node with: analyzer [
 		yourself)
 ]
 
+{ #category : #converting }
+MbndBasicType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget dynamicObjectType ifNil: [ self ]
+]
+
 { #category : #accessing }
 MbndBasicType >> category [
 	^ category

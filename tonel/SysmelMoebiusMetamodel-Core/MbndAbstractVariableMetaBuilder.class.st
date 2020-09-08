@@ -58,6 +58,11 @@ MbndAbstractVariableMetaBuilder >> type: typeExpression [
 
 ]
 
+{ #category : #mutability }
+MbndAbstractVariableMetaBuilder >> weakRef [
+	self addFlag: #weakRef
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractVariableMetaBuilder >> workgroupShared [
 	self addFlag: #workgroupShared

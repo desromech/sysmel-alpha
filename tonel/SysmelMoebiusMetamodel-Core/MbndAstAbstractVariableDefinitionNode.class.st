@@ -113,3 +113,8 @@ MbndAstAbstractVariableDefinitionNode >> valueType [
 MbndAstAbstractVariableDefinitionNode >> valueType: anObject [
 	valueType := anObject
 ]
+
+{ #category : #flags }
+MbndAstAbstractVariableDefinitionNode >> weakRef [
+	self addFlag: #weakRef
+]

@@ -568,8 +568,8 @@ MbndCompilationTargetTest >> testIntegerFloatCoercions [
 	self assert: (int16Type arithmeticCoercionWith: float32Type) equals: float32Type.
 	self assert: (uint32Type arithmeticCoercionWith: float32Type) equals: float32Type.
 	self assert: (int32Type arithmeticCoercionWith: float32Type) equals: float32Type.
-	self assert: (uint64Type arithmeticCoercionWith: float32Type) equals: nil.
-	self assert: (int64Type arithmeticCoercionWith: float32Type) equals: nil.
+	self assert: (uint64Type arithmeticCoercionWith: float32Type) equals: float64Type.
+	self assert: (int64Type arithmeticCoercionWith: float32Type) equals: float64Type.
 
 	self assert: (float32Type arithmeticCoercionWith: uint8Type) equals: float32Type.
 	self assert: (float32Type arithmeticCoercionWith: int8Type) equals: float32Type.
@@ -577,8 +577,8 @@ MbndCompilationTargetTest >> testIntegerFloatCoercions [
 	self assert: (float32Type arithmeticCoercionWith: int16Type) equals: float32Type.
 	self assert: (float32Type arithmeticCoercionWith: uint32Type) equals: float32Type.
 	self assert: (float32Type arithmeticCoercionWith: int32Type) equals: float32Type.
-	self assert: (float32Type arithmeticCoercionWith: uint64Type) equals: nil.
-	self assert: (float32Type arithmeticCoercionWith: int64Type) equals: nil.
+	self assert: (float32Type arithmeticCoercionWith: uint64Type) equals: float64Type.
+	self assert: (float32Type arithmeticCoercionWith: int64Type) equals: float64Type.
 
 	"Float64"
 	self assert: (uint8Type arithmeticCoercionWith: float64Type) equals: float64Type.

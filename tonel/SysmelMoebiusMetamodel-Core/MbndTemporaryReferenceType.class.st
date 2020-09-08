@@ -43,6 +43,11 @@ MbndTemporaryReferenceType >> addInstanceMacros [
 		].
 ]
 
+{ #category : #'semantic analysis' }
+MbndTemporaryReferenceType >> analyzeMessageSendNodeWithDynamicSelector: selector with: analyzer [
+	^ baseType analyzeMessageSendNodeWithDynamicSelector: selector with: analyzer
+]
+
 { #category : #converting }
 MbndTemporaryReferenceType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
 	| undecoratedTargetType newExpression |

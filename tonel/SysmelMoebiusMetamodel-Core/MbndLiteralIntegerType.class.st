@@ -38,6 +38,11 @@ MbndLiteralIntegerType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget int32Type
 ]
 
+{ #category : #converting }
+MbndLiteralIntegerType >> asDynamicObjectTypeForLiteral [
+	^ self compilationTarget managedObjectModel integerClass ifNil: [ super asDynamicObjectTypeForLiteral ]
+]
+
 { #category : #'semantic analysis' }
 MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	| literalValue testType |
