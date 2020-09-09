@@ -952,6 +952,16 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitBreakStatementNode: node [
+	breakOwner ifNil: [
+		self error: 'Break cannot be used in this location.' at: node
+	].
+
+	^ node copy
+		type: self compilationTarget returnType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCasesOfCaseNode: node [
 	| result matchingScope |
 	matchingScope := scope newLexicalScopeAt: node.
@@ -1085,6 +1095,16 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	alias enqueueDelayedSemanticAnalysis.
 
 	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitContinueStatementNode: node [
+	continueOwner ifNil: [
+		self error: 'Continue cannot be used in this location.' at: node
+	].
+
+	^ node copy
+		type: self compilationTarget returnType
 ]
 
 { #category : #visiting }
@@ -2919,6 +2939,13 @@ MbndAstSemanticAnalyzer >> visitTemporaryVariableNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitThisContextReferenceNode: node [
+	^ node copy
+		type: (self compilationTarget dynamicObjectType ifNil: [ self compilationTarget voidType pointer ]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTraitDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndTraitType
 ]
@@ -3052,6 +3079,24 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 				scope: scope;
 				yourself).
 		]
+	].
+
+	node usedTraits ifNotNil: [
+		result binding addPendingDefinitionFragment: (MbndPendingDefinitionUsedTraits new
+			type: result binding;
+			node: result usedTraits;
+			module: module;
+			scope: scope;
+			yourself).
+	].
+
+	node poolDictionaries ifNotNil: [
+		result binding addPendingDefinitionFragment: (MbndPendingDefinitionPoolDictionaries new
+			type: result binding;
+			node: result poolDictionaries;
+			module: module;
+			scope: scope;
+			yourself).
 	].
 
 	"Set the defined flag"

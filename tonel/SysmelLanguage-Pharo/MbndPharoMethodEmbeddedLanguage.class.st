@@ -9,6 +9,13 @@ MbndPharoMethodEmbeddedLanguage class >> languageName [
 	^ #pharoMethodEmbedded
 ]
 
+{ #category : #scope }
+MbndPharoMethodEmbeddedLanguage >> constructTopLevelLanguageScopeFor: aModule [
+	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
+		languageName: self languageName;
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 MbndPharoMethodEmbeddedLanguage >> strictPharoMode [
 	^ false

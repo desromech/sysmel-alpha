@@ -2203,7 +2203,6 @@ class AtomicFlag definition: {
 MbndSlovimCodeModuleGeneratorTest >> testBooleanAllSet [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := x isAllSet';
 		generateSSAModule.
 
@@ -2227,7 +2226,6 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanAllSet [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanAnySet [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := x isAnySet';
 		generateSSAModule.
 
@@ -2551,7 +2549,6 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanToDynamicObject [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanToInt32 [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function cast externC(x: Boolean8) => Int32 := x castTo: Int32';
 		generateSSAModule.
 
@@ -2567,7 +2564,6 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanToInt32 [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAllSet [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function op externC(x: Boolean8x4) => Boolean8 := x isAllSet';
 		generateSSAModule.
 
@@ -2592,7 +2588,6 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAllSet [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAnySet [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function op externC(x: Boolean8x4) => Boolean8 := x isAnySet';
 		generateSSAModule.
 
@@ -2611,6 +2606,30 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAnySet [
         )
     )
 	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBreakStatement [
+	| function |
+	true ifTrue: [ ^ self skip ].
+	self
+		evaluateSysmelSource: 'function loop externC(n: Int32) => Int32 := {
+			let i mutable := 0.
+			let result mutable := 0.
+			while: i < n do: {
+				if: (i & 1) = 0 then: {
+					continue
+				}.
+				result := result + 1.
+			}.
+			
+			result
+		}.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #loop.
+	self assert: function isFunction.
+	self deny: function isEmpty.
 ]
 
 { #category : #tests }
@@ -2835,6 +2854,52 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 			call
 			return
 		))
+	).
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureCapturingSuper [
+	| function |
+	self
+		evaluateSysmelSource: '
+
+function longComputationWith(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f().
+
+class SuperClass definition: { 
+	virtual method computeSomething => Int32
+		:= 42.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	override method computeSomething => Int32
+		:= longComputationWith({| super computeSomething}).
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule8SubClass17.computeSomethingERNS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8SubClass17.computeSomethingERNS0_E' cdecl i32
+	arguments (
+		(self (pointer (struct 'class.TestModule::SubClass') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SuperClass') generic) () ((local 0 self)))
+			(nil instantiateClosure (pointer (closure nativeStack (function cdecl () false i32) ((pointer (struct 'class.TestModule::SuperClass') generic))) generic) () ((global nil '_ZN10TestModule8SubClass17.computeSomething9__lambda0E') (local 2 nil)))
+			(nil bitcast (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) () ((local 3 nil)))
+			(nil call i32 () ((global 0 _ZN10TestModule19longComputationWithE18nativeBlockClosureIFviEE) (local 4 nil)))
+			(nil return void () ((local 5 nil)))
+		)
+	)
+
 	).
 
 ]
@@ -3836,6 +3901,30 @@ function f cdecl (struct 'special.Int32 const arraySlice')
 	)
 
 	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testContinueStatement [
+	| function |
+	true ifTrue: [ ^ self skip ].
+	self
+		evaluateSysmelSource: 'function loop externC(n: Int32) => Int32 := {
+			let i mutable := 0.
+			let result mutable := 0.
+			while: i < n do: {
+				if: (i & 1) = 0 then: {
+					continue
+				}.
+				result := result + 1.
+			}.
+			
+			result
+		}.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #loop.
+	self assert: function isFunction.
+	self deny: function isEmpty.
 ]
 
 { #category : #tests }
@@ -9283,7 +9372,6 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerThreeWayComparison [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerToBoolean [
 	| function |
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function cast externC(x: Int32) => Boolean8 := x castTo: Boolean8';
 		generateSSAModule.
 
@@ -12535,6 +12623,84 @@ function setPreviousAndNext externC(node: Node pointer, previous: Node pointer, 
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPoolDictionaries [
+	self 
+		evaluateSysmelSource: '
+class VariablePool definition: {
+	global SomeConstant mutable := 42
+}.
+
+class VariablePool2 definition: {
+	global SomeConstant2 := 45
+}.
+
+class PoolUser poolDictionaries: (VariablePool, VariablePool2); definition: {
+	method answer => Int32
+		:= SomeConstant + SomeConstant2
+}.
+
+';
+	generateSSAModule.
+	
+	self assert: (ssaModule globalNamed: #'_ZN10TestModule8PoolUser7.answerERNS0_E') asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8PoolUser7.answerERNS0_E' cdecl i32
+	arguments (
+		(self (pointer (struct 'class.TestModule::PoolUser') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load i32 () ((global 1 _ZN10TestModule12VariablePool12SomeConstantE)))
+			(nil load i32 () ((global 3 _ZN10TestModule13VariablePool213SomeConstant2E)))
+			(nil add i32 () ((local 2 nil) (local 3 nil)))
+			(nil return void () ((local 4 nil)))
+		)
+	)
+	).
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPoolDictionary [
+	self 
+		evaluateSysmelSource: '
+class VariablePool definition: {
+	global SomeConstant mutable := 42
+}.
+
+class PoolUser poolDictionaries: VariablePool; definition: {
+	method answer => Int32
+		:= SomeConstant
+}.
+
+';
+	generateSSAModule.
+	
+	self assert: (ssaModule globalNamed: #'_ZN10TestModule8PoolUser7.answerERNS0_E') asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8PoolUser7.answerERNS0_E' cdecl i32
+	arguments (
+		(self (pointer (struct 'class.TestModule::PoolUser') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load i32 () ((global 1 _ZN10TestModule12VariablePool12SomeConstantE)))
+			(nil return void () ((local 2 nil)))
+		)
+	)
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRecursiveStructure [
 	| function structureType |
 	self
@@ -13783,6 +13949,18 @@ MbndSlovimCodeModuleGeneratorTest >> testTempReferenceLoad [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isLoad.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testThisContext [
+	| function |
+	self
+		evaluateSysmelSource: 'function getThisContext externC() => Void pointer := thisContext';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getThisContext.
+	self assert: function isFunction.
+	self deny: function isEmpty.
 ]
 
 { #category : #tests }

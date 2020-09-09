@@ -60,6 +60,11 @@ MbndFunctionVariable >> isCaptureInNonInlineBlock [
 	^ false
 ]
 
+{ #category : #testing }
+MbndFunctionVariable >> isFunctionVariable [
+	^ true
+]
+
 { #category : #serialization }
 MbndFunctionVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.

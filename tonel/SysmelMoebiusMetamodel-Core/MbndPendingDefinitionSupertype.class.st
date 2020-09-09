@@ -21,6 +21,11 @@ MbndPendingDefinitionSupertype >> isSupertypeDefinition [
 ]
 
 { #category : #accessing }
+MbndPendingDefinitionSupertype >> priority [
+	^ 0
+]
+
+{ #category : #accessing }
 MbndPendingDefinitionSupertype >> type [
 	^ type
 ]

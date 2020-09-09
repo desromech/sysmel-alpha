@@ -1388,6 +1388,15 @@ MbndAstBuilder >> temporaryVariableOfType: valueType [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> thisContext [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstThisContextReferenceNode new
+		position: defaultPosition;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> transposeMatrix: matrix [
 	<compileTime>
 	<returnType: #_ASTNodeType>

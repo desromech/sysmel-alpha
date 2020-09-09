@@ -1130,7 +1130,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 		returnType: dynamicObjectType.
 	^ dynamicFunctionCallsAdapters at: adapterFunctionType ifAbsentPut: [ 
 		self generateAnonCompilerGeneratedMethodOfKind: #DynamicFunctionCallAdapter withType: adapterFunctionType allowGC: true
-		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: adapterFunctionType ]
+		debugInformationWith: [ self debugInformationTranslator createForTrampolineNamed: #DynamicFunctionCallAdapter withFunctionType: adapterFunctionType ]
 		with: [:ssaFunction :builder :functionCodeGenerator |
 			| calledFunction result |
 			"Unwrap the arguments."
@@ -1238,7 +1238,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeMethodDispatchTrampolineWithTy
 	}.
 	
 	trampoline := self generateAnonCompilerGeneratedMethodOfKind: #NativeMethodDispatchTrampoline withType: trampolineFunctionType allowGC: true
-	debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
+	debugInformationWith: [ self debugInformationTranslator createForTrampolineNamed: #NativeMethodDispatchTrampoline withFunctionType: trampolineFunctionType ]
 	with: [:ssaFunction :builder :functionCodeGenerator |
 		| calledFunction nativeArguments result |
 		trampolineFunctionType returnType isMemoryReturnedType ifTrue: [
@@ -1283,7 +1283,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateObjectMethodDispatchTrampolineWithTy
 	
 	trampoline := objectMethodDispatchTrampolines at: messageFunctionType ifAbsentPut: [
 		self generateAnonCompilerGeneratedMethodOfKind: #ObjectMethodDispatchTrampoline withType: trampolineFunctionType allowGC: true
-		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
+		debugInformationWith: [ self debugInformationTranslator createForTrampolineNamed: #ObjectMethodDispatchTrampoline withFunctionType: trampolineFunctionType ]
 		with: [:ssaFunction :builder :functionCodeGenerator |
 			| selector methodObject result receiver unmarshalledArguments marshalledArguments marshalledArgumentsStoragePointer unmarshalledResult |
 			trampolineFunctionType returnType isMemoryReturnedType ifTrue: [

@@ -45,6 +45,11 @@ MbndFunctionArgumentVariable >> encodeFieldsForMessagePackWith: graphEncoder [
 	}
 ]
 
+{ #category : #testing }
+MbndFunctionArgumentVariable >> isFunctionArgumentVariable [
+	^ true
+]
+
 { #category : #serialization }
 MbndFunctionArgumentVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.

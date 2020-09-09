@@ -858,6 +858,11 @@ MbndAstNode >> isTemporaryVariableNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isThisContextReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTraitDeclarationNode [
 	^ false
 ]

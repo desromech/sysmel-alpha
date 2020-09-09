@@ -280,6 +280,8 @@ MbndBasicType >> encodeFieldsForMessagePackWith: graphEncoder [
 		#category . category.
 		#definitionModule . definitionModule encodeGraphForMessagePackWith: graphEncoder.
 		#supertype . supertype encodeGraphForMessagePackWith: graphEncoder.
+		#poolDictionaries . poolDictionaries encodeGraphForMessagePackWith: graphEncoder.
+		#usedTraits . usedTraits encodeGraphForMessagePackWith: graphEncoder.
 		#type . type encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]

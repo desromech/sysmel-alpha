@@ -705,6 +705,11 @@ MbndAstVisitor >> visitTemporaryVariableNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitThisContextReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTraitDeclarationNode: node [
 	self subclassResponsibility
 ]

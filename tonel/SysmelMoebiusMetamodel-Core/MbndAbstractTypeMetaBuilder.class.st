@@ -56,6 +56,12 @@ MbndAbstractTypeMetaBuilder >> extend: newBodyNode [
 	self halt
 ]
 
+{ #category : #accessing }
+MbndAbstractTypeMetaBuilder >> poolDictionaries: poolDictionariesNode [
+	self ensureTypeDefinitionNode.
+	typeDefinitionNode poolDictionaries: poolDictionariesNode
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractTypeMetaBuilder >> typeDeclarationNodeClass [
 	self subclassResponsibility
@@ -64,4 +70,10 @@ MbndAbstractTypeMetaBuilder >> typeDeclarationNodeClass [
 { #category : #'semantic analysis' }
 MbndAbstractTypeMetaBuilder >> typeDefinitionNodeClass [
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+MbndAbstractTypeMetaBuilder >> usedTraits: usedTraitsNode [
+	self ensureTypeDefinitionNode.
+	typeDefinitionNode usedTraits: usedTraitsNode
 ]

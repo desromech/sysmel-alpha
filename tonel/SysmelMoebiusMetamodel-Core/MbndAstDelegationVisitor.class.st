@@ -683,6 +683,11 @@ MbndAstDelegationVisitor >> visitTemporaryVariableNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitThisContextReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 	^ self delegateNodeVisit: node
 ]

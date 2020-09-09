@@ -172,7 +172,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isStaticClassPointerCastNode.
 	self deny: node isStructureDeclarationNode.
 	self deny: node isStructureDefinitionNode.
-	self deny: node isSubscriptElementReferenceNode .
+	self deny: node isSubscriptElementReferenceNode.
+	self deny: node isThisContextReferenceNode.
 	self deny: node isTemplatedMetaBuilderInstanceNode.
 	self deny: node isTemplateDefinitionNode.
 	self deny: node isTemporaryVariableNode.

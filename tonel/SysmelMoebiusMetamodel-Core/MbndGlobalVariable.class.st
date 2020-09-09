@@ -63,7 +63,7 @@ MbndGlobalVariable >> currentValue: anObject [
 { #category : #serialization }
 MbndGlobalVariable >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
-		#type . valueType encodeGraphForMessagePackWith: graphEncoder.
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
 
@@ -150,7 +150,7 @@ MbndGlobalVariable >> type [
 
 { #category : #accessing }
 MbndGlobalVariable >> type: anObject [
-	type := anObject
+	type := anObject.
 ]
 
 { #category : #accessing }

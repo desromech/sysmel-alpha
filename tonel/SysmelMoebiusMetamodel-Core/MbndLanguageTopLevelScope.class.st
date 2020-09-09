@@ -45,6 +45,11 @@ MbndLanguageTopLevelScope >> addTopLevelMacros [
 ]
 
 { #category : #initialization }
+MbndLanguageTopLevelScope >> addTopLevelMetaBuilders [
+	"This is the place for adding top-level metabuilders"
+]
+
+{ #category : #initialization }
 MbndLanguageTopLevelScope >> addTopLevelSymbols [
 	"This is the place for adding top-level symbols"
 ]
@@ -68,7 +73,8 @@ MbndLanguageTopLevelScope >> initializeWithModule: aModule [
 	topLevelSymbols := Dictionary new.
 	self
 		addTopLevelMacros;
-		addTopLevelSymbols
+		addTopLevelSymbols;
+		addTopLevelMetaBuilders
 ]
 
 { #category : #accessing }

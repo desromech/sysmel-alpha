@@ -2,11 +2,19 @@ Trait {
 	#name : #TMbndBasicType,
 	#instVars : [
 		'supertype',
-		'type'
+		'type',
+		'poolDictionaries',
+		'usedTraits'
 	],
 	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #'member symbols' }
+TMbndBasicType >> addPoolDictionaries: newPoolDictionaries [
+	poolDictionaries := self poolDictionaries , newPoolDictionaries
+]
 
 { #category : #adding }
 TMbndBasicType >> addStaticAccessor: accessor for: selector [
@@ -99,6 +107,19 @@ TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: aSelector ]
 ]
 
+{ #category : #'member symbols' }
+TMbndBasicType >> lookupPoolDictionaryPublicSymbol: aSymbol [
+	(self lookupLocalSymbol: aSymbol) ifNotNil: [ :found |
+		found isGlobalVariable ifTrue: [ ^ found ].
+		found isCompileTimeConstant ifTrue: [ ^ found ].
+	].
+
+	self poolDictionaries do: [ :each |
+		(each lookupPoolDictionaryPublicSymbol: aSymbol) ifNotNil: [ :found | ^ found ]
+	].
+	^ nil
+]
+
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupSelector: aSelector [
 	| method |
@@ -114,7 +135,13 @@ TMbndBasicType >> lookupSelector: aSelector [
 TMbndBasicType >> lookupSymbol: aSymbol [
 	(self lookupSpecialSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
 	(self lookupLocalSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
+	(self lookupPoolDictionarySymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
+]
+
+{ #category : #accessing }
+TMbndBasicType >> poolDictionaries [
+	^ poolDictionaries ifNil: [ #() ]
 ]
 
 { #category : #'as yet unclassified' }

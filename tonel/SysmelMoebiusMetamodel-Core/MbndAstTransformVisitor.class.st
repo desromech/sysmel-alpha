@@ -12,6 +12,8 @@ MbndAstTransformVisitor >> visitAbstractClassDefinitionNode: node [
 	^ node copy
 		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
 		superclass: (node superclass ifNotNil: [:n | self visitNode: n]);
+		usedTraits: (node usedTraits ifNotNil: [:n | self visitNode: n]);
+		poolDictionaries: (node poolDictionaries ifNotNil: [:n | self visitNode: n]);
 		body: (self visitNode: node body);
 		yourself
 ]
@@ -20,6 +22,8 @@ MbndAstTransformVisitor >> visitAbstractClassDefinitionNode: node [
 MbndAstTransformVisitor >> visitAbstractTypeDefinitionNode: node [
 	^ node copy
 		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		usedTraits: (node usedTraits ifNotNil: [:n | self visitNode: n]);
+		poolDictionaries: (node poolDictionaries ifNotNil: [:n | self visitNode: n]);
 		body: (self visitNode: node body);
 		yourself
 ]
@@ -981,6 +985,11 @@ MbndAstTransformVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitTemporaryVariableNode: node [
+	^ node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitThisContextReferenceNode: node [
 	^ node
 ]
 

@@ -13,3 +13,8 @@ MbndFunctionDerivedVariable class >> messagePackTypeName [
 MbndFunctionDerivedVariable >> asCompileTimeValueReferenceOfType: referenceType withEvaluator: evaluator at: node [
 	self subclassResponsibility
 ]
+
+{ #category : #testing }
+MbndFunctionDerivedVariable >> isFunctionDerivedVariable [
+	^ true
+]

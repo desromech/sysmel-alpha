@@ -39,6 +39,11 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType fieldMe
 			"bitOffset: (field byteOffset * 8) + (field valueType instanceSize * 8) - field bitOffset - field bits"
 			bitOffset: (field byteOffset * 8) + field bitOffset
 	].
+
+	field name isMbndAnonymousSymbol ifTrue: [
+		self halt.
+		member makeArtificial
+	].
 		
 	out nextPut: member
 
@@ -84,12 +89,14 @@ MbndSlovimDebugInformationTranslator >> createForShader: functionMethod controll
 ]
 
 { #category : #visiting }
-MbndSlovimDebugInformationTranslator >> createForTrampolineWithFunctionType: functionType [
+MbndSlovimDebugInformationTranslator >> createForTrampolineNamed: name withFunctionType: functionType [
 	^ SLVMDebugSubprogram new
-		name: #'<trampoline>';
+		name: name;
 		isLocal: true;
 		isDefinition: true;
 		emitLinkageName: true;
+		makeArtificial;
+		makeThunk;
 		type: (self translateDebugType: functionType);
 		yourself
 ]
@@ -433,13 +440,18 @@ MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitFunctionArgumentVariable: argumentVariable [
-	| argumentIndex |
+	| argumentIndex result |
 	argumentIndex := argumentVariable argumentIndex.
 	argumentVariable isBlockClosureWithImmediateActivation ifTrue: [ argumentIndex := nil ].
-	^ (SLVMDebugVariable scope: nil name: argumentVariable name asPrettySymbolName)
+	result := (SLVMDebugVariable scope: nil name: argumentVariable name asPrettySymbolName)
 		type: (self translateDebugType: argumentVariable valueType);
 		argumentIndex: argumentIndex;
 		yourself.
+	argumentVariable isFunctionReceiverArgumentVariable ifTrue: [
+		result makeArtificial; makeObjectPointer
+	].
+
+	^ result
 ]
 
 { #category : #visiting }

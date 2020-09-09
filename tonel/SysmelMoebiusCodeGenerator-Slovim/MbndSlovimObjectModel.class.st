@@ -132,7 +132,7 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 
 		header slots
 			at: dynamicCallAdapterSlotIndex put: (
-				SLVMConstant value: dynamicCallAdapter bitcast: (header slots at: dynamicCallAdapterSlotIndex) type
+				SLVMConstant pointer: dynamicCallAdapter castTo: (header slots at: dynamicCallAdapterSlotIndex) type
 			);
 			at: numArgsSlotIndex put:
 			((header slots at: numArgsSlotIndex) copy
@@ -321,6 +321,20 @@ MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 
 ]
 
+{ #category : #converting }
+MbndSlovimObjectModel >> createVariable: variable class: variableClass [
+	| result variableName |
+	result := variableClass makeInstance: 0 identityHash: self generateIdentityHash.
+	self flag: 'Remove this ugly hack when Pharo 9 gets released.'.
+	variableName := (variable respondsTo: #key)
+		ifTrue: [ variable key ]
+		ifFalse: [ variable name ].
+	result
+		setField: #name value: (self convertDynamicLiteralToConstant: variableName);
+		setField: #value value: (self convertDynamicLiteralToConstant: variable value).
+	^ result
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> dynamicObjectType [
 	^ dynamicObjectType ifNil: [ dynamicObjectType := moduleCodeGenerator translateType: (moduleCodeGenerator compilationTarget dynamicObjectType) ]
@@ -355,11 +369,6 @@ MbndSlovimObjectModel >> gcBlockClosureAllocationFunction [
 ]
 
 { #category : #'as yet unclassified' }
-MbndSlovimObjectModel >> gcBlockClosureDynamicCallAdapterSlotIndex [
-	^ gcBlockClosureHeaderDynamicCallAdapterSlotIndex ifNil: [gcBlockClosureHeaderDynamicCallAdapterSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #dynamicCallAdapter) slotIndex]
-]
-
-{ #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> gcBlockClosureHeaderConstant [
 	| headerLiteralValue blockClosureLiteralValue |
 	gcBlockClosureHeaderConstant ifNil:[
@@ -377,7 +386,7 @@ MbndSlovimObjectModel >> gcBlockClosureHeaderConstant [
 
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> gcBlockClosureHeaderDynamicCallAdapterSlotIndex [
-	^ gcBlockClosureHeaderDynamicCallAdapterSlotIndex ifNil: [gcBlockClosureHeaderDynamicCallAdapterSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #dynamicCallAdapter) slotIndex]
+	^ gcBlockClosureHeaderDynamicCallAdapterSlotIndex ifNil: [gcBlockClosureHeaderDynamicCallAdapterSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #startpc) slotIndex]
 ]
 
 { #category : #'as yet unclassified' }

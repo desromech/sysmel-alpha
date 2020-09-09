@@ -14,6 +14,7 @@ Trait {
 		'implicitConversionRules'
 	],
 	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
+	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -108,6 +109,16 @@ TMbndType >> lookupMacroSelector: aSelector [
 	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ].
 	macro ifNotNil: [ ^ macro ].
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndType >> lookupPoolDictionarySymbol: aSymbol [
+	self poolDictionaries do: [ :each |
+		(each lookupPoolDictionaryPublicSymbol: aSymbol) ifNotNil: [ :found |
+			^ found
+		]
+	].
+	^ nil
 ]
 
 { #category : #accessing }

@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndPendingDefinitionFragment,
 	#superclass : #Object,
+	#traits : 'TMbndObject',
+	#classTraits : 'TMbndObject classTrait',
 	#instVars : [
 		'module',
 		'node',
@@ -15,7 +17,17 @@ MbndPendingDefinitionFragment >> evaluate [
 ]
 
 { #category : #testing }
+MbndPendingDefinitionFragment >> isPoolDictionaries [
+	^ false
+]
+
+{ #category : #testing }
 MbndPendingDefinitionFragment >> isSupertypeDefinition [
+	^ false
+]
+
+{ #category : #testing }
+MbndPendingDefinitionFragment >> isUsedTraits [
 	^ false
 ]
 
@@ -37,6 +49,11 @@ MbndPendingDefinitionFragment >> node [
 { #category : #accessing }
 MbndPendingDefinitionFragment >> node: anObject [
 	node := anObject
+]
+
+{ #category : #accessing }
+MbndPendingDefinitionFragment >> priority [
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }

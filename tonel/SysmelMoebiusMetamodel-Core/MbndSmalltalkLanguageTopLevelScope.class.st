@@ -1,8 +1,18 @@
 Class {
 	#name : #MbndSmalltalkLanguageTopLevelScope,
-	#superclass : #MbndLanguageTopLevelScope,
+	#superclass : #MbndGenericMacroLanguageTopLevelScope,
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
+
+{ #category : #initialization }
+MbndSmalltalkLanguageTopLevelScope >> addTopLevelMetaBuilders [
+	{
+		MbndLetMetaBuilder.
+		MbndThisContextMetaBuilder
+	} do: [:each |
+		topLevelSymbols at: each globalBindingName put: each metaBuilderFactory
+	].
+]
 
 { #category : #initialization }
 MbndSmalltalkLanguageTopLevelScope >> addTopLevelSymbols [

@@ -50,6 +50,14 @@ MbndFunctionCapturedVariable >> type [
 ]
 
 { #category : #accessing }
+MbndFunctionCapturedVariable >> upperContextNonCaptureVariable [
+	| position |
+	position := self.
+	[position isFunctionCapturedVariable] whileTrue: [ position := position upperContextVariable ].
+	^ position
+]
+
+{ #category : #accessing }
 MbndFunctionCapturedVariable >> upperContextVariable [
 	^ upperContextVariable
 ]

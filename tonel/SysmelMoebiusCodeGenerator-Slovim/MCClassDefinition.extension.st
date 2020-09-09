@@ -1,13 +1,6 @@
 Extension { #name : #MCClassDefinition }
 
 { #category : #'*SysmelMoebiusCodeGenerator-Slovim' }
-MCClassDefinition >> buildMbndASTNodeWith: builder [
-	^ builder defineGCClassNamed: name
-		superclass: (superclassName ifNotNil: [builder identifier: superclassName])
-		body: (self buildMbndBehaviorBodyWith: builder)
-]
-
-{ #category : #'*SysmelMoebiusCodeGenerator-Slovim' }
 MCClassDefinition >> buildMbndBehaviorBodyWith: builder [
 	^ builder sequence: (
 		(self classVariables collect: [ :each |

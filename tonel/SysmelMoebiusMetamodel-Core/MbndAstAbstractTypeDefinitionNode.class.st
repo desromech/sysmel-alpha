@@ -2,7 +2,9 @@ Class {
 	#name : #MbndAstAbstractTypeDefinitionNode,
 	#superclass : #MbndAstAbstractProgramEntityDefinitionNode,
 	#instVars : [
-		'body'
+		'body',
+		'poolDictionaries',
+		'usedTraits'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -21,6 +23,8 @@ MbndAstAbstractTypeDefinitionNode >> body: anObject [
 MbndAstAbstractTypeDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#body . body encodeGraphForMessagePackWith: graphEncoder.
+		#poolDictionaries . poolDictionaries encodeGraphForMessagePackWith: graphEncoder.
+		#usedTraits . usedTraits encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -38,6 +42,18 @@ MbndAstAbstractTypeDefinitionNode >> isAbstractTypeDefinitionNode [
 MbndAstAbstractTypeDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	body := encodedFields at: #body.
+	poolDictionaries := encodedFields at: #poolDictionaries.
+	usedTraits := encodedFields at: #usedTraits.
+]
+
+{ #category : #accessing }
+MbndAstAbstractTypeDefinitionNode >> poolDictionaries [
+	^ poolDictionaries
+]
+
+{ #category : #accessing }
+MbndAstAbstractTypeDefinitionNode >> poolDictionaries: anObject [
+	poolDictionaries := anObject
 ]
 
 { #category : #'as yet unclassified' }
@@ -47,4 +63,14 @@ MbndAstAbstractTypeDefinitionNode >> superTypeNode [
 
 { #category : #'as yet unclassified' }
 MbndAstAbstractTypeDefinitionNode >> superTypeNode: aNode [
+]
+
+{ #category : #accessing }
+MbndAstAbstractTypeDefinitionNode >> usedTraits [
+	^ usedTraits
+]
+
+{ #category : #accessing }
+MbndAstAbstractTypeDefinitionNode >> usedTraits: anObject [
+	usedTraits := anObject
 ]

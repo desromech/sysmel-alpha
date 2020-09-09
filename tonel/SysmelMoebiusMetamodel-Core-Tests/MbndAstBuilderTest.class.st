@@ -1136,6 +1136,13 @@ MbndAstBuilderTest >> testTemporaryVariableNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testThisContext [
+	| node |
+	node := builder thisContext.
+	self assert: node isThisContextReferenceNode.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testTraitDeclarationNode [
 	| node |
 	node := builder declareTrait: #Test.

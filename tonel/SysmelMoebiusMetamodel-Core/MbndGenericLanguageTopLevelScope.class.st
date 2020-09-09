@@ -21,6 +21,20 @@ Class {
 }
 
 { #category : #initialization }
+MbndGenericLanguageTopLevelScope >> addAllPublicMetaBuilders [
+	MbndMetaBuilder withAllSubclassesDo: [ :sc |
+		sc globalBindingName ifNotNil: [ :symbol |
+			topLevelSymbols at: symbol put: sc metaBuilderFactory
+		]
+	].
+]
+
+{ #category : #initialization }
+MbndGenericLanguageTopLevelScope >> addTopLevelMetaBuilders [
+	self addAllPublicMetaBuilders
+]
+
+{ #category : #initialization }
 MbndGenericLanguageTopLevelScope >> addTopLevelSymbols [
 	super addTopLevelSymbols.
 	topLevelSymbols
@@ -29,12 +43,6 @@ MbndGenericLanguageTopLevelScope >> addTopLevelSymbols [
 		at: #true put: (MbndValue value: true type: compilationTarget literalBooleanTrueType);
 		at: #false put: (MbndValue value: false type: compilationTarget literalBooleanFalseType);
 		at: module globalNamespace name put: (module globalNamespace asMoebiusValueWithTarget: compilationTarget).
-		
-	MbndMetaBuilder withAllSubclassesDo: [ :sc |
-		sc globalBindingName ifNotNil: [ :symbol |
-			topLevelSymbols at: symbol put: sc metaBuilderFactory
-		]
-	].
 ]
 
 { #category : #'macro expansion' }

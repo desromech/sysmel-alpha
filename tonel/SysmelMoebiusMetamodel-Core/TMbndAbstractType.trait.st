@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -1552,6 +1553,11 @@ TMbndAbstractType >> pointerFor: addressSpace [
 
 { #category : #testing }
 TMbndAbstractType >> pointerRank [
+	^ #()
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> poolDictionaries [
 	^ #()
 ]
 

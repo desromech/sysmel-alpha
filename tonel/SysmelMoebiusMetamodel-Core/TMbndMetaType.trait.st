@@ -77,6 +77,12 @@ TMbndMetaType >> isStrictMetaType [
 	^ instanceType isNotNil
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndMetaType >> lookupPoolDictionarySymbol: aSymbol [
+	(super lookupPoolDictionarySymbol: aSymbol) ifNotNil: [ :found | ^ found ].
+	^ instanceType ifNotNil: [ instanceType lookupPoolDictionarySymbol: aSymbol ]
+]
+
 { #category : #printing }
 TMbndMetaType >> qualifiedNameForParent [
 	self isStrictMetaType ifTrue: [ 

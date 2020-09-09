@@ -175,7 +175,9 @@ gcclass Object superclass: ProtoObject.
 
 		gcclass LookupKey superclass: Magnitude.
 			gcclass Association superclass: LookupKey.
-				gcclass LiteralVariable superclass: Association.
+
+		gcclass Variable superclass: Object.
+				gcclass LiteralVariable superclass: Variable.
 					gcclass AdditionalBinding superclass: LiteralVariable.
 					gcclass ClassVariable superclass: LiteralVariable.
 					gcclass GlobalVariable superclass: LiteralVariable.
@@ -279,6 +281,14 @@ LookupKey definition: {
 }.
 
 Association definition: {
+	public field value type: ProtoObject.
+}.
+
+Variable definition: {
+	public field name type: ProtoObject.
+}.
+
+LiteralVariable definition: {
 	public field value type: ProtoObject.
 }.
 

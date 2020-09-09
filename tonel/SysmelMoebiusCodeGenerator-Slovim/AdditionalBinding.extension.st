@@ -2,5 +2,5 @@ Extension { #name : #AdditionalBinding }
 
 { #category : #'*SysmelMoebiusCodeGenerator-Slovim' }
 AdditionalBinding >> createNonInlineLiteralObjectForMbndObjectModel: objectModel [
-	^ objectModel createAssociation: self class: objectModel additionalBindingClass
+	^ objectModel createVariable: self class: objectModel additionalBindingClass
 ]

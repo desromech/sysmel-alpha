@@ -1164,7 +1164,7 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityEquals: node [
 	rightValue := self visitNode: node arguments first.
 	self assert: leftValue type isDynamicObjectPointerType.
 	self assert: rightValue type isDynamicObjectPointerType.
-	self assert: leftValue type == rightValue type.
+	self assert: leftValue type = rightValue type.
 	^ slvmBuilder dynObjectIdentityEquals: leftValue with: rightValue
 ]
 
@@ -2147,7 +2147,13 @@ MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
 	| closureDefinition captures closureInstance |
 	self assert: node isBlockClosureWithImmediateActivation not.
 	closureDefinition := (self translateProgramEntity: node blockClosureProgramEntity) ssaValue.
-	captures := node blockClosureProgramEntity capturedVariables collect: [ :var | functionVariables at: var upperContextVariable ].
+	captures := node blockClosureProgramEntity capturedVariables collectWithIndex: [ :var :i |
+		var upperContextNonCaptureVariable isFunctionSuperReceiverArgumentVariable ifTrue: [
+			slvmBuilder bitCast: (functionVariables at: var upperContextVariable) target: ((closureDefinition captures at: i) requiredInitialValueType)
+		] ifFalse: [ 
+			functionVariables at: var upperContextVariable
+		].
+	].
 	closureInstance := slvmBuilder instantiateClosure: closureDefinition captures: captures.
 	^ slvmBuilder bitCast: closureInstance target: (self translateType: node type)
 ]
@@ -3280,6 +3286,11 @@ MbndSlovimFunctionCodeGenerator >> visitTemporaryVariableNode: node [
 	].
 
 	^ tempVar
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitThisContextReferenceNode: node [
+	^ (self translateType: node type) defaultConstant
 ]
 
 { #category : #visiting }

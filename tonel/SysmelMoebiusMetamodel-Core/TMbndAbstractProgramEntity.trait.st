@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -199,6 +200,16 @@ TMbndAbstractProgramEntity >> isFunclet [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionDerivedVariable [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isFunctionMethod [
 	^ false
 ]
@@ -210,6 +221,11 @@ TMbndAbstractProgramEntity >> isFunctionReceiverArgumentVariable [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isFunctionSuperReceiverArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionVariable [
 	^ false
 ]
 
