@@ -1,0 +1,59 @@
+namespace Smalltalk definition: {
+
+BlockClosure definition: {
+    method repeat := {
+        while: true do: self value
+    }.
+
+    method doWhileFalse: conditionBlock := {
+        do: self value while: conditionBlock value == false.
+        nil
+    }.
+
+    method doWhileTrue: conditionBlock := {
+        do: self value while: conditionBlock value == true.
+        nil
+    }.
+
+    method whileTrue := {
+        while: self value == true do: void.
+        nil
+    }.
+
+    method whileTrue: aBlock := {
+        while: self value == true do: aBlock value.
+        nil
+    }.
+
+    method whileFalse := {
+        while: self value == false not do: void.
+        nil
+    }.
+
+    method whileFalse: aBlock := {
+        while: self value == false do: aBlock value.
+        nil
+    }.
+
+    method whileNil := {
+        while: self value isNil do: void.
+        nil
+    }.
+
+    method whileNil: aBlock := {
+        while: self value isNil do: aBlock value.
+        nil
+    }.
+
+    method whileNotNil := {
+        while: self value isNotNil do: void
+    }.
+
+    method whileNotNil: aBlock := {
+        while: self value isNotNil do: aBlock value.
+        nil
+    }.
+
+}.
+
+}. ## End of namespace Smalltalk

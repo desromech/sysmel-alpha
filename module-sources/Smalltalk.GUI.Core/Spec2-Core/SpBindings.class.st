@@ -2,7 +2,7 @@
 Dynamic variable for Spec on which of the bindings (Morphic or other) should be used as default.
 
 
-Example: 
+Example:
 ------------
 
 ```
@@ -17,5 +17,5 @@ Class {
 
 { #category : #accessing }
 SpBindings >> default [
-	^ (self class environment at: #SpMorphicAdapterBindings) new
+	^ SpNorphicAdapterBindings new
 ]

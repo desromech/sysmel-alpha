@@ -5,7 +5,7 @@ LiteralVariable definition: {
     }.
 }.
 
-CompiledMethod definition: {
+NativeCompiledMethod definition: {
     method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
     }.
 }.

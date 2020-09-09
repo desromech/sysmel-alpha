@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+gcclass WeakKeyDictionary superclass: Dictionary; definition: {
+    ##FIXME: Implement this properly.
+}.
+
+}. ## End of namespace Smalltalk

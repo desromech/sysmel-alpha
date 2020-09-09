@@ -1,6 +1,37 @@
 namespace Smalltalk definition: {
 
 Character extend: {
+	global CharSet mutable.
+	global CharacterTable mutable.
+	global DigitValues mutable.
+
+	meta definition: {
+		method initialize := {
+			self initializeDigitValues
+		}.
+
+		method initializeDigitValues := {
+			#*Initialize the well known digit value of ascii characters.
+			Note that the DigitValues table is 1-based while ascii values are 0-based, thus the offset+1.*#
+
+			DigitValues := Array new: 256 withAll: -1.
+			## "the digits"
+			0 to: 9 do: {:i :: Void | DigitValues at: 48 + i + 1 put: i}.
+			##"the uppercase letters"
+			10 to: 35 do: {:i :: Void | DigitValues at: 55 + i + 1 put: i}.
+			##"the lowercase letters"
+			10 to: 35 do: {:i :: Void | DigitValues at: 87 + i + 1 put: i}.
+			self
+		}.
+
+		method value: anInteger := {
+			anInteger __isSmallInteger ifFalse: {
+				self error: "Expected a small integer"
+			}.
+			anInteger __decodeSmallInteger castTo: Char32
+		}.
+	}.
+
 	method asInt32 => Int32
 		:= self __decodeCharacter castTo: Int32.
 
@@ -24,6 +55,40 @@ Character extend: {
 
 	method asInteger
 		:= self __decodeCharacter castTo: UInt32.
+
+	method = aCharacter
+		:= self == aCharacter.
+
+	method asciiValue
+		:= self __decodeCharacter.
+
+	method basicIdentityHash
+		:= self __decodeCharacter.
+
+	method hash
+		:= self __decodeCharacter.
+
+	method < aCharacter := {
+		aCharacter __isCharacter ifFalse: {
+			self error: "expected a character"
+		}.
+
+		self __decodeCharacter < aCharacter __decodeCharacter
+	}.
+
+	method > aCharacter := {
+		aCharacter __isCharacter ifFalse: {
+			self error: "expected a character"
+		}.
+
+		self __decodeCharacter > aCharacter __decodeCharacter
+	}.
+
+	method asString
+		:= String with: self.
+
+	method asSymbol
+		:= self asString asSymbol.
 }.
 
 }. ## End of namespace Smalltalk

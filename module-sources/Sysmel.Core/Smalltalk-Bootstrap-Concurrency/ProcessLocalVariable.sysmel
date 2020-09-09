@@ -1,0 +1,15 @@
+namespace Smalltalk definition: {
+
+gcclass ProcessLocalVariable superclass: ProcessSpecificVariable; definition: {
+    meta definition: {
+        method value: newValue
+            := self soleInstance value: newValue
+    }.
+
+    method value: newValue := {
+        value := newValue.
+        self
+    }.
+}.
+
+}. ## End of namespace Smalltalk

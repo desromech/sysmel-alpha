@@ -123,6 +123,15 @@ Collection definition: {
 		result
 	}.
 
+	method asDictionary
+		:= self as: Dictionary.
+
+	method asSet
+		:= Set withAll: self.
+
+	method asIdentitySet
+		:= (Set new: self size) addAll: self.
+
 	method anySatify: aPredicate := {
 		self do: {:each :: Void |
 			(aPredicate value: each) ifTrue: {
@@ -143,6 +152,9 @@ Collection definition: {
 
 	method includes: anElement
 		:= self anySatify: {:each | each = anElement}.
+
+	method associationsDo: aBlock
+		:= self do: aBlock.
 
 	method copyWithout: anElement
 		:= self reject: {:each | each = anElement}.
@@ -201,14 +213,21 @@ SequenceableCollection definition: {
 		:= Array withAll: self.
 
 	method do: aBlock := {
-		1 to: self size do: {:i :: Void|
+		1 to: self size do: {:i :: Void |
 			aBlock value: (self at: i)
 		}.
 		nil
 	}.
 
+	method keysAndValuesDo: aBlock := {
+		1 to: self size do: {:i :: Void |
+			aBlock value: i value: (self at: i)
+		}.
+		nil
+	}.
+
 	method doWithIndex: aBlock := {
-		1 to: self size do: {:i :: Void|
+		1 to: self size do: {:i :: Void |
 			aBlock value: (self at: i) value: i
 		}.
 		nil
@@ -216,7 +235,7 @@ SequenceableCollection definition: {
 
 	method collect: aBlock := {
 		let result := self species new: self size.
-		1 to: self size do: {:i :: Void|
+		1 to: self size do: {:i :: Void |
 			result at: i put: (aBlock value: (self at: i))
 		}.
 		result
@@ -229,6 +248,9 @@ SequenceableCollection definition: {
 		}.
 		result
 	}.
+
+	method collect: aBlock as: aClass
+		:= (aClass new: self size) fillFrom: self with: aBlock.
 
 	method select: aPredicate := {
 		self class new: self size streamContents: {:stream :: Void |
@@ -254,7 +276,7 @@ SequenceableCollection definition: {
 
 	method copyWithSize: (newSize: UIntPointer) := {
 		let result := self species new: newSize.
-		let copySize := newSize min: self size.
+		let copySize := newSize min: (self size castTo: UIntPointer).
 		1 to: copySize do: {:i :: Void |
 			result at: i put: (self at: i)
 		}.
@@ -272,7 +294,7 @@ SequenceableCollection definition: {
 	}.
 
 	method grownBy: (extraSize: UIntPointer)
-		:= self copyWithSize: self size + extraSize.
+		:= self copyWithSize: (self size castTo: UIntPointer) + extraSize.
 
 	method replaceFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) with: other := {
 		startIndex until: endIndex do: {:i :: Void |
@@ -282,8 +304,8 @@ SequenceableCollection definition: {
 	}.
 
 	method -- other := {
-		let mySize := self size.
-		let otherSize := other size.
+		let mySize := self size castTo: UIntPointer.
+		let otherSize := other size castTo: UIntPointer.
 		let result := self copyWithSize: mySize + otherSize.
 		result replaceFrom: mySize until: mySize + otherSize with: other.
 		result
@@ -303,6 +325,16 @@ SequenceableCollection definition: {
 	method seventh := self at: 7.
 	method eighth := self at: 8.
 	method ninth := self at: 9.
+
+	method atAllPut: value := {
+		1 to: self size do: {:i :: Void |
+			self at: i put: value
+		}.
+		self
+	}.
+
+	method writeStream
+		:= WriteStream on: self.
 }.
 
 ArrayedCollection definition: {
@@ -364,13 +396,24 @@ ArrayedCollection definition: {
 			result replaceFrom: 0 until: newSize with: other.
 			result
 		}.
+
+		method new: size withAll: value
+			:= (self new: size) atAllPut: value
 	}.
 
+	method fillFrom: aCollection with: aBlock := {
+		let index mutable := 1.
+		aCollection do: {:each :: Void |
+			self at: index put: (aBlock value: each)
+		}.
+
+		self
+	}.
 }.
 
 MethodDictionary definition: {
 	method values := {
-		let result := Array new: tally.
+		let result := Array basicNew: tally.
 		result.
 	}.
 }.

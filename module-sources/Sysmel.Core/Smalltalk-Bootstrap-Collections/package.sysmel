@@ -1,6 +1,19 @@
 loadFileOnce: "Collections.sysmel".
 loadFileOnce: "OrderedCollection.sysmel".
+loadFileOnce: "WeakOrderedCollection.sysmel".
 loadFileOnce: "AtomicCollections.sysmel".
 loadFileOnce: "String.sysmel".
 loadFileOnce: "HashedCollections.sysmel".
 loadFileOnce: "Symbol.sysmel".
+
+
+loadFileOnce: "Dictionary.sysmel".
+loadFileOnce: "IdentityDictionary.sysmel".
+loadFileOnce: "MethodDictionary.sysmel".
+loadFileOnce: "WeakKeyDictionary.sysmel".
+loadFileOnce: "WeakIdentityKeyDictionary.sysmel".
+
+loadFileOnce: "Set.sysmel".
+loadFileOnce: "IdentitySet.sysmel".
+loadFileOnce: "WeakSet.sysmel".
+loadFileOnce: "WeakIdentitySet.sysmel".

@@ -1,7 +1,20 @@
 Compiler loadPackages: #(
+    #"NumberParser"
     #"Kernel"
     #"Collections-Sequenceable"
     #"Collections-Unordered"
+    #"Collections-Stack"
     Colors
+    #"Multilingual-Encodings"
+    #"Multilingual-Languages"
+    #"Multilingual-TextConversion"
     #"Announcements-Core"
+
+    #"UIManager"
+    #"System-Support"
+    #"System-Announcements"
+    #"Debugging-Core"
+    #"AST-Core"
+    #"Kernel-BytecodeEncoders"
+    #"OpalCompiler-Core"
 ).

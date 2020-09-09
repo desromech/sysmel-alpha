@@ -6,6 +6,14 @@ Object extend: {
 String definition: {
     method isString := true.
 
+	meta definition: {
+		method fromNativeString: (string: Char8 const arraySlice) ::=> _DependentInstanceType := {
+			let result := self new: string size.
+			Stdn memcpy(result __private __data[0] address, string elements, string size).
+			result
+		}.
+	}.
+
 	method beginsWith: prefix := {
 		prefix class == String || prefix class == Symbol ifTrue: {
 			let prefixString := prefix reinterpretCastTo: String.
@@ -18,6 +26,18 @@ String definition: {
 			return: (Stdn memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
 		}.
 		return: (super beginsWith: prefix)
+	}.
+
+	method withoutPrefix: prefix := {
+		(self beginsWith: prefix)
+			ifTrue: { self copyFrom: 1 + prefix size to: self size }
+			ifFalse: { self }
+	}.
+
+	method withoutSuffix: suffix := {
+		(self beginsWith: suffix)
+			ifTrue: { self copyFrom: 1 to: self size - suffix size }
+			ifFalse: { self }
 	}.
 
 	method endsWith: suffix := {
@@ -76,5 +96,23 @@ ProtoObject extend: {
 		self asString asStdnMutableString.
 	}
 }.
+
+(Char8 arraySlice | Char8 const arraySlice) extend: {
+	method asSmalltalkString => String
+		:= String fromNativeString: self
+}.
+
+(Char8 pointer | Char8 const pointer) extend: {
+	method asSmalltalkString => String
+		:= String fromNativeString: (self until: Stdn cstrlen(self))
+}.
+
+Stdn String extend: {
+	const method asSmalltalkString => String
+		:= String fromNativeString: self asArraySlice
+}.
+
+compileTime constant ByteString := String.
+compileTime constant WideString := String.
 
 }. ## End of namespace Smalltalk

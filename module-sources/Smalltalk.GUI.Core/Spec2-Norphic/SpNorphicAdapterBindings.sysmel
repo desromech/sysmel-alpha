@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+gcclass SpNorphicAdapterBindings superclass: SpAdapterBindings; definition: {
+    method abstractAdapterClass
+        := SpAbstractNorphicAdapter.
+}.
+
+}. ## End of Smalltalk

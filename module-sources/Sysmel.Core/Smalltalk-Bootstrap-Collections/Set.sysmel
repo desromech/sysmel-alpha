@@ -1,0 +1,63 @@
+namespace Smalltalk definition: {
+
+Object extend: {
+    method enclosedSetElement := self.
+    method asSetElement := self.
+}.
+
+Set definition: {
+    method add: newObject := {
+        let index := self scanFor: newObject.
+        (array at: index) ifNil: {
+            self atNewIndex: index put: newObject asSetElement
+        }.
+
+        newObject
+    }.
+
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key hash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        let i mutable := keySlot.
+        while: i < keyCount do: {
+            let slotKey := array __private __data[i].
+            slotKey == nil || slotKey = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        i := 0.
+        while: i < keySlot do: {
+            let slotKey := array __private __data[i].
+            slotKey == nil || slotKey = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        self errorNoFreeSpace.
+        return: 0
+    }.
+
+    method do: aBlock := {
+        array do: {:each :: Void |
+            each ifNotNil: {
+                aBlock value: each
+            }
+        }.
+        nil
+    }.
+
+    method like: key := {
+        (array at: (self scanFor: key)) enclosedSetElement
+    }.
+}.
+
+}. ## End of namespace Smalltalk

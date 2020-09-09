@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+gcclass WeakSet superclass: Set; definition: {
+    ##FIXME: Implement this properly.
+
+}.
+
+}. ## End of namespace Smalltalk

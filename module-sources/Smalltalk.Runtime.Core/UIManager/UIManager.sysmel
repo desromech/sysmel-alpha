@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+gcclass UIManager definition: {
+
+}.
+
+}.

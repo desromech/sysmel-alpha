@@ -1,0 +1,13 @@
+## Main function
+Compiler importModulesNamed: #(
+    "Smalltalk.Runtime.Core"
+).
+
+Stdn MainEntryPoint: {:args :: Int32 |
+    1 until: args size do: {:i :: Void |
+        Stdn stdout << "Expression: " << args[i] asSmalltalkString; nl.
+        Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
+    }.
+
+    return: 0.
+}.

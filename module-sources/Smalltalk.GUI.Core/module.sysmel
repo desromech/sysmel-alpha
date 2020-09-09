@@ -2,10 +2,15 @@ Compiler importModulesNamed: #(
     #"Smalltalk.Runtime.Core"
     #"Norphic.Core"
 ); loadPackages: #(
+    #"Fonts-Abstract"
+    #"Text-Core"
+    #"Fonts-Infrastructure"
     #"System-Model"
     UITheme
     #"Spec2-Layout"
     #"Spec2-Core"
 
     ## #"Spec2-Transmission"
+
+    #"Spec2-Norphic"
 ).

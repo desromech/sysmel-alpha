@@ -36,8 +36,9 @@ gcclass Exception definition: {
     }.
 }.
 
-gcclass Error superclass: Exception; definition: {
-}.
+gcclass Abort superclass: Exception; definition: {}.
+
+gcclass Error superclass: Exception; definition: {}.
 
 
 gcclass ArithmeticError superclass: Error; definition: {}.
@@ -83,6 +84,7 @@ gcclass MessageNotUnderstood superclass: Error; definition: {
 gcclass CannotPerformCastError superclass: Error; definition: {}.
 
 gcclass SelectorException superclass: Error; definition: {}.
+gcclass OutOfMemory superclass: SelectorException; definition: {}.
 gcclass NotYetImplemented superclass: SelectorException; definition: {}.
 gcclass PrimitiveFailed superclass: SelectorException; definition: {}.
 gcclass ShouldBeImplemented superclass: SelectorException; definition: {}.
@@ -104,11 +106,29 @@ gcclass SubscriptOutOfBounds superclass: Error; definition: {
     }
 }.
 
-gcclass Halt superclass: Exception; definition: {
+gcclass UnhandledException superclass: Exception; definition: {
 }.
 
-gcclass UnhandledError superclass: Exception; definition: {
+gcclass Halt superclass: UnhandledException; definition: {
 }.
+
+gcclass UnhandledError superclass: UnhandledException; definition: {
+}.
+
+gcclass Notification superclass: Exception; definition: {
+    method signal := {
+        Stdn stdout << "TODO: signal notification: " << self; nl.
+        self
+    }.
+}.
+
+gcclass SystemNotification superclass: Notification; definition: {}.
+gcclass DeprecationPerformedNotification superclass: SystemNotification; definition: {}.
+gcclass NewUndeclaredWarning superclass: SystemNotification; definition: {}.
+gcclass TimedOut superclass: Notification; definition: {}.
+gcclass Warning superclass: Notification; definition: {}.
+gcclass Deprecation superclass: Warning; definition: {}.
+gcclass SimulationExceptionWrapper superclass: Exception; definition: {}.
 
 ProtoObject extend: {
     method doesNotUnderstand: aMessage

@@ -67,6 +67,22 @@ Association extend: {
     }.
 }.
 
+LiteralVariable extend: {
+    method printOn: aStream := {
+        name printOn: aStream.
+        aStream nextPutAll: "->".
+        value printOn: aStream
+    }.
+}.
+
+Slot extend: {
+    method printOn: aStream := {
+        name printOn: aStream.
+        aStream nextPutAll: " => ".
+        aStream nextPutAll: self class name
+    }.
+}.
+
 Collection extend: {
     method printNameOn: aStream
         := super printOn: aStream.

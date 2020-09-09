@@ -72,8 +72,8 @@ OrderedCollection definition: {
         := lastIndex - firstIndex + 1.
 
     method growAtLast := {
-        let newCapacity := array size * 2 max: 1.
-        let newArray := Array new: newCapacity.
+        let newCapacity := array basicSize * 2 max: 1.
+        let newArray := self allocateStorageArrayWithCapacity: newCapacity.
         let size := self size.
         firstIndex to: lastIndex do: {:(UIntPointer)i :: Void |
             newArray at: i put: (array at: i)
@@ -82,6 +82,9 @@ OrderedCollection definition: {
         array := newArray.
         self
     }.
+
+    method allocateStorageArrayWithCapacity: (newCapacity: UIntPointer) ::=> Array
+        := Array basicNew: newCapacity
 }.
 
 }.

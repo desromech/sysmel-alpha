@@ -1,8 +1,12 @@
 loadFileOnce: "ReflectionLock.sysmel".
 loadFileOnce: "SmalltalkImage.sysmel".
 loadFileOnce: "Behavior.sysmel".
+loadFileOnce: "Pragma.sysmel".
 
 loadFileOnce: "SessionManager.sysmel".
 loadFileOnce: "ModuleRootRegistration.sysmel".
 loadFileOnce: "ModuleInitialization.sysmel".
 loadFileOnce: "PackageManifest.sysmel".
+
+loadFileOnce: "InstructionStream.sysmel".
+loadFileOnce: "Context.sysmel".

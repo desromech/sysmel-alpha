@@ -200,10 +200,34 @@ Magnitude extend: {
 	method < other
 		:= self subclassResponsibility.
 
+	method = other
+		:= self subclassResponsibility.
+
+	method <= other
+		:= (other > self) not.
+
+	method > other
+		:= other < self.
+
+	method >= other
+		:= (self < other) not.
+
     method min: other
 		:= self < other ifTrue: self ifFalse: other.
+
 	method max: other
 		:= self > other ifTrue: self ifFalse: other.
+
+	method beBetween: minValue and: maxValue
+		:= minValue <= maxValue
+			ifTrue: {(self min: maxValue) max: minValue}
+			ifFalse: {(self min: minValue) max: maxValue}.
+
+	method between: min and: max
+		:= min <= self && self <= max.
+
+	method min: maxValue max: minValue
+		:= (self min: maxValue) max: minValue.
 }.
 
 }. ## End of namespace Smalltalk

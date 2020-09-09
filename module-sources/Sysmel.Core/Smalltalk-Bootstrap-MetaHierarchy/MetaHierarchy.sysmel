@@ -36,6 +36,8 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
 		gcclass ExtensionOverloadedMethod superclass: ProgramEntityExtensionElement.
 		gcclass ExtensionMethod superclass: ProgramEntityExtensionElement.
 
+	gcclass SharedPool superclass: Object.
+
     ## Boolean8
     gcclass Boolean superclass: Object.
         gcclass True superclass: Boolean.
@@ -61,13 +63,18 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
 
 		gcclass LookupKey superclass: Magnitude.
 			gcclass Association superclass: LookupKey.
-				gcclass LiteralVariable superclass: Association.
-					gcclass AdditionalBinding superclass: LiteralVariable.
-					gcclass ClassVariable superclass: LiteralVariable.
-					gcclass GlobalVariable superclass: LiteralVariable.
-					gcclass UndeclaredVariable superclass: LiteralVariable.
-					gcclass WorkspaceVariable superclass: LiteralVariable.
 
+		gcclass Variable superclass: Object.
+			gcclass LiteralVariable superclass: Variable.
+				gcclass AdditionalBinding superclass: LiteralVariable.
+				gcclass ClassVariable superclass: LiteralVariable.
+				gcclass GlobalVariable superclass: LiteralVariable.
+				gcclass UndeclaredVariable superclass: LiteralVariable.
+				gcclass WorkspaceVariable superclass: LiteralVariable.
+			gcclass Slot superclass: Variable.
+				gcclass IndexedSlot superclass: Slot.
+					gcclass InstanceVariableSlot superclass: IndexedSlot.
+				gcclass UndefinedSlot superclass: Slot.
 
     gcclass GCLayout superclass: Object.
 
@@ -99,12 +106,20 @@ gcclass Collection superclass: Object.
 
 
 ## Block closures
-gcclass BlockClosureHeaderClass superclass: Object.
-gcclass BlockClosure superclass: BlockClosureHeaderClass.
-gcclass SimpleBlockClosure superclass: BlockClosure.
+gcclass BlockClosure superclass: Object.
+gcclass FullBlockClosure superclass: BlockClosure.
+gcclass CleanBlockClosure superclass: FullBlockClosure.
+
+gcclass NativeBlockClosureHeaderClass superclass: BlockClosure.
+gcclass NativeBlockClosure superclass: NativeBlockClosureHeaderClass.
+gcclass NativeSimpleBlockClosure superclass: NativeBlockClosure.
 
 ## Methods
-gcclass CompiledMethod superclass: Object.
+gcclass CompiledCode superclass: Object.
+	gcclass CompiledMethod superclass: CompiledCode.
+	gcclass CompiledBlock superclass: CompiledCode.
+gcclass NativeCompiledMethod superclass: Object.
+
 gcclass Pragma superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
 
@@ -153,7 +168,7 @@ ProtoObject definition: {
 	method basicSize => UIntPointer
 	 	:= __variableDataSize.
 
-	method size => UIntPointer
+	method size
 	 	:= __variableDataSize.
 }.
 
@@ -300,8 +315,8 @@ Behavior definition: {
 	method new => _DependentInstanceType
 		:= self basicNew initialize; yourself.
 
-    method new: (initialSize: UIntPointer) ::=> _DependentInstanceType
-		:= (self basicNew: initialSize) initialize; yourself.
+    method new: initialSize ::=> _DependentInstanceType
+		:= (self basicNew: (initialSize castTo: UIntPointer)) initialize; yourself.
 
 	method run: selector with: arguments in: receiver := {
 		let message := Message new
@@ -574,9 +589,9 @@ ProtoObject definition: {
 }.
 
 ##-----------------------------------------------------------------------------
-## Compiled method
+## NativeCompiledMethod method
 
-CompiledMethod definition: {
+NativeCompiledMethod definition: {
     public field entryPoint type: Void pointer.
     field __literals protected type: ProtoObject array.
 }.
@@ -600,6 +615,12 @@ Object definition: {
 		:= Association basicNew key: self; value: value; yourself.
 
 	method flag: flag := self.
+
+	method as: aSimilarClass := {
+		aSimilarClass == self class
+			ifTrue: { self }
+			ifFalse: { aSimilarClass newFrom: self }
+	}
 }.
 
 LookupKey definition: {
@@ -611,6 +632,16 @@ Association definition: {
 
 	meta method key: key value: value
 		:= self new key: key; value: value; yourself.
+}.
+
+
+Variable definition: {
+	public field name type: ProtoObject.
+
+}.
+
+LiteralVariable definition: {
+	public field value type: ProtoObject.
 }.
 
 macro method generateBasicAtAccessorsForArrayField: arrayField elementType: elementType := ``{
@@ -746,76 +777,10 @@ MethodDictionary definition: {
 
 ##-----------------------------------------------------------------------------
 ## Block closure
-
-BlockClosureHeaderClass definition: {
-	protected field dynamicCallAdapter type: Void pointer.
-	protected field numArgs type: UInt32.
-
-	virtual method initializeCopyingFrom: o
-		:= self.
-	virtual method initializeMovingFrom: o
-		:= self.
-	virtual method finalize
-		:= self.
-}.
-
 BlockClosure definition: {
-	protected field activationFunctionPointer_ type: Void pointer.
-
-	inline method checkRequiredArgumentCount: (i: UInt32) ::=> Void := {
-		numArgs ~= i ifTrue: {
-			Stdn fatalError: "Mismatching argument count for block closure activation."
-		}.
-	}.
-
-	method value := {
-		self checkRequiredArgumentCount: 0.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure) => ProtoObject) pointer)
-				(activationFunctionPointer_, self)
-	}.
-
-	method value: argument := {
-		self checkRequiredArgumentCount: 1.
-		(dynamicCallAdapter reinterpretCastTo:
-			(Void pointer -- BlockClosure -- ProtoObject => ProtoObject) pointer)
-				(activationFunctionPointer_, self, argument)
-	}.
-
-	method value: firstArg value: secondArg := {
-		self checkRequiredArgumentCount: 2.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, self, firstArg, secondArg)
-	}.
-
-	method value: firstArg value: secondArg value: thirdArg := {
-		self checkRequiredArgumentCount: 3.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg)
-	}.
-
-	method value: firstArg value: secondArg value: thirdArg value: fourthArg := {
-		self checkRequiredArgumentCount: 4.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg)
-	}.
-
-	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg := {
-		self checkRequiredArgumentCount: 5.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg)
-	}.
-
-	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg value: sixthArg := {
-		self checkRequiredArgumentCount: 6.
-		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg, sixthArg)
-	}.
+	protected field outerContext.
+	protected field startpc type: UIntPointer.
+	protected field numArgs type: UInt32.
 
 	method cull: argument := {
 		numArgs < 1 ifTrue: {
@@ -850,13 +815,85 @@ BlockClosure definition: {
 	}.
 }.
 
+NativeBlockClosureHeaderClass definition: {
+	virtual method initializeCopyingFrom: o
+		:= self.
+	virtual method initializeMovingFrom: o
+		:= self.
+	virtual method finalize
+		:= self.
+}.
+
+NativeBlockClosure definition: {
+	protected field activationFunctionPointer_ type: Void pointer.
+
+	inline method checkRequiredArgumentCount: (i: UInt32) ::=> Void := {
+		numArgs ~= i ifTrue: {
+			Stdn fatalError: "Mismatching argument count for block closure activation."
+		}.
+	}.
+
+	method value := {
+		self checkRequiredArgumentCount: 0.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure) => ProtoObject) pointer)
+				(activationFunctionPointer_, self)
+	}.
+
+	method value: argument := {
+		self checkRequiredArgumentCount: 1.
+		(startpc reinterpretCastTo:
+			(Void pointer -- BlockClosure -- ProtoObject => ProtoObject) pointer)
+				(activationFunctionPointer_, self, argument)
+	}.
+
+	method value: firstArg value: secondArg := {
+		self checkRequiredArgumentCount: 2.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg)
+	}.
+
+	method value: firstArg value: secondArg value: thirdArg := {
+		self checkRequiredArgumentCount: 3.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg)
+	}.
+
+	method value: firstArg value: secondArg value: thirdArg value: fourthArg := {
+		self checkRequiredArgumentCount: 4.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg)
+	}.
+
+	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg := {
+		self checkRequiredArgumentCount: 5.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg)
+	}.
+
+	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg value: sixthArg := {
+		self checkRequiredArgumentCount: 6.
+		(startpc reinterpretCastTo:
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg, sixthArg)
+	}.
+}.
+
 Symbol definition: {
 	method value: firstArg
 		:= firstArg perform: self.
 }.
 
-SimpleBlockClosure definition: {
+NativeSimpleBlockClosure definition: {
     field __captures protected type: ProtoObject array.
+}.
+
+FullBlockClosure definition: {
+	protected field receiver.
 }.
 
 ##-----------------------------------------------------------------------------
@@ -881,7 +918,7 @@ Object definition: {
 		:= self perform: aSymbol with: firstObject with: secondObject with: thirdObject with: fourthObject.
 
 	method perform: aSymbol withArguments: anArray := {
-		anArray size selectCase: #{
+		(anArray size castTo: UIntPointer) selectCase: #{
 		0 : {return: (self perform: aSymbol)}.
 		1 : {return: (self perform: aSymbol with: anArray first)}.
 		2 : {return: (self perform: aSymbol with: anArray first with: anArray second)}.
@@ -940,8 +977,8 @@ function genericMessageLookup(receiver: ProtoObject, selector: Object, typeInfo:
         lookupResult methodObject: (typeInfo reinterpretCastTo: Void pointer).
 		lookupResult dispatchTrampoline: objectDispatchTrampoline.
     } else: {
-		if: methodObject class == CompiledMethod then: {
-			let compiledMethod := methodObject reinterpretCastTo: CompiledMethod.
+		if: methodObject class == NativeCompiledMethod then: {
+			let compiledMethod := methodObject reinterpretCastTo: NativeCompiledMethod.
 			lookupResult methodObject: compiledMethod entryPoint.
 			lookupResult dispatchTrampoline: nativeDispatchTrampoline.
 		} else: {
@@ -982,7 +1019,7 @@ Compiler compilationTarget managedObjectModel
     arrayClass: Array;
     associationClass: Association;
     byteArrayClass: ByteArray;
-    compiledMethodClass: CompiledMethod;
+    compiledMethodClass: NativeCompiledMethod;
     dictionaryClass: Dictionary;
 	identityDictionaryClass: IdentityDictionary;
 	systemDictionaryClass: SystemDictionary;
@@ -1010,9 +1047,9 @@ Compiler compilationTarget managedObjectModel
 	undeclaredVariableClass: UndeclaredVariable;
 	workspaceVariableClass: WorkspaceVariable;
 
-	blockClosureHeaderClass: BlockClosureHeaderClass;
-	blockClosureClass: BlockClosure;
-	simpleBlockClosureClass: SimpleBlockClosure;
+	blockClosureHeaderClass: NativeBlockClosureHeaderClass;
+	blockClosureClass: NativeBlockClosure;
+	simpleBlockClosureClass: NativeSimpleBlockClosure;
 	gcBlockClosureAllocationFunction: gcBlockClosureAllocator;
     yourself
 }.

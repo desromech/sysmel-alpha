@@ -50,6 +50,12 @@ Number extend: {
     method asInteger
         := self truncated.
 
+    method to: stop
+        := Interval from: self to: stop by: 1.
+
+    method to: stop by: step
+        := Interval from: self to: stop by: step.
+
     method to: stop by: step do: aBlock := {
         let nextValue mutable type: ProtoObject := self.
         step = 0 ifTrue: {self error: 'step must be non-zero'}.
@@ -67,6 +73,7 @@ Number extend: {
 
         self
     }.
+
     method to: stop do: aBlock := {
         let nextValue mutable type: ProtoObject  := self.
         while: nextValue <= stop do: {
@@ -75,6 +82,62 @@ Number extend: {
         }.
 
         self
+    }.
+
+    method raisedTo: aNumber := {
+    	aNumber isInteger ifTrue: {
+            ## Do the special case of integer power"
+            return: (self raisedToInteger: aNumber)
+        }.
+
+    	aNumber isFraction ifTrue: {
+    		## Special case for fraction power
+    		return: (self raisedToFraction: aNumber)
+        }.
+
+        self < 0 ifTrue: {
+            return: (ArithmeticError signal: "Negative numbers can't be raised to float powers.")
+        }.
+
+        0 = aNumber ifTrue: {return: 1}.
+        1 = aNumber ifTrue: {return: self}.
+        0 = self ifTrue: {
+            aNumber < 0 ifTrue: {
+                return: {return: (ZeroDivide dividend: 1) signal}
+            } ifFalse: {
+                return: self
+            }
+        }.
+
+        (aNumber * self ln) exp
+    }.
+
+    method even
+        := (self \\ 2) = 0.
+
+    method odd
+        := (self \\ 2) = 1.
+
+    method raisedToInteger: anInteger := {
+
+        let result mutable type: ProtoObject := 1.
+        let n mutable := anInteger >= 0 ifTrue: anInteger ifFalse: anInteger negated.
+        let factor mutable type: ProtoObject := self.
+        while: n > 0 do: {
+            n even ifTrue: {
+                factor := factor * factor.
+                n := n / 2
+            } ifFalse: {
+                result := result * factor.
+                n := n - 1
+            }
+        }.
+
+        anInteger < 0 ifTrue: {
+            result := result reciprocal
+        }.
+
+        result
     }.
 }.
 

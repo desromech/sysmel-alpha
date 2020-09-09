@@ -1,0 +1,15 @@
+namespace Smalltalk definition: {
+
+gcclass Context superclass: InstructionStream; definition: {
+    global PrimitiveFailToken mutable.
+    global QuickStep mutable.
+    global SpecialPrimitiveSimulators mutable.
+    global TryNamedPrimitiveTemplateMethod mutable.
+
+    field stackp.
+    field method.
+    field closureOrNil.
+    field receiver.
+}.
+
+}. ## End of namespace Smalltalk

@@ -1,3 +1,4 @@
 loadFileOnce: "MetaHierarchy.sysmel".
 loadFileOnce: "Macros.sysmel".
 loadFileOnce: "Boolean.sysmel".
+loadFileOnce: "BlockClosure.sysmel".

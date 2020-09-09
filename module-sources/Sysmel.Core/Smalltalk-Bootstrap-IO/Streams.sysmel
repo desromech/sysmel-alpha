@@ -38,7 +38,7 @@ Stream definition: {
         := self subclassResponsibility.
 
     method next: (elementsToRead: UInt32) := {
-        let result := Array new: elementsToRead.
+        let result := Array basicNew: elementsToRead.
         0 until: elementsToRead do: {:i :: Void |
             result[i] := self next
         }.
@@ -96,6 +96,20 @@ PositionableStream definition: {
     method contents := {
         return: (collection copyWithSize: readLimit)
     }.
+
+    method atEnd
+        := position >= readLimit.
+}.
+
+ReadStream definition: {
+    method next := {
+        position >= readLimit
+            ifTrue: {nil}
+            ifFalse: {collection at: (position := position + 1)}.
+    }.
+
+    method size
+        := readLimit.
 }.
 
 #**
@@ -108,7 +122,7 @@ WriteStream definition: {
     method on: aCollection := {
         super on: aCollection.
         readLimit := 0.
-        writeLimit := aCollection size.
+        writeLimit := aCollection size castTo: UIntPointer.
         self
     }.
 
@@ -132,7 +146,7 @@ WriteStream definition: {
             return: (super nextPutAll: aCollection)
         }.
 
-        let newPosition := position + aCollection size.
+        let newPosition := position + (aCollection size castTo: UIntPointer).
         newPosition > writeLimit ifTrue: {
             self growBy: newPosition - writeLimit
         }.
@@ -144,9 +158,9 @@ WriteStream definition: {
     }.
 
     method growBy: (minimumRequired: UIntPointer) := {
-        let growSize type: UIntPointer := collection size clampMin: 20 max: 1000000.
+        let growSize type: UIntPointer := (collection size castTo: UIntPointer) clampMin: 20 max: 1000000.
         collection := collection grownBy: (growSize max: minimumRequired).
-        writeLimit := collection size.
+        writeLimit := collection size castTo: UIntPointer.
         self
     }.
 

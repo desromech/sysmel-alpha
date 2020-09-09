@@ -1,0 +1,65 @@
+namespace Smalltalk definition: {
+
+MethodDictionary definition: {
+
+    method associationsDo: aBlock := {
+        self keysAndValuesDo: {:key :value :: Void |
+            aBlock value: (Association key: key value: value)
+        }
+    }.
+
+    method keysDo: aBlock := {
+        0 until: array __private __data size do: {:i :: Void |
+            let key := array __private __data[i].
+            key ifNotNil: {
+                aBlock value: key
+            }
+        }.
+        nil
+    }.
+
+    method keysAndValuesDo: aBlock := {
+        0 until: array __private __data size do: {:i :: Void |
+            let key := array __private __data[i].
+            key ifNotNil: {
+                let value := values __private __data[i].
+                aBlock value: key value: value.
+            }
+        }.
+
+        nil
+    }.
+
+    method at: key put: anObject := {
+        self at: key putNoSpaceCheck: anObject.
+        self fullCheck.
+        anObject
+    }.
+
+    method grow := {
+        let oldKeys := array.
+        let oldValues := values.
+        let oldCapacity := oldKeys __private __data size.
+        let newCapacity := oldCapacity * 2 max: 5.
+        tally := 0.
+
+        let newArray := Array new: newCapacity.
+        let newValues := Array new: newCapacity.
+
+        ## WARNING: From this point until the end of this method,
+        ## dynamic message lookup is FORBIDDEN.
+        array := newArray.
+        values := newValues.
+
+        0 until: oldCapacity do: {:i :: Void |
+            let key := oldKeys[i].
+            key ifNotNil: {
+                self at: key putNoSpaceCheck: oldValues[i]
+            }.
+        }.
+
+        self.
+    }.
+}.
+
+}. ## End of namespace Smalltalk

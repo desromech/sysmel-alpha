@@ -1,0 +1,178 @@
+namespace Smalltalk definition: {
+
+Dictionary definition: {
+    meta definition: {
+        method newFrom: aCollection := {
+            let result := self new: aCollection size.
+            aCollection associationsDo: {:each :: Void |
+                (result includesKey: each key) ifTrue: {
+                    self error: "Duplicate key: " -- each key printString
+                }.
+
+                result add: each
+            }.
+            result
+        }.
+    }.
+
+    method associationsDo: aBlock := {
+        0 until: array basicSize do: {:(UIntPointer)i :: Void |
+            let element := array[i].
+            element ifNotNil: {
+                aBlock value: element
+            }
+        }.
+        nil
+    }.
+
+    method do: aBlock := {
+        self valuesDo: aBlock
+    }.
+
+    method keysDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association key
+        }.
+    }.
+
+    method valuesDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association value
+        }.
+    }.
+
+    method keysAndValuesDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association key value: association value
+        }.
+    }.
+
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key hash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        let i mutable := keySlot.
+        while: i < keyCount do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        i := 0.
+        while: i < keySlot do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        self errorNoFreeSpace.
+        return: 0
+    }.
+
+    method keys := {
+        let resultSize := self size castTo: UIntPointer.
+        let result := Array basicNew: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self keysDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+
+    method values := {
+        let resultSize := self size castTo: UIntPointer.
+        let result := Array basicNew: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self valuesDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+
+    method associations := {
+        let resultSize := self size castTo: UIntPointer.
+        let result := Array basicNew: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self associationsDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+
+    method associationAt: key
+        := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method associationAt: key ifAbsent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNil: {aBlock value} ifNotNil: {element})
+    }.
+
+    method associationAt: key ifPresent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNotNil: {aBlock cull: element})
+    }.
+
+    method includesKey: key
+        := (array at: (self findElementIndex: key)) isNotNil.
+
+    method add: anAssociation := {
+        let index := self findElementIndex: anAssociation key.
+        let element := array at: index.
+        element
+            ifNotNil: { element value: anAssociation value }
+            ifNil: { self atNewIndex: index put: anAssociation }.
+
+        anAssociation
+    }.
+
+    method at: key
+        := self at: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method at: key ifAbsent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNil: {aBlock} ifNotNil: {element}) value
+    }.
+
+    method at: key ifAbsentPut: aBlock := {
+        self at: key ifAbsent: { :: ProtoObject | self at: key put: aBlock value}
+    }.
+
+    method at: key put: anObject := {
+        let index := self findElementIndex: key.
+        let assoc := array at: index.
+        assoc ifNil: {
+            self atNewIndex: index put: (Association key: key value: anObject)
+        } ifNotNil: {
+            assoc value: anObject
+        }.
+        anObject
+    }.
+
+    method noCheckAdd: element := {
+        array at: (self scanFor: element key) put: element.
+        tally := tally + 1
+    }.
+
+    method errorKeyNotFound: aKey
+        := KeyNotFound signalFor: aKey.
+}.
+
+}. ## End of namespace Smalltalk

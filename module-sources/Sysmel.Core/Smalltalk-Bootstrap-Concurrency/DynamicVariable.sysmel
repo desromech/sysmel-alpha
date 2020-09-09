@@ -1,7 +1,18 @@
 namespace Smalltalk definition: {
 
 gcclass DynamicVariable superclass: ProcessSpecificVariable; definition: {
+    meta definition: {
+        method value: newValue during: aBlock
+            := self soleInstance value: newValue during: aBlock.
+    }.
 
+    method value: newValue during: aBlock := {
+        let oldValue := value.
+        value := newValue.
+        try: {
+            aBlock value
+        } finally: {value := oldValue}.
+    }.
 }.
 
 }. ## End of namespace Smalltalk

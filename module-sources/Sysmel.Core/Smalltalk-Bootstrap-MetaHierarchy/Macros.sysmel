@@ -45,6 +45,7 @@ ProtoObject extend: {
 
     macro method isNil := ``(`,self == nil).
     macro method isNotNil := ``(`,self ~~ nil).
+    macro method notNil := ``(`,self ~~ nil).
 
     macro method and: other := ``(if: `,self == true then: `,other __macroInlineBlock else: false).
     macro method or: other := ``(if: `,self == true then: true else: `,other __macroInlineBlock).

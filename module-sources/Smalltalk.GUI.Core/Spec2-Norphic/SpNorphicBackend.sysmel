@@ -1,0 +1,10 @@
+namespace Smalltalk definition: {
+
+gcclass SpNorphicBackend superclass: SpApplicationBackend; definition: {
+    meta definition: {
+        method backendName
+            := #Norphic.
+    }.
+}.
+
+}. ## End of Smalltalk
