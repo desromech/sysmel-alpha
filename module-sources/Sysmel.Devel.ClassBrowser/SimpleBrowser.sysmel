@@ -62,7 +62,7 @@ gcclass SimpleBrowser definition: {
         }.
 
         classBindings do: {:binding :: Void |
-            classesListView _ addItem: binding key asStdnMutableString
+            classesListView _ addItem: binding name asStdnMutableString
         }.
         self
     }.

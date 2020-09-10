@@ -1,6 +1,6 @@
 namespace Smalltalk definition: {
 
-gcclass SmallFloatTestCase superclass: TestCase; definition: {
+gcclass BootstrapSmallFloatTestCase superclass: TestCase; definition: {
 
     method testNegated := {
         self assert: 0.0 asProtoObject negated equals: 0.0.

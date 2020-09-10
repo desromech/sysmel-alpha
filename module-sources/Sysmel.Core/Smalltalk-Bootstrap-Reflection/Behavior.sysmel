@@ -15,6 +15,9 @@ Behavior definition: {
 	method isBehavior
 		:= true.
 
+	method initializeSlots: instance
+		:= nil.
+
 	method subclasses := #().
 
 	method ensureIsAddedToSuperClass := self.
