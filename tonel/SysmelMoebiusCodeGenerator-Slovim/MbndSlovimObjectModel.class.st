@@ -255,6 +255,19 @@ MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType
 	^ function
 ]
 
+{ #category : #converting }
+MbndSlovimObjectModel >> createFractionInstance: aFraction [
+	^ convertedLiteralContent at: aFraction ifAbsentPut: [
+		| instance |
+		instance := managedObjectModel fractionClass makeInstance: 0 identityHash: aFraction hash.
+		instance
+			setField: #numerator value: aFraction numerator;
+			setField: #denominator value: aFraction denominator.
+		instance
+	]
+
+]
+
 { #category : #visiting }
 MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
 	^ functionContextMetadata at: aFunction ifAbsentPut: [ 
@@ -270,6 +283,19 @@ MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
 	].
 
 
+]
+
+{ #category : #converting }
+MbndSlovimObjectModel >> createLargeIntegerInstance: largeInteger [
+	| byteCount bytes |
+	^ convertedLiteralContent at: largeInteger ifAbsentPut: [
+		byteCount := largeInteger basicSize.
+		bytes := ByteArray new: byteCount.
+		1 to: byteCount do: [ :i | bytes at: i put: (largeInteger basicAt: i) ].
+		largeInteger negative
+			ifTrue: [ self createObjectBytes: bytes class: self managedObjectModel largeNegativeIntegerClass identityHash: self generateIdentityHash ]
+			ifFalse: [ self createObjectBytes: bytes class: self managedObjectModel largePositiveIntegerClass identityHash: self generateIdentityHash ]
+	]
 ]
 
 { #category : #'code generation' }
@@ -309,6 +335,20 @@ MbndSlovimObjectModel >> createObjectBytes: bytes class: class identityHash: ide
 MbndSlovimObjectModel >> createObjectMethodDispatchTrampolineWithType: functionType [
 	self assert: functionType isMbndType.
 	^ moduleCodeGenerator getOrCreateObjectMethodDispatchTrampolineWithType: functionType
+]
+
+{ #category : #converting }
+MbndSlovimObjectModel >> createScaledDecimalInstance: aScaledDecimal [
+	^ convertedLiteralContent at: aScaledDecimal ifAbsentPut: [
+		| instance |
+		instance := managedObjectModel scaledDecimalClass makeInstance: 0 identityHash: aScaledDecimal hash.
+		instance
+			setField: #numerator value: aScaledDecimal numerator;
+			setField: #denominator value: aScaledDecimal denominator;
+			setField: #scale value: aScaledDecimal scale.
+		instance
+	]
+
 ]
 
 { #category : #converting }

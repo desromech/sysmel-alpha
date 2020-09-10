@@ -14,10 +14,15 @@ MbndFunctionalType >> addInstanceMacros [
 	self class == MbndFunctionalType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	
-	self onMacroSelector: #applyWithArguments: do: [ :node :builder |
-		(builder call: node receiver arguments: node arguments first)
-			position: node
-	]
+	self
+		onMacroSelector: #applyWithArguments: do: [ :node :builder |
+			(builder call: node receiver arguments: node arguments first)
+				position: node
+		];
+		onMacroSelectors: #(value value: value:value: value:value:value: value:value:value:value:) do: [ :node :builder |
+			(builder call: node receiver arguments: node arguments)
+				position: node
+		]
 ]
 
 { #category : #'as yet unclassified' }

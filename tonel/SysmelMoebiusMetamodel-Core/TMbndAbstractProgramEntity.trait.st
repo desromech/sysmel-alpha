@@ -1,7 +1,6 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
-	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 

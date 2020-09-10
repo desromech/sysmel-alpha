@@ -1894,7 +1894,11 @@ MbndSlovimCodeModuleGenerator >> topologicalSortType: type fromTypeSet: typeSet 
 	visitedSet add: type.
 	
 	type supertype ifNotNil: [ :supertype |
-		self topologicalSortType: type fromTypeSet: typeSet visitedSet: visitedSet into: result
+		self topologicalSortType: supertype fromTypeSet: typeSet visitedSet: visitedSet into: result
+	].
+
+	type poolDictionaries do: [ :each |
+		self topologicalSortType: each fromTypeSet: typeSet visitedSet: visitedSet into: result
 	].
 	
 	(typeSet includes: type) ifTrue: [ result add: type ]
