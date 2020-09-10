@@ -4,6 +4,8 @@ namespace GC definition: {
 useNamespace: Stdn Reflection.
 
 class NativeCollector definition: {
+    compileTime constant CollectionStartThresholdIncrement := 2<<20 castTo: UIntPointer.
+
     field memoryHeap mutable type: Stdn Memory GarbageCollectableMemoryHeap.
 
     field collectorMutex type: Stdn Mutex.
@@ -14,6 +16,9 @@ class NativeCollector definition: {
     field whiteColor type: UInt32.
     field grayColor type: UInt32.
     field blackColor type: UInt32.
+
+    field nextCollectionStartThreshold type: UIntPointer.
+    field collectionThresholdIncrement type: UIntPointer.
 
     meta definition: {
         global singleton mutable type: NativeCollector; constructionPriority: Compiler compilationTarget gcInitializationPriority.
@@ -27,10 +32,22 @@ class NativeCollector definition: {
         whiteColor := 0u.
         grayColor := 1u.
         blackColor := 2u.
+
+        collectionThresholdIncrement := CollectionStartThresholdIncrement.
+        LibC getenv("SYSMEL_GC_THRESHOLD") ifNotNil: {:setting :: Void |
+            collectionThresholdIncrement := LibC atoi(setting) castTo: UIntPointer.
+            collectionThresholdIncrement > 0 ifTrue: {
+                collectionThresholdIncrement := collectionThresholdIncrement max: 1024
+            }
+        }.
+
+        nextCollectionStartThreshold := collectionThresholdIncrement.
     }.
 
     method finalize => Void := {
-        self garbageCollect
+        collectorMutex withLock: {
+            self garbageCollect
+        }.
     }.
 
     method allocate: (objectSize: UIntPointer)
@@ -39,9 +56,8 @@ class NativeCollector definition: {
           ::=> Stdn Reflection GCObjectHeader pointer := {
         <nogc>
 
-        self checkForCollectionNeeded.
         ## Allocate the object memory.
-        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
@@ -61,19 +77,29 @@ class NativeCollector definition: {
 		<nogc>
 
         ## Allocate the object memory.
-        self checkForCollectionNeeded.
-        let allocatedObject := (memoryHeap allocate: instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
 
-		## Copy the data from the prototype
+        ## Copy the data from the prototype
         LibC memcpy(allocatedObject, prototype, instanceSize).
         allocatedObject _ __gcColor: whiteColor.
 
         return: allocatedObject
 	}.
 
-    method checkForCollectionNeeded => Void := {
+    method allocateMemoryForObjectOfSize: (objectSize: UIntPointer) ::=> Void pointer := {
         <nogc>
-        self garbageCollect
+        collectorMutex withLock: {
+            memoryHeap totalAllocatedSize >= nextCollectionStartThreshold ifTrue: {
+                self garbageCollect.
+                collectionThresholdIncrement > 0 ifTrue: {
+                    let newHeapAllocatedSize := memoryHeap totalAllocatedSize + objectSize.
+                    newHeapAllocatedSize >= ((nextCollectionStartThreshold max: collectionThresholdIncrement) - collectionThresholdIncrement*80/100) ifTrue: {
+                        nextCollectionStartThreshold := (newHeapAllocatedSize + collectionThresholdIncrement - 1) /collectionThresholdIncrement * collectionThresholdIncrement
+                    }.
+                }.
+            }.
+            (memoryHeap allocate: objectSize)
+        }.
     }.
 
     method swapColors => Void := {
@@ -83,16 +109,14 @@ class NativeCollector definition: {
 
     method garbageCollect => Void := {
         <nogc>
-        collectorMutex withLock: {
-            ## Mark phase
-            self mark.
+        ## Mark phase
+        self mark.
 
-            ## Sweep phase.
-            self sweep.
+        ## Sweep phase.
+        self sweep.
 
-            ## Swap the colors.
-            self swapColors.
-        }.
+        ## Swap the colors.
+        self swapColors.
     }.
 
     method registerModuleRoots: (descriptors: GCRootPointersDescriptor const arraySlice) ::=> Void := {
