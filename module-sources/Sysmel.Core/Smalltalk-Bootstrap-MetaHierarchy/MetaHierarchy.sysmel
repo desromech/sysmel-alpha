@@ -165,11 +165,15 @@ ProtoObject definition: {
 	method finalize
 		:= self. ## By default do nothing.
 
-	method basicSize => UIntPointer
-	 	:= __variableDataSize.
+	method basicSize => UIntPointer := {
+		self __isImmediateValue ifTrue: {self primitiveFailed}.
+		__variableDataSize.
+	}.
 
-	method size
-	 	:= __variableDataSize.
+	method size := {
+		self __isImmediateValue ifTrue: {self primitiveFailed}.
+		__variableDataSize.
+	}.
 }.
 
 ProgramEntity definition: {

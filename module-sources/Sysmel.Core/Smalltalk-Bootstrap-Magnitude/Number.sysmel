@@ -139,6 +139,9 @@ Number extend: {
 
         result
     }.
+
+    method quo: aNumber
+        := (self / aNumber) truncated.
 }.
 
 }. ## End of namespace Smalltalk

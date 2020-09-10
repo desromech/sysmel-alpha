@@ -1,0 +1,5 @@
+namespace Smalltalk definition: {
+gcclass File definition: {
+}.
+
+}. ## End of namespace Smalltalk

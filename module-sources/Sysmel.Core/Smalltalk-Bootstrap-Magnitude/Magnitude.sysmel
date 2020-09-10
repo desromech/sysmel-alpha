@@ -1,9 +1,5 @@
 namespace Smalltalk definition: {
 
-LargeInteger definition: {
-	public field __data type: ProtoObject gcclassVariableDataArray.
-}.
-
 BoxedFloat64 definition: {
 	public field __float64Value type: Float64.
 }.

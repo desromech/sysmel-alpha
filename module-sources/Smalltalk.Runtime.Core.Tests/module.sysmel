@@ -1,2 +1,8 @@
 Compiler
-    importModuleNamed: #"Smalltalk.Runtime.Core"
+    importModuleNamed: #"Smalltalk.Runtime.Core";
+    importModuleNamed: #"Sysmel.Testing";
+    loadPackages: #(
+        #"Kernel-Tests"
+        #"AST-Core-Tests"
+        #"ReflectionMirrors-Primitives-Tests"
+    )

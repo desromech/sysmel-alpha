@@ -51,6 +51,7 @@ ModuleInformation definition: {
             started ifTrue: {return: void}.
             started := true.
 
+            Smalltalk ifNil: {Smalltalk := SmalltalkImage uniqueInstance}.
             self allImportedModulesDo: {:each :: Void | each startUp}.
 
             parent := nil.

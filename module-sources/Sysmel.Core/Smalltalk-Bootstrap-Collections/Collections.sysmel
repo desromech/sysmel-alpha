@@ -335,6 +335,9 @@ SequenceableCollection definition: {
 
 	method writeStream
 		:= WriteStream on: self.
+
+	method readStream
+		:= ReadStream on: self.
 }.
 
 ArrayedCollection definition: {

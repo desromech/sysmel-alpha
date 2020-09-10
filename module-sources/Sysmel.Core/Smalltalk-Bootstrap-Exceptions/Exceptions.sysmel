@@ -40,6 +40,12 @@ gcclass Abort superclass: Exception; definition: {}.
 
 gcclass Error superclass: Exception; definition: {}.
 
+gcclass ModificationForbidden superclass: Error; definition: {
+    field object.
+    field fieldIndex.
+    field newValue.
+    field retrySelector.
+}.
 
 gcclass ArithmeticError superclass: Error; definition: {}.
 gcclass DomainError superclass: ArithmeticError; definition: {

@@ -2,6 +2,7 @@ namespace Smalltalk definition: {
 
 Float extend: {
     method isFloat := true.
+    method asFloat := self.
 }.
 
 }. ## End of namespace Smalltalk

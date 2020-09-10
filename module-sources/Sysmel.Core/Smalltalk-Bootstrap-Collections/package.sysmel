@@ -6,7 +6,7 @@ loadFileOnce: "String.sysmel".
 loadFileOnce: "HashedCollections.sysmel".
 loadFileOnce: "Symbol.sysmel".
 
-
+loadFileOnce: "Bitmap.sysmel".
 loadFileOnce: "Dictionary.sysmel".
 loadFileOnce: "IdentityDictionary.sysmel".
 loadFileOnce: "MethodDictionary.sysmel".

@@ -1,6 +1,9 @@
 namespace Smalltalk definition: {
 
 gcclass TestCase superclass: TestAsserter; definition: {
+    field testSelector.
+    field expectedFails.
+
     method setUp := self.
     method tearDown := self.
 }.

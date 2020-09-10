@@ -1,16 +1,5 @@
 namespace Smalltalk definition: {
 
-#*
-gcclass SmalltalkImage superclass: Object; definition: {
-    meta definition: {
-        method uniqueInstance
-            := self new
-    }.
-}.
-
-global Smalltalk := SmalltalkImage uniqueInstance.
-*#
-
 gcclass SmalltalkImage superclass: Object; definition: {
     meta definition: {
         field uniqueInstance.
@@ -20,6 +9,6 @@ gcclass SmalltalkImage superclass: Object; definition: {
     }.
 }.
 
-gcclass Smalltalk superclass: Object; definition: {}.
+global Smalltalk mutable type: ProtoObject.
 
 }. ## End of namespace Smalltalk

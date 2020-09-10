@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+ScaledDecimal extend: {
+	field scale.
+}.
+
+}. ## End of namespace Smalltalk

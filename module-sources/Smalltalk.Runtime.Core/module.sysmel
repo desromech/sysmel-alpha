@@ -5,10 +5,12 @@ Compiler loadPackages: #(
     #"Collections-Unordered"
     #"Collections-Stack"
     Colors
+    #"Random-Core"
     #"Multilingual-Encodings"
     #"Multilingual-Languages"
     #"Multilingual-TextConversion"
     #"Announcements-Core"
+    #"ReflectionMirrors-Primitives"
 
     #"UIManager"
     #"System-Support"
