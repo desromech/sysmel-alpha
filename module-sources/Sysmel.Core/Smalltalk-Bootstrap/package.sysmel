@@ -1,5 +1,6 @@
 Compiler loadPackages: #(
-    #"Smalltalk-Bootstrap-MetaHierarchy"
+    #"Smalltalk-Bootstrap-Object"
+
     #"Smalltalk-Bootstrap-Magnitude"
     #"Smalltalk-Bootstrap-Collections"
     #"Smalltalk-Bootstrap-IO"

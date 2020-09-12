@@ -1,0 +1,77 @@
+namespace Smalltalk definition: {
+
+ArrayedCollection definition: {
+	meta definition: {
+		method with: first := {
+			let result := self new: 1.
+			result at: 1 put: first.
+			result
+		}.
+
+		method with: first with: second := {
+			let result := self new: 2.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result
+		}.
+
+		method with: first with: second with: third := {
+			let result := self new: 3.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result
+		}.
+
+		method with: first with: second with: third with: fourth := {
+			let result := self new: 4.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result
+		}.
+
+		method with: first with: second with: third with: fourth with: fifth := {
+			let result := self new: 5.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result at: 5 put: fifth.
+			result
+		}.
+
+		method with: first with: second with: third with: fourth with: fifth with: sixth := {
+			let result := self new: 6.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result at: 5 put: fifth.
+			result at: 6 put: sixth.
+			result
+		}.
+
+		method withAll: other := {
+			let newSize := other size castTo: UIntPointer.
+			let result := self new: newSize.
+			result replaceFrom: 0 until: newSize with: other.
+			result
+		}.
+
+		method new: size withAll: value
+			:= (self new: size) atAllPut: value
+	}.
+
+	method fillFrom: aCollection with: aBlock := {
+		let index mutable := 1.
+		aCollection do: {:each :: Void |
+			self at: index put: (aBlock value: each)
+		}.
+
+		self
+	}.
+}.
+
+}. ## End of namespace Smalltalk.

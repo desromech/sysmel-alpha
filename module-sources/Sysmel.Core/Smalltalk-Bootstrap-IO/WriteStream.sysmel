@@ -1,0 +1,116 @@
+namespace Smalltalk definition: {
+
+#**
+ * I am a write stream for generating the content of a collection.
+ * My implementation is ported from Pharo.
+ *#
+gcclass WriteStream superclass: PositionableStream; definition: {
+    protected field writeLimit type: UIntPointer.
+
+    meta definition: {
+        method with: aCollection
+            := self basicNew with: aCollection.
+
+        method with: aCollection from: firstIndex to: lastIndex
+            := self basicNew with: aCollection from: firstIndex to: lastIndex .
+    }.
+
+    method on: aCollection := {
+        super on: aCollection.
+        readLimit := 0.
+        writeLimit := aCollection size castTo: UIntPointer.
+        self
+    }.
+
+    method on: aCollection from: firstIndex to: lastIndex := {
+        collection := aCollection.
+        readLimit := writeLimit := (collection size castTo: UIntPointer) min: (lastIndex castTo: UIntPointer).
+        position := ((firstIndex castTo: UIntPointer) max: 1u) - 1u.
+        self
+    }.
+
+    method with: aCollection := {
+        super on: aCollection.
+        position := readLimit := writeLimit := aCollection size castTo: UIntPointer.
+    }.
+
+    method with: aCollection from: firstIndex to: lastIndex := {
+        self with: (aCollection copyFrom: firstIndex to: lastIndex)
+    }.
+
+    method size
+        := readLimit := readLimit max: position.
+
+    method contents := {
+        readLimit := readLimit max: position.
+        return: (collection copyWithSize: readLimit)
+    }.
+
+    method nextPut: anObject := {
+        position >= writeLimit ifTrue: {
+            self growBy: 1.
+        }.
+
+        position := position + 1.
+        collection at: position put: anObject.
+        return: anObject
+    }.
+
+    method nextPutAll: aCollection := {
+        aCollection class ~~ collection class ifTrue: {
+            return: (super nextPutAll: aCollection)
+        }.
+
+        let newPosition := position + (aCollection size castTo: UIntPointer).
+        newPosition > writeLimit ifTrue: {
+            self growBy: newPosition - writeLimit
+        }.
+
+        collection replaceFrom: position until: newPosition with: aCollection.
+
+        position := newPosition.
+        return: aCollection
+    }.
+
+    method growBy: (minimumRequired: UIntPointer) := {
+        let growSize type: UIntPointer := (collection size castTo: UIntPointer) clampMin: 20 max: 1000000.
+        collection := collection grownBy: (growSize max: minimumRequired).
+        writeLimit := collection size castTo: UIntPointer.
+        self
+    }.
+
+    method space
+        := self nextPut: ' '.
+
+    method tab
+        := self nextPut: '\t'.
+
+    method cr
+        := self nextPut: '\r'.
+
+    method lf
+        := self nextPut: '\n'.
+
+    method crlf
+        := self cr; lf.
+
+    compileTime if: Compiler compilationTarget isWindows then: {
+        method nl => SelfType ref
+            := self crlf; yourself.
+    } else: {
+        method nl => SelfType ref
+            := self lf; yourself.
+    }.
+
+    method store: anObject := {
+        anObject storeOn: self.
+        self.
+    }.
+
+    method setToEnd := {
+        readLimit := position max: readLimit.
+        super setToEnd
+    }.
+}.
+
+} ## End of namespace Smalltalk

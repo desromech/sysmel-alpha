@@ -1,0 +1,30 @@
+namespace Smalltalk definition: {
+
+Class definition: {
+	method ensureIsAddedToSuperClass := {
+		superclass ifNotNil: {
+			superclass addSubclass: self
+		}.
+
+		self
+	}.
+
+	method addSubclass: aSubclass ::=> Void := {
+		__global Smalltalk Runtime withReflectionLockedRead: {
+			(subclasses includes: aSubclass) ifFalse: {
+				subclasses := subclasses copyWith: aSubclass.
+			}.
+		}.
+	}.
+
+	method isClass
+		:= true.
+
+	method classSide
+		:= self class.
+
+	method instanceSide
+		:= self.
+}.
+
+}. ## End of namespace Smalltalk

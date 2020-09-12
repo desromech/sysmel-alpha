@@ -115,6 +115,11 @@ compileTime if: Compiler compilationTarget areSymbolsEqualsToString then: {
 
     method isSymbol
         := true.
+
+    method storeOn: aStream := {
+        aStream nextPut: '#'.
+        super storeOn: aStream
+    }.
 }.
 
-}.
+}. ## End of namespace Smalltalk

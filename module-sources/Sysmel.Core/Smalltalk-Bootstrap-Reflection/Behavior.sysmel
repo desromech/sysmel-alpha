@@ -1,16 +1,5 @@
 namespace Smalltalk definition: {
 
-Object extend: {
-	method isBehavior
-		:= false.
-	method isClass
-		:= false.
-}.
-
-TypeInformation definition: {
-	method addSubclass: aSubclass := self.
-}.
-
 Behavior definition: {
 	method isBehavior
 		:= true.
@@ -99,66 +88,6 @@ Behavior definition: {
 				manipulationBlock(variableSlots[i] address)
 			}
 		}.
-	}.
-}.
-
-Class definition: {
-	method ensureIsAddedToSuperClass := {
-		superclass ifNotNil: {
-			superclass addSubclass: self
-		}.
-
-		self
-	}.
-
-	method addSubclass: aSubclass ::=> Void := {
-		__global Smalltalk Runtime withReflectionLockedRead: {
-			(subclasses includes: aSubclass) ifFalse: {
-				subclasses := subclasses copyWith: aSubclass.
-			}.
-		}.
-	}.
-
-	method isClass
-		:= true.
-
-	method classSide
-		:= self class.
-
-	method instanceSide
-		:= self.
-}.
-
-Metaclass definition: {
-	method classSide
-		:= self.
-
-	method instanceSide
-		:= thisClass.
-
-	method isMetaclassOfClassOrNil := {
-		thisClass ifNil: { true }
-			ifNotNil: {thisClass == Class }
-	}.
-
-	method subclasses := {
-		let result := OrderedCollection new.
-		self subclassesDo: {:each :: Void |
-			result add: each
-		}.
-
-		result asArray
-	}.
-
-	method subclassesDo: aBlock := {
-		## Method taken from Pharo
-		## Evaluate aBlock for each of the receiver's immediate subclasses.
-
-		self isMetaclassOfClassOrNil ifFalse: {
-			self instanceSide subclassesDo: { :each :: Void | aBlock value: each classSide }
-		}.
-
-		self
 	}.
 }.
 

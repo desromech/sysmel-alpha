@@ -2,6 +2,9 @@ namespace Smalltalk definition: {
 
 ScaledDecimal extend: {
 	field scale.
+
+	method reciprocal
+		:= self class newFromNumber: super reciprocal scale: scale.
 }.
 
 }. ## End of namespace Smalltalk

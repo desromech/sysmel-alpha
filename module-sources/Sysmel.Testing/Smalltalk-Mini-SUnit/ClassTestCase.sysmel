@@ -1,6 +1,10 @@
 namespace Smalltalk definition: {
 
 gcclass ClassTestCase superclass: AbstractEnvironmentTestCase; definition: {
+    method defaultTestError := {
+        ## TODO:
+        self.
+    }.
 }.
 
 }. ## End of namespace Smalltalk

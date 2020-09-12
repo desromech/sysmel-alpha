@@ -15,6 +15,9 @@ Dictionary definition: {
         }.
     }.
 
+    method asDictionary
+        := self.
+
     method associationsDo: aBlock := {
         0 until: array basicSize do: {:(UIntPointer)i :: Void |
             let element := array[i].
@@ -30,19 +33,19 @@ Dictionary definition: {
     }.
 
     method keysDo: aBlock := {
-        self do: {:association :: Void |
+        self associationsDo: {:association :: Void |
             aBlock value: association key
         }.
     }.
 
     method valuesDo: aBlock := {
-        self do: {:association :: Void |
+        self associationsDo: {:association :: Void |
             aBlock value: association value
         }.
     }.
 
     method keysAndValuesDo: aBlock := {
-        self do: {:association :: Void |
+        self associationsDo: {:association :: Void |
             aBlock value: association key value: association value
         }.
     }.

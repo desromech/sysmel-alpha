@@ -1,0 +1,38 @@
+namespace Smalltalk definition: {
+
+Object definition: {
+    method value := self.
+
+    method isBehavior
+		:= false.
+
+	method isClass
+		:= false.
+
+    method isKindOf: aClass
+        := self class == aClass || (self class inheritsFrom: aClass).
+
+    method asString
+        := self printString.
+    method printString
+        := self printStringLimitedTo: 50000.
+    method printStringLimitedTo: limit
+        := self printStringLimitedTo: limit using: {:stream :: Void | self printOn: stream}.
+
+    method printStringLimitedTo: limit using: printBlock
+        := String streamContents: printBlock limitedTo: limit.
+
+    method printOn: aStream
+        := aStream nextPutAll: "a "; nextPutAll: self class name.
+
+    method storeString
+        := "TODO: Object >>#storeString".
+
+    method beReadOnlyObject
+        := self.
+
+    method beWritableObject
+        := self.
+}.
+
+}. ## End of namespace Smalltalk

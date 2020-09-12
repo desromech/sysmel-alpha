@@ -1,0 +1,58 @@
+namespace Smalltalk definition: {
+
+namespace ObjectModel definition: {
+
+function objectToBoolean8(object: ProtoObject) => Boolean8 := {
+    object == true ifTrue: {
+        return: true
+    }.
+
+    object == false ifTrue: {
+        return: false
+    }.
+
+    return: (object mustBeBoolean castTo: Boolean8)
+}.
+
+Compiler compilationTarget managedObjectModel
+	objectToBoolean8Function: objectToBoolean8.
+
+}. ## End of namespace ObjectModel
+
+
+Boolean definition: {
+    method ifFalse: alternativeBlock
+        := self subclassResponsibility.
+
+    method ifFalse: falseBlock ifTrue: trueBlock
+        := self subclassResponsibility.
+
+    method ifTrue: alternativeBlock
+        := self subclassResponsibility.
+
+    method ifTrue: trueBlock ifFalse: falseBlock
+        := self subclassResponsibility.
+
+    method and: alternativeBlock
+        := self subclassResponsibility.
+
+    method or: alternativeBlock
+        := self subclassResponsibility.
+
+    method xor: alternativeBlock
+        := self subclassResponsibility.
+
+    method & aBoolean
+        := self subclassResponsibility.
+
+    method | aBoolean
+        := self subclassResponsibility.
+
+    method not
+        := self subclassResponsibility.
+
+    method asBit
+        := self subclassResponsibility.
+}.
+
+}. ## End of namespace Smalltalk

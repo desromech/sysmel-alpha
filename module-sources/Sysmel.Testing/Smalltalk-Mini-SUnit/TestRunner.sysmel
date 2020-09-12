@@ -121,7 +121,7 @@ gcclass TestRunner definition: {
             try: {
                 try: {
                     aBlock value
-                } catch: TestSkipException doing: {:exception :: Void |
+                } catch: TestSkip doing: {:exception :: Void |
                     self countSkippedTest.
                     Stdn stdout << "Skipped."; nl.
                 }

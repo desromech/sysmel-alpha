@@ -1,0 +1,8 @@
+loadFileOnce: "MetaHierarchy.sysmel".
+loadFileOnce: "ProtoObject.sysmel".
+loadFileOnce: "Object.sysmel".
+loadFileOnce: "UndefinedObject.sysmel".
+loadFileOnce: "Boolean.sysmel".
+loadFileOnce: "False.sysmel".
+loadFileOnce: "True.sysmel".
+loadFileOnce: "BlockClosure.sysmel".

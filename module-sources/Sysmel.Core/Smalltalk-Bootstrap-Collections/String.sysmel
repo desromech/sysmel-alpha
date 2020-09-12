@@ -4,6 +4,11 @@ Object extend: {
 }.
 
 String definition: {
+    field __data protected type: Char8 array.
+
+	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
+	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
+
     method isString := true.
 
 	meta definition: {
@@ -12,6 +17,17 @@ String definition: {
 			Stdn memcpy(result __private __data[0] address, string elements, string size).
 			result
 		}.
+
+
+		method cr := self with: '\r'.
+		method crlf := self with: '\r' with: '\n'.
+		method crlfcrlf := self with: '\r' with: '\n' with: '\r' with: '\n'.
+		method empty := "".
+		method lf := self with: '\n'.
+		method space := self with: ' '.
+		method tab := self with: '\t'.
+
+		method value: aCharacter := self with: (Character value: aCharacter).
 	}.
 
 	method beginsWith: prefix := {
@@ -88,6 +104,32 @@ String definition: {
 
 	method asStdnMutableString => Stdn String := {
 		Stdn String fromUTF8: __data[0] address size: __data size
+	}.
+
+	method asString
+		:= self.
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+		__data size > 0 ifTrue: {
+		    writer write: __data [0] address size: __data size
+		}.
+
+		self
+    }.
+	
+	method printOn: aStream
+		:= self storeOn: aStream.
+
+	method storeOn: aStream := {
+		aStream nextPut: '\''.
+		0 until: __data size do: {:i :: Void|
+			let c := __data[i].
+			aStream nextPut: c.
+			c == '\'' ifTrue: {aStream nextPut: c}.
+		}.
+
+		aStream nextPut: '\''.
+		self
 	}.
 }.
 

@@ -89,6 +89,11 @@ Character extend: {
 
 	method asSymbol
 		:= self asString asSymbol.
+
+	method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __decodeCharacter.
+		self
+    }.
 }.
 
 }. ## End of namespace Smalltalk

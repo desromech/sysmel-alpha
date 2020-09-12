@@ -36,6 +36,18 @@ BoxedFloat64 extend: {
 	method fractionPart
 		:= __float64Value fract.
 
+	method exp
+		:= __float64Value exp.
+
+	method exp2
+		:= __float64Value exp2.
+
+	method ln
+		:= __float64Value ln.
+
+	method log2
+		:= __float64Value log2.
+
 	method = aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := __float64Value.
@@ -210,6 +222,19 @@ BoxedFloat64 extend: {
 		}.
 
         super / aNumber
+    }.
+
+	method printOn: aStream := {
+        let floatPrinter mutable type: Stdn BasicValueFloatPrinter.
+        floatPrinter nextPutDouble: self __float64Value.
+        floatPrinter printOn: aStream.
+
+        self
+    }.
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __float64Value.
+		self
     }.
 }.
 

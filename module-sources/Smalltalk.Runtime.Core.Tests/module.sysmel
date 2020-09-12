@@ -3,6 +3,7 @@ Compiler
     importModuleNamed: #"Sysmel.Testing";
     loadPackages: #(
         #"Kernel-Tests"
+        #"Collections-Streams-Tests"
         #"AST-Core-Tests"
         #"ReflectionMirrors-Primitives-Tests"
     )

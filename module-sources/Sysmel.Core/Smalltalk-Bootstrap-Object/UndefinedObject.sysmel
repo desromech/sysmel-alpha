@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+UndefinedObject definition: {
+    method printOn: aStream
+        := aStream nextPutAll: "nil".
+}.
+
+}. ## End of namespace Smalltalk

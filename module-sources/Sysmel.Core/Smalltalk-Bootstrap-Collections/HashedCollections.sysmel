@@ -1,6 +1,9 @@
 namespace Smalltalk definition: {
 
 HashedCollection definition: {
+    field tally protected type: UIntPointer.
+    field array protected type: Array.
+
     meta extend: {
         method new
             := self basicNew initialize: 5; yourself.

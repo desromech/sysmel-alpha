@@ -26,6 +26,11 @@ Fraction extend: {
 
 		self
 	}.
+
+	method reciprocal := {
+		numerator abs = 1 ifTrue: {return: numerator * denominator}.
+		self class numerator: denominator denominator: numerator
+	}.
 }.
 
 }. ## End of namespace Smalltalk

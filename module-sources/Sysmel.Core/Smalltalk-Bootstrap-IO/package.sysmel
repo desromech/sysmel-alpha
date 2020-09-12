@@ -1,4 +1,13 @@
-loadFileOnce: "Streams.sysmel".
+loadFileOnce: "Stream.sysmel".
+loadFileOnce: "DecoratorStream.sysmel".
+loadFileOnce: "Generator.sysmel".
+loadFileOnce: "NullStream.sysmel".
+loadFileOnce: "PositionableStream.sysmel".
+loadFileOnce: "ReadStream.sysmel".
+loadFileOnce: "WriteStream.sysmel".
+loadFileOnce: "ReadWriteStream.sysmel".
+loadFileOnce: "LimitedWriteStream.sysmel".
+
 loadFileOnce: "Printing.sysmel".
 loadFileOnce: "Transcript.sysmel".
 loadFileOnce: "File.sysmel".

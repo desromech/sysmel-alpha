@@ -16,6 +16,9 @@ OrderedCollection definition: {
             := self basicNew setCollection: (Array new: initialCapacity).
     }.
 
+    method asOrderedCollection
+        := self.
+
     method add: newObject
         := self addLast: newObject.
 

@@ -1,0 +1,122 @@
+namespace Smalltalk definition: {
+#**
+ * I am a positionable read stream for reading the content of a collection.
+ * My implementation is ported from Pharo.
+ *#
+gcclass PositionableStream superclass: Stream; definition: {
+    public field collection.
+    protected field position type: UIntPointer.
+    protected field readLimit type: UIntPointer.
+
+    meta definition: {
+        method on: aCollection
+            := self basicNew on: aCollection.
+
+        method on: aCollection from: firstIndex to: lastIndex
+            := self basicNew on: aCollection from: firstIndex to: lastIndex.
+
+        method with: aCollection do: aBlock := {
+            let aStream := self on: aCollection.
+            try: {
+                aBlock value: aStream
+            } finally: {aStream close}
+        }.
+    }.
+
+    method on: aCollection := {
+        collection := aCollection.
+        position := 0.
+        readLimit := aCollection size castTo: UIntPointer.
+        self reset.
+        self
+    }.
+
+    method on: aCollection from: firstIndex to: lastIndex
+        := self on: (aCollection copyFrom: firstIndex to: lastIndex).
+
+    method reset := {
+        position := 0.
+        self
+    }.
+
+    method position
+        := position.
+
+    method skip: anInteger := {
+        let newPosition := (position castTo: IntPointer) + (anInteger castTo: IntPointer) castTo: UIntPointer.
+        newPosition > readLimit ifTrue: { self positionError }.
+        position := newPosition.
+    }.
+
+    method position: anInteger := {
+        let newPosition := anInteger castTo: UIntPointer.
+        0 <= newPosition && newPosition <= readLimit
+            ifTrue: { position := newPosition }
+            ifFalse: { self positionError }
+    }.
+
+    method positionError
+        := self error: "Attempt to set the position of a PositionableStream out of bounds".
+
+    method contents := {
+        return: (collection copyWithSize: readLimit)
+    }.
+
+    method atEnd
+        := position >= readLimit.
+
+    method back := {
+        position = 0 ifTrue: {self positionError}.
+        position := position - 1.
+        self peek.
+    }.
+
+    method peekBack := {
+        let element := self back.
+        self skip: 1.
+        element
+    }.
+
+    method peek := {
+        self atEnd ifTrue: {return: nil}.
+
+        let nextObject := self next.
+        position := position - 1.
+        nextObject
+    }.
+
+    method peekFor: anObject := {
+        self atEnd ifTrue: {return: false}.
+
+        let nextObject := self next.
+        nextObject = anObject ifTrue: {return: true}.
+
+        position := position - 1.
+        false
+    }.
+
+    method upTo: anObject := {
+        let newStream := (collection species new: 100) writeStream.
+        let element mutable.
+        until: self atEnd || (element := self next) = anObject do: {
+            newStream nextPut: element
+        }.
+        newStream contents
+    }.
+
+    method upToEnd := {
+        let newStream := (collection species new: 100) writeStream.
+        until: self atEnd do: {
+            newStream nextPut: self next
+        }.
+        newStream contents
+    }.
+
+    method setToEnd := {
+        position := readLimit.
+        self
+    }.
+
+}.
+
+} ## End of namespace Smalltalk

@@ -28,6 +28,9 @@ SmallInteger extend: {
 	method negated
 		:= self __decodeSmallInteger negated.
 
+	method isLarge
+		:= false.
+
 	method sqrt := {
 		let selfValue := self __decodeSmallInteger.
 		selfValue <= 0 ifTrue: {
@@ -380,6 +383,20 @@ SmallInteger extend: {
 
 		super // aNumber
 	}.
+
+	method printOn: aStream := {
+        let integerPrinter mutable type: Stdn BasicValueIntegerPrinter.
+        integerPrinter nextPutInteger: self __decodeSmallInteger.
+        integerPrinter printOn: aStream.
+
+        self
+    }.
+
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __decodeSmallInteger.
+		self
+    }.
 }.
 
 }. ## End of namespace Smalltalk

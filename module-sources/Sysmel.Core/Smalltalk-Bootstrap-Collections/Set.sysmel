@@ -6,6 +6,9 @@ Object extend: {
 }.
 
 Set definition: {
+    method asSet
+        := self.
+        
     method add: newObject := {
         let index := self scanFor: newObject.
         (array at: index) ifNil: {

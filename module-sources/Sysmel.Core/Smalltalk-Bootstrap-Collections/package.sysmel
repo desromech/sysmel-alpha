@@ -1,4 +1,12 @@
-loadFileOnce: "Collections.sysmel".
+loadFileOnce: "Collection.sysmel".
+loadFileOnce: "SequenceableCollection.sysmel".
+loadFileOnce: "ArrayedCollection.sysmel".
+loadFileOnce: "Array.sysmel".
+loadFileOnce: "FloatArray.sysmel".
+loadFileOnce: "IntegerArray.sysmel".
+loadFileOnce: "WordArray.sysmel".
+loadFileOnce: "ByteArray.sysmel".
+
 loadFileOnce: "OrderedCollection.sysmel".
 loadFileOnce: "WeakOrderedCollection.sysmel".
 loadFileOnce: "AtomicCollections.sysmel".

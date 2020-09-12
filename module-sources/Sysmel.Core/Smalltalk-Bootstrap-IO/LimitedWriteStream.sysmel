@@ -1,0 +1,16 @@
+namespace Smalltalk definition: {
+
+gcclass LimitedWriteStream superclass: WriteStream; definition: {
+    public field limit type: UIntPointer.
+    public field limitBlock.
+
+    meta definition: {
+        method on: aCollection limit: anInteger limitBlock: aLimitBlock
+            := self basicNew on: aCollection;
+                limit: (anInteger castTo: UIntPointer);
+                limitBlock: aLimitBlock;
+                yourself.
+    }.
+}.
+
+} ## End of namespace Smalltalk

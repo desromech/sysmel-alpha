@@ -1,0 +1,12 @@
+namespace Smalltalk definition: {
+
+IntegerArray definition: {
+	field __data protected type: Int32 array.
+
+	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Int32.
+	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: Int32.
+
+	method asFloatArray := self.
+}.
+
+}. ## End of namespace Smalltalk.

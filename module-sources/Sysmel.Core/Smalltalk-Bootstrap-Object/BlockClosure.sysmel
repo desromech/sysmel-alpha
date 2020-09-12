@@ -54,6 +54,12 @@ BlockClosure definition: {
         nil
     }.
 
+    method ensure: aBlock := {
+        try: {
+            self value
+        } finally: {aBlock value}
+    }.
+
 }.
 
 }. ## End of namespace Smalltalk

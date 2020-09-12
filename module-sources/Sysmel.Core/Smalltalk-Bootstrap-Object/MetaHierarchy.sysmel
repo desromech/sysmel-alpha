@@ -20,16 +20,20 @@ namespace Smalltalk definition: {
 gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
 	## Reflection types.
 	gcclass ProgramEntity superclass: Object.
-		gcclass SharedProgramEntity superclass: ProgramEntity.
-			gcclass NamespaceInformation superclass: SharedProgramEntity.
 		gcclass ModuleDefinedProgramEntity superclass: ProgramEntity.
 			gcclass TypeInformation superclass: ModuleDefinedProgramEntity.
 			    gcclass Behavior superclass: TypeInformation.
 			        gcclass ClassDescription superclass: Behavior.
 			            gcclass Class superclass: ClassDescription.
 			            gcclass Metaclass superclass: ClassDescription.
+
+## ProtoObject
+ProtoObject type supertype: Class.
+
 				gcclass NativeTypeInformation superclass: TypeInformation.
 			gcclass ModuleNamespaceInformation superclass: ModuleDefinedProgramEntity.
+			gcclass SharedProgramEntity superclass: ProgramEntity.
+				gcclass NamespaceInformation superclass: SharedProgramEntity.
 		gcclass ModuleInformation superclass: ProgramEntity.
 	gcclass ProgramEntityExtensionElement superclass: Object.
 		gcclass ExtensionMacroMessage superclass: ProgramEntityExtensionElement.
@@ -125,19 +129,6 @@ gcclass AdditionalMethodState superclass: Object.
 
 ## Message
 gcclass Message superclass: Object.
-
-## Streams
-gcclass Stream superclass: Object.
-	gcclass DecoratorStream superclass: Stream.
-	gcclass GeneratorStream superclass: Stream.
-	gcclass NullStream superclass: Stream.
-	gcclass PositionableStream superclass: Stream.
-		gcclass ReadStream superclass: PositionableStream.
-		gcclass WriteStream superclass: PositionableStream.
-			gcclass LimitedWriteStream superclass: WriteStream.
-
-## ProtoObject
-ProtoObject type supertype: Class.
 
 ProtoObject definition: {
     ## We use a fixed 16-byte object header, to be able to use SSE instructions.
@@ -375,11 +366,6 @@ GCLayout definition: {
 
 		bitmap[wordIndex] anyMask: bit
 	}.
-}.
-
-## String
-String definition: {
-    field __data protected type: Char8 array.
 }.
 
 ## Table with the immediate clases.
@@ -641,7 +627,6 @@ Association definition: {
 
 Variable definition: {
 	public field name type: ProtoObject.
-
 }.
 
 LiteralVariable definition: {
@@ -683,30 +668,6 @@ macro method generateAtAccessorsForArrayField: arrayField elementType: elementTy
 		index >= `,arrayField size ifTrue: { (self errorSubscriptBounds: index + 1)}.
 		return: `,arrayField[index]
 	}.
-}.
-
-String definition: {
-	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
-	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
-}.
-
-ByteArray definition: {
-	field __data protected type: UInt8 array.
-
-	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
-	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
-}.
-
-Array definition: {
-    field __data protected type: ProtoObject array.
-
-	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
-	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: ProtoObject.
-}.
-
-HashedCollection definition: {
-    field tally protected type: UIntPointer.
-    field array protected type: Array.
 }.
 
 MethodDictionary definition: {

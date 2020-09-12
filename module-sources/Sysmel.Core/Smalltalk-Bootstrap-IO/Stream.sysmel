@@ -1,0 +1,106 @@
+namespace Smalltalk definition: {
+Object definition: {
+    method isStream := false.
+
+    method putOn: aStream := {
+        aStream nextPut: self.
+        self.
+    }.
+}.
+
+SequenceableCollection definition: {
+    method putOn: aStream := {
+        self do: {:each :: Void | aStream nextPut: each }.
+        self.
+    }.
+}.
+
+String definition: {
+    method putOn: aStream := {
+        aStream nextPutAll: self.
+        self.
+    }.
+}.
+
+gcclass Stream superclass: Object; definition: {
+    meta definition: {
+        method new
+            := self error: "Streams are created with on: and with:"
+    }.
+
+    method << object := {
+        object putOn: self.
+        self.
+    }.
+
+    method atEnd
+        := self subclassResponsibility.
+
+    method binary
+        := self.
+
+    method close
+        := self.
+
+    method closed
+        := false.
+
+    method contents
+        := self subclassResponsibility.
+
+    method next
+        := self subclassResponsibility.
+
+    method flush
+        := self.
+
+    method isStream := true.
+
+    method next: (elementsToRead: UInt32) := {
+        let result := Array basicNew: elementsToRead.
+        0 until: elementsToRead do: {:i :: Void |
+            result[i] := self next
+        }.
+        result
+    }.
+
+    method nextPut: anObject
+        := self subclassResponsibility.
+
+    method nextPutAll: aCollection := {
+        aCollection do: {:each :: Void |
+            self nextPut: each
+        }.
+        aCollection
+    }.
+
+    method nextMatchAll: aCollection := {
+        let save := self position.
+        aCollection do: {:each :: Void |
+            self next = each ifFalse: {
+                self position: save.
+                return: false
+            }
+        }.
+
+        true
+    }.
+
+    method nextMatchFor: anObject
+        := anObject = self next.
+
+    method print: anObject := {
+        anObject printOn: self.
+        self
+    }.
+
+    method upToEnd := {
+        let elements := OrderedCollection new.
+        until: self atEnd do: {
+            elements add: self next
+        }.
+        elements
+    }.
+}.
+
+} ## End of namespace Smalltalk

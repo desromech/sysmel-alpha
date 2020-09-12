@@ -54,6 +54,11 @@ ProtoObject extend: {
     macro method || other := ``(`,self or: `,other).
 
     macro method not := ``(`,self ifTrue: false ifFalse: true).
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        self printString printOnNativeTextStreamWriter: writer.
+		self
+    }.
 }.
 
 AnyValue macro method asProtoObject := ``(`,self castTo: __global Smalltalk ProtoObject).

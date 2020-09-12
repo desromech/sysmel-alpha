@@ -133,8 +133,13 @@ class TextStreamWriter definition: {
     method crlf => SelfType ref
         := self nextPutAll: "\r\n"; yourself.
 
-    method nl => SelfType ref
-        := self lf; yourself.
+    compileTime if: Compiler compilationTarget isWindows then: {
+        method nl => SelfType ref
+            := self crlf; yourself.
+    } else: {
+        method nl => SelfType ref
+            := self lf; yourself.
+    }.
 
     macro method print: value := ``(`,value printOnNativeTextStreamWriter: `,self).
 

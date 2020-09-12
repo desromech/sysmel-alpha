@@ -1,0 +1,6 @@
+namespace Smalltalk definition: {
+
+gcclass ReadWriteStream superclass: WriteStream; definition: {
+}.
+
+} ## End of namespace Smalltalk

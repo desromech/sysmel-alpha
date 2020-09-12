@@ -142,6 +142,17 @@ Number extend: {
 
     method quo: aNumber
         := (self / aNumber) truncated.
+
+    method reciprocal
+        := 1 / self.
+}.
+
+Stdn BasicValuePrinter extend: {
+    method printOn: (aStream: __global Smalltalk ProtoObject) ::=> Void := {
+        0 until: bufferSize do: {:(UIntPointer)i :: Void |
+            aStream nextPut: buffer[i]
+        }
+    }.
 }.
 
 }. ## End of namespace Smalltalk

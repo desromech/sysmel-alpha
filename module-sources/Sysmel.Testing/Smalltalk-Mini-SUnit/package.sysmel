@@ -1,4 +1,4 @@
-loadFileOnce: "TestSkipException.sysmel".
+loadFileOnce: "TestSkip.sysmel".
 loadFileOnce: "TestAsserter.sysmel".
 loadFileOnce: "TestCase.sysmel".
 loadFileOnce: "TestRunner.sysmel".

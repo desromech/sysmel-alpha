@@ -1,6 +1,9 @@
 loadFileOnce: "ReflectionLock.sysmel".
 loadFileOnce: "SmalltalkImage.sysmel".
+loadFileOnce: "TypeInformation.sysmel".
 loadFileOnce: "Behavior.sysmel".
+loadFileOnce: "Class.sysmel".
+loadFileOnce: "Metaclass.sysmel".
 loadFileOnce: "Pragma.sysmel".
 
 loadFileOnce: "SessionManager.sysmel".

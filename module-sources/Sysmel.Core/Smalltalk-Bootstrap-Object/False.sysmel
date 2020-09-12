@@ -1,0 +1,41 @@
+namespace Smalltalk definition: {
+
+False definition: {
+    method ifFalse: alternativeBlock
+        := alternativeBlock value.
+
+    method ifFalse: falseBlock ifTrue: trueBlock
+        := falseBlock value.
+
+    method ifTrue: alternativeBlock
+        := nil.
+
+    method ifTrue: trueBlock ifFalse: falseBlock
+        := falseBlock value.
+
+    method and: alternativeBlock
+        := self.
+
+    method or: alternativeBlock
+        := alternativeBlock value.
+
+    method xor: alternativeBlock
+        := alternativeBlock value.
+
+    method & aBoolean
+        := self.
+
+    method | aBoolean
+        := aBoolean.
+
+    method not
+        := true.
+
+    method asBit
+        := 0.
+
+    method printOn: aStream
+        := aStream nextPutAll: "false".
+}.
+
+}. ## End of namespace Smalltalk

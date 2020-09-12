@@ -1,0 +1,19 @@
+namespace Smalltalk definition: {
+
+TypeInformation definition: {
+	method addSubclass: aSubclass := self.
+
+	method inheritsFrom: aType := {
+		let aSuperclass mutable := superclass.
+		until: aSuperclass == nil do: {
+			aSuperclass == aType ifTrue: {
+				return: true
+			}.
+			aSuperclass := aSuperclass superclass
+		}.
+
+		false
+	}.
+}.
+
+}. ## End of namespace Smalltalk

@@ -37,6 +37,18 @@ SmallFloat64 extend: {
 	method fractionPart
 		:= self __decodeSmallFloat fract.
 
+	method exp
+		:= self __decodeSmallFloat exp.
+
+	method exp2
+		:= self __decodeSmallFloat exp2.
+
+	method ln
+		:= self __decodeSmallFloat ln.
+
+	method log2
+		:= self __decodeSmallFloat log2.
+
 	method = aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallFloat.
@@ -218,5 +230,23 @@ SmallFloat64 extend: {
 
         super / aNumber
     }.
+
+	method printOn: aStream := {
+        let floatPrinter mutable type: Stdn BasicValueFloatPrinter.
+        floatPrinter nextPutDouble: self __decodeSmallFloat.
+        floatPrinter printOn: aStream.
+
+        self
+    }.
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __decodeSmallFloat.
+		self
+    }.
+
+	method copy := self.
+	method deepCopy := self.
+	method shallowCopy := self.
+	method clone := self.
 }.
 }. ## End of namespace Smalltalk

@@ -5,6 +5,9 @@ LargeInteger definition: {
 
     __global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
 	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
+
+	method isLarge
+		:= true.
 }.
 
 }. ## End of namespace Smalltalk

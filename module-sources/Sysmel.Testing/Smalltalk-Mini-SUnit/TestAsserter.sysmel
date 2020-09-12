@@ -1,7 +1,19 @@
 namespace Smalltalk definition: {
 
 gcclass TestAsserter definition: {
+
+    method skip
+        := TestSkip signal.
+
     method assert: condition := {
+        condition ifFalse: {
+            AssertionFailure signal.
+        }.
+
+        self
+    }.
+
+    method assert: condition description: description := {
         condition ifFalse: {
             AssertionFailure signal.
         }.
@@ -12,6 +24,14 @@ gcclass TestAsserter definition: {
     method deny: condition := {
         condition ifTrue: {
             AssertionFailure signal: "Unexpected condition.".
+        }.
+
+        self
+    }.
+
+    method assert: actual identicalTo: expected := {
+        actual == expected ifFalse: {
+            AssertionFailure signal: (actual asString -- " is not identical to the expected value: " -- expected asString).
         }.
 
         self

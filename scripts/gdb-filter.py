@@ -20,6 +20,8 @@ TypeSubstitutionDictionary = {
 }
 
 def isBlackListed(string):
+    if string is None:
+        return False
     for prefix in Blacklist:
         if string.startswith(prefix):
             return True
