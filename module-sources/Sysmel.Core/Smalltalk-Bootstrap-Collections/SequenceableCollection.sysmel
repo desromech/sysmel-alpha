@@ -89,12 +89,15 @@ SequenceableCollection definition: {
 		nil
 	}.
 
-	method doWithIndex: aBlock := {
+	method withIndexDo: aBlock := {
 		1 to: self size do: {:i :: Void |
 			aBlock value: (self at: i) value: i
 		}.
 		nil
 	}.
+
+	method doWithIndex: aBlock
+		:= self withIndexDo: aBlock.
 
 	method collect: aBlock := {
 		let result := self species new: self size.
@@ -112,11 +115,8 @@ SequenceableCollection definition: {
 		result
 	}.
 
-	method collect: aBlock as: aClass
-		:= (aClass new: self size) fillFrom: self with: aBlock.
-
 	method select: aPredicate := {
-		self class new: self size streamContents: {:stream :: Void |
+		self species new: self size streamContents: {:stream :: Void |
 			1 to: self size do: {:i :: Void|
 				let element := self at: i.
 				(aPredicate value: element) ifTrue: {
@@ -127,7 +127,7 @@ SequenceableCollection definition: {
 	}.
 
 	method reject: aPredicate := {
-		self class new: self size streamContents: {:stream :: Void |
+		self species new: self size streamContents: {:stream :: Void |
 			1 to: self size do: {:i :: Void|
 				let element := self at: i.
 				(aPredicate value: element) ifFalse: {
@@ -137,6 +137,17 @@ SequenceableCollection definition: {
 		}
 	}.
 
+	method copyFrom: start to: stop := {
+		let startIndex := start castTo: UIntPointer.
+		let stopIndex := stop castTo: UIntPointer.
+		let copySize := stopIndex - startIndex + 1.
+		let result := self species new: copySize.
+		1 to: copySize do: {:i :: Void |
+			result at: i put: (self at: i + startIndex - 1u)
+		}.
+		result
+	}.
+
 	method copyWithSize: (newSize: UIntPointer) := {
 		let result := self species new: newSize.
 		let copySize := newSize min: (self size castTo: UIntPointer).
@@ -144,6 +155,11 @@ SequenceableCollection definition: {
 			result at: i put: (self at: i)
 		}.
 		result
+	}.
+
+	method first: n := {
+		n > self size ifTrue: {self error: 'Invalid copy size'}.
+		self copyWithSize: (n castTo: UIntPointer)
 	}.
 
 	method copyWith: anElement := {

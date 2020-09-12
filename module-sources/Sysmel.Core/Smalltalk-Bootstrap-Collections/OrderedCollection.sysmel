@@ -12,8 +12,15 @@ OrderedCollection definition: {
     meta extend: {
         method new
             := self new: 10.
+
         method new: (initialCapacity: UIntPointer)
             := self basicNew setCollection: (Array new: initialCapacity).
+
+        method newFrom: aCollection := {
+            let result := self new: (aCollection size castTo: UIntPointer).
+            result addAll: aCollection.
+            result
+        }.
     }.
 
     method asOrderedCollection

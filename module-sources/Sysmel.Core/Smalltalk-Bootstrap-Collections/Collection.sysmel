@@ -161,6 +161,9 @@ Collection definition: {
 	method includes: anElement
 		:= self anySatify: {:each | each = anElement}.
 
+	method collect: aBlock as: aClass
+		:= (aClass new: self size) fillFrom: self with: aBlock.
+
 	method associationsDo: aBlock
 		:= self do: aBlock.
 

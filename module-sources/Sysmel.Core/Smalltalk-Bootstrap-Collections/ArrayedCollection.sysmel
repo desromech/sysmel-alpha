@@ -61,13 +61,22 @@ ArrayedCollection definition: {
 		}.
 
 		method new: size withAll: value
-			:= (self new: size) atAllPut: value
+			:= (self new: size) atAllPut: value.
+
+		method newFrom: aCollection := {
+			let result := self new: aCollection size.
+			1 to: aCollection size do: {:i :: Void |
+				result at: i put: (aCollection at: i)
+			}.
+			result
+		}.
 	}.
 
 	method fillFrom: aCollection with: aBlock := {
 		let index mutable := 1.
 		aCollection do: {:each :: Void |
-			self at: index put: (aBlock value: each)
+			self at: index put: (aBlock value: each).
+			index := index + 1
 		}.
 
 		self

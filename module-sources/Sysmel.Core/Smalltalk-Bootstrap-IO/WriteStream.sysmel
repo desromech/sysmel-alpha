@@ -12,7 +12,7 @@ gcclass WriteStream superclass: PositionableStream; definition: {
             := self basicNew with: aCollection.
 
         method with: aCollection from: firstIndex to: lastIndex
-            := self basicNew with: aCollection from: firstIndex to: lastIndex .
+            := self basicNew with: aCollection from: firstIndex to: lastIndex.
     }.
 
     method on: aCollection := {
@@ -32,24 +32,37 @@ gcclass WriteStream superclass: PositionableStream; definition: {
     method with: aCollection := {
         super on: aCollection.
         position := readLimit := writeLimit := aCollection size castTo: UIntPointer.
+        self.
     }.
 
-    method with: aCollection from: firstIndex to: lastIndex := {
-        self with: (aCollection copyFrom: firstIndex to: lastIndex)
-    }.
+    method with: aCollection from: firstIndex to: lastIndex
+        := self with: (aCollection copyFrom: firstIndex to: lastIndex).
 
     method size
         := readLimit := readLimit max: position.
 
     method contents := {
         readLimit := readLimit max: position.
-        return: (collection copyWithSize: readLimit)
+        return: (collection copyWithSize: position)
+    }.
+
+    method reset := {
+        readLimit := readLimit max: position.
+        position := 0.
     }.
 
     method nextPut: anObject := {
         position >= writeLimit ifTrue: {
-            self growBy: 1.
+            return: (self pastEndPut: anObject).
         }.
+
+        position := position + 1.
+        collection at: position put: anObject.
+        return: anObject
+    }.
+
+    method pastEndPut: anObject := {
+        self growBy: 1.
 
         position := position + 1.
         collection at: position put: anObject.
@@ -78,6 +91,36 @@ gcclass WriteStream superclass: PositionableStream; definition: {
         writeLimit := collection size castTo: UIntPointer.
         self
     }.
+
+    method ensureASpace := {
+        (position > 0 && (collection at: position) = ' ') ifFalse: {
+            self nextPut: ' '
+        }.
+        self.
+    }.
+
+    method ensureNoSpace := {
+        while: position > 0 && (collection at: position) = ' ' do: {
+            position := position - 1u
+        }.
+        self.
+    }.
+
+    method ensureEndsWith: anObject := {
+        (position = 0 || (collection at: position) = anObject) ifFalse: {
+            self nextPut: anObject
+        }.
+        self.
+    }.
+
+    method position: anInteger := {
+        readLimit := readLimit max: (anInteger castTo: UIntPointer).
+        super position: anInteger
+    }.
+
+    method ensureCr
+        := self ensureEndsWith: '\r'.
+
 
     method space
         := self nextPut: ' '.

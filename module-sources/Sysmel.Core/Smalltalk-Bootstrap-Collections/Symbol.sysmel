@@ -93,6 +93,9 @@ Symbol definition: {
         }.
 
         method streamSpecies := String.
+
+        method newFrom: aCollection
+            := (aCollection as: String) asSymbol.
     }.
 
 compileTime if: Compiler compilationTarget areSymbolsEqualsToString then: {

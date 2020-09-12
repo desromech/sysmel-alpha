@@ -112,6 +112,9 @@ Number extend: {
         (aNumber * self ln) exp
     }.
 
+    method ** aNumber
+        := self raisedTo: aNumber.
+
     method even
         := (self \\ 2) = 0.
 

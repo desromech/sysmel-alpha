@@ -200,7 +200,7 @@ Magnitude extend: {
 		:= self subclassResponsibility.
 
 	method <= other
-		:= (other > self) not.
+		:= (other < self) not.
 
 	method > other
 		:= other < self.
@@ -214,13 +214,21 @@ Magnitude extend: {
 	method max: other
 		:= self > other ifTrue: self ifFalse: other.
 
+	method compareWith: anotherMagnitude ifLesser: lesserBlock ifEqual: equalBlock ifGreater: greaterBlock
+		:= self < anotherMagnitude
+			ifTrue: lesserBlock
+			ifFalse: {
+				self = anotherMagnitude
+					ifTrue: equalBlock
+					ifFalse: greaterBlock }.
+
 	method beBetween: minValue and: maxValue
 		:= minValue <= maxValue
 			ifTrue: {(self min: maxValue) max: minValue}
 			ifFalse: {(self min: minValue) max: maxValue}.
 
 	method between: min and: max
-		:= min <= self && self <= max.
+		:= self >= min && self <= max.
 
 	method min: maxValue max: minValue
 		:= (self min: maxValue) max: minValue.

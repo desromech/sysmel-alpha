@@ -1,10 +1,5 @@
 namespace Smalltalk definition: {
 gcclass ReadStream superclass: PositionableStream; definition: {
-    method next := {
-        position >= readLimit
-            ifTrue: {nil}
-            ifFalse: {collection at: (position := position + 1)}.
-    }.
 
     method size
         := readLimit.
@@ -15,6 +10,15 @@ gcclass ReadStream superclass: PositionableStream; definition: {
         position := ((firstIndex castTo: UIntPointer) max: 1u) - 1u.
         self
     }.
+
+    method next := {
+        position >= readLimit
+            ifTrue: {nil}
+            ifFalse: {collection at: (position := position + 1)}.
+    }.
+
+    method readStream
+        := self.
 
 }.
 } ## End of namespace Smalltalk

@@ -52,18 +52,40 @@ gcclass PositionableStream superclass: Stream; definition: {
         let newPosition := anInteger castTo: UIntPointer.
         0 <= newPosition && newPosition <= readLimit
             ifTrue: { position := newPosition }
-            ifFalse: { self positionError }
+            ifFalse: { self positionError }.
+        self
     }.
 
     method positionError
         := self error: "Attempt to set the position of a PositionableStream out of bounds".
 
-    method contents := {
-        return: (collection copyWithSize: readLimit)
-    }.
+    method contents
+        := collection copyWithSize: readLimit.
+
+    method originalContents
+        := collection.
 
     method atEnd
         := position >= readLimit.
+
+    method isBinary
+        := collection class == ByteArray.
+
+    method isEmpty
+        := position >= readLimit && position = 0.
+
+    method oldBack := {
+        position = 0 ifTrue: {self positionError}.
+        position = 1 ifTrue: { position := 0. return: nil}.
+        self skip: -2.
+        self next
+    }.
+
+    method oldPeekBack := {
+        let element := self oldBack.
+        self skip: 1.
+        element
+    }.
 
     method back := {
         position = 0 ifTrue: {self positionError}.
@@ -93,6 +115,13 @@ gcclass PositionableStream superclass: Stream; definition: {
 
         position := position - 1.
         false
+    }.
+
+    method positionOfSubCollection: subCollection
+        := self positionOfSubCollection: subCollection ifAbsent: {| 0}.
+
+    method positionOfSubCollection: subCollection ifAbsent: exceptionBlock := {
+
     }.
 
     method upTo: anObject := {

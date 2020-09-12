@@ -60,7 +60,7 @@ Character extend: {
 		:= self == aCharacter.
 
 	method asciiValue
-		:= self __decodeCharacter.
+		:= self __decodeCharacter castTo: UInt32.
 
 	method basicIdentityHash
 		:= self __decodeCharacter.
