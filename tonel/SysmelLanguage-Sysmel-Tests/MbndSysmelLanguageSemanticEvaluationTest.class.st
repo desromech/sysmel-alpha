@@ -90,12 +90,12 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassMethodDictionary [
 	semanticModule finishSemanticAnalysis.
 
 	methodDictionaryContent := protoObjectClass methodDictionaryContent.
-	self assert: methodDictionaryContent tally equals:  4.
-	self assert: methodDictionaryContent keys size >= 4.
-	self assert: methodDictionaryContent values size >= 4.
+	self assert: methodDictionaryContent tally equals: 8.
+	self assert: methodDictionaryContent keys size >= 8.
+	self assert: methodDictionaryContent values size >= 8.
 	
 	methodDictionaryObject := protoObjectClass methodDictionaryInstanceObject.
-	self assert: (methodDictionaryObject getFieldValue: #tally) unwrapMbndValue equals: 4.
+	self assert: (methodDictionaryObject getFieldValue: #tally) unwrapMbndValue equals: 8.
 	self assert: (methodDictionaryObject getFieldValue: #array) unwrapMbndValue equals: methodDictionaryContent keys.
 	self assert: (methodDictionaryObject getFieldValue: #values) unwrapMbndValue equals: methodDictionaryContent values.
 ]

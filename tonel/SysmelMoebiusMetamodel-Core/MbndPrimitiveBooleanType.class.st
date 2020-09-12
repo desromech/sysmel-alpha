@@ -38,7 +38,21 @@ MbndPrimitiveBooleanType >> addInstanceMacros [
 	self class == MbndPrimitiveBooleanType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	self
-		onMacroSelectors: #(isAllSet isAnySet) do: [ :node :builder | node receiver ]
+		onMacroSelectors: #(isAllSet isAnySet) do: [ :node :builder | node receiver ];
+		onMacroSelectors: #(and: &&) do: [ :node :builder |
+			(builder if: node receiver
+				trueValue: (builder macroInlineBlock: node arguments first)
+				falseValue: builder literalBooleanFalse)
+					position: node;
+					yourself
+		];
+		onMacroSelectors: #(or: ||) do: [ :node :builder |
+			(builder if: node receiver
+				trueValue: builder literalBooleanTrue
+				falseValue: (builder macroInlineBlock: node arguments first))
+					position: node;
+					yourself
+		].
 ]
 
 { #category : #converting }
@@ -56,17 +70,7 @@ MbndPrimitiveBooleanType >> initialize [
 	super initialize.
 	self
 		instanceSize: 1;
-		instanceAlignment: 1;
-		onMacroSelectors: #(and: &&) do: [ :node :builder |
-			(builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse)
-				position: node;
-				yourself
-		];
-		onMacroSelectors: #(or: ||) do: [ :node :builder |
-			(builder if: node receiver trueValue: builder literalBooleanTrue falseValue: node arguments first)
-				position: node;
-				yourself
-		].
+		instanceAlignment: 1.
 ]
 
 { #category : #testing }

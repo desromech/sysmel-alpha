@@ -943,6 +943,25 @@ MbndAstBuilder >> lookupTypeWithName: typeSelector [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> macroInlineBlock: blockValue [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ blockValue isBlockClosureNode ifTrue: [
+		MbndAstImmediateBlockClosureActivationNode new
+			position: blockValue;
+			blockNode: blockValue;
+			arguments: #();
+			yourself
+	] ifFalse: [
+		MbndAstBlockClosureActivationAttemptNode new
+			position: blockValue;
+			blockNode: blockValue;
+			arguments: #();
+			yourself.
+	]
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> macroMessagePrototype: prototype definitionBody: definitionBody [
 	<compileTime>
 	<returnType: #_ASTNodeType>

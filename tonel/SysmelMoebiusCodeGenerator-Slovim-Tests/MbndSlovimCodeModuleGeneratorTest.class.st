@@ -7377,6 +7377,137 @@ function '_ZN10TestModule6shader15..shinterface..E13outputChannelINS_8ShaderIOEE
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGCBoolean [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+Character extend: { 
+	method isSeparator := { 
+		let in mutable.
+		(in := self asInteger) == 32 or: {| in == 13 or: {| in == 9 or: {| in == 10 or: {| in == 12 } } } }
+	}
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule9Character12.isSeparatorEPNS0_EPNS_11ProtoObjectE'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule9Character12.isSeparatorEPNS0_EPNS_11ProtoObjectE' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
+	arguments (
+		(self (pointer (struct 'gcclass.TestModule::Character') gc) ())
+	)
+	literals (
+		(dynobject asInteger)
+		(dynobject isSeparator)
+		(dynobject (literalVariable Character))
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (pointer (struct 'gcclass.TestModule::ProtoObject') gc) function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		((merge (block 6 ifMerge))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((const dynobject nil)))
+			(nil store void () ((local 7 nil) (local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 self)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Symbol') gc) () ((local 0 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 10 nil)))
+			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 9 nil) (local 11 nil)))
+			(nil store void () ((local 12 nil) (local 4 nil)))
+			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 32)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 15 nil)))
+			(nil dynObjectIdentityEquals b8 () ((local 14 nil) (local 16 nil)))
+			(nil branch void () ((local 17 nil)) ((block 4 ifThen) (block 5 ifElse)))
+		)
+		(()
+			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 19 nil)))
+			(nil jump void () () (block 6 ifMerge))
+		)
+		(()
+			(nil jump void () () (block 7 tryScope))
+		)
+		(()
+			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 20 nil) (local 34 ifResult)) ((block 4 ifThen) (block 10 ifMerge)))
+			(nil return void () ((local 23 ifResult)))
+		)
+		((merge (block 10 ifMerge))
+			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 13)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 26 nil)))
+			(nil dynObjectIdentityEquals b8 () ((local 25 nil) (local 27 nil)))
+			(nil branch void () ((local 28 nil)) ((block 8 ifThen) (block 9 ifElse)))
+		)
+		(()
+			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 30 nil)))
+			(nil jump void () () (block 10 ifMerge))
+		)
+		(()
+			(nil jump void () () (block 11 tryScope))
+		)
+		(()
+			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 31 nil) (local 45 ifResult)) ((block 8 ifThen) (block 14 ifMerge)))
+			(nil jump void () () (block 6 ifMerge))
+		)
+		((merge (block 14 ifMerge))
+			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 9)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 37 nil)))
+			(nil dynObjectIdentityEquals b8 () ((local 36 nil) (local 38 nil)))
+			(nil branch void () ((local 39 nil)) ((block 12 ifThen) (block 13 ifElse)))
+		)
+		(()
+			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 41 nil)))
+			(nil jump void () () (block 14 ifMerge))
+		)
+		(()
+			(nil jump void () () (block 15 tryScope))
+		)
+		(()
+			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 42 nil) (local 56 ifResult)) ((block 12 ifThen) (block 18 ifMerge)))
+			(nil jump void () () (block 10 ifMerge))
+		)
+		((merge (block 18 ifMerge))
+			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 10)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 48 nil)))
+			(nil dynObjectIdentityEquals b8 () ((local 47 nil) (local 49 nil)))
+			(nil branch void () ((local 50 nil)) ((block 16 ifThen) (block 17 ifElse)))
+		)
+		(()
+			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 52 nil)))
+			(nil jump void () () (block 18 ifMerge))
+		)
+		(()
+			(nil jump void () () (block 19 tryScope))
+		)
+		(()
+			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 53 nil) (local 63 nil)) ((block 16 ifThen) (block 19 tryScope)))
+			(nil jump void () () (block 14 ifMerge))
+		)
+		(()
+			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 12)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 59 nil)))
+			(nil dynObjectIdentityEquals b8 () ((local 58 nil) (local 60 nil)))
+			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((local 61 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 62 nil)))
+			(nil jump void () () (block 18 ifMerge))
+		)
+	)
+	).
+	
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField [
 	| function |
 	self

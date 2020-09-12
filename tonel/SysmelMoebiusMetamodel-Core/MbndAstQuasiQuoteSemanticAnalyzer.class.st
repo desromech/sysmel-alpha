@@ -31,7 +31,6 @@ MbndAstQuasiQuoteSemanticAnalyzer >> processMacroInlineBlockNode: node withSelec
 			argumentNodes: node arguments allButLast;
 			ensureNode: node arguments last
 	].
-
 	^ self visitNode: result
 ]
 

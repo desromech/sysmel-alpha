@@ -229,6 +229,22 @@ ProtoObject definition: {
 
     ## Variable data size
     field __variableDataSize private type: UInt32.
+
+    method == (other: ProtoObject) => Boolean8 := {
+        <staticBinding>
+        <nogc>
+		<intrinsic: #"dynobject.identityEquals">
+		## Identity equality method is also defined as a macro, so lets just exploit its previous definition.
+		self == other
+    }.
+
+    method ~~ (other: ProtoObject) => Boolean8 := {
+        <staticBinding>
+        <nogc>
+		<intrinsic: #"dynobject.identityNotEquals">
+		## Identity equality method is also defined as a macro, so lets just exploit its previous definition.
+		self ~~ other
+    }.
 }.
 
 Behavior definition: {
@@ -317,7 +333,63 @@ Compiler compilationTarget managedObjectModel
 	
 	blockClosureHeaderClass: BlockClosureHeaderClass;
 	blockClosureClass: BlockClosure;
-    yourself
+    yourself.
+
+ProtoObject extend: {
+    ## ifTrue:ifFalse
+    macro method ifTrue: trueAction :=
+        ``(if: `,self == true then: `,trueAction __macroInlineBlock).
+    macro method ifFalse: falseAction :=
+        ``(if: `,self == false then: `,falseAction __macroInlineBlock).
+    macro method ifTrue: trueAction ifFalse: falseAction :=
+        ``(if: `,self == true then: `,trueAction __macroInlineBlock else: `,falseAction __macroInlineBlock).
+    macro method ifFalse: falseAction ifTrue: trueAction :=
+        ``(if: `,self == true then: `,trueAction __macroInlineBlock else: `,falseAction __macroInlineBlock).
+
+    macro method ifNil: nilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer == nil then: `,nilAction __macroInlineBlock else: `,pointer
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: nil
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method ifNotNil: notNilAction ifNil: nilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: `,nilAction __macroInlineBlock
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method ifNil: nilAction ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer == nil then: `,nilAction __macroInlineBlock else: (`,notNilAction __macroInlineBlock: `,pointer)
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method isNil := ``(`,self == nil).
+    macro method isNotNil := ``(`,self ~~ nil).
+    macro method notNil := ``(`,self ~~ nil).
+
+    macro method and: other := ``(if: `,self == true then: `,other __macroInlineBlock else: false).
+    macro method or: other := ``(if: `,self == true then: true else: `,other __macroInlineBlock).
+
+    macro method && other := ``(`,self and: `,other).
+    macro method || other := ``(`,self or: `,other).
+
+    macro method not := ``(`,self ifTrue: false ifFalse: true).
+}.
 '
 	
 ]
