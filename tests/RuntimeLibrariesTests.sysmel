@@ -1,4 +1,4 @@
-compileTime constant OnlyRuntimeCoreTests := true.
+compileTime constant OnlyRuntimeCoreTests := false.
 
 Compiler
 	importModuleNamed: #"Sysmel.Core.Tests".

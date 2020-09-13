@@ -1,6 +1,12 @@
 namespace Smalltalk definition: {
 
 ProtoObject extend: {
+    method doesNotUnderstand: aMessage
+        := MessageNotUnderstood new
+            message: aMessage;
+            receiver: self;
+            signal.
+
     ## ifTrue:ifFalse
     macro method ifTrue: trueAction :=
         ``(if: `,self == true then: `,trueAction __macroInlineBlock).

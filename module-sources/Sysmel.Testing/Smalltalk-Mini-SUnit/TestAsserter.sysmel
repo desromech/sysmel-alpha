@@ -5,6 +5,36 @@ gcclass TestAsserter definition: {
     method skip
         := TestSkip signal.
 
+    method should: aBlock raise: anException := {
+        let caught mutable := false.
+        try: {
+            aBlock value
+        } catch: anException doing: {:e :: Void |
+            caught := true
+        }.
+
+        caught ifFalse: {
+            AssertionFailure signal
+        }.
+
+        self.
+    }.
+
+    method shouldnt: aBlock raise: anException := {
+        let caught mutable := false.
+        try: {
+            aBlock value
+        } catch: anException doing: {:e :: Void |
+            caught := true
+        }.
+
+        caught ifTrue: {
+            AssertionFailure signal
+        }.
+
+        self.
+    }.
+
     method assert: condition := {
         condition ifFalse: {
             AssertionFailure signal.

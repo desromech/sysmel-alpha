@@ -53,6 +53,9 @@ Boolean definition: {
 
     method asBit
         := self subclassResponsibility.
+
+    method threeWayCompareTo: anotherObject
+        := self asBit threeWayCompareTo: anotherObject asBit.
 }.
 
 }. ## End of namespace Smalltalk

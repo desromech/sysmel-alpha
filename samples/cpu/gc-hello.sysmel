@@ -64,6 +64,14 @@ function testMessageNotUnderstood() => Void := {
     }.
 }.
 
+function testMessageNotUnderstood2(exceptionType: Smalltalk ProtoObject) => Void := {
+    try: {
+        Smalltalk Object someMessageThatIsNotImplemented: #hello with: #world and: 42
+    } catch: exceptionType doing: {:exception :: Void |
+        Stdn stdout << exceptionType << " Caught message not understood exception: " << exception; nl.
+    }.
+}.
+
 Stdn MainEntryPoint: {:args :: Int32 |
     Stdn stdout << "testGlobal " << testGlobal; nl.
 	Stdn stdout << "TestChar " << 'c'; nl.
@@ -161,6 +169,8 @@ Stdn MainEntryPoint: {:args :: Int32 |
     testGCError().
     testWriteFile().
     testMessageNotUnderstood().
+    testMessageNotUnderstood2(MessageNotUnderstood).
+    testMessageNotUnderstood2(Error).
 
     Stdn stdout << (__global Smalltalk Object name -- " with concat"); nl.
     Stdn stdout << (__global Smalltalk Object name -- " with concat") asStdnMutableString; nl.

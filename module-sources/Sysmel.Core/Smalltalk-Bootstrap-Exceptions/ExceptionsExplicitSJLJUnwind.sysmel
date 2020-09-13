@@ -10,12 +10,7 @@ Smalltalk Exception extend: {
             unwindUntilContext(matchingContext, self reinterpretCastTo: Void pointer, catchActionIndex castTo: Int32).
         }.
 
-        stderr nl.
-        stderr << "Unhandled native exception:"; nl.
-        self printOnNativeTextStreamWriter: stderr. stderr nl.
-        stderr << "Aborting the program execution."; nl.
-        native_abort().
-        self
+        self defaultAction
     }.
 }.
 }. ## End of namespace Unwind

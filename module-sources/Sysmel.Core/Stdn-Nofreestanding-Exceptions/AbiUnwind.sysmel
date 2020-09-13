@@ -858,6 +858,23 @@ function __sysmel_eh_catchEnd externC() => Void := {
     exceptionData _ unwindException exceptionCleanup(_Unwind_Reason_Code NormalStop, exceptionData _ unwindException address).
 }.
 
+function __sysmel_eh_testDynamicType externC(exceptionObject: Void pointer, exceptionType: Void pointer) => Boolean8 := {
+    let unwindException := exceptionObject reinterpretCastTo: _Unwind_Exception pointer.
+    let isOurExceptionClass := (unwindException _ exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
+    isOurExceptionClass ifFalse: {return: false}.
+
+    let exceptionData := SysmelUnwindExceptionData fromUnwindException: unwindException.
+    (exceptionType reinterpretCastTo: Stdn Reflection TypeInformation pointer) _
+        canCatchException: exceptionData _ exceptionObjectPointer withKind: exceptionData _ kind withTypeInfo: exceptionData _ exceptionTypeInfo
+}.
+
+function __sysmel_eh_rethrow externC(exceptionObject: Void pointer) => Void := {
+    let reasonCode := _Unwind_RaiseException(exceptionObject reinterpretCastTo: _Unwind_Exception pointer).
+    stderr << "Failed to rethrow exception"; nl.
+    stderr << "Aborting the program execution."; nl.
+    native_abort().
+}.
+
 function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
     ##stderr << "Do non local return into: " << targetContext; nl.
 
@@ -925,6 +942,8 @@ Compiler compilationTarget
     personalityFunction: __sysmel_eh_personality;
     exceptionCatchBeginFunction: __sysmel_eh_catchBegin;
     exceptionCatchEndFunction: __sysmel_eh_catchEnd;
+    exceptionCatchTestDynamicTypeFunction: __sysmel_eh_testDynamicType;
+    exceptionRethrowFunction: __sysmel_eh_rethrow;
     nonLocalReturnRaiseFunction: __sysmel_eh_nonLocalReturnRaise;
     nonLocalReturnCatchFunction: __sysmel_eh_nonLocalReturnCatch;
     forbiddenExceptionHandlingFunction: __sysmel_eh_handleForbiddenException;

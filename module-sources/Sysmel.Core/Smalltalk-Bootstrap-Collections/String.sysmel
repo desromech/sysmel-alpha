@@ -116,7 +116,7 @@ String definition: {
 
 		self
     }.
-	
+
 	method printOn: aStream
 		:= self storeOn: aStream.
 
@@ -131,6 +131,9 @@ String definition: {
 		aStream nextPut: '\''.
 		self
 	}.
+
+	method translated
+		:= self.
 }.
 
 ProtoObject extend: {

@@ -63,6 +63,8 @@ Float extend: {
 
         method fmax := MaxVal.
 
+        method denormalized := true.
+
         method fmin := self denormalized
                 ifTrue: { self fminDenormalized }
                 ifFalse: { self fminNormalized }.

@@ -214,13 +214,22 @@ Magnitude extend: {
 	method max: other
 		:= self > other ifTrue: self ifFalse: other.
 
+	method threeWayCompareTo: anotherObject
+		:= self = anotherObject
+			ifTrue: {0}
+			ifFalse: {
+				self < anotherObject
+					ifTrue: {-1}
+					ifFalse: {1}
+			}.
+
 	method compareWith: anotherMagnitude ifLesser: lesserBlock ifEqual: equalBlock ifGreater: greaterBlock
 		:= self < anotherMagnitude
-			ifTrue: lesserBlock
+			ifTrue: {lesserBlock value}
 			ifFalse: {
 				self = anotherMagnitude
-					ifTrue: equalBlock
-					ifFalse: greaterBlock }.
+					ifTrue: {equalBlock value}
+					ifFalse: {greaterBlock value} }.
 
 	method beBetween: minValue and: maxValue
 		:= minValue <= maxValue

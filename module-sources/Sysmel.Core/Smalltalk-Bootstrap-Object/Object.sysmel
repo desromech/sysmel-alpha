@@ -33,6 +33,33 @@ Object definition: {
 
     method beWritableObject
         := self.
+
+    method error: message
+        := Error new signal: message.
+
+    method assert: condition
+        := condition ifFalse: {AssertionFailure signal}.
+
+    method notYetImplemented
+        := NotYetImplemented signal.
+
+    method subclassResponsibility
+        := SubclassResponsibility signal.
+
+    method shouldBeImplemented
+        := ShouldBeImplemented signal.
+
+    method shouldNotImplement
+        := ShouldNotImplement signal.
+
+    method errorSubscriptBounds: index
+        := SubscriptOutOfBounds signalFor: index.
+
+    method primitiveFail
+        := PrimitiveFailed signal.
+
+    method primitiveFailed
+        := PrimitiveFailed signal.
 }.
 
 }. ## End of namespace Smalltalk

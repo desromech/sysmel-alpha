@@ -34,11 +34,20 @@ gcclass Exception definition: {
     method printOn: aStream := {
         aStream nextPutAll: self description
     }.
+
+    method defaultAction
+        := self subclassResponsibility.
 }.
 
-gcclass Abort superclass: Exception; definition: {}.
+gcclass Abort superclass: Exception; definition: {
+    method defaultAction
+        := UnhandledError signalForException: self.
+}.
 
-gcclass Error superclass: Exception; definition: {}.
+gcclass Error superclass: Exception; definition: {
+    method defaultAction
+        := UnhandledError signalForException: self.
+}.
 
 gcclass ModificationForbidden superclass: Error; definition: {
     field object.
@@ -119,13 +128,27 @@ gcclass Halt superclass: UnhandledException; definition: {
 }.
 
 gcclass UnhandledError superclass: UnhandledException; definition: {
+    meta definition: {
+        method signalForException: exception
+            := self new
+                exception: exception;
+                signal
+    }.
+
+    public field exception.
+
+    method defaultAction := {
+        Stdn stderr << "Unhandled error:"; nl.
+        exception printOnNativeTextStreamWriter: Stdn stderr. Stdn stderr nl.
+        Stdn stderr << "Aborting the program execution."; nl.
+        Stdn native_abort().
+        self
+    }.
 }.
 
 gcclass Notification superclass: Exception; definition: {
-    method signal := {
-        Stdn stdout << "TODO: signal notification: " << self; nl.
-        self
-    }.
+    method defaultAction
+        := nil.
 }.
 
 gcclass SystemNotification superclass: Notification; definition: {}.
@@ -136,49 +159,17 @@ gcclass Warning superclass: Notification; definition: {}.
 gcclass Deprecation superclass: Warning; definition: {}.
 gcclass SimulationExceptionWrapper superclass: Exception; definition: {}.
 
-ProtoObject extend: {
-    method doesNotUnderstand: aMessage
-        := MessageNotUnderstood new
-            message: aMessage;
-            receiver: self;
-            signal.
-}.
-
-Object extend: {
-    method error: message
-        := Error new signal: message.
-
-    method assert: condition
-        := condition ifFalse: {AssertionFailure signal}.
-
-    method notYetImplemented
-        := NotYetImplemented signal.
-
-    method subclassResponsibility
-        := SubclassResponsibility signal.
-
-    method shouldBeImplemented
-        := ShouldBeImplemented signal.
-
-    method shouldNotImplement
-        := ShouldNotImplement signal.
-
-    method errorSubscriptBounds: index
-        := SubscriptOutOfBounds signalFor: index.
-
-}.
-
-
 gcclass NotFound superclass: Error; definition: {
     public field object.
     public field collection.
 
-    meta method signalFor: anObject
-        := self new object: anObject; signal.
+    meta definition: {
+        method signalFor: anObject
+            := self new object: anObject; signal.
 
-    meta method signalFor: anObject in: aCollection
-        := self new object: anObject; collection: aCollection; signal.
-
+        method signalFor: anObject in: aCollection
+            := self new object: anObject; collection: aCollection; signal.
+    }.
 }.
 
 gcclass KeyNotFound superclass: NotFound; definition: {

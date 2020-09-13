@@ -215,6 +215,16 @@ Collection definition: {
             aBlock value: each
         }.
     }.
+
+	method occurrencesOf: anObject := {
+		let result mutable type: UIntPointer.
+		self do: {:each :: Void |
+			each = anObject ifTrue: {
+				result := result + 1u
+			}
+		}.
+		result
+	}
 }.
 
 }. ## End of namespace Smalltalk.
