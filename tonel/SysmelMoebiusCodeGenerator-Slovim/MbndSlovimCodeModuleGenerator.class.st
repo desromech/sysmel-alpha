@@ -45,7 +45,9 @@ Class {
 		'exceptionLongjmpFunction',
 		'exceptionContextBeginFunction',
 		'exceptionCleanUpEndFunction',
-		'exceptionContextEndFunction'
+		'exceptionContextEndFunction',
+		'exceptionCatchTestDynamicType',
+		'exceptionRethrowFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -504,6 +506,19 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunctionWithContext [
 ]
 
 { #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionCatchTestDynamicTypeFunction [
+	^ exceptionCatchTestDynamicType ifNil: [
+		self compilationTarget exceptionCatchTestDynamicTypeFunction ifNotNil: [ :function |
+			exceptionCatchTestDynamicType := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionCatchTestDynamicType := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_catchTestDynamicType
+				functionType: (SLVMFunctionType arguments: {self slvmCompilationTarget voidPointerType . self slvmCompilationTarget voidPointerType} returnType: SLVMType boolType)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> exceptionCleanUpEndFunction [
 	^ exceptionCleanUpEndFunction ifNil: [
 		self compilationTarget exceptionCleanUpEndFunction ifNotNil: [ :function |
@@ -563,6 +578,19 @@ MbndSlovimCodeModuleGenerator >> exceptionLongjmpFunction [
 				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType . SLVMType intType } returnType: SLVMType voidType))
 					setNoReturn: true;
 					yourself
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionRethrowFunction [
+	^ exceptionRethrowFunction ifNil: [
+		self compilationTarget exceptionRethrowFunction ifNotNil: [ :function |
+			exceptionRethrowFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionRethrowFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_rethrow
+				functionType: (SLVMFunctionType arguments: {self slvmCompilationTarget voidPointerType} returnType: SLVMType voidType)
 		]
 	]
 ]

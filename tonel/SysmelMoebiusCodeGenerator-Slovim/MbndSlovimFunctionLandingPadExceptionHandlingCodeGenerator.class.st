@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'forbiddenExceptionDuringCleanupTarget',
 		'unwindExceptionPointerVariable',
-		'unwindExceptionSelectorVariable'
+		'unwindExceptionSelectorVariable',
+		'unwindExceptionRethrowInsteadOfResumeVariable'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -56,7 +57,8 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCatchedExc
 		| caughtExceptionReference |
 		caughtExceptionReference := self generateExceptionCatchBeginFor: scopeCatchedExceptionAction.
 		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
-			functionCodeGenerator setVariable: caughtExceptionReference forNode: refNode.
+			functionCodeGenerator setVariable: (self slvmBuilder bitCast: caughtExceptionReference target: (self translateType: refNode type))
+				forNode: refNode.
 		].
 	
 		self withExceptionScope: catchExceptionScope do: [ 
@@ -202,13 +204,35 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateUnwindingC
 	typeInfoSelector := self slvmBuilder getExceptionSelectorForTypeInfo: typeInfoConstant.
 	isMatchingTypeInfo := self slvmBuilder ieq: currentSelector with: typeInfoSelector.
 	exceptionSelectContinueBlock := self slvmBuilder newBasicBlock: #catchSelectContinue.
+	self assert: self slvmBuilder currentBlock mergeBlock isNil.
 	catchedException node exceptionTypeIsLiteral ifTrue: [
-		self assert: self slvmBuilder currentBlock mergeBlock isNil.
 		self slvmBuilder currentBlock mergeBlock: exceptionSelectContinueBlock.
 		self slvmBuilder branch: isMatchingTypeInfo ifTrue: catchedException catchActionBlock ifFalse: exceptionSelectContinueBlock.
 	] ifFalse: [
+		| dynamicTypeTestBlock resumeDynamicTypedException dynamicExceptionType testFunction isMatchingDynamicTypeInfo exceptionPointer |
 		"This is a case that requires further testing."
-		self halt.
+		dynamicTypeTestBlock := self slvmBuilder newBasicBlock: #catchDynamicTypeTest.
+		resumeDynamicTypedException := self slvmBuilder newBasicBlock: #resumeDynamicTypedException.
+		self slvmBuilder currentBlock mergeBlock: exceptionSelectContinueBlock.
+		self slvmBuilder branch: isMatchingTypeInfo ifTrue: dynamicTypeTestBlock ifFalse: exceptionSelectContinueBlock.
+
+		self slvmBuilder currentBlock: dynamicTypeTestBlock.
+		
+		dynamicExceptionType := self visitNode: catchedException node exceptionTypeExpression.
+		exceptionPointer := self slvmBuilder load: self unwindExceptionPointerVariable.
+		testFunction := codeModuleGenerator exceptionCatchTestDynamicTypeFunction.
+		isMatchingDynamicTypeInfo := self slvmBuilder call: testFunction arguments: {
+			exceptionPointer . 
+			self slvmBuilder bitCast: dynamicExceptionType target: testFunction functionType arguments second
+		}.
+		self slvmBuilder branch: isMatchingDynamicTypeInfo
+			ifTrue: catchedException catchActionBlock
+			ifFalse: resumeDynamicTypedException.
+			
+		self slvmBuilder
+			currentBlock: resumeDynamicTypedException;
+			store: (SLVMConstant bool: true) in: self unwindExceptionRethrowInsteadOfResumeVariable;
+			jump: exceptionSelectContinueBlock
 	].
 
 	self slvmBuilder currentBlock: exceptionSelectContinueBlock
@@ -246,7 +270,24 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateUnwindingC
 			self generateUnwindingNonLocalReturnCatch.
 		].
 	].
-
+	
+	unwindExceptionRethrowInsteadOfResumeVariable ifNotNil: [
+		| rethrowBlock resumeBlock rethrowFunction |
+		rethrowBlock := self slvmBuilder newBasicBlock: #unwindRethrow.
+		resumeBlock := self slvmBuilder newBasicBlock: #unwindResume.
+		self slvmBuilder
+			branch: (self slvmBuilder load: unwindExceptionRethrowInsteadOfResumeVariable)
+			ifTrue: rethrowBlock ifFalse: resumeBlock.
+		self slvmBuilder currentBlock: rethrowBlock.
+		
+		rethrowFunction := self codeModuleGenerator exceptionRethrowFunction.
+		self slvmBuilder
+			call: rethrowFunction arguments: {
+				self slvmBuilder bitCast: (self slvmBuilder load: self unwindExceptionPointerVariable) target: (rethrowFunction functionType arguments first)
+			};
+			unreachable;
+			currentBlock: resumeBlock
+	].
 	resumeValue := SLVMConstant undefined: codeModuleGenerator landingPathResultType.
 	resumeValue := self slvmBuilder insertValue: resumeValue value: (self slvmBuilder load: self unwindExceptionPointerVariable) indices: #(0).
 	resumeValue := self slvmBuilder insertValue: resumeValue value: (self slvmBuilder load: self unwindExceptionSelectorVariable) indices: #(1).
@@ -375,6 +416,11 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateUnwindingN
 { #category : #accessing }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> unwindExceptionPointerVariable [
 	^ unwindExceptionPointerVariable ifNil: [ unwindExceptionPointerVariable := self slvmBuilder allocaBuilder alloca: self slvmCompilationTarget voidPointerType name: #exceptionPointer ]
+]
+
+{ #category : #accessing }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> unwindExceptionRethrowInsteadOfResumeVariable [
+	^ unwindExceptionRethrowInsteadOfResumeVariable ifNil: [ unwindExceptionRethrowInsteadOfResumeVariable := self slvmBuilder allocaBuilder alloca: SLVMType boolType name: #rethrowInsteadOfResume ]
 ]
 
 { #category : #accessing }

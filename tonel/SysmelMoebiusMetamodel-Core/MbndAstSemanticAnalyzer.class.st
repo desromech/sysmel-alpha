@@ -1213,10 +1213,11 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
-	| result exceptionReferenceType caughtExceptionReferenceNode hasAddedImmediateActivationNode |
+	| result exceptionReferenceType caughtExceptionReferenceNode hasAddedImmediateActivationNode cleanExceptionTypeExpression |
 	result := node copy.
 	result exceptionTypeExpression: (self analyzeNodeIfNeeded: node exceptionTypeExpression).
-	result exceptionTypeExpression type isMetaType ifFalse: [ 
+	cleanExceptionTypeExpression := result exceptionTypeExpression type withoutReferences withoutTopDecorations.
+	(cleanExceptionTypeExpression isMetaType or: [ cleanExceptionTypeExpression isGarbageCollectedType ]) ifFalse: [ 
 		self error: 'An exception type expression is expected in the catch clause instead of an expression with type "{1}".' format: { result exceptionTypeExpression type asString } at: result.
 	].
 
@@ -1230,9 +1231,8 @@ MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
 			exceptionTypeIsLiteral: true.
 	] ifFalse: [
 		"Allow the exception type to be an object for implementing BlockClosure >> #on:do:"
-		self error: 'TODO: check the legality of this case.'.
 		result
-			exceptionType: result exceptionTypeExpression type;
+			exceptionType: (cleanExceptionTypeExpression instanceTypeForExceptionCatch);
 			exceptionTypeIsLiteral: false.
 	].
 

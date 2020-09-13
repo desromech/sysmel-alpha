@@ -69,9 +69,12 @@ Trait {
 		'exceptionLongjmpFunction',
 		'exceptionContextBeginFunction',
 		'exceptionContextEndFunction',
-		'exceptionCleanUpEndFunction'
+		'exceptionCleanUpEndFunction',
+		'exceptionCatchTestDynamicTypeFunction',
+		'exceptionRethrowFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -445,8 +448,10 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			exceptionSetjmpFunction
 			exceptionLongjmpFunction
 
+			exceptionCatchTestDynamicTypeFunction
 			exceptionCatchBeginFunction
 			exceptionCatchEndFunction
+			exceptionRethrowFunction
 			forbiddenExceptionHandlingFunction
 			internalNonLocalReturnExceptionClass
 			personalityFunction
@@ -528,6 +533,16 @@ TMbndCoreCompilationTarget >> exceptionCatchEndFunction: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchTestDynamicTypeFunction [
+	^ exceptionCatchTestDynamicTypeFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchTestDynamicTypeFunction: aFunction [
+	exceptionCatchTestDynamicTypeFunction := aFunction
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> exceptionCleanUpEndFunction [
 	^ exceptionCleanUpEndFunction
 ]
@@ -575,6 +590,16 @@ TMbndCoreCompilationTarget >> exceptionLongjmpFunction [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> exceptionLongjmpFunction: anObject [
 	exceptionLongjmpFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionRethrowFunction [
+	^ exceptionRethrowFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionRethrowFunction: aFunction [
+	exceptionRethrowFunction := aFunction
 ]
 
 { #category : #accessing }

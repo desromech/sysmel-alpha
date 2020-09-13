@@ -67,6 +67,11 @@ TMbndMetaType >> instanceType [
 	^ instanceType
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndMetaType >> instanceTypeForExceptionCatch [
+	^ instanceType ifNil: [ self ]
+]
+
 { #category : #'testing methods' }
 TMbndMetaType >> isMetaType [
 	^ true

@@ -45,6 +45,27 @@ MbndAbstractBlockClosureType >> addComparisonIntrinsics [
 		addComparison: #>= intrinsic: #ge
 ]
 
+{ #category : #initialization }
+MbndAbstractBlockClosureType >> addInstanceMacros [
+	self class == MbndAbstractBlockClosureType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self
+		onMacroSelector: #on:do: do: [ :node :builder |
+			(builder exceptionLexicalScope: (builder macroInlineBlock: node receiver)
+				catchExpressions: {
+					(builder exceptionCatch: node arguments first doing: node arguments second)
+						position: node
+				} cleanUpActions: #())
+				position: node
+		];
+		onMacroSelector: #ensure: do: [ :node :builder |
+			(builder exceptionLexicalScope: (builder macroInlineBlock: node receiver)
+					catchExpressions: #() cleanUpActions: { (builder macroInlineBlock: node arguments first) })
+				position: node
+		].
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractBlockClosureType >> analyzeFunctionCallNode: node with: analyzer [
 	^ functionType analyzeFunctionCallNode: node with: analyzer

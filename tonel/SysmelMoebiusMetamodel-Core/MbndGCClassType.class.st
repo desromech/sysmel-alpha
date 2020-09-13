@@ -264,6 +264,11 @@ MbndGCClassType >> instanceSize [
 	^ self compilationTarget pointerSize
 ]
 
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> instanceTypeForExceptionCatch [
+	^ self compilationTarget dynamicObjectType
+]
+
 { #category : #testing }
 MbndGCClassType >> isGCClassType [
 	^ true

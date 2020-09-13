@@ -36,6 +36,7 @@ MbndCollectionWithContext >> collection: anObject [
 
 { #category : #converting }
 MbndCollectionWithContext >> copyFrom: start to: stop [
+	(start isNil or: [ stop isNil ]) ifTrue: [ ^ '' ].
 	^ collection copyFrom: start to: stop
 ]
 

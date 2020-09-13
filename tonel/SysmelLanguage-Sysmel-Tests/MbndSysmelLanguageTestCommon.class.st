@@ -109,7 +109,10 @@ template IntrusivePointer(PT: Type)
 { #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniExceptionRuntime [
 	self evaluateSource: '
-class Exception definition: {}.
+	
+class Exception definition: {
+	public field message type: Char8 const pointer.
+}.
 class Error superclass: Exception; definition: {}.
 class AssertionFailure superclass: Error; definition: {}.
 class InternalNonLocalReturn superclass: Exception; definition: {}.

@@ -3241,6 +3241,468 @@ closure _ZN10TestModule26callWithNativeBlockClosure9__lambda0E cdecl i32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeException [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function dumpExceptionMessage(message: Char8 const pointer) => Void.
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		mayThrow()
+	} catch: Error doing: { :e :: Void |
+		dumpExceptionMessage(e message)
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 6 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 21 nil)) (0))
+			(nil store void () ((local 22 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 21 nil)) (1))
+			(nil store void () ((local 24 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 7 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 27 nil)))
+			(nil call void () ((global 5 _ZN10TestModule20dumpExceptionMessageEPKc) (local 28 nil)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 31 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 32 nil) (local 33 nil)) (1))
+			(nil resumeException void () ((local 34 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 36 nil)) (0))
+			(nil call void () ((global 12 __sysmel_eh_handleForbiddenException) (local 37 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 40 nil) (local 41 nil)))
+			(nil branch void () ((local 42 nil)) ((block 4 catchAction) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeException2 [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function dumpExceptionMessage(message: Char8 const pointer) => Void.
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	{ :: Void |
+		mayThrow()
+	} on: Error do: { :e :: Void |
+		dumpExceptionMessage(e message)
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 6 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 21 nil)) (0))
+			(nil store void () ((local 22 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 21 nil)) (1))
+			(nil store void () ((local 24 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 7 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 27 nil)))
+			(nil call void () ((global 5 _ZN10TestModule20dumpExceptionMessageEPKc) (local 28 nil)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 31 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 32 nil) (local 33 nil)) (1))
+			(nil resumeException void () ((local 34 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 36 nil)) (0))
+			(nil call void () ((global 12 __sysmel_eh_handleForbiddenException) (local 37 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 40 nil) (local 41 nil)))
+			(nil branch void () ((local 42 nil)) ((block 4 catchAction) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionExpression [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function dumpExceptionMessage(message: Char8 const pointer) => Void.
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC(exceptionType: Exception type ref) => Void := { 
+	try: { 
+		mayThrow()
+	} catch: exceptionType doing: { :e :: Void |
+		dumpExceptionMessage(e message)
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+		(exceptionType (pointer (pointer (struct 'class.TestModule::TypeInformation') generic) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(rethrowInsteadOfResume alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 7 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Exception') generic) () ((local 8 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 13 nil)) (0))
+			(nil store void () ((local 14 nil) (local 1 exceptionPointer)))
+			(nil extractValue i32 () ((local 13 nil)) (1))
+			(nil store void () ((local 16 nil) (local 2 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 6 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 23 nil)) (0))
+			(nil store void () ((local 24 nil) (local 1 exceptionPointer)))
+			(nil extractValue i32 () ((local 23 nil)) (1))
+			(nil store void () ((local 26 nil) (local 2 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 9 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 29 nil)))
+			(nil call void () ((global 5 _ZN10TestModule20dumpExceptionMessageEPKc) (local 30 nil)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load b8 () ((local 3 rethrowInsteadOfResume)))
+			(nil branch void () ((local 33 nil)) ((block 19 unwindRethrow) (block 20 unwindResume)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 35 nil)) (0))
+			(nil call void () ((global 14 __sysmel_eh_handleForbiddenException) (local 36 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 2 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 1 _ZTIN10TestModule9ExceptionE)))
+			(nil ieq b8 () ((local 39 nil) (local 40 nil)))
+			(nil branch void () ((local 41 nil)) ((block 17 catchDynamicTypeTest) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil bitcast (pointer void generic) () ((local 0 exceptionType)))
+			(nil call b8 () ((global 12 __sysmel_eh_catchTestDynamicType) (local 45 nil) (local 46 nil)))
+			(nil branch void () ((local 47 nil)) ((block 4 catchAction) (block 18 resumeDynamicTypedException)))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil store void () ((const b8 true) (local 3 rethrowInsteadOfResume)))
+			(nil jump void () () (block 16 catchSelectContinue))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil call void () ((global 13 __sysmel_eh_rethrow) (local 51 nil)))
+			(nil unreachable void () ())
+		)
+		(()
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 54 nil)) (0))
+			(nil load i32 () ((local 2 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 55 nil) (local 56 nil)) (1))
+			(nil resumeException void () ((local 57 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionExpressionSJLJ [
+	| function |
+	self
+		evaluateMiniRTTI;
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+
+function dumpExceptionMessage(message: Char8 const pointer) => Void.
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC(exceptionType: Exception type ref) => Void := { 
+	try: { 
+		mayThrow()
+	} catch: exceptionType doing: { :e :: Void |
+		dumpExceptionMessage(e message)
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+		(exceptionType (pointer (pointer (struct 'class.TestModule::TypeInformation') generic) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::ExceptionContext') function) () ())
+			(nil alloca (pointer (array (pointer void generic) 1) function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryBody))
+		)
+		(()
+			(nil jump void () () (block 4 tryBody))
+		)
+		(()
+			(nil store void () ((zeroInitialized (struct 'struct.TestModule::ExceptionContext')) (local 1 nil)))
+			(nil getElementPointer (pointer u64 function) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((const u64 1) (local 7 nil)))
+			(nil bitcast (pointer void generic) () ((local 0 exceptionType)))
+			(nil getElementPointer (pointer (pointer void generic) function) () ((local 2 nil) (const i32 0) (const i32 0)))
+			(nil store void () ((local 9 nil) (local 10 nil)))
+			(nil bitcast (pointer (pointer void generic) generic) () ((local 2 nil)))
+			(nil getElementPointer (pointer (pointer (pointer void generic) generic) function) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil store void () ((local 12 nil) (local 13 nil)))
+			(nil getElementPointer (pointer (struct 'struct.TestModule::JmpBuffer') function) () ((local 1 nil) (const i32 0) (const i32 0)))
+			(nil bitcast (pointer void generic) () ((local 15 nil)))
+			(nil call i32 () ((global 14 _setjmp) (local 16 nil)))
+			(nil switch void () ((local 17 nil) (const i32 0) (const i32 1)) (((block 6 tryBody) (block 5 catchAction)) (block 10 invalidCaughtException)))
+		)
+		(()
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call (pointer void generic) () ((global 11 __sysmel_eh_catchBegin) (local 19 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Exception') generic) () ((local 20 nil)))
+			(nil jump void () () (block 9 tryBody))
+		)
+		(()
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 15 __sysmel_eh_contextBegin) (local 23 nil)))
+			(nil jump void () () (block 8 tryBody))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil call void () ((global 8 mayThrow)))
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 13 __sysmel_eh_contextEnd) (local 28 nil)))
+			(nil jump void () () (block 7 normalCleanUpBlock))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 21 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 31 nil)))
+			(nil call void () ((global 7 _ZN10TestModule20dumpExceptionMessageEPKc) (local 32 nil)))
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 12 __sysmel_eh_catchEnd) (local 34 nil)))
+			(nil jump void () () (block 7 normalCleanUpBlock))
+		)
+		(()
+			(nil unreachable void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore [
 	| function |
 	self
@@ -3263,23 +3725,454 @@ function withCatch externC() => Void := {
 
 	function := ssaModule globalNamed: #withCatch.
 	self assert: function isFunction.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry #(#alloca #alloca #jump))
-		(body #(#jump))
-		(tryScope #(#jump))
-		(catchAction #(#load #call #jump))
-		(tryScope #(#jump))
-		(normalCleanUpBlock #(#returnVoid))
-		(tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		(tryScope #(#call #jump))
-		(catchNormalCleanUp #(#call #jump))
-		(catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		(tryScope #(#call #jump))
-		(unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
-		(forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
-		(unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
-		(unwindCleanUp #(#jump))
-		(catchSelectContinue #(#jump))
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 8 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 5 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 9 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 21 nil)) (0))
+			(nil store void () ((local 22 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 21 nil)) (1))
+			(nil store void () ((local 24 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil call void () ((global 6 catchSideEffect)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 29 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 30 nil) (local 31 nil)) (1))
+			(nil resumeException void () ((local 32 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 34 nil)) (0))
+			(nil call void () ((global 11 __sysmel_eh_handleForbiddenException) (local 35 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 38 nil) (local 39 nil)))
+			(nil branch void () ((local 40 nil)) ((block 4 catchAction) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore2 [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	{ :: Void | mayThrow() } on: Error do: { 
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 8 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 5 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 9 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 21 nil)) (0))
+			(nil store void () ((local 22 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 21 nil)) (1))
+			(nil store void () ((local 24 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil call void () ((global 6 catchSideEffect)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 29 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 30 nil) (local 31 nil)) (1))
+			(nil resumeException void () ((local 32 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 34 nil)) (0))
+			(nil call void () ((global 11 __sysmel_eh_handleForbiddenException) (local 35 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 38 nil) (local 39 nil)))
+			(nil branch void () ((local 40 nil)) ((block 4 catchAction) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore3 [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	{ :: Void | mayThrow() } on: Error do: { :: Void |
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 8 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 11 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 5 mayThrow)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 9 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 21 nil)) (0))
+			(nil store void () ((local 22 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 21 nil)) (1))
+			(nil store void () ((local 24 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 15 unwindCleanUp))
+		)
+		((unwind (block 10 catchUnwind))
+			(nil call void () ((global 6 catchSideEffect)))
+			(nil jump void () () (block 9 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 29 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 30 nil) (local 31 nil)) (1))
+			(nil resumeException void () ((local 32 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 34 nil)) (0))
+			(nil call void () ((global 11 __sysmel_eh_handleForbiddenException) (local 35 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 16 catchSelectContinue) unwind (block 13 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 38 nil) (local 39 nil)))
+			(nil branch void () ((local 40 nil)) ((block 4 catchAction) (block 16 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnoreInClosure [
+	| function closure |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function calledWithClosure externC(closure: (Void => Void) nativeStackBlockClosure) => Void
+	:= closure().
+
+function withCatch externC() => Void := {
+	calledWithClosure({:: Void |
+		try: { 
+			mayThrow()
+		} catch: Error doing: { 
+			catchSideEffect()
+		}
+	})
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil instantiateClosure (pointer (closure nativeStack (function cdecl () false void) ()) generic) () ((global nil _ZN10TestModule9withCatch9__lambda0E)))
+			(nil bitcast (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false void) generic)) (vtable functionPointer) ()) generic) () ((local 2 nil)))
+			(nil call void () ((global 7 calledWithClosure) (local 3 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+	
+	closure := function basicBlocks third firstInstruction definition.
+	closure validate.
+	closure dominanceTopoSort.
+	
+	function := closure asNormalFunction.
+	function validate.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function _ZN10TestModule9withCatch9__lambda0E cdecl void
+	arguments (
+		(nil (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false void) generic) (struct nil generic () () ())) (objectHeader function environment) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(capturedEnvironmentPointer getElementPointer (pointer (struct nil generic () () ()) generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 4 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 6 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 7 nil)))
+			(nil jump void () () (block 10 tryScope))
+		)
+		((unwind (block 6 tryUnwind))
+			(nil jump void () () (block 7 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 12 nil)) (0))
+			(nil store void () ((local 13 nil) (local 1 exceptionPointer)))
+			(nil extractValue i32 () ((local 12 nil)) (1))
+			(nil store void () ((local 15 nil) (local 2 exceptionSelector)))
+			(nil jump void () () (block 13 unwindCatchSelection))
+		)
+		((unwind (block 6 tryUnwind))
+			(nil call void () ((global 5 mayThrow)))
+			(nil jump void () () (block 5 normalCleanUpBlock))
+		)
+		(()
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 5 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 22 nil)) (0))
+			(nil store void () ((local 23 nil) (local 1 exceptionPointer)))
+			(nil extractValue i32 () ((local 22 nil)) (1))
+			(nil store void () ((local 25 nil) (local 2 exceptionSelector)))
+			(nil jump void () () (block 14 unwindCleanUp))
+		)
+		((unwind (block 9 catchUnwind))
+			(nil call void () ((global 6 catchSideEffect)))
+			(nil jump void () () (block 8 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 1 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 30 nil)) (0))
+			(nil load i32 () ((local 2 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 31 nil) (local 32 nil)) (1))
+			(nil resumeException void () ((local 33 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 35 nil)) (0))
+			(nil call void () ((global 12 __sysmel_eh_handleForbiddenException) (local 36 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 15 catchSelectContinue) unwind (block 12 forbiddenExceptionTarget))
+			(nil load i32 () ((local 2 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 39 nil) (local 40 nil)))
+			(nil branch void () ((local 41 nil)) ((block 3 catchAction) (block 15 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 11 unwindCleanUp))
+		)
+		((unwind (block 12 forbiddenExceptionTarget))
+			(nil jump void () () (block 11 unwindCleanUp))
+		)
+	)
 	).
 ]
 
@@ -3305,6 +4198,7 @@ function withCatch externC() => Void := {
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #withCatch.
+	function dominanceTopoSort.
 	self assert: function asFullSExpressionForTesting equals: #(
 function withCatch cdecl void
 	arguments (
@@ -3341,11 +4235,12 @@ function withCatch cdecl void
 		(()
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
 			(nil call (pointer void generic) () ((global 10 __sysmel_eh_catchBegin) (local 18 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 19 nil)))
 			(nil jump void () () (block 9 tryBody))
 		)
 		(()
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 14 __sysmel_eh_contextBegin) (local 21 nil)))
+			(nil call void () ((global 14 __sysmel_eh_contextBegin) (local 22 nil)))
 			(nil jump void () () (block 8 tryBody))
 		)
 		(()
@@ -3354,17 +4249,200 @@ function withCatch cdecl void
 		(()
 			(nil call void () ((global 7 mayThrow)))
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 12 __sysmel_eh_contextEnd) (local 26 nil)))
+			(nil call void () ((global 12 __sysmel_eh_contextEnd) (local 27 nil)))
 			(nil jump void () () (block 7 normalCleanUpBlock))
 		)
 		(()
 			(nil call void () ((global 8 catchSideEffect)))
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 11 __sysmel_eh_catchEnd) (local 30 nil)))
+			(nil call void () ((global 11 __sysmel_eh_catchEnd) (local 31 nil)))
 			(nil jump void () () (block 7 normalCleanUpBlock))
 		)
 		(()
 			(nil unreachable void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedException [
+	| function |
+	
+"Try inside of try gets merged."
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function dumpExceptionMessage(message: Char8 const pointer) => Void.
+
+function mayThrow externC() => Void.
+function mayThrow2 externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		try: { 
+			mayThrow()
+		} catch: AssertionFailure doing: { :a :: Void |
+			dumpExceptionMessage(a message).
+			catchSideEffect()
+		}.
+		mayThrow2()
+	} catch: Error doing: { :e :: Void |
+		dumpExceptionMessage(e message).
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 10 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 19 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 22 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 10 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 10 __sysmel_eh_catchBegin) (local 18 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::AssertionFailure') generic) () ((local 19 nil)))
+			(nil jump void () () (block 16 tryScope))
+		)
+		((unwind (block 12 tryUnwind))
+			(nil jump void () () (block 13 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 7 mayThrow2)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 25 nil)) (0))
+			(nil store void () ((local 26 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 25 nil)) (1))
+			(nil store void () ((local 28 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 24 unwindCatchSelection))
+		)
+		((unwind (block 12 tryUnwind))
+			(nil call void () ((global 6 mayThrow)))
+			(nil jump void () () (block 11 normalCleanUpBlock))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 11 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 11 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 35 nil)) (0))
+			(nil store void () ((local 36 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 35 nil)) (1))
+			(nil store void () ((local 38 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 25 unwindCleanUp))
+		)
+		((unwind (block 15 catchUnwind))
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 20 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 41 nil)))
+			(nil call void () ((global 5 _ZN10TestModule20dumpExceptionMessageEPKc) (local 42 nil)))
+			(nil call void () ((global 8 catchSideEffect)))
+			(nil jump void () () (block 14 catchNormalCleanUp))
+		)
+		(()
+			(nil call void () ((global 11 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 48 nil)) (0))
+			(nil store void () ((local 49 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 48 nil)) (1))
+			(nil store void () ((local 51 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 26 unwindCleanUp))
+		)
+		((unwind (block 18 catchUnwind))
+			(nil getElementPointer (pointer (pointer u8 generic) generic) () ((local 7 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer u8 generic) () ((local 54 nil)))
+			(nil call void () ((global 5 _ZN10TestModule20dumpExceptionMessageEPKc) (local 55 nil)))
+			(nil call void () ((global 8 catchSideEffect)))
+			(nil jump void () () (block 17 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 59 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 60 nil) (local 61 nil)) (1))
+			(nil resumeException void () ((local 62 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 64 nil)) (0))
+			(nil call void () ((global 13 __sysmel_eh_handleForbiddenException) (local 65 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 27 catchSelectContinue) unwind (block 21 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 68 nil) (local 69 nil)))
+			(nil branch void () ((local 70 nil)) ((block 4 catchAction) (block 27 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 22 unwindCatchSelection))
+		)
+		((merge (block 28 catchSelectContinue) unwind (block 21 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 3 _ZTIN10TestModule16AssertionFailureE)))
+			(nil ieq b8 () ((local 73 nil) (local 74 nil)))
+			(nil branch void () ((local 75 nil)) ((block 9 catchAction) (block 28 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 23 unwindCleanUp))
+		)
+		(()
+			(nil jump void () () (block 20 unwindCleanUp))
+		)
+		((unwind (block 21 forbiddenExceptionTarget))
+			(nil jump void () () (block 20 unwindCleanUp))
+		)
+		((unwind (block 21 forbiddenExceptionTarget))
+			(nil jump void () () (block 23 unwindCleanUp))
 		)
 	)
 
@@ -3372,7 +4450,7 @@ function withCatch cdecl void
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedException [
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedExceptionIgnore [
 	| function |
 	
 "Try inside of try gets merged."
@@ -3401,41 +4479,151 @@ function withCatch externC() => Void := {
 
 	function := ssaModule globalNamed: #withCatch.
 	self assert: function isFunction.
-	self flag: 'TODO: Double check that this generated code is correct.'.
-	self assert: function allInstructionsMnemonics equals: #(
-		#(#entry #(#alloca #alloca #jump))
-		#(#body #(#jump))
-		#(#tryScope #(#jump))
-		#(#catchAction #(#load #call #jump))
-		#(#tryScope #(#jump))
-		#(#normalCleanUpBlock #(#returnVoid))
-		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#tryScope #(#jump))
-		#(#catchAction #(#load #call #jump))
-		#(#tryScope #(#jump))
-		#(#normalCleanUpBlock #(#call #jump))
-		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#tryScope #(#call #jump))
-		#(#catchNormalCleanUp #(#call #jump))
-		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#tryScope #(#call #jump))
-		#(#catchNormalCleanUp #(#call #jump))
-		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#tryScope #(#call #jump))
-		#(#unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
-		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
-		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
-		#(#unwindCleanUp #(#jump))
-		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
-		#(#unwindCleanUp #(#jump))
-		#(#unwindCleanUp #(#jump))
-		#(#catchSelectContinue #(#jump))
-		#(#catchSelectContinue #(#jump))
+	function dominanceTopoSort.
+	self assert: function asFullSExpressionForTesting equals: #(
+function withCatch cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil jump void () () (block 5 tryScope))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 5 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 6 nil)))
+			(nil jump void () () (block 19 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 22 unwindCatchSelection))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil jump void () () (block 10 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil call (pointer void generic) () ((global 9 __sysmel_eh_catchBegin) (local 18 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::AssertionFailure') generic) () ((local 19 nil)))
+			(nil jump void () () (block 16 tryScope))
+		)
+		((unwind (block 12 tryUnwind))
+			(nil jump void () () (block 13 tryScope))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 6 mayThrow2)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 25 nil)) (0))
+			(nil store void () ((local 26 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 25 nil)) (1))
+			(nil store void () ((local 28 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 24 unwindCatchSelection))
+		)
+		((unwind (block 12 tryUnwind))
+			(nil call void () ((global 5 mayThrow)))
+			(nil jump void () () (block 11 normalCleanUpBlock))
+		)
+		((unwind (block 7 tryUnwind))
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 11 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 35 nil)) (0))
+			(nil store void () ((local 36 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 35 nil)) (1))
+			(nil store void () ((local 38 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 25 unwindCleanUp))
+		)
+		((unwind (block 15 catchUnwind))
+			(nil call void () ((global 7 catchSideEffect)))
+			(nil jump void () () (block 14 catchNormalCleanUp))
+		)
+		(()
+			(nil call void () ((global 10 __sysmel_eh_catchEnd)))
+			(nil jump void () () (block 6 normalCleanUpBlock))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 45 nil)) (0))
+			(nil store void () ((local 46 nil) (local 0 exceptionPointer)))
+			(nil extractValue i32 () ((local 45 nil)) (1))
+			(nil store void () ((local 48 nil) (local 1 exceptionSelector)))
+			(nil jump void () () (block 26 unwindCleanUp))
+		)
+		((unwind (block 18 catchUnwind))
+			(nil call void () ((global 7 catchSideEffect)))
+			(nil jump void () () (block 17 catchNormalCleanUp))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 0 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 53 nil)) (0))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 54 nil) (local 55 nil)) (1))
+			(nil resumeException void () ((local 56 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 58 nil)) (0))
+			(nil call void () ((global 12 __sysmel_eh_handleForbiddenException) (local 59 nil)))
+			(nil unreachable void () ())
+		)
+		((merge (block 27 catchSelectContinue) unwind (block 21 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 2 _ZTIN10TestModule5ErrorE)))
+			(nil ieq b8 () ((local 62 nil) (local 63 nil)))
+			(nil branch void () ((local 64 nil)) ((block 4 catchAction) (block 27 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 22 unwindCatchSelection))
+		)
+		((merge (block 28 catchSelectContinue) unwind (block 21 forbiddenExceptionTarget))
+			(nil load i32 () ((local 1 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 3 _ZTIN10TestModule16AssertionFailureE)))
+			(nil ieq b8 () ((local 67 nil) (local 68 nil)))
+			(nil branch void () ((local 69 nil)) ((block 9 catchAction) (block 28 catchSelectContinue)))
+		)
+		(()
+			(nil jump void () () (block 23 unwindCleanUp))
+		)
+		(()
+			(nil jump void () () (block 20 unwindCleanUp))
+		)
+		((unwind (block 21 forbiddenExceptionTarget))
+			(nil jump void () () (block 20 unwindCleanUp))
+		)
+		((unwind (block 21 forbiddenExceptionTarget))
+			(nil jump void () () (block 23 unwindCleanUp))
+		)
+	)
 	).
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedExceptionSJLJ [
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedExceptionIgnoreSJLJ [
 	| function |
 	
 "Try inside of try gets merged."
@@ -3464,7 +4652,7 @@ function withCatch externC() => Void := {
 
 	function := ssaModule globalNamed: #withCatch.
 	self assert: function isFunction.
-	self flag: 'TODO: Double check that this generated code is correct.'.
+	function dominanceTopoSort.
 	self assert: function asFullSExpressionForTesting equals: #(
 function withCatch cdecl void
 	arguments (
@@ -3503,11 +4691,12 @@ function withCatch cdecl void
 		(()
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
 			(nil call (pointer void generic) () ((global 11 __sysmel_eh_catchBegin) (local 20 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::Error') generic) () ((local 21 nil)))
 			(nil jump void () () (block 15 tryBody))
 		)
 		(()
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 15 __sysmel_eh_contextBegin) (local 23 nil)))
+			(nil call void () ((global 15 __sysmel_eh_contextBegin) (local 24 nil)))
 			(nil jump void () () (block 8 tryBody))
 		)
 		(()
@@ -3516,44 +4705,45 @@ function withCatch cdecl void
 		(()
 			(nil store void () ((zeroInitialized (struct 'struct.TestModule::ExceptionContext')) (local 1 nil)))
 			(nil getElementPointer (pointer u64 function) () ((local 1 nil) (const i32 0) (const i32 1)))
-			(nil store void () ((const u64 1) (local 28 nil)))
+			(nil store void () ((const u64 1) (local 29 nil)))
 			(nil bitcast (pointer void generic) () ((global 3 _ZTIN10TestModule16AssertionFailureE)))
 			(nil getElementPointer (pointer (pointer void generic) function) () ((local 2 nil) (const i32 0) (const i32 0)))
-			(nil store void () ((local 30 nil) (local 31 nil)))
+			(nil store void () ((local 31 nil) (local 32 nil)))
 			(nil bitcast (pointer (pointer void generic) generic) () ((local 2 nil)))
 			(nil getElementPointer (pointer (pointer (pointer void generic) generic) function) () ((local 1 nil) (const i32 0) (const i32 2)))
-			(nil store void () ((local 33 nil) (local 34 nil)))
+			(nil store void () ((local 34 nil) (local 35 nil)))
 			(nil getElementPointer (pointer (struct 'struct.TestModule::JmpBuffer') function) () ((local 1 nil) (const i32 0) (const i32 0)))
-			(nil bitcast (pointer void generic) () ((local 36 nil)))
-			(nil call i32 () ((global 14 _setjmp) (local 37 nil)))
-			(nil switch void () ((local 38 nil) (const i32 0) (const i32 1)) (((block 10 tryBody) (block 9 catchAction)) (block 14 invalidCaughtException)))
+			(nil bitcast (pointer void generic) () ((local 37 nil)))
+			(nil call i32 () ((global 14 _setjmp) (local 38 nil)))
+			(nil switch void () ((local 39 nil) (const i32 0) (const i32 1)) (((block 10 tryBody) (block 9 catchAction)) (block 14 invalidCaughtException)))
 		)
 		(()
 			(nil bitcast (pointer void generic) () ((local 1 nil)))
-			(nil call (pointer void generic) () ((global 11 __sysmel_eh_catchBegin) (local 40 nil)))
+			(nil call (pointer void generic) () ((global 11 __sysmel_eh_catchBegin) (local 41 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::AssertionFailure') generic) () ((local 42 nil)))
 			(nil jump void () () (block 13 tryBody))
 		)
 		(()
 			(nil bitcast (pointer void generic) () ((local 1 nil)))
-			(nil call void () ((global 15 __sysmel_eh_contextBegin) (local 43 nil)))
+			(nil call void () ((global 15 __sysmel_eh_contextBegin) (local 45 nil)))
 			(nil jump void () () (block 12 tryBody))
 		)
 		(()
 			(nil call void () ((global 8 mayThrow2)))
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 13 __sysmel_eh_contextEnd) (local 47 nil)))
+			(nil call void () ((global 13 __sysmel_eh_contextEnd) (local 49 nil)))
 			(nil jump void () () (block 7 normalCleanUpBlock))
 		)
 		(()
 			(nil call void () ((global 7 mayThrow)))
 			(nil bitcast (pointer void generic) () ((local 1 nil)))
-			(nil call void () ((global 13 __sysmel_eh_contextEnd) (local 51 nil)))
+			(nil call void () ((global 13 __sysmel_eh_contextEnd) (local 53 nil)))
 			(nil jump void () () (block 11 normalCleanUpBlock))
 		)
 		(()
 			(nil call void () ((global 9 catchSideEffect)))
 			(nil bitcast (pointer void generic) () ((local 1 nil)))
-			(nil call void () ((global 12 __sysmel_eh_catchEnd) (local 55 nil)))
+			(nil call void () ((global 12 __sysmel_eh_catchEnd) (local 57 nil)))
 			(nil jump void () () (block 11 normalCleanUpBlock))
 		)
 		(()
@@ -3562,14 +4752,13 @@ function withCatch cdecl void
 		(()
 			(nil call void () ((global 9 catchSideEffect)))
 			(nil bitcast (pointer void generic) () ((local 0 nil)))
-			(nil call void () ((global 12 __sysmel_eh_catchEnd) (local 60 nil)))
+			(nil call void () ((global 12 __sysmel_eh_catchEnd) (local 62 nil)))
 			(nil jump void () () (block 7 normalCleanUpBlock))
 		)
 		(()
 			(nil unreachable void () ())
 		)
 	)
-
 	).
 ]
 

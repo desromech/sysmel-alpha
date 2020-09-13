@@ -125,7 +125,8 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateCatchedE
 		| caughtExceptionReference |
 		caughtExceptionReference := self generateExceptionCatchBeginFor: catchExceptionScope parent.
 		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
-			functionCodeGenerator setVariable: caughtExceptionReference forNode: refNode.
+			functionCodeGenerator setVariable: (self slvmBuilder bitCast: caughtExceptionReference target: (self translateType: refNode type))
+				forNode: refNode.
 		].
 	
 		self withExceptionScope: catchExceptionScope do: [ 
