@@ -1,6 +1,15 @@
 namespace Smalltalk definition: {
 
 SmallFloat64 extend: {
+	meta definition: {
+		method basicNew
+			:= self error: "SmallFloat64s can only be created by performing arithmetic".
+
+		method basicNew: (variableSize: UIntPointer)
+			:= self basicNew.
+
+	}.
+
 	method negated
 		:= self __decodeSmallFloat negated.
 

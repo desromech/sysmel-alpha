@@ -9,8 +9,6 @@ String definition: {
 	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
 	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
 
-    method isString := true.
-
 	meta definition: {
 		method fromNativeString: (string: Char8 const arraySlice) ::=> _DependentInstanceType := {
 			let result := self new: string size.
@@ -29,6 +27,10 @@ String definition: {
 
 		method value: aCharacter := self with: (Character value: aCharacter).
 	}.
+
+    method isString := true.
+
+	method isLiteral := false.
 
 	method beginsWith: prefix := {
 		prefix class == String || prefix class == Symbol ifTrue: {

@@ -8,6 +8,9 @@ Array definition: {
 
 	method isArray := true.
 	method asArray := self.
+
+	method isLiteral
+		:= self class == Array && self allSatisfy: {:each | each isLiteral}.
 }.
 
 }. ## End of namespace Smalltalk.

@@ -36,8 +36,14 @@ gcclass NullStream superclass: Stream; definition: {
     method position
         := position.
 
+    method positionError
+        := self error: "Attempt to set the position of a NullStream to a negative value".
+
     method position: newPosition := {
-        position := newPosition castTo: UIntPointer.
+        let convertedPosition := newPosition castTo: IntPointer.
+        convertedPosition < 0 ifTrue: { self positionError. }.
+
+        position := convertedPosition castTo: UIntPointer.
         self
     }.
 

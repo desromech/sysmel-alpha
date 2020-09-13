@@ -6,7 +6,24 @@ ByteArray definition: {
 	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
 	__global Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
 
+	method isLiteral
+		:= self class == ByteArray.
+
 	method printOn: aStream := {
+        aStream nextPutAll: "#[".
+        0 until: __data size do: {:i :: Void|
+            let b := __data[i].
+            i > 0 ifTrue: {
+                aStream nextPut: ' '
+            }.
+
+            aStream print: b.
+        }.
+        aStream nextPut: ']'.
+        self
+    }.
+
+	method storeOn: aStream := {
         aStream nextPutAll: "#[".
         0 until: __data size do: {:i :: Void|
             let b := __data[i].

@@ -3,6 +3,7 @@ namespace Smalltalk definition: {
 Integer extend: {
     method isInteger := true.
 	method asInteger := self.
+    method isLiteral := true.
 
 	method floor := self.
 	method ceiling := self.
@@ -10,9 +11,30 @@ Integer extend: {
 	method rounded := self.
 	method fract := 0.
 	method fractionPart := 0.
+    method integerPart := self.
 
-    method + aNumber := {
-        super + aNumber
+    method bitInvert
+        := -1 - self.
+
+    method bitInvert32
+        := self bitXor: 16rFFFFFFFF.
+
+    method timesRepeat: aBlock := {
+        1 to: self do: {
+            aBlock value
+        }.
+        self
+    }.
+
+    method byteAt: (index: UIntPointer)
+        := self subclassResponsibility.
+
+    method byteAt: (index: UIntPointer) put: (value: UInt8)
+        := self subclassResponsibility.
+
+    method bytesCount => UIntPointer := {
+        self subclassResponsibility.
+        0
     }.
 }.
 

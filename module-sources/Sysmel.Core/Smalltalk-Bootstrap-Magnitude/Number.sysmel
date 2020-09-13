@@ -1,7 +1,15 @@
 namespace Smalltalk definition: {
 
 Number extend: {
+    meta definition: {
+        method one
+            := 1.
+    }.
+
     method isNumber := true.
+    method isInfinite := false.
+    method isNaN := false.
+    method asNumber := self.
 
 	method floor := self asFloat floor.
 	method ceiling := self asFloat ceiling.
@@ -9,6 +17,12 @@ Number extend: {
 	method rounded := self asFloat rounded.
 	method fract := self asFloat fract.
 	method fractionPart := self asFloat fractionPart.
+
+    method exp := self asFloat exp.
+	method exp2 := self asFloat exp2.
+	method ln := self asFloat ln.
+	method log2 := self asFloat log2.
+    method integerPart := self truncated.
 
 	method abs := {
 		self < 0
@@ -19,6 +33,7 @@ Number extend: {
 	method negative := self < 0.
     method positive := self >= 0.
     method isZero := self = 0.
+    method strictlyPositive := self > 0.
 
 	method sign := {
 		self < 0 ifTrue: {return: -1}.
@@ -148,6 +163,9 @@ Number extend: {
 
     method reciprocal
         := 1 / self.
+
+    method storeOn: aStream
+        := self printOn: aStream.
 }.
 
 Stdn BasicValuePrinter extend: {

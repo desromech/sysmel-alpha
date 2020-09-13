@@ -3,6 +3,9 @@ namespace Smalltalk definition: {
 ScaledDecimal extend: {
 	field scale.
 
+	method isLiteral
+		:= denominator = 1 || ((10 asProtoObject raisedTo: scale) \\ denominator) = 0.
+
 	method reciprocal
 		:= self class newFromNumber: super reciprocal scale: scale.
 }.

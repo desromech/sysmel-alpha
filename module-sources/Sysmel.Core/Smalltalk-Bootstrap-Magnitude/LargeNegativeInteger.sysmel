@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+LargeNegativeInteger definition: {
+	method strictlyPositive := false.
+}.
+
+}. ## End of namespace Smalltalk

@@ -89,6 +89,14 @@ SequenceableCollection definition: {
 		nil
 	}.
 
+	method with: otherCollection do: aBlock := {
+		otherCollection size = self size ifFalse: {self errorSizeMismatch}.
+		1 to: self size do: {:i :: Void |
+			aBlock value: (self at: i) value: (otherCollection at: i)
+		}.
+		self
+	}.
+
 	method withIndexDo: aBlock := {
 		1 to: self size do: {:i :: Void |
 			aBlock value: (self at: i) value: i

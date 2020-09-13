@@ -114,7 +114,7 @@ gcclass WriteStream superclass: PositionableStream; definition: {
     }.
 
     method position: anInteger := {
-        readLimit := readLimit max: (anInteger castTo: UIntPointer).
+        readLimit := readLimit max: position.
         super position: anInteger
     }.
 

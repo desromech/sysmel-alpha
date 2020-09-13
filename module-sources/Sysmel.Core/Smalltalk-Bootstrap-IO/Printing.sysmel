@@ -3,6 +3,7 @@ namespace Smalltalk definition: {
 LookupKey extend: {
     method printOn: aStream
         := key printOn: aStream.
+
 }.
 
 Association extend: {
@@ -10,6 +11,14 @@ Association extend: {
         super printOn: aStream.
         aStream nextPutAll: "->".
         value printOn: aStream
+    }.
+
+    method storeOn: aStream := {
+        aStream nextPut: '('.
+        key storeOn: aStream.
+        aStream nextPutAll: "->".
+        value storeOn: aStream
+        aStream nextPut: ')'.
     }.
 }.
 

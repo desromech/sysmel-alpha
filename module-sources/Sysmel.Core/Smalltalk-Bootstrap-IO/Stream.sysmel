@@ -56,9 +56,10 @@ gcclass Stream superclass: Object; definition: {
 
     method isStream := true.
 
-    method next: (elementsToRead: UInt32) := {
-        let result := Array basicNew: elementsToRead.
-        0 until: elementsToRead do: {:i :: Void |
+    method next: elementsToRead := {
+        let readCount := (elementsToRead castTo: UIntPointer).
+        let result := Array basicNew: readCount.
+        0 until: readCount do: {:i :: Void |
             result[i] := self next
         }.
         result

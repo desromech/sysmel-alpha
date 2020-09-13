@@ -1,6 +1,14 @@
 namespace Smalltalk definition: {
 
 Object definition: {
+    meta definition: {
+        method readFromString: aString
+            := self readFrom: aString readStream.
+
+        method readFrom: aStream
+            := self subclassResponsibility
+    }.
+
     method value := self.
 
     method isBehavior
@@ -11,6 +19,12 @@ Object definition: {
 
     method isKindOf: aClass
         := self class == aClass || (self class inheritsFrom: aClass).
+
+    method isLiteral
+        := false.
+
+    method literalEqual: other
+        := self class == other class && self = other.
 
     method asString
         := self printString.
@@ -25,8 +39,11 @@ Object definition: {
     method printOn: aStream
         := aStream nextPutAll: "a "; nextPutAll: self class name.
 
+    method storeOn: aStream
+        := self subclassResponsibility.
+
     method storeString
-        := "TODO: Object >>#storeString".
+        := String streamContents: {:stream :: Void | self storeOn: stream}.
 
     method beReadOnlyObject
         := self.

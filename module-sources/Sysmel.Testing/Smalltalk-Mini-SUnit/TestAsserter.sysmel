@@ -14,7 +14,7 @@ gcclass TestAsserter definition: {
         }.
 
         caught ifFalse: {
-            AssertionFailure signal
+            AssertionFailure signal: anException name -- " should be raised."
         }.
 
         self.
@@ -29,9 +29,16 @@ gcclass TestAsserter definition: {
         }.
 
         caught ifTrue: {
-            AssertionFailure signal
+            AssertionFailure signal: anException name -- " shouldn't be raised."
         }.
 
+        self.
+    }.
+
+    method assertEmpty: aCollection := {
+        aCollection isEmpty ifFalse: {
+            AssertionFailure signal: aCollection asString -- ' should be empty.'
+        }.
         self.
     }.
 

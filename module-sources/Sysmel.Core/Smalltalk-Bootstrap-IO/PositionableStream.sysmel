@@ -48,10 +48,17 @@ gcclass PositionableStream superclass: Stream; definition: {
         position := newPosition.
     }.
 
+    method skipTo: anObject := {
+        until: self atEnd do: {
+            self next = anObject ifTrue: {return: true}
+        }.
+        false
+    }.
+
     method position: anInteger := {
-        let newPosition := anInteger castTo: UIntPointer.
-        0 <= newPosition && newPosition <= readLimit
-            ifTrue: { position := newPosition }
+        let newPosition := anInteger castTo: IntPointer.
+        0 <= newPosition && newPosition <= (readLimit castTo: IntPointer)
+            ifTrue: { position := newPosition castTo: UIntPointer }
             ifFalse: { self positionError }.
         self
     }.
@@ -117,11 +124,45 @@ gcclass PositionableStream superclass: Stream; definition: {
         false
     }.
 
+    method next: elementsToRead := {
+        let result := collection species new: elementsToRead.
+        1 to: (elementsToRead castTo: UIntPointer) do: {:i :: Void |
+            result at: i put: self next
+        }.
+        result
+    }.
+
     method positionOfSubCollection: subCollection
         := self positionOfSubCollection: subCollection ifAbsent: {| 0}.
 
     method positionOfSubCollection: subCollection ifAbsent: exceptionBlock := {
+        let pattern := subCollection readStream.
+        let startPosition := self position.
+        until: pattern atEnd do: {
+            self atEnd ifTrue: { return: exceptionBlock value }.
+            self next = pattern next ifFalse:  {
+                self position: self position - pattern position + 1.
+                pattern reset
+            }.
+        }.
 
+    	let currentPosition := self position.
+    	self position: startPosition.
+    	pattern atEnd
+    		ifTrue: { currentPosition + 1 - subCollection size }
+    		ifFalse: { exceptionBlock value }
+    }.
+
+    method match: subCollection := {
+        let pattern := subCollection readStream.
+        until: self atEnd || pattern atEnd do: {
+            self skip: pattern position negated.
+            pattern setToStart.
+            (self skipTo: pattern next) ifFalse: {return: false}.
+            while: pattern atEnd not && self next = pattern peek do: pattern next.
+        }.
+
+        pattern atEnd
     }.
 
     method upTo: anObject := {
@@ -132,6 +173,23 @@ gcclass PositionableStream superclass: Stream; definition: {
         }.
         newStream contents
     }.
+
+    method upToAll: aCollection := {
+        let startPos := position.
+        (self match: aCollection) ifTrue: {
+            let endMatch := position.
+            position := startPos.
+            let result := self upToPosition: endMatch - (aCollection size castTo: UIntPointer).
+            position := endMatch.
+            result
+        } ifFalse: {
+            position := startPos.
+            self upToEnd
+        }
+    }.
+
+    method upToPosition: anInteger
+        := self next: anInteger - position.
 
     method upToEnd := {
         let newStream := (collection species new: 100) writeStream.
@@ -145,6 +203,9 @@ gcclass PositionableStream superclass: Stream; definition: {
         position := readLimit.
         self
     }.
+
+    method setToStart
+        := self reset.
 
 }.
 

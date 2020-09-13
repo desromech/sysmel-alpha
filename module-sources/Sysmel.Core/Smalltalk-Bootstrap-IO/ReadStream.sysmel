@@ -17,6 +17,16 @@ gcclass ReadStream superclass: PositionableStream; definition: {
             ifFalse: {collection at: (position := position + 1)}.
     }.
 
+    method next: elementsToRead := {
+        let endPosition := position + (elementsToRead castTo: UIntPointer) min: readLimit.
+        let result := collection copyFrom: position + 1 to: endPosition.
+        position := endPosition.
+        result
+    }.
+
+    method nextPut: anObject
+        := self shouldNotImplement.
+
     method readStream
         := self.
 

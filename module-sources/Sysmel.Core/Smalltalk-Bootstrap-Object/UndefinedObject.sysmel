@@ -1,6 +1,9 @@
 namespace Smalltalk definition: {
 
 UndefinedObject definition: {
+    method isLiteral
+        := false.
+
     method printOn: aStream
         := aStream nextPutAll: "nil".
 }.

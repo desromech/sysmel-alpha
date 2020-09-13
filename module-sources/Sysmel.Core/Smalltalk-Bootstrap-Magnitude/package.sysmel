@@ -4,6 +4,8 @@ loadFileOnce: "Integer.sysmel".
 loadFileOnce: "SmallInteger.sysmel".
 loadFileOnce: "Character.sysmel".
 loadFileOnce: "LargeInteger.sysmel".
+loadFileOnce: "LargeNegativeInteger.sysmel".
+loadFileOnce: "LargePositiveInteger.sysmel".
 loadFileOnce: "Fraction.sysmel".
 loadFileOnce: "ScaledDecimal.sysmel".
 loadFileOnce: "Float.sysmel".

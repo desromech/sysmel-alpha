@@ -32,6 +32,9 @@ Character extend: {
 		}.
 	}.
 
+	method isLiteral
+		:= true.
+
 	method asInt32 => Int32
 		:= self __decodeCharacter castTo: Int32.
 

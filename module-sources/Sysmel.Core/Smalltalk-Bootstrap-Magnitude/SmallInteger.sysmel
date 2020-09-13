@@ -1,6 +1,20 @@
 namespace Smalltalk definition: {
 
 SmallInteger extend: {
+	meta definition: {
+		method basicNew
+			:= self error: "SmallIntegers can only be created by performing arithmetic".
+
+		method new
+			:= self basicNew.
+
+		method maxVal
+			:= ObjectModel SmallIntegerMaxValue.
+
+		method minVal
+			:= ObjectModel SmallIntegerMaxValue.
+	}.
+
 	method asInt32 => Int32
 		:= self __decodeSmallInteger castTo: Int32.
 
@@ -252,6 +266,10 @@ SmallInteger extend: {
 		super >> aNumber
 	}.
 
+	method bitInvert32 := {
+		self __decodeSmallInteger ^ 16rFFFFFFFF
+    }.
+
     method + aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.
@@ -392,11 +410,26 @@ SmallInteger extend: {
         self
     }.
 
-
     method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
         writer << self __decodeSmallInteger.
 		self
     }.
+
+	method byteAt: (index: UIntPointer) := {
+		let s := self __decodeSmallInteger.
+		((s < 0
+			ifTrue: { s negated castTo: UIntPointer }
+			ifFalse: { s castTo: UIntPointer }) >> ((index - 1u) * 8u)) & 16rFFu
+	}.
+
+	method byteAt: (index: UIntPointer) put: (value: UInt8)
+		:= self error: "You can't store in a SmallInteger".
+
+	method bytesCount => UIntPointer := {
+		let s mutable := self __decodeSmallInteger.
+		s < 0 ifTrue: {s := s negated}.
+		((s castTo: UIntPointer) highBit + 7u) / 8u max: 1u
+	}.
 }.
 
 }. ## End of namespace Smalltalk

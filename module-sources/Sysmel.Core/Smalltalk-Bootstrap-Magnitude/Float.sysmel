@@ -102,10 +102,22 @@ Float extend: {
 
     method isFloat := true.
     method asFloat := self.
+    method isLiteral := self isFinite.
 
     method reciprocal
         := 1.0 / self.
 
+    method isFinite
+        := self - self = 0.0.
+
+    method isInfinite
+        := self = NegativeInfinity || self = Infinity.
+
+    method isNaN
+        := self ~= self.
+
+    method isZero
+        := self = 0.0.
 }.
 
 }. ## End of namespace Smalltalk

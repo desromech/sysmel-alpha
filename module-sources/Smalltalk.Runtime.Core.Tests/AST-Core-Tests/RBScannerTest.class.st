@@ -23,15 +23,15 @@ RBScannerTest >> testCommentTokenHasTheRightValue [
 	scanner := self buildScannerForText: String tab, ' "simple comment" firstToken'.
 	token := scanner next comments first.
 	self assert: token value equals: 'simple comment'.
-	
+
 	scanner := self buildScannerForText: String tab, ' """nested at beggining"" comment" firstToken'.
 	token := scanner next comments first.
 	self assert: token value equals: '""nested at beggining"" comment'.
-	
+
 	scanner := self buildScannerForText: String tab, ' "comment ""nested at end""" firstToken'.
 	token := scanner next comments first.
 	self assert: token value equals: 'comment ""nested at end""'.
-	
+
 ]
 
 { #category : #testComment }
@@ -43,21 +43,21 @@ RBScannerTest >> testCommentTokenStartAtFirstQuote [
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token start equals: (str findString: comment).
-	
+
 	str := ' """nested at beggining"" comment" firstToken'.
 	comment := '"""nested at beggining"" comment"'.
 	scanner := self buildScannerForText: str .
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token start equals: (str findString: comment).
-	
+
 	str := '"comment ""nested at end""" firstToken'.
 	comment := '"comment ""nested at end"""'.
 	scanner := self buildScannerForText: str.
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token start equals: (str findString: comment).
-	
+
 ]
 
 { #category : #testComment }
@@ -69,21 +69,21 @@ RBScannerTest >> testCommentTokenStopAtLastQuote [
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token stop equals: (str findString: comment) + comment size - 1.
-	
+
 	str := ' """nested at beggining"" comment" firstToken'.
 	comment := '"""nested at beggining"" comment"'.
 	scanner := self buildScannerForText: str .
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token stop equals: (str findString: comment) + comment size - 1.
-	
+
 	str := '"comment ""nested at end""" firstToken'.
 	comment := '"comment ""nested at end"""'.
 	scanner := self buildScannerForText: str.
 	token := scanner next comments first.
 	self assert: token isComment.
 	self assert: token stop equals: (str findString: comment) + comment size - 1.
-	
+
 ]
 
 { #category : #testComment }
@@ -94,7 +94,7 @@ RBScannerTest >> testMultipleCommentTokensAreWellSeparated [
 	token := comments first.
 	self assert: token isComment.
 	self assert: token value equals: 'first comment'.
-	
+
 	token := comments second.
 	self assert: token isComment.
 	self assert: token value equals: ' second comment'.
@@ -110,7 +110,7 @@ RBScannerTest >> testNextAcceptAllAlphabeticAsLiteral [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextAcceptFloatNumbers [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '3.2'.
 	token := scanner next.
@@ -121,7 +121,7 @@ RBScannerTest >> testNextAcceptFloatNumbers [
 RBScannerTest >> testNextAcceptLiteralArrayWithBracket [
 	"Note: RBScanner only spots the beginning of the array."
 	| scanner token |
-	
+
 	scanner := self buildScannerForText: '#['.
 	token := scanner next.
 	self assert: token isLiteralArrayToken.
@@ -138,20 +138,20 @@ RBScannerTest >> testNextAcceptLiteralArrayWithParenthesis [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextAcceptRadixNumbers [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '10r10'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '2r10'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '16rfa'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '400r380'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
@@ -171,7 +171,7 @@ RBScannerTest >> testNextAllAlphabeticsGiveIdentifier [
 	scanner := self buildScannerForText: 'firstToken'.
 	token := scanner next.
 	self assert: token isIdentifier.
-	
+
 ]
 
 { #category : #testKeyword }
@@ -188,7 +188,7 @@ RBScannerTest >> testNextAlphabeticsAndDigitGiveIdentifier [
 	scanner := self buildScannerForText: 'first123Token'.
 	token := scanner next.
 	self assert: token isIdentifier.
-	
+
 ]
 
 { #category : #testStart }
@@ -209,7 +209,7 @@ RBScannerTest >> testNextAssignementStopAtEqual [
 
 { #category : #testError }
 RBScannerTest >> testNextBaseOfRadixNumbersCanNotBeOne [
-	
+
 	| scanner |
 	scanner := self buildScannerForText: '1r1a'.
 	self should: [scanner next] raise: SyntaxErrorNotification .
@@ -217,24 +217,24 @@ RBScannerTest >> testNextBaseOfRadixNumbersCanNotBeOne [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextBeginningWithDigitIsNumber [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '1'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '1a'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '1='.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '1$'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
-	
+
 	scanner := self buildScannerForText: '123'.
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
@@ -282,17 +282,17 @@ RBScannerTest >> testNextBinarySelectorStopsAtNonBinary [
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	scanner := self buildScannerForText: '+1'.
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	scanner := self buildScannerForText: '+('.
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	scanner := self buildScannerForText: '+`'.
 	token := scanner next.
 	self assert: token isBinary.
@@ -313,15 +313,15 @@ RBScannerTest >> testNextCommentIsCommentToken [
 	scanner := self buildScannerForText: String tab, ' "simple comment" firstToken'.
 	token := scanner next comments first.
 	self assert: token isComment.
-	
+
 	scanner := self buildScannerForText: String tab, ' """nested at beggining"" comment" firstToken'.
 	token := scanner next comments first.
 	self assert: token isComment.
-	
+
 	scanner := self buildScannerForText: String tab, ' "comment ""nested at end""" firstToken'.
 	token := scanner next comments first.
 	self assert: token isComment.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -331,7 +331,7 @@ RBScannerTest >> testNextDoesNotAddLineBreakToComments [
 firstToken'.
 	token := scanner next.
 	self assert: token comments isNil.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -340,7 +340,7 @@ RBScannerTest >> testNextDoesNotAddSpacesToComments [
 	scanner := self buildScannerForText: String space, String space,'firstToken'.
 	token := scanner next.
 	self assert: token comments isNil.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -349,7 +349,7 @@ RBScannerTest >> testNextDoesNotAddTabToComments [
 	scanner := self buildScannerForText: String tab, 'firstToken'.
 	token := scanner next.
 	self assert: token comments isNil.
-	
+
 ]
 
 { #category : #testError }
@@ -380,7 +380,7 @@ RBScannerTest >> testNextDollarSignIsError [
 RBScannerTest >> testNextEOFContainsCommentsWhenNoOtherToken [
 	| scanner token |
 	scanner := self buildScannerForText: '"start comment"'.
-	
+
 	token := scanner next.
 	self assert: token isEOF.
 	self assert: token comments size equals: 1.
@@ -393,7 +393,7 @@ RBScannerTest >> testNextErrorStartAtFirstCharacter [
 	scanner := self buildScannerForText: '$'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 	scanner := self buildScannerForText: '#123alpha'.
 	token := scanner next.
 	self assert: token isError.
@@ -406,7 +406,7 @@ RBScannerTest >> testNextErrorStopAtErrorCharacter [
 	scanner := self buildScannerForText: '$'.
 	token := scanner next.
 	self assert: token stop equals: 1.
-	
+
 	scanner := self buildScannerForText: '#123alpha'.
 	token := scanner next.
 	self assert: token isError.
@@ -423,10 +423,10 @@ RBScannerTest >> testNextFalseIsLiteral [
 ]
 
 { #category : #testSeparators }
-RBScannerTest >> testNextFirstTokenContainsFollowingComments [ 
+RBScannerTest >> testNextFirstTokenContainsFollowingComments [
 	| scanner token |
 	scanner := self buildScannerForText: 'firstToken "following comment"'.
-	
+
 	"The first token 'firstToken' takes the previous comment and the following one"
 	token := scanner next.
 	self assert: token comments size equals: 1.
@@ -440,12 +440,12 @@ RBScannerTest >> testNextFirstTokenContainsPrecedingComments [
 	token := scanner next.
 	self assert: token comments size equals: 1.
 	self assert: token comments first isComment.
-	
+
 ]
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextFloatNumbersCanBeNegative [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-3.2'.
 	token := scanner next.
@@ -454,12 +454,12 @@ RBScannerTest >> testNextFloatNumbersCanBeNegative [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextFloatNumbersCanNotHaveSpaces [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '3 .2'.
 	token := scanner next.
 	self assert: token value equals: 3.
-	
+
 	scanner := self buildScannerForText: '3. 2'.
 	token := scanner next.
 	self assert: token value equals: 3.
@@ -467,7 +467,7 @@ RBScannerTest >> testNextFloatNumbersCanNotHaveSpaces [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextFloatNumbersHasFloatValue [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '3.2'.
 	token := scanner next.
@@ -498,29 +498,29 @@ RBScannerTest >> testNextIdentifierCanContainUnderscore [
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'first_Token'.
-	
+
 	scanner := self buildScannerForText: '_firstToken'.
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: '_firstToken'.
-	
+
 	scanner := self buildScannerForText: 'firstToken_'.
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'firstToken_'.
-	
+
 ]
 
 { #category : #testIdentifiers }
 RBScannerTest >> testNextIdentifierCanNotBeginWithBinary [
 	| scanner token |
-	
+
 	"Scanner doesn't recognise + as the beginning of an Identifier."
 	scanner := self buildScannerForText: '+firstToken'.
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	"Scanner separate them into 2 tokens with the second corresponding to an Identifier."
 	token := scanner next.
 	self assert: token isIdentifier.
@@ -531,29 +531,29 @@ RBScannerTest >> testNextIdentifierCanNotBeginWithBinary [
 RBScannerTest >> testNextIdentifierCanNotBeginWithDigit [
 	| scanner token |
 	scanner := self buildScannerForText: '123firstToken'.
-	
+
 	"Scanner doesn't recognise 123 as the beginning of an Identifier."
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
 	self assert: token value equals: 123.
-	
+
 	"Scanner separate them into 2 tokens with the second corresponding to an Identifier."
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testIdentifiers }
 RBScannerTest >> testNextIdentifierCanNotEndWithBinary [
 	| scanner token |
 	scanner := self buildScannerForText: 'firstToken+'.
-	
+
 	"The first token is still recognised as Identifier but the + insn't taken into account."
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'firstToken'.
-	
+
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
@@ -563,19 +563,19 @@ RBScannerTest >> testNextIdentifierCanNotEndWithBinary [
 RBScannerTest >> testNextIdentifierCanNotHaveBinary [
 	| scanner token |
 	scanner := self buildScannerForText: 'first+Token'.
-	
+
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'first'.
-	
+
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token value equals: 'Token'.
-	
+
 ]
 
 { #category : #testStart }
@@ -584,7 +584,7 @@ RBScannerTest >> testNextIdentifierStartAtFirstLetter [
 	scanner := self buildScannerForText: 'firstToken'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 ]
 
 { #category : #testStop }
@@ -593,7 +593,7 @@ RBScannerTest >> testNextIdentifierStopAtLastLetter [
 	scanner := self buildScannerForText: 'firstToken'.
 	token := scanner next.
 	self assert: token stop equals: 10.
-	
+
 ]
 
 { #category : #testIdentifiers }
@@ -602,7 +602,7 @@ RBScannerTest >> testNextIdentifierValueIsName [
 	scanner := self buildScannerForText: 'firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testStart }
@@ -611,7 +611,7 @@ RBScannerTest >> testNextKeyWordStartAtFirstLetter [
 	scanner := self buildScannerForText: 'firstToken:'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 ]
 
 { #category : #testKeyword }
@@ -621,24 +621,24 @@ RBScannerTest >> testNextKeywordBeginningWithSpecialCharacterIsNotKeyword [
 	token := scanner next.
 	self assert: token isSpecial.
 	self assert: token value equals: $^.
-	
+
 	scanner := self buildScannerForText: '$firstToken:'.
 	token := scanner next.
 	self assert: token isLiteralToken.
 	self assert: token value equals: $f.
-	
+
 	scanner := self buildScannerForText: '\firstToken:'.
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '\'.
-	
+
 	scanner := self buildScannerForText: '`firstToken:'.
 	token := scanner next.
 	self assert: token isError.
 	self assert: token value equals: '`'.
-	
-	
-	
+
+
+
 ]
 
 { #category : #testKeyword }
@@ -648,12 +648,12 @@ RBScannerTest >> testNextKeywordCanContainUnderscore [
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token value equals: 'first_Token:'.
-	
+
 	scanner := self buildScannerForText: '_firstToken:'.
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token value equals: '_firstToken:'.
-	
+
 	scanner := self buildScannerForText: '_firstToken:'.
 	token := scanner next.
 	self assert: token isKeyword.
@@ -664,66 +664,66 @@ RBScannerTest >> testNextKeywordCanContainUnderscore [
 RBScannerTest >> testNextKeywordCanNotBeFullBinary [
 	| scanner token |
 	scanner := self buildScannerForText: '+-=:'.
-	
+
 	"The scanner doesn't understand it as a keyword."
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+-='.
-	
+
 	"The colon is therefor identified as a special character as it stands alone."
 	token := scanner next.
 	self assert: token isSpecial.
 	self assert: token value equals: $:.
-	
-	
+
+
 ]
 
 { #category : #testKeyword }
 RBScannerTest >> testNextKeywordCanNotBeFullDigit [
 	| scanner token |
 	scanner := self buildScannerForText: '123:'.
-	
+
 	"The scanner doesn't understand it as a keyword."
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
 	self assert: token value equals: 123.
-	
+
 	"The colon is therefor identified as a special character as it stands alone."
 	token := scanner next.
 	self assert: token isSpecial.
 	self assert: token value equals: $:.
-	
+
 ]
 
 { #category : #testKeyword }
 RBScannerTest >> testNextKeywordCanNotBeginWithBinary [
 	| scanner token |
 	scanner := self buildScannerForText: '+alpha:'.
-	
+
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '+'.
-	
+
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token value equals: 'alpha:'.
-	
+
 ]
 
 { #category : #testKeyword }
 RBScannerTest >> testNextKeywordCanNotBeginWithDigit [
 	| scanner token |
 	scanner := self buildScannerForText: '123alpha:'.
-	
+
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
 	self assert: token value equals: 123.
-	
+
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token value equals: 'alpha:'.
-	
-	
+
+
 ]
 
 { #category : #testStop }
@@ -733,12 +733,12 @@ RBScannerTest >> testNextKeywordStopAtColon [
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token stop equals: 11.
-	
+
 	scanner := self buildScannerForText: 'first:Token'.
 	token := scanner next.
 	self assert: token isKeyword.
 	self assert: token stop equals: 6.
-	
+
 ]
 
 { #category : #testKeyword }
@@ -747,18 +747,18 @@ RBScannerTest >> testNextKeywordValueIsStartToStop [
 	scanner := self buildScannerForText: 'firstToken:'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken:'.
-	
+
 	scanner := self buildScannerForText: 'first:Token'.
 	token := scanner next.
 	self assert: token value equals: 'first:'.
-	
+
 ]
 
 { #category : #testSpecialCharacters }
 RBScannerTest >> testNextLiteralArrayHasRightValue [
 	"Note: RBScanner only spots the beginning of the array."
 	| scanner token |
-	
+
 	scanner := self buildScannerForText: '#['.
 	token := scanner next.
 	self assert: token value equals: '#['.
@@ -768,7 +768,7 @@ RBScannerTest >> testNextLiteralArrayHasRightValue [
 RBScannerTest >> testNextLiteralArrayWithBracketStartAtHashtag [
 	"Note: RBScanner only spots the beginning of the array."
 	| scanner token |
-	
+
 	scanner := self buildScannerForText: '#['.
 	token := scanner next.
 	self assert: token start equals: 1.
@@ -778,7 +778,7 @@ RBScannerTest >> testNextLiteralArrayWithBracketStartAtHashtag [
 RBScannerTest >> testNextLiteralArrayWithBracketStopAtBracket [
 	"Note: RBScanner only spots the beginning of the array."
 	| scanner token |
-	
+
 	scanner := self buildScannerForText: '#['.
 	token := scanner next.
 	self assert: token stop equals: 2.
@@ -863,7 +863,7 @@ RBScannerTest >> testNextLiteralCanBeBinary [
 { #category : #testLiteral }
 RBScannerTest >> testNextLiteralCanContainColon [
 	| scanner token |
-	
+
 	scanner := self buildScannerForText: '#al:pha'.
 	token := scanner next.
 	self assert: token isLiteralToken.
@@ -893,11 +893,11 @@ RBScannerTest >> testNextLiteralCanNotContainBinaryAndAlphabetic [
 	scanner := self buildScannerForText: '#+alpha'.
 	token := scanner next.
 	self assert: token value equals: #+.
-	
+
 	scanner := self buildScannerForText: '#al=pha'.
 	token := scanner next.
 	self assert: token value equals: #al.
-	
+
 	scanner := self buildScannerForText: '#alpha-'.
 	token := scanner next.
 	self assert: token value equals: #alpha.
@@ -909,27 +909,27 @@ RBScannerTest >> testNextLiteralCharacterCanBeAnyCharacter [
 	scanner := self buildScannerForText: '$1'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$a'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$+'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$#'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$$'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$^'.
 	token := scanner next.
 	self assert: token isLiteralToken.
-	
+
 	scanner := self buildScannerForText: '$`'.
 	token := scanner next.
 	self assert: token isLiteralToken.
@@ -941,27 +941,27 @@ RBScannerTest >> testNextLiteralCharacterHasCharacterAsValue [
 	scanner := self buildScannerForText: '$1'.
 	token := scanner next.
 	self assert: token value equals: $1.
-	
+
 	scanner := self buildScannerForText: '$a'.
 	token := scanner next.
 	self assert: token value equals: $a.
-	
+
 	scanner := self buildScannerForText: '$+'.
 	token := scanner next.
 	self assert: token value equals: $+.
-	
+
 	scanner := self buildScannerForText: '$#'.
 	token := scanner next.
 	self assert: token value equals: $#.
-	
+
 	scanner := self buildScannerForText: '$$'.
 	token := scanner next.
 	self assert: token value equals: $$.
-	
+
 	scanner := self buildScannerForText: '$`'.
 	token := scanner next.
 	self assert: token value equals: $`.
-	
+
 	scanner := self buildScannerForText: '$^'.
 	token := scanner next.
 	self assert: token value equals: $^.
@@ -1018,7 +1018,7 @@ RBScannerTest >> testNextMultipleKeywordColonIsSufficientAfterFirstKeyword [
 	token := scanner next.
 	self assert: token isMultiKeyword.
 	self assert: token value equals: 'firstToken::'.
-	
+
 	scanner := self buildScannerForText: 'firstToken::::::'.
 	token := scanner next.
 	self assert: token isMultiKeyword.
@@ -1045,7 +1045,7 @@ RBScannerTest >> testNextMultipleKeywordStopAtLastLetter [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextNegativeFloatNumbersIsNumberLiteral [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-3.2'.
 	token := scanner next.
@@ -1054,14 +1054,14 @@ RBScannerTest >> testNextNegativeFloatNumbersIsNumberLiteral [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextNegativeNumberCanNotHaveSpaces [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '- 12'.
-	
+
 	token := scanner next.
 	self assert: token isBinary.
 	self assert: token value equals: '-'.
-	
+
 	token := scanner next.
 	self assert: token isNumberLiteralToken.
 	self assert: token value equals: 12.
@@ -1069,7 +1069,7 @@ RBScannerTest >> testNextNegativeNumberCanNotHaveSpaces [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextNegativeNumberIsNumberLiteral [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-12'.
 	token := scanner next.
@@ -1087,20 +1087,20 @@ RBScannerTest >> testNextNilIsLiteral [
 
 { #category : #testStart }
 RBScannerTest >> testNextNumberLiteralStartAtTheBeginning [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-10r10'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 	scanner := self buildScannerForText: '-2r1010'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 	scanner := self buildScannerForText: '-16ra'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 	scanner := self buildScannerForText: '-8r12'.
 	token := scanner next.
 	self assert: token start equals: 1.
@@ -1108,23 +1108,23 @@ RBScannerTest >> testNextNumberLiteralStartAtTheBeginning [
 
 { #category : #testStop }
 RBScannerTest >> testNextNumberLiteralStopAtTheLastDigit [
-	
+
 	| scanner token expr |
 	expr := '-10r10'.
 	scanner := self buildScannerForText: expr.
 	token := scanner next.
 	self assert: token stop equals: expr size.
-	
+
 	expr := '-2r1010'.
 	scanner := self buildScannerForText: expr.
 	token := scanner next.
 	self assert: token stop equals: expr size.
-	
+
 	expr := '-16ra'.
 	scanner := self buildScannerForText: expr.
 	token := scanner next.
 	self assert: token stop equals: expr size.
-	
+
 	expr := '-8r12'.
 	scanner := self buildScannerForText: expr.
 	token := scanner next.
@@ -1133,20 +1133,20 @@ RBScannerTest >> testNextNumberLiteralStopAtTheLastDigit [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextRadixNumbersCanBeFloatAsWell [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '10r10.2'.
 	token := scanner next.
 	self assert: token value equals: 10.2.
-	
+
 	scanner := self buildScannerForText: '2r1010.1'.
 	token := scanner next.
 	self assert: token value equals: 10.5.
-	
+
 	scanner := self buildScannerForText: '16ra.a'.
 	token := scanner next.
 	self assert: token value equals: 10.625.
-	
+
 	scanner := self buildScannerForText: '8r12.44'.
 	token := scanner next.
 	self assert: token value equals: 10.5625.
@@ -1154,20 +1154,20 @@ RBScannerTest >> testNextRadixNumbersCanBeFloatAsWell [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextRadixNumbersCanBeNegative [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-10r10'.
 	token := scanner next.
 	self assert: token value equals: -10.
-	
+
 	scanner := self buildScannerForText: '-2r1010'.
 	token := scanner next.
 	self assert: token value equals: -10.
-	
+
 	scanner := self buildScannerForText: '-16ra'.
 	token := scanner next.
 	self assert: token value equals: -10.
-	
+
 	scanner := self buildScannerForText: '-8r12'.
 	token := scanner next.
 	self assert: token value equals: -10.
@@ -1176,12 +1176,12 @@ RBScannerTest >> testNextRadixNumbersCanBeNegative [
 { #category : #testSeparators }
 RBScannerTest >> testNextSecondTokenDoesNotConsumePrecedingComment [
 	| scanner token |
-	scanner := self buildScannerForText: 
-	'firstToken 
+	scanner := self buildScannerForText:
+	'firstToken
    "inbetween comment" secondToken
 	"second inbetween" "multiple comments"'.
 	"Expecting all spaces and line breaks to be trimmed."
-	
+
 	"The first token 'firstToken' takes the previous comment and the following one"
 	token := scanner next.
 	"The next token 'secondToken' takes the following 2 comments."
@@ -1196,16 +1196,16 @@ RBScannerTest >> testNextSpecialCharacterStartAtTheBeginning [
 	scanner := self buildScannerForText: '(]'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 	scanner := self buildScannerForText: '^('.
 	token := scanner next.
 	token := scanner next.
 	self assert: token start equals: 2.
-	
+
 	scanner := self buildScannerForText: ']'.
 	token := scanner next.
 	self assert: token start equals: 1.
-	
+
 ]
 
 { #category : #testStop }
@@ -1214,16 +1214,16 @@ RBScannerTest >> testNextSpecialCharacterStopAtThemself [
 	scanner := self buildScannerForText: '(]'.
 	token := scanner next.
 	self assert: token stop equals: 1.
-	
+
 	scanner := self buildScannerForText: '^('.
 	token := scanner next.
 	token := scanner next.
 	self assert: token stop equals: 2.
-	
+
 	scanner := self buildScannerForText: ']'.
 	token := scanner next.
 	self assert: token stop equals: 1.
-	
+
 ]
 
 { #category : #testSpecialCharacters }
@@ -1240,15 +1240,15 @@ RBScannerTest >> testNextSpecialCharactereisSingle [
 	scanner := self buildScannerForText: '(]'.
 	token := scanner next.
 	self assert: token value equals: $(.
-	
+
 	scanner := self buildScannerForText: '^('.
 	token := scanner next.
 	self assert: token value equals: $^.
-	
+
 	scanner := self buildScannerForText: ']'.
 	token := scanner next.
 	self assert: token value equals: $].
-	
+
 ]
 
 { #category : #testSpecialCharacters }
@@ -1257,15 +1257,15 @@ RBScannerTest >> testNextSpecialCharactereisSpecial [
 	scanner := self buildScannerForText: '('.
 	token := scanner next.
 	self assert: token isSpecial.
-	
+
 	scanner := self buildScannerForText: '^'.
 	token := scanner next.
 	self assert: token isSpecial.
-	
+
 	scanner := self buildScannerForText: ']'.
 	token := scanner next.
 	self assert: token isSpecial.
-	
+
 ]
 
 { #category : #testLiteral }
@@ -1309,7 +1309,7 @@ RBScannerTest >> testNextTokenStartAfterComment [
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
 	self assert: token start equals: 16.
-	
+
 ]
 
 { #category : #testStart }
@@ -1321,7 +1321,7 @@ firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
 	self assert: token start equals: 2.
-	
+
 ]
 
 { #category : #testStart }
@@ -1332,7 +1332,7 @@ RBScannerTest >> testNextTokenStartAfterSpaces [
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
 	self assert: token start equals: 3.
-	
+
 ]
 
 { #category : #testStart }
@@ -1343,7 +1343,7 @@ RBScannerTest >> testNextTokenStartAfterTab [
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
 	self assert: token start equals: 2.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1352,7 +1352,7 @@ RBScannerTest >> testNextTrimsBeginningComment [
 	scanner := self buildScannerForText: '"start comment"firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1362,7 +1362,7 @@ RBScannerTest >> testNextTrimsBeginningLineBreak [
 firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1371,7 +1371,7 @@ RBScannerTest >> testNextTrimsBeginningSpaces [
 	scanner := self buildScannerForText: String space, String space, 'firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1380,7 +1380,7 @@ RBScannerTest >> testNextTrimsBeginningTab [
 	scanner := self buildScannerForText: String tab, 'firstToken'.
 	token := scanner next.
 	self assert: token value equals: 'firstToken'.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1391,7 +1391,7 @@ RBScannerTest >> testNextTrimsEndComment [
 	token := scanner next.
 	self assert: token isEOF.
 	self assert: token start equals: 24.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1403,7 +1403,7 @@ RBScannerTest >> testNextTrimsEndLineBreak [
 	token := scanner next.
 	self assert: token isEOF.
 	self assert: token start equals: 12.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1414,7 +1414,7 @@ RBScannerTest >> testNextTrimsEndSpaces [
 	token := scanner next.
 	self assert: token isEOF.
 	self assert: token start equals: 13.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1425,7 +1425,7 @@ RBScannerTest >> testNextTrimsEndTab [
 	token := scanner next.
 	self assert: token isEOF.
 	self assert: token start equals: 12.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1436,7 +1436,7 @@ RBScannerTest >> testNextTrimsMiddleComment [
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token start equals: 27.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1448,7 +1448,7 @@ secondToken'.
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token start equals: 12.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1459,7 +1459,7 @@ RBScannerTest >> testNextTrimsMiddleSpaces [
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token start equals: 13.
-	
+
 ]
 
 { #category : #testSeparators }
@@ -1470,7 +1470,7 @@ RBScannerTest >> testNextTrimsMiddleTab [
 	token := scanner next.
 	self assert: token isIdentifier.
 	self assert: token start equals: 12.
-	
+
 ]
 
 { #category : #testLiteral }
@@ -1514,12 +1514,12 @@ RBScannerTest >> testNextUnknownCharacterThrowsError [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextValueOfNegativeNumbers [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '-12'.
 	token := scanner next.
 	self assert: token value equals: -12.
-	
+
 	scanner := self buildScannerForText: '-3'.
 	token := scanner next.
 	self assert: token value equals: -3.
@@ -1527,20 +1527,20 @@ RBScannerTest >> testNextValueOfNegativeNumbers [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextValueOfRadixNumbersCutsWhenValueIsImpossible [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '10r1a'.
 	token := scanner next.
 	self assert: token value equals: 1.
-	
+
 	scanner := self buildScannerForText: '2r10210'.
 	token := scanner next.
 	self assert: token value equals: 2.
-	
+
 	scanner := self buildScannerForText: '16r3g'.
 	token := scanner next.
 	self assert: token value equals: 3.
-	
+
 	scanner := self buildScannerForText: '8r192'.
 	token := scanner next.
 	self assert: token value equals: 1.
@@ -1548,20 +1548,20 @@ RBScannerTest >> testNextValueOfRadixNumbersCutsWhenValueIsImpossible [
 
 { #category : #testNumberLiteral }
 RBScannerTest >> testNextValueOfRadixNumbersIsConvertedToDecimal [
-	
+
 	| scanner token |
 	scanner := self buildScannerForText: '10r10'.
 	token := scanner next.
 	self assert: token value equals: 10.
-	
+
 	scanner := self buildScannerForText: '2r1010'.
 	token := scanner next.
 	self assert: token value equals: 10.
-	
+
 	scanner := self buildScannerForText: '16ra'.
 	token := scanner next.
 	self assert: token value equals: 10.
-	
+
 	scanner := self buildScannerForText: '8r12'.
 	token := scanner next.
 	self assert: token value equals: 10.
@@ -1578,7 +1578,7 @@ RBScannerTest >> testNextWithAWrongSymbolGetError [
 
 { #category : #tests }
 RBScannerTest >> testNextWithAnIdentifierTokenGetTheIdentifierToken [
-	| source scanner token |	
+	| source scanner token |
 	source := 'identifierToken'.
 	scanner := self buildScannerForText: source.
 	token := scanner next.
@@ -1588,14 +1588,14 @@ RBScannerTest >> testNextWithAnIdentifierTokenGetTheIdentifierToken [
 
 { #category : #tests }
 RBScannerTest >> testNextWithAnOpeningCommentAtEndGetError [
-	| source |	
+	| source |
 	source := 'self "'.
 	self should: [(self buildScannerForText: source) next] raise: SyntaxErrorNotification
 ]
 
 { #category : #tests }
 RBScannerTest >> testNextWithAnOpeningCommentGetError [
-	| source |	
+	| source |
 	source := '"only the opening'.
 	self should: [(self buildScannerForText: source) next] raise: SyntaxErrorNotification
 ]
@@ -1610,8 +1610,8 @@ RBScannerTest >> testNextWithAnOpeningStringsGetError [
 
 { #category : #tests }
 RBScannerTest >> testNextWithAnUnknownCharacterGetError [
-	| source scanner scannedToken |	
-	source := '¿'.
+	| source scanner scannedToken |
+	source := String with: (Character value: 16rc2).
 	scanner := self buildScannerForText: source.
 	scannedToken := scanner next.
 	self verifyErrorToken: scannedToken message: 'Unknown character' translated valueExpected: source
@@ -1641,7 +1641,7 @@ RBScannerTest >> testNextWithUnFinishedCommentGivesAnError [
 	| scanner |
 	scanner := self buildScannerForText: 'firstToken "unfinished comment secondToken'.
 	self should: [scanner next] raise: SyntaxErrorNotification .
-	
+
 ]
 
 { #category : #'tests - creation api' }
@@ -1652,7 +1652,7 @@ RBScannerTest >> testScanTokenObjects1 [
 	'subclass:'.
 	#NameOfSubclass asString}.
 	self assert: ((self scannerClass scanTokenObjects: inp) collect: [ :each | each value ]) equals: exp.
-	
+
 ]
 
 { #category : #'tests - creation api' }
@@ -1672,7 +1672,7 @@ RBScannerTest >> testScanTokens1 [
 	'subclass:'.
 	#NameOfSubclass asString}.
 	self assert: (self scannerClass scanTokens: inp) equals: exp.
-	
+
 ]
 
 { #category : #'tests - creation api' }
