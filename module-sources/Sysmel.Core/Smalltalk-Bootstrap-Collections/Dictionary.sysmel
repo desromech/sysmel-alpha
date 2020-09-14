@@ -194,6 +194,11 @@ Dictionary definition: {
 
     method errorKeyNotFound: aKey
         := KeyNotFound signalFor: aKey.
+
+    method postCopy := {
+        array := (array collect: {:association | association ifNotNil: association copy}) reinterpretCastTo: Array.
+        self.
+    }.
 }.
 
 }. ## End of namespace Smalltalk

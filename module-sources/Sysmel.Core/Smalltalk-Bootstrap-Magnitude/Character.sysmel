@@ -104,6 +104,11 @@ Character extend: {
         writer << self __decodeCharacter.
 		self
     }.
+
+	method copy := self.
+	method deepCopy := self.
+	method shallowCopy := self.
+	method clone := self.
 }.
 
 }. ## End of namespace Smalltalk

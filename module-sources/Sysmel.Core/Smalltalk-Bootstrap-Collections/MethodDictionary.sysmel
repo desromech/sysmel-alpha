@@ -60,6 +60,12 @@ MethodDictionary definition: {
 
         self.
     }.
+
+    method postCopy := {
+        array := array copy reinterpretCastTo: Array.
+        values := values copy reinterpretCastTo: Array.
+        self.
+    }.
 }.
 
 }. ## End of namespace Smalltalk

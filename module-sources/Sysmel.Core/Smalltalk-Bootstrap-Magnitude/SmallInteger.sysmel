@@ -434,7 +434,7 @@ SmallInteger extend: {
 
 	method printOn: aStream base: base length: minimum padded: zeroFlag := {
 		2 <= base && base <= 36 ifFalse: {self error: 'Bad base for printing.'}.
-		
+
 		let integerPrinter mutable type: Stdn BasicValueIntegerPrinter.
 		integerPrinter nextPutInteger: self __decodeSmallInteger base: (base castTo: UInt64).
 		integerPrinter printOn: aStream.
@@ -471,6 +471,11 @@ SmallInteger extend: {
 
 		m abs
 	}.
+
+	method copy := self.
+	method deepCopy := self.
+	method shallowCopy := self.
+	method clone := self.
 }.
 
 }. ## End of namespace Smalltalk

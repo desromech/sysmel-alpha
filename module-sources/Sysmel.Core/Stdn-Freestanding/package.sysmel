@@ -6,6 +6,7 @@ Compiler loadPackages: #(
 
 if: Compiler compilationTarget isGPU not then: {
 	loadFileOnce: "ImmutableString.sysmel".
+	loadFileOnce: "Char.sysmel".
 	loadFileOnce: "string.sysmel".
 
 	loadFileOnce: "BasicValuePrinter.sysmel".

@@ -6,6 +6,11 @@ UndefinedObject definition: {
 
     method printOn: aStream
         := aStream nextPutAll: "nil".
+
+    method copy := self.
+	method deepCopy := self.
+	method shallowCopy := self.
+	method clone := self.
 }.
 
 }. ## End of namespace Smalltalk

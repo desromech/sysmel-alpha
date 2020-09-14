@@ -77,6 +77,18 @@ Object definition: {
 
     method primitiveFailed
         := PrimitiveFailed signal.
+
+    method copy
+        := self shallowCopy postCopy.
+
+    method postCopy
+        := self.
+
+    method clone
+        := self class makeCopyOfInstance: self.
+
+    method shallowCopy
+        := self class makeCopyOfInstance: self.
 }.
 
 }. ## End of namespace Smalltalk

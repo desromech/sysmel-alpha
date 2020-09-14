@@ -71,6 +71,36 @@ class NativeCollector definition: {
         return: allocatedObject
     }.
 
+    method allocate: (objectSize: UIntPointer)
+        variableDataSize: (variableDataSize: UIntPointer)
+        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
+        copyingFrom: (originalObject: Void pointer) copyConstructor: (copyConstructor: Stdn Reflection CopyConstructorFunctionPointerType)
+          ::=> Stdn Reflection GCObjectHeader pointer := {
+        <nogc>
+
+        ## Allocate the object memory.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        copyConstructor ifNil: {
+            LibC memcpy(allocatedObject, originalObject, objectSize).
+            Stdn assert: allocatedObject _ __variableDataSize = variableDataSize.
+
+            allocatedObject _
+                __gcColor: whiteColor.
+        } ifNotNil: {
+            LibC memset(allocatedObject, 0, objectSize).
+
+            allocatedObject _
+                __variableDataSize: (variableDataSize castTo: UInt32);
+                __gcColor: whiteColor.
+
+            ## Perform the basic initialization and then invoke the copy constructor.
+            basicInitializer _ (allocatedObject).
+            copyConstructor(allocatedObject, originalObject).
+        }.
+
+        return: allocatedObject
+    }.
+
     method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
 		copyingFromPrototype: (prototype: Void pointer)
 		  ::=> Stdn Reflection GCObjectHeader pointer := {

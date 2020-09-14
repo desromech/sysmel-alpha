@@ -161,11 +161,22 @@ Collection definition: {
 		true
 	}.
 
+	method fillFrom: aCollection with: aBlock := {
+		aCollection do: {:each :: Void |
+			self add: (aBlock value: each).
+		}.
+
+		self
+	}.
+
 	method includes: anElement
 		:= self anySatisfy: {:each | each = anElement}.
 
 	method collect: aBlock as: aClass
 		:= (aClass new: self size) fillFrom: self with: aBlock.
+
+	method collect: aBlock into: aCollection
+		:= aCollection fillFrom: self with: aBlock.
 
 	method associationsDo: aBlock
 		:= self do: aBlock.

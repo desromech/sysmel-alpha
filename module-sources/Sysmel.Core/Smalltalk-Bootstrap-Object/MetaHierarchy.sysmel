@@ -307,6 +307,22 @@ Behavior definition: {
         return: (allocatedObject reinterpretCastTo: ProtoObject)
     }.
 
+	method makeCopyOfInstance: (instance: ProtoObject) ::=> ProtoObject := {
+		## Compute the object size.
+		let variableDataSize := instance __private __variableDataSize.
+		let objectSize := instanceDataSize + variableDataSize*variableInstanceElementSize.
+
+		## Allocate the object memory.
+        let allocatedObject := Stdn GC NativeCollector uniqueInstance
+            allocate: objectSize
+            variableDataSize: variableDataSize
+            initializingWith: basicInitializationFunctionPointer
+			copyingFrom: (instance reinterpretCastTo: Void pointer) copyConstructor: copyConstructorFunctionPointer.
+
+        ## Convert the allocated object.
+        return: (allocatedObject reinterpretCastTo: ProtoObject)
+	}.
+
 	method new => _DependentInstanceType
 		:= self basicNew initialize; yourself.
 

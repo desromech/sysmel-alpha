@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+Char8 | Char16 | Char32 extend: {
+	inline method isDigit => Boolean8
+		:= '0' <= self && self <= '9'.
+
+	inline method isLetter => Boolean8
+		:= 'A' <= self && self <= 'Z' ||
+		 'a' <= self && self <= 'z'.
+
+	inline method isAlphaNumeric => Boolean8
+		:= self isDigit || self isLetter.
+
+	inline method isSpecial => Boolean8
+		:= self selectCase: #{
+			('+', '-', '/', '\\', '*', '~', '<', '>', '=', '@', ',', '%', '|', '&', '?', '!', '^',)
+				asValueInSetPattern : true.
+		_ : false.
+		}.
+}.
+
+}.

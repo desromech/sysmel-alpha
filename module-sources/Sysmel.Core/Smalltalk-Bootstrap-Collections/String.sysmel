@@ -183,6 +183,43 @@ String definition: {
 
 	method translated
 		:= self.
+
+	method numArgs := {
+		let size := __data size.
+		size = 0 ifTrue: {return: -1}.
+
+		let firstChar := __data[0].
+		firstChar = '_' || firstChar isLetter ifTrue: {
+			let colonCount mutable := 0u.
+			let isPreviousAColon mutable := false.
+			0 until: __data size do: {:i :: Void |
+				let each := __data[i].
+				(each = ':') ifTrue: {
+					isPreviousAColon ifTrue: {return: -1}.
+					colonCount := colonCount + 1u.
+					isPreviousAColon := true.
+				} ifFalse: {
+					each isAlphaNumeric || each = '_' ifFalse: {return: -1}.
+					isPreviousAColon := false.
+				}
+			}.
+
+			colonCount > 0 ifTrue: {
+				__data[size - 1] = ':'
+					ifTrue: { return: colonCount }
+					ifFalse: { return: -1 }
+			}.
+
+			return: 0
+		}.
+
+		## Make sure this is a binary selector.
+		0 until: __data size do: {:i :: Void |
+			let each := __data[i].
+			each isSpecial ifFalse: {return: -1}
+		}.
+		1
+	}.
 }.
 
 ProtoObject extend: {

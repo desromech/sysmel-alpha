@@ -70,6 +70,11 @@ Boolean definition: {
 
     method storeOn: aStream
         := self printOn: aStream.
+
+    method copy := self.
+	method deepCopy := self.
+	method shallowCopy := self.
+	method clone := self.
 }.
 
 }. ## End of namespace Smalltalk

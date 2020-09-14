@@ -5,8 +5,10 @@ namespace Smalltalk definition: {
  * Most of this implementation is copied from Pharo.
  *#
 gcclass WeakOrderedCollection superclass: OrderedCollection; definition: {
-    method allocateStorageArrayWithCapacity: (newCapacity: UIntPointer) ::=> Array
-        := WeakArray new: newCapacity
+    meta definition: {
+        method allocateStorageArrayWithCapacity: (newCapacity: UIntPointer) ::=> Array
+            := WeakArray new: newCapacity    
+    }.
 }.
 
 }.

@@ -14,13 +14,16 @@ OrderedCollection definition: {
             := self new: 10.
 
         method new: (initialCapacity: UIntPointer)
-            := self basicNew setCollection: (Array new: initialCapacity).
+            := self basicNew setCollection: (self allocateStorageArrayWithCapacity: initialCapacity).
 
         method newFrom: aCollection := {
             let result := self new: (aCollection size castTo: UIntPointer).
             result addAll: aCollection.
             result
         }.
+
+        method allocateStorageArrayWithCapacity: (newCapacity: UIntPointer) ::=> Array
+            := Array basicNew: newCapacity.
     }.
 
     method asOrderedCollection
@@ -43,10 +46,22 @@ OrderedCollection definition: {
         array at: elementIndex
     }.
 
+    method at: (index: UIntPointer) put: anElement := {
+        index < 1 ifTrue: {self errorSubscriptBounds: index}.
+        let elementIndex := index + firstIndex - 1.
+        elementIndex > lastIndex ifTrue: { self errorSubscriptBounds: index}.
+        array at: elementIndex put: anElement
+    }.
+
     method setCollection: (theArray: Array) := {
         array := theArray.
         self reset.
         self
+    }.
+
+    method removeAll := {
+        self setCollection: (self allocateStorageArrayWithCapacity: array basicSize).
+        self.
     }.
 
     method reset
@@ -93,8 +108,13 @@ OrderedCollection definition: {
         self
     }.
 
+    method postCopy := {
+        array := array copy reinterpretCastTo: Array.
+        self
+    }.
+
     method allocateStorageArrayWithCapacity: (newCapacity: UIntPointer) ::=> Array
-        := Array basicNew: newCapacity
+        := (self class allocateStorageArrayWithCapacity: newCapacity) reinterpretCastTo: Array.
 }.
 
 }.

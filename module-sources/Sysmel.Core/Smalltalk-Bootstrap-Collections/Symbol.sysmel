@@ -123,6 +123,9 @@ compileTime if: Compiler compilationTarget areSymbolsEqualsToString then: {
         aStream nextPut: '#'.
         super storeOn: aStream
     }.
+
+    method shallowCopy
+        := self.
 }.
 
 }. ## End of namespace Smalltalk
