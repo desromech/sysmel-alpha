@@ -126,6 +126,17 @@ compileTime if: Compiler compilationTarget areSymbolsEqualsToString then: {
 
     method shallowCopy
         := self.
+
+    method precedence := {
+        __data size = 0 ifTrue: {return: 0}.
+        let firstChar := __data[0].
+        firstChar isLetter || firstChar = '_' ifFalse: {return: 2}.
+        __data[__data size - 1] = ':' ifTrue: {return: 3}.
+        1
+    }.
+
+    method isBinary
+        := self precedence = 2.
 }.
 
 }. ## End of namespace Smalltalk

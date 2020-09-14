@@ -23,6 +23,9 @@ Object definition: {
     method isLiteral
         := false.
 
+    method isBlock
+        := false.
+
     method literalEqual: other
         := self class == other class && self = other.
 

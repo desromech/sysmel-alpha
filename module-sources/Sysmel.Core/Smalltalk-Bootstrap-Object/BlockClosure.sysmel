@@ -1,6 +1,9 @@
 namespace Smalltalk definition: {
 
 BlockClosure definition: {
+    method isBlock
+        := true.
+
     method repeat := {
         while: true do: self value
     }.

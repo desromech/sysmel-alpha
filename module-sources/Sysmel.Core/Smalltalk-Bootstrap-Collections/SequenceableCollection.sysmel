@@ -241,6 +241,26 @@ SequenceableCollection definition: {
 		exceptionBlock value
 	}.
 
+	method lastIndexOf: anElement
+		:= self lastIndexOf: anElement ifAbsent: 0.
+
+	method lastIndexOf: anElement ifAbsent: exceptionBlock
+		:= self lastIndexOf: anElement startingAt: 1 ifAbsent: exceptionBlock.
+
+	method lastIndexOf: anElement startingAt: start
+	 	:= self lastIndexOf: anElement startingAt: start ifAbsent: 0.
+
+	method lastIndexOf: anElement startingAt: start ifAbsent: exceptionBlock := {
+		let size := (self size castTo: UIntPointer).
+		(start castTo: UIntPointer) to: size do: {:index :: Void |
+			(self at: size - index + 1u) = anElement ifTrue: {
+				return: index
+			}
+		}.
+
+		exceptionBlock value
+	}.
+
 	method writeStream
 		:= WriteStream on: self.
 

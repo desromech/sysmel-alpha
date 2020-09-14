@@ -4,14 +4,6 @@ Compiler importModulesNamed: #(
 ).
 
 Stdn MainEntryPoint: {:args :: Int32 |
-    Stdn stdout << (Smalltalk Integer readFrom: "123s could be confused with a ScaledDecimal" asProtoObject readStream); nl.
-    Stdn stdout << (Smalltalk Integer readFrom: "123.s could be confused with a ScaledDecimal" asProtoObject readStream); nl.
-    Stdn stdout << (Smalltalk Integer readFrom: "123sA has unary message sA" asProtoObject readStream); nl.
-    Stdn stdout << (Smalltalk Integer readFrom: "123sB has unary message sB" asProtoObject readStream); nl.
-
-    Stdn stdout << (Smalltalk NumberParser parse: "123s could be confused with a ScaledDecimal" asProtoObject readStream); nl.
-    Stdn stdout << (Smalltalk NumberParser parse: "123.s could be confused with a ScaledDecimal" asProtoObject readStream); nl.
-
     1 until: args size do: {:i :: Void |
         Stdn stdout << "Expression: " << args[i] asSmalltalkString; nl.
 
@@ -30,14 +22,12 @@ Stdn MainEntryPoint: {:args :: Int32 |
             Stdn stdout << "Error during parsing: " << e; nl.
         }.
 
-        #*try:
+        try:
         {
             Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
         } catch: Smalltalk Error doing: {:e :: Void |
             Stdn stdout << "Error during parsing: " << e; nl.
-        }.*#
-
-        Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
+        }.
     }.
 
     return: 0.
