@@ -7,6 +7,20 @@ gcclass SmalltalkImage superclass: Object; definition: {
         method uniqueInstance
             := uniqueInstance ifNil: {uniqueInstance := self new}.
     }.
+
+    field vm.
+
+    method initialize := {
+        super initialize.
+        vm := VirtualMachine new.
+        self
+    }.
+
+    method vm
+        := vm.
+
+    method wordSize
+        := UIntPointer instanceSize.
 }.
 
 global Smalltalk mutable type: ProtoObject.

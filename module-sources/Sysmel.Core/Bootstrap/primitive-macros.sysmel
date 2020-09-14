@@ -1,14 +1,14 @@
 namespace SysmelKernel definition: {
     ## ifTrue:ifFalse
     (_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction :=
-        ``(if: `,self then: `,trueAction).
+        ``(if: `,self then: `,trueAction __macroInlineBlock).
     (_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction :=
-        ``(if: `,self not then: `,falseAction).
+        ``(if: `,self not then: `,falseAction __macroInlineBlock).
 
     (_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction ifFalse: falseAction :=
-        ``(if: `,self then: `,trueAction else: `,falseAction).
+        ``(if: `,self then: `,trueAction __macroInlineBlock else: `,falseAction __macroInlineBlock).
     (_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction ifTrue: trueAction :=
-        ``(if: `,self then: `,trueAction else: `,falseAction).
+        ``(if: `,self then: `,trueAction __macroInlineBlock else: `,falseAction __macroInlineBlock).
 
     ## isNil
     (_PointerType | _AbstractBlockClosureType) macro method isNil := ``(`,self == nil).
@@ -16,7 +16,7 @@ namespace SysmelKernel definition: {
 
     ## ifNil:ifNotNil
     (_PointerType | _AbstractBlockClosureType) macro method ifNil: nilAction :=
-        ``(if: `,self == nil then: `,nilAction).
+        ``(if: `,self == nil then: `,nilAction __macroInlineBlock).
     (_PointerType | _AbstractBlockClosureType) macro method ifNotNil: notNilAction := {
         let pointer := __astBuilder gensym: #pointer.
         ``{
@@ -29,7 +29,7 @@ namespace SysmelKernel definition: {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.
-            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: `,nilAction
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: `,nilAction __macroInlineBlock
         } asSequenceWithoutLexicalScope
     }.
 
@@ -37,7 +37,7 @@ namespace SysmelKernel definition: {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.
-            if: `,pointer == nil then: `,nilAction else: (`,notNilAction __macroInlineBlock: `,pointer)
+            if: `,pointer == nil then: `,nilAction __macroInlineBlock else: (`,notNilAction __macroInlineBlock: `,pointer)
         } asSequenceWithoutLexicalScope
     }.
 

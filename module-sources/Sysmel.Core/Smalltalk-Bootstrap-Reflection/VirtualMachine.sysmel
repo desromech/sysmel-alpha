@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+gcclass VirtualMachine superclass: Object; definition: {
+    method wordSize
+        := UIntPointer instanceSize.
+}.
+
+}. ## End of namespace Smalltalk

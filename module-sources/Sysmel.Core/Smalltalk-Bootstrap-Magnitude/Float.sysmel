@@ -125,6 +125,13 @@ Float extend: {
 
     method round: numberOfWishedDecimal
         := (self asFraction round: numberOfWishedDecimal) asFloat.
+
+
+    method hash := {
+        self isFinite && self fractionPart = 0.0 ifTrue: {return: self truncated hash }.
+        self __decodeSmallOrBoxedFloat hash & ObjectModel SmallIntegerMaxValue
+    }.
+
 }.
 
 }. ## End of namespace Smalltalk

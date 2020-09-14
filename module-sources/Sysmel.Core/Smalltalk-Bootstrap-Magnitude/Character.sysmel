@@ -28,7 +28,11 @@ Character extend: {
 			anInteger __isSmallInteger ifFalse: {
 				self error: "Expected a small integer"
 			}.
-			anInteger __decodeSmallInteger castTo: Char32
+			let decoded := anInteger __decodeSmallInteger.
+			decoded < 0 ifTrue: {
+				self error: "Cannot create character with negative code point.".
+			}.
+			decoded castTo: Char32
 		}.
 
 		method new

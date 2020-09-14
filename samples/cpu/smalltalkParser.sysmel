@@ -6,7 +6,28 @@ Compiler importModulesNamed: #(
 Stdn MainEntryPoint: {:args :: Int32 |
     1 until: args size do: {:i :: Void |
         Stdn stdout << "Expression: " << args[i] asSmalltalkString; nl.
-        Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
+
+        try:
+        {
+            Stdn stdout << "First token "<< (Smalltalk RBScanner on: (Smalltalk ReadStream on: args[i] asSmalltalkString)) next; nl.
+        } catch: Smalltalk Error doing: {:e :: Void |
+            Stdn stdout << "Error during scanning: " << e; nl.
+        }.
+
+        try:
+        {
+            ##Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
+            Stdn stdout << "Literals "<< (Smalltalk RBParser parseLiterals: args[i] asSmalltalkString); nl.
+        } catch: Smalltalk Error doing: {:e :: Void |
+            Stdn stdout << "Error during parsing: " << e; nl.
+        }.
+
+        try:
+        {
+            Stdn stdout << "AST "<< (Smalltalk RBParser parseExpression: args[i] asSmalltalkString); nl.
+        } catch: Smalltalk Error doing: {:e :: Void |
+            Stdn stdout << "Error during parsing: " << e; nl.
+        }.
     }.
 
     return: 0.

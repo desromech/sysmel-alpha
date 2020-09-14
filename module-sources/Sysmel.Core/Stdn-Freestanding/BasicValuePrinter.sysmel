@@ -1,9 +1,11 @@
 namespace Stdn definition: {
 
 class BasicValuePrinter definition: {
-    compileTime constant bufferCapacity := 256.
+    compileTime constant BufferCapacity := 513 #* Sign + 64 bits *#.
+    compileTime constant bufferCapacity := BufferCapacity.
+
     public field bufferSize type: UIntPointer.
-    public field buffer type: (Char8 array: bufferCapacity).
+    public field buffer type: (Char8 array: BufferCapacity).
 
     method nextPut: (c: Int32) ::=> Void := {
         bufferSize < bufferCapacity ifTrue:{

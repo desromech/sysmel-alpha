@@ -20,6 +20,21 @@ gcclass TestAsserter definition: {
         self.
     }.
 
+    method should: aBlock raise: anException description: description := {
+        let caught mutable := false.
+        try: {
+            aBlock value
+        } catch: anException doing: {:e :: Void |
+            caught := true
+        }.
+
+        caught ifFalse: {
+            AssertionFailure signal: description
+        }.
+
+        self.
+    }.
+
     method shouldnt: aBlock raise: anException := {
         let caught mutable := false.
         try: {
@@ -101,6 +116,8 @@ gcclass TestAsserter definition: {
         self
     }.
 
+    method defaultTestError
+        := Error.
 }.
 
 }. ## End of namespace Smalltalk

@@ -2,6 +2,11 @@ namespace Smalltalk definition: {
 
 LargePositiveInteger definition: {
 	method strictlyPositive := true.
+	method negative := false.
+	method positive := true.
+	method abs := self.
+	method sign := 1.
+	method signBit := 0.
 }.
 
 }. ## End of namespace Smalltalk

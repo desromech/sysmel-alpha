@@ -59,6 +59,9 @@ Boolean definition: {
     method not
         := self subclassResponsibility.
 
+    method ==> aBlock
+        := self not || aBlock value.
+
     method asBit
         := self subclassResponsibility.
 

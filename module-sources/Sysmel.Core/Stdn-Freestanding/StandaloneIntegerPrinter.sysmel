@@ -30,28 +30,11 @@ class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
 
     ## Integer formatting.
     method nextPutInteger: (value: Int64) ::=> Void := {
-        ## Extract the digits, in reverse order.
-        let currentValue mutable := value < 0 ifTrue: -value ifFalse: value.
-        let digitCount mutable := 0.
-        let buffer mutable type: (UInt8 array: 32).
-
-        do: {
-            let digit := '0' + currentValue % 10.
-            buffer[digitCount] := digit castTo: UInt8.
-
-            digitCount := digitCount + 1.
-            currentValue := currentValue / 10
-        } while: (currentValue ~= 0).
-
-        ## Put the sign.
-        if: value < 0 then: {
-            self nextPut: '-'
-        }.
-
-        ## Print the digits in the correct order
-        while: (digitCount > 0) do: {
-            digitCount := digitCount - 1.
-            self nextPut: buffer[digitCount]
+        value < 0 ifTrue: {
+            self nextPut: '-'.
+            self nextPutUnsignedInteger: (value negated castTo: UInt64).
+        } ifFalse: {
+            self nextPutUnsignedInteger: (value castTo: UInt64).
         }.
     }.
 
@@ -68,6 +51,43 @@ class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
             digitCount := digitCount + 1.
 
             currentValue := currentValue / 10
+        } while: (currentValue ~= 0).
+
+        ## Print the digits in the correct order
+        while: (digitCount > 0) do: {
+            digitCount := digitCount - 1.
+            self nextPut: buffer[digitCount]
+        }.
+    }.
+
+    method nextPutInteger: (value: Int64) base: (base: UInt64) ::=> Void := {
+        value < 0 ifTrue: {
+            self nextPut: '-'.
+            self nextPutUnsignedInteger: (value negated castTo: UIntPointer) base: base
+        } ifFalse: {
+            self nextPutUnsignedInteger: (value castTo: UIntPointer) base: base
+        }
+    }.
+
+    method nextPutUnsignedInteger: (value: UInt64) base: (base: UInt64) ::=> Void := {
+        Stdn assert: 2 <= base && base <= 36.
+
+        base = 10 ifTrue: {
+            return: (self nextPutUnsignedInteger: value)
+        }.
+
+        let alphabet := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+
+        ## Extract the digits, in reverse order.
+        let currentValue mutable := value.
+        let digitCount mutable := 0.
+        let buffer mutable type: (Char8 array: BufferCapacity).
+
+        do: {
+            buffer[digitCount] := alphabet[currentValue % base].
+            digitCount := digitCount + 1.
+
+            currentValue := currentValue / base
         } while: (currentValue ~= 0).
 
         ## Print the digits in the correct order

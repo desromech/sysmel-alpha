@@ -76,6 +76,9 @@ Collection definition: {
 	method isNotEmpty
 		:= self isEmpty not.
 
+	method notEmpty
+		:= self isEmpty not.
+
 	method isEmptyOrNil
 		:= self size == 0.
 
@@ -194,7 +197,7 @@ Collection definition: {
 		self do: {:each :: Void | nextValue := binaryBlock value: nextValue value: each}.
 		nextValue
 	}.
-	
+
 	method printNameOn: aStream
         := super printOn: aStream.
 

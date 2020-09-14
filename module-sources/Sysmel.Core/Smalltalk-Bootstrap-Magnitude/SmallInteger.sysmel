@@ -12,7 +12,7 @@ SmallInteger extend: {
 			:= ObjectModel SmallIntegerMaxValue.
 
 		method minVal
-			:= ObjectModel SmallIntegerMaxValue.
+			:= ObjectModel SmallIntegerMinValue.
 	}.
 
 	method asInt32 => Int32
@@ -74,6 +74,9 @@ SmallInteger extend: {
 
 		(selfValue castTo: Float64) sqrt floor castTo: IntPointer.
 	}.
+
+	method hash
+		:= self.
 
 	method = aNumber := {
 		aNumber __isSmallInteger ifTrue: {
@@ -423,20 +426,31 @@ SmallInteger extend: {
         let integerPrinter mutable type: Stdn BasicValueIntegerPrinter.
         integerPrinter nextPutInteger: self __decodeSmallInteger.
         integerPrinter printOn: aStream.
-
         self
     }.
+
+	method printOn: aStream base: base
+        := self printOn: aStream base: base length: 0 padded: false.
+
+	method printOn: aStream base: base length: minimum padded: zeroFlag := {
+		2 <= base && base <= 36 ifFalse: {self error: 'Bad base for printing.'}.
+		
+		let integerPrinter mutable type: Stdn BasicValueIntegerPrinter.
+		integerPrinter nextPutInteger: self __decodeSmallInteger base: (base castTo: UInt64).
+		integerPrinter printOn: aStream.
+		self
+	}.
 
     method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
         writer << self __decodeSmallInteger.
 		self
     }.
 
-	method byteAt: (index: UIntPointer) := {
+	method byteAt: (index: UIntPointer) ::=> UInt8 := {
 		let s := self __decodeSmallInteger.
 		((s < 0
 			ifTrue: { s negated castTo: UIntPointer }
-			ifFalse: { s castTo: UIntPointer }) >> ((index - 1u) * 8u)) & 16rFFu
+			ifFalse: { s castTo: UIntPointer }) >> ((index - 1u) * 8u)) castTo: UInt8
 	}.
 
 	method byteAt: (index: UIntPointer) put: (value: UInt8)
@@ -446,6 +460,16 @@ SmallInteger extend: {
 		let s mutable := self __decodeSmallInteger.
 		s < 0 ifTrue: {s := s negated}.
 		((s castTo: UIntPointer) highBit + 7u) / 8u max: 1u
+	}.
+
+	method gcd: aNumber := {
+		let n mutable := self asProtoObject.
+		let m mutable := aNumber.
+		until: n = 0 do: {
+			n := m \\ (m := n)
+		}.
+
+		m abs
 	}.
 }.
 

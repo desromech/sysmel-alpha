@@ -23,7 +23,7 @@ Number extend: {
 
     method round: numberOfWishedDecimal
         := self subclassResponsibility.
-    
+
     method exp := self asFloat exp.
 	method exp2 := self asFloat exp2.
 	method ln := self asFloat ln.
@@ -46,6 +46,9 @@ Number extend: {
 		self > 0 ifTrue: {return: 1}.
 		return: 0
 	}.
+
+    method signBit
+        := self < 0 ifTrue: {return: 1} ifFalse: {return: 0}.
 
     method + aNumber
         := self subclassResponsibility.
@@ -167,11 +170,26 @@ Number extend: {
     method quo: aNumber
         := (self / aNumber) truncated.
 
+    method rem: aNumber
+        := self - ((self quo: aNumber) * aNumber).
+
     method reciprocal
         := 1 / self.
 
+    method printOn: strm base: base
+        := self subclassResponsibility.
+
+    method printStringBase: base
+        := String streamContents: {:strm :: Void | self printOn: strm base: base}.
+
     method storeOn: aStream
         := self printOn: aStream.
+
+    method storeOn: aStream base: base
+        := self subclassResponsibility.
+
+    method storeStringBase: base
+        := String streamContents: {:strm :: Void | self storeOn: strm base: base}.
 }.
 
 Stdn BasicValuePrinter extend: {

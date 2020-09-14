@@ -9,22 +9,21 @@ LargeInteger definition: {
 	method isLarge
 		:= true.
 
-	method byteAt: (index: UIntPointer) := {
-		index < __data size
-			ifTrue: { __data[index] }
-			ifFalse: { 0 }
+	method byteAt: (index: UIntPointer) ::=> UInt8 := {
+		(0 < index && index <= __data size
+			ifTrue: { __data[index - 1u] }
+			ifFalse: { 0 }) castTo: UInt8
 	}.
 
     method byteAt: (index: UIntPointer) put: (value: UInt8) := {
-		index < __data size ifTrue: {
-			__data[index] := value
+		0 < index && index <= __data size ifTrue: {
+			__data[index - 1u] := value
 		}.
 		value
 	}.
 
     method bytesCount => UIntPointer
         := __data size.
-
 }.
 
 }. ## End of namespace Smalltalk
