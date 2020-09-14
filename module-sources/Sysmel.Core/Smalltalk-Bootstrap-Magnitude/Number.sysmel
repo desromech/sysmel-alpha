@@ -11,6 +11,9 @@ Number extend: {
     method isNaN := false.
     method asNumber := self.
 
+    method asScaledDecimal: scale
+        := ScaledDecimal newFromNumber: self scale: scale.
+
 	method floor := self asFloat floor.
 	method ceiling := self asFloat ceiling.
 	method truncated := self asFloat truncated.
@@ -18,6 +21,9 @@ Number extend: {
 	method fract := self asFloat fract.
 	method fractionPart := self asFloat fractionPart.
 
+    method round: numberOfWishedDecimal
+        := self subclassResponsibility.
+    
     method exp := self asFloat exp.
 	method exp2 := self asFloat exp2.
 	method ln := self asFloat ln.

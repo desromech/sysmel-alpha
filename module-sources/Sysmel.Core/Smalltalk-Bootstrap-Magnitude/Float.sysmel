@@ -102,6 +102,7 @@ Float extend: {
 
     method isFloat := true.
     method asFloat := self.
+
     method isLiteral := self isFinite.
 
     method reciprocal
@@ -118,6 +119,12 @@ Float extend: {
 
     method isZero
         := self = 0.0.
+
+    method asFraction
+        := self asTrueFraction.
+
+    method round: numberOfWishedDecimal
+        := (self asFraction round: numberOfWishedDecimal) asFloat.
 }.
 
 }. ## End of namespace Smalltalk

@@ -140,7 +140,7 @@ Collection definition: {
 	method asIdentitySet
 		:= (Set new: self size) addAll: self.
 
-	method anySatify: aPredicate := {
+	method anySatisfy: aPredicate := {
 		self do: {:each :: Void |
 			(aPredicate value: each) ifTrue: {
 				return: true
@@ -149,7 +149,7 @@ Collection definition: {
 		false
 	}.
 
-	method allSatify: aPredicate := {
+	method allSatisfy: aPredicate := {
 		self do: {:each :: Void |
 			(aPredicate value: each) ifFalse: {
 				return: false
@@ -159,7 +159,7 @@ Collection definition: {
 	}.
 
 	method includes: anElement
-		:= self anySatify: {:each | each = anElement}.
+		:= self anySatisfy: {:each | each = anElement}.
 
 	method collect: aBlock as: aClass
 		:= (aClass new: self size) fillFrom: self with: aBlock.
@@ -189,6 +189,12 @@ Collection definition: {
 	method detect: aBlock
 		:= self detect: aBlock ifNone: {| self errorNotFound: aBlock}.
 
+	method inject: thisValue into: binaryBlock := {
+		let nextValue mutable := thisValue.
+		self do: {:each :: Void | nextValue := binaryBlock value: nextValue value: each}.
+		nextValue
+	}.
+	
 	method printNameOn: aStream
         := super printOn: aStream.
 

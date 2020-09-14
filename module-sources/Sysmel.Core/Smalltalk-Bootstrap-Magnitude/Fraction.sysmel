@@ -5,15 +5,12 @@ Fraction extend: {
 	field denominator.
 
     method isFraction := true.
+	method asFraction := self.
 
 	meta definition: {
 		method numerator: newNumerator denominator: newDenominator
 			:= self new setNumerator: newNumerator denominator: newDenominator; yourself.
 	}.
-
-    method + aNumber := {
-        super + aNumber
-    }.
 
 	method setNumerator: newNumerator denominator: newDenominator := {
 		newDenominator = 0 ifTrue: {return: (ZeroDivide dividend: newNumerator) signal}.
@@ -27,9 +24,31 @@ Fraction extend: {
 		self
 	}.
 
+	method negated
+		:= Fraction numerator: numerator negated denominator: denominator.
+
+	method negative
+		:= numerator < 0.
+
+	method numerator
+		:= numerator.
+
+	method denominator
+		:= denominator.
+
 	method reciprocal := {
 		numerator abs = 1 ifTrue: {return: numerator * denominator}.
 		self class numerator: denominator denominator: numerator
+	}.
+
+	method reduced := {
+		numerator = 0 ifTrue: {return: 0}.
+
+		let gcd := numerator gdc: denominator.
+		let n := numerator // gcd.
+		let d := denominator // gcd.
+		d = 1 ifTrue: {return: n}.
+		Fraction numerator: n denominator: d
 	}.
 }.
 

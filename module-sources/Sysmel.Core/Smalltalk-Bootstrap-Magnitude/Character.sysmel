@@ -30,6 +30,9 @@ Character extend: {
 			}.
 			anInteger __decodeSmallInteger castTo: Char32
 		}.
+
+		method new
+			:= self error: "Cannot create new characters".
 	}.
 
 	method isLiteral

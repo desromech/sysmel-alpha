@@ -35,9 +35,12 @@ gcclass TestAsserter definition: {
         self.
     }.
 
+    method should: aBlock
+        := self assert: aBlock value.
+
     method assertEmpty: aCollection := {
         aCollection isEmpty ifFalse: {
-            AssertionFailure signal: aCollection asString -- ' should be empty.'
+            AssertionFailure signal: aCollection asString -- " should be empty."
         }.
         self.
     }.
@@ -52,7 +55,7 @@ gcclass TestAsserter definition: {
 
     method assert: condition description: description := {
         condition ifFalse: {
-            AssertionFailure signal.
+            AssertionFailure signal: description.
         }.
 
         self
@@ -61,6 +64,14 @@ gcclass TestAsserter definition: {
     method deny: condition := {
         condition ifTrue: {
             AssertionFailure signal: "Unexpected condition.".
+        }.
+
+        self
+    }.
+
+    method deny: condition description: description := {
+        condition ifTrue: {
+            AssertionFailure signal: description.
         }.
 
         self

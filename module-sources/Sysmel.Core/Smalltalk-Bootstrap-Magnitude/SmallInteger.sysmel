@@ -45,6 +45,23 @@ SmallInteger extend: {
 	method isLarge
 		:= false.
 
+	method highBit := {
+		let decoded := self __decodeSmallInteger.
+		decoded < 0 ifTrue: {
+			self error: "highBit is not defined for negative integers"
+		}.
+
+		decoded highBit.
+	}.
+
+	method highBitOfMagnitude
+        := self __decodeSmallInteger abs highBit.
+
+	method lowBit := {
+		let decoded := self __decodeSmallInteger.
+		decoded = 0 ifTrue: {0} ifFalse: {decoded lowBit}
+	}.
+
 	method sqrt := {
 		let selfValue := self __decodeSmallInteger.
 		selfValue <= 0 ifTrue: {

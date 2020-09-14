@@ -72,6 +72,53 @@ String definition: {
 		return: (super endsWith: suffix)
 	}.
 
+	method findString: substring
+		:= self findString: substring startingAt: 1.
+
+	method findString: substring startingAt: start
+		:= self findCaseSensitiveString: substring startingAt: start.
+
+	method findCaseSensitiveString: substring startingAt: start := {
+		let startIndex := start castTo: IntPointer.
+		startIndex < 1 ifTrue: {self errorSubscriptBounds: start}.
+
+		substring class == String || substring class == Symbol ifTrue: {
+			let castedSubstring := substring reinterpretCastTo: String.
+			let substringSize := castedSubstring __private __data size.
+			let substringData := castedSubstring __private __data[0] address.
+			(startIndex castTo: UIntPointer) to: __data size do: {:i :: Void |
+				let remainingSize := __data size - startIndex.
+				remainingSize < substringSize ifTrue: {
+					return: 0
+				}.
+
+				Stdn memcmp(__data[i - 1] address, substringData, substringSize) == 0 ifTrue: {
+					return: i
+				}.
+			}.
+		} ifFalse: {
+			let substringSize := substring size castTo: UIntPointer.
+			(startIndex castTo: UIntPointer) to: __data size do: {:i :: Void |
+				let remainingSize := __data size - (i - 1).
+				remainingSize < substringSize ifTrue: {
+					return: 0
+				}.
+
+				let j mutable type: UIntPointer := 1.
+				let keepMatching mutable := false.
+				while: j <= substringSize && keepMatching do: {
+					keepMatching := (__data at: i + j - 1u) == (substring at: j).
+				} continueWith: {j := j + 1u}.
+
+				keepMatching ifTrue: {
+					return: i
+				}
+			}.
+		}.
+
+		0
+	}.
+
     method hash := self stringHash.
     method = other := self stringEquals: other.
 
