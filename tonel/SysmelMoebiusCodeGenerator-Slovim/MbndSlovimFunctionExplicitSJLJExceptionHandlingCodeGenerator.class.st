@@ -121,15 +121,15 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateCatchedE
 		yourself.
 	allCleanUpScopes add: catchExceptionScope.
 
-	self slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
-		| caughtExceptionReference |
+	^ self slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
+		| caughtExceptionReference catchResult |
 		caughtExceptionReference := self generateExceptionCatchBeginFor: catchExceptionScope parent.
 		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
 			functionCodeGenerator setVariable: (self slvmBuilder bitCast: caughtExceptionReference target: (self translateType: refNode type))
 				forNode: refNode.
 		].
 	
-		self withExceptionScope: catchExceptionScope do: [ 
+		catchResult := self withExceptionScope: catchExceptionScope do: [ 
 			self visitNode: scopeCatchedExceptionAction node catchAction.
 		].
 	
@@ -152,6 +152,8 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateCatchedE
 		self slvmBuilder isLastTerminator ifFalse: [
 			self slvmBuilder jump: catchExceptionScope parent normalCleanUpBlock.
 		].
+	
+		{ catchResult . self slvmBuilder currentBlock }
 	].
 
 ]
@@ -178,7 +180,7 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptio
 { #category : #'code generation' }
 MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptionScopeNode: node [
 
-	| cleanUpScope result tryEnterBlock exceptionContextType tryBodyEnd |
+	| cleanUpScope result tryEnterBlock exceptionContextType tryBodyEnd resultPhi |
 	exceptionContextType := self compilationTarget exceptionContextType.
 	cleanUpScope := MbndSlovimExceptionScope new
 		parent: currentCleanUpScope;
@@ -221,10 +223,21 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptio
 	result := self generateExceptionScopeNodeContent: node onCleanUpScope: cleanUpScope.
 
 	tryBodyEnd := self slvmBuilder currentBlock.
+	
+	(node type isVoidType not and: [cleanUpScope catchedExceptions isNotEmpty]) ifTrue: [
+		resultPhi := SLVMPhi type: result type.
+		resultPhi addValue: result from: self slvmBuilder currentBlock.
+	] ifFalse: [
+		resultPhi := nil
+	].
 
 	self withExceptionScope: cleanUpScope do: [
 		cleanUpScope catchedExceptions do: [ :each |
-			self generateCatchedExceptionAction: each
+			| catchedResultAndIncomingBlock |
+			catchedResultAndIncomingBlock := self generateCatchedExceptionAction: each.
+			(resultPhi isNotNil and: [each node catchAction type isVoidType not]) ifTrue: [
+				resultPhi addValue: catchedResultAndIncomingBlock first from: catchedResultAndIncomingBlock second
+			].
 		].
 	].
 	
@@ -242,7 +255,11 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptio
 		^ result
 	].
 
-	self generateExceptionScopeNormalCleanup: cleanUpScope.
+	resultPhi ifNotNil: [ 
+		result := resultPhi.
+	].
+
+	self generateExceptionScopeNormalCleanup: cleanUpScope resultPhi: resultPhi.
 	self generateExceptionScopeUnwindNonLocalReturn: cleanUpScope.
 	self generateExceptionScopeUnwindCleanup: cleanUpScope.
 	self generateExceptionTrySetupAt: tryEnterBlock for: cleanUpScope.
@@ -250,17 +267,18 @@ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptio
 ]
 
 { #category : #'code generation' }
-MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptionScopeNormalCleanup: exceptionScope [
+MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator >> generateExceptionScopeNormalCleanup: exceptionScope resultPhi: resultPhi [
 	self slvmBuilder isLastTerminator ifFalse: [
 		self endExceptionScope: exceptionScope.
 	].
 
-	(exceptionScope normalCleanUpBlock predecessors isNotEmpty) ifTrue: [ 
+	(resultPhi isNotNil or: [exceptionScope normalCleanUpBlock predecessors isNotEmpty]) ifTrue: [ 
 		self slvmBuilder isLastTerminator ifFalse: [
 			self slvmBuilder jump: exceptionScope normalCleanUpBlock.
 		].
 
 		self slvmBuilder currentBlock: exceptionScope normalCleanUpBlock.
+		resultPhi ifNotNil: [ self slvmBuilder currentBlock add: resultPhi ]
 	] ifFalse: [
 		"A separate normal clean up block is not needed here."
 		exceptionScope normalCleanUpBlock removeFromFunction.

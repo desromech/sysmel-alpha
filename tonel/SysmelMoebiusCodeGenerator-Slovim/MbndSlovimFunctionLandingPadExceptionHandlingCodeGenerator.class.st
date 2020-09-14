@@ -53,15 +53,15 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCatchedExc
 	catchExceptionScope normalCleanUpBlock unwindBlock: currentCleanUpScope parent unwindBlock.
 	allCleanUpScopes add: catchExceptionScope.
 
-	self slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
-		| caughtExceptionReference |
+	^ self slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
+		| caughtExceptionReference catchedResult |
 		caughtExceptionReference := self generateExceptionCatchBeginFor: scopeCatchedExceptionAction.
 		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
 			functionCodeGenerator setVariable: (self slvmBuilder bitCast: caughtExceptionReference target: (self translateType: refNode type))
 				forNode: refNode.
 		].
 	
-		self withExceptionScope: catchExceptionScope do: [ 
+		catchedResult := self withExceptionScope: catchExceptionScope do: [ 
 			self visitNode: scopeCatchedExceptionAction node catchAction.
 		].
 		self generateCleanUpAtScopeEnd: catchExceptionScope.
@@ -69,12 +69,18 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCatchedExc
 		self slvmBuilder isLastTerminator ifFalse: [ 
 			self slvmBuilder jump: catchExceptionScope parent normalCleanUpBlock.
 		].
+		{ catchedResult . self slvmBuilder currentBlock }
 	].
 
 ]
 
 { #category : #'code generation' }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCleanUpAtScopeEnd: cleanUpScope [
+	self generateCleanUpAtScopeEnd: cleanUpScope resultPhi: nil
+]
+
+{ #category : #'code generation' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCleanUpAtScopeEnd: cleanUpScope resultPhi: resultPhi [
 	| normalCleanUpBlock |
 	normalCleanUpBlock := cleanUpScope normalCleanUpBlock.
 	(normalCleanUpBlock predecessors isNotEmpty or:
@@ -84,7 +90,10 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCleanUpAtS
 		self slvmBuilder isLastTerminator ifFalse: [ 
 			self slvmBuilder jump: normalCleanUpBlock.
 		].
-		self slvmBuilder currentBlock: normalCleanUpBlock.			
+		self slvmBuilder currentBlock: normalCleanUpBlock.
+		resultPhi ifNotNil: [
+			self slvmBuilder currentBlock add: resultPhi
+		].
 	] ifFalse: [ 
 		normalCleanUpBlock removeFromFunction.
 		cleanUpScope normalCleanUpBlock: nil.
@@ -106,7 +115,7 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionC
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionScopeNode: node [
-	| cleanUpScope result |
+	| cleanUpScope result resultPhi |
 	cleanUpScope := MbndSlovimExceptionScope new
 		parent: currentCleanUpScope;
 		compilationTarget: self compilationTarget.
@@ -151,14 +160,25 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionS
 	
 	result := self generateExceptionScopeNodeContent: node onCleanUpScope: cleanUpScope.
 
+	(node type isVoidType not and: [cleanUpScope catchedExceptions isNotEmpty]) ifTrue: [
+		resultPhi := SLVMPhi type: result type.
+		resultPhi addValue: result from: self slvmBuilder currentBlock.
+	] ifFalse: [
+		resultPhi := nil
+	].
+	
 	self withExceptionScope: cleanUpScope do: [
 		cleanUpScope catchedExceptions do: [ :each |
-			self generateCatchedExceptionAction: each
+			| catchedResultAndIncomingBlock |
+			catchedResultAndIncomingBlock := self generateCatchedExceptionAction: each.
+			(resultPhi isNotNil and: [each node catchAction type isVoidType not]) ifTrue: [
+				resultPhi addValue: catchedResultAndIncomingBlock first from: catchedResultAndIncomingBlock second
+			].
 		].
 	].
 
-	self generateCleanUpAtScopeEnd: cleanUpScope.	
-	^ result
+	self generateCleanUpAtScopeEnd: cleanUpScope resultPhi: resultPhi.	
+	^ resultPhi ifNil: [result]
 
 ]
 

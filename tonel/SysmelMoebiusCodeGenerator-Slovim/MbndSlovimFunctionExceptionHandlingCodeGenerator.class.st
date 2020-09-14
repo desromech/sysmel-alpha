@@ -125,7 +125,7 @@ MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateExceptionScopeNodeCo
 			] ifAbsent: [
 				node type hasTrivialFinalization ifFalse: [
 					self assert: node type isMemoryReturnedType.
-					resultTemporary := self  slvmBuilder allocaBuilder alloca: (self translateType: node type).
+					resultTemporary := self slvmBuilder allocaBuilder alloca: (self translateType: node type).
 					functionCodeGenerator generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
 				].
 			].

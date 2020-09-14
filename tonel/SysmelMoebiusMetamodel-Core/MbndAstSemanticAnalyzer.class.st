@@ -1293,7 +1293,6 @@ MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
 		].
 	].
 
-	self flag: 'TODO: Allow returning my result value'.
 	result type: self compilationTarget voidType.
 	^ result
 ]
@@ -1312,9 +1311,34 @@ MbndAstSemanticAnalyzer >> visitExceptionScopeNode: node [
 			expression: analyzedContent;
 			catchExpressions: (self analyzeNodesIfNeeded: result catchExpressions);
 			type: analyzedContent type.
-		result catchExpressions ifNotEmpty: [ 
-			self flag: 'TODO: Compute a proper coercion type for the catch case.'.
-			result type: self compilationTarget voidType
+		result catchExpressions ifNotEmpty: [
+			| coercionType previousNode |
+			coercionType := analyzedContent type.
+			previousNode := analyzedContent type.
+			result catchExpressions do: [ :each |
+				coercionType := self
+					conditionalResultCoercionTypeFor: coercionType node: previousNode
+					with: each catchAction type node: each catchAction
+					at: result.
+				previousNode := each
+			].
+		
+			self assert: coercionType isNotNil.
+			coercionType hasTrivialCopyAssignment ifFalse: [
+				coercionType := self compilationTarget voidType
+			].
+		
+			coercionType isVoidType ifFalse: [
+				result catchExpressions do: [ :each |
+					each catchAction: (self addImplicitCastFor: each catchAction to: coercionType)
+				].
+			
+				result
+					expression: (self addImplicitCastFor: result expression to: coercionType)
+			].
+		
+			result
+				type: coercionType.
 		].
 	].
 	result
