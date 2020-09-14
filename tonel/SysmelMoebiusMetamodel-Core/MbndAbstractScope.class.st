@@ -40,6 +40,11 @@ MbndAbstractScope >> compilationTarget [
 	^ parent compilationTarget
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractScope >> currentLanguageHasImplicitDynamicObjectBlockEvaluation [
+	^ parent ifNil: [ false ] ifNotNil: [ parent currentLanguageHasImplicitDynamicObjectBlockEvaluation ]
+]
+
 { #category : #accessing }
 MbndAbstractScope >> defaultArgumentType [
 	^ parent ifNotNil: [ parent defaultArgumentType ]

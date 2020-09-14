@@ -44,6 +44,11 @@ MbndFunctionCapturedVariable >> isFunctionCapturedVariable [
 	^ true
 ]
 
+{ #category : #testing }
+MbndFunctionCapturedVariable >> isFunctionSuperReceiverReference [
+	^ upperContextVariable isFunctionSuperReceiverReference
+]
+
 { #category : #accessing }
 MbndFunctionCapturedVariable >> type [
 	^ upperContextVariable type

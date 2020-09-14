@@ -67,6 +67,11 @@ MbndBlockClosureMethod >> capturedVariables [
 	^ capturedVariables
 ]
 
+{ #category : #testing }
+MbndBlockClosureMethod >> classBindingLiteral [
+	^ parent classBindingLiteral
+]
+
 { #category : #accessing }
 MbndBlockClosureMethod >> closureKind [
 	^ closureKind
@@ -320,6 +325,18 @@ MbndBlockClosureMethod >> materializeWithGraphDecoder: graphDecoder withFields: 
 MbndBlockClosureMethod >> needsGarbageCollection [
 	needsGarbageCollection ifNil: [ self computeGarbageCollectionNeed ].
 	^ needsGarbageCollection
+]
+
+{ #category : #testing }
+MbndBlockClosureMethod >> requiresCompiledMethodMetadata [
+	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
+	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
+	^ closureKind = #gc
+]
+
+{ #category : #testing }
+MbndBlockClosureMethod >> selectorRequiredLiteral [
+	^ nil
 ]
 
 { #category : #initialization }

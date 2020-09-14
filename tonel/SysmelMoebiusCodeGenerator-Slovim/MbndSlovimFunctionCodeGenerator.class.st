@@ -124,12 +124,12 @@ MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definit
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
-	"concreteMethod requiresCompiledMethodMetadata ifTrue: [
+	concreteMethod requiresCompiledMethodMetadata ifTrue: [
 		ssaFunction
 			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
 			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
 			hasSelectorAndClassBinding: true
-	]."
+	].
 
 	self cleanUpStructuredControlFlow.
 	ssaFunction validate.

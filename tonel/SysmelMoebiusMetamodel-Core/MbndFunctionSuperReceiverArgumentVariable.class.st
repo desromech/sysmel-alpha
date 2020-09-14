@@ -32,6 +32,11 @@ MbndFunctionSuperReceiverArgumentVariable >> isFunctionSuperReceiverArgumentVari
 	^ true
 ]
 
+{ #category : #testing }
+MbndFunctionSuperReceiverArgumentVariable >> isFunctionSuperReceiverReference [
+	^ true
+]
+
 { #category : #accessing }
 MbndFunctionSuperReceiverArgumentVariable >> vanillaReceiverVariable [
 	^ vanillaReceiverVariable

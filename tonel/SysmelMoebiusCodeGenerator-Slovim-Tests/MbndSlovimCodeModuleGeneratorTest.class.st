@@ -2743,6 +2743,74 @@ function callWithGCBlockClosure externC(v: ProtoObject) => ProtoObject
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosureSuper [
+	| function closure |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+gcclass WithSuperClosure definition: { 
+	method calledWithGCBlockClosure: (f: (Void => ProtoObject) gcBlockClosure) ::=> ProtoObject.
+
+	method callWithGCBlockClosure: (v: ProtoObject) ::=> ProtoObject
+		:= self calledWithGCBlockClosure: ({ :: ProtoObject | super computeSomeValue }).
+}.
+';
+		generateSSAModule.
+
+	
+	function := ssaModule globalNamed: #'_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.EPNS0_EPNS_11ProtoObjectEPNS3_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.EPNS0_EPNS_11ProtoObjectEPNS3_E' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
+	arguments (
+		(self (pointer (struct 'gcclass.TestModule::WithSuperClosure') gc) ())
+		(v (pointer (struct 'gcclass.TestModule::ProtoObject') gc) ())
+	)
+	literals (
+		(dynobject 'calledWithGCBlockClosure:|(() => ProtoObject) gcBlockClosure::ProtoObject')
+		(dynobject callWithGCBlockClosure:)
+		(dynobject (literalVariable WithSuperClosure))
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Object') gc) () ((local 0 self)))
+			(nil instantiateClosure (pointer (closure gc (function cdecl () false (pointer (struct 'gcclass.TestModule::ProtoObject') gc)) ((pointer (struct 'gcclass.TestModule::Object') gc))) gc) () ((global nil '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.9__lambda0E') (local 6 nil)))
+			(nil bitcast (pointer (struct nil generic ((struct 'gcclass.TestModule::BlockClosureHeaderClass') (pointer (function cdecl ((pointer (struct 'gcclass.TestModule::ProtoObject') gc)) false (pointer (struct 'gcclass.TestModule::ProtoObject') gc)) generic)) (vtable functionPointer) ()) gc) () ((local 7 nil)))
+			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 self) (local 0 nil) (local 8 nil)))
+			(nil return void () ((local 9 nil)))
+		)
+	)
+	).
+	
+	closure := function basicBlocks second allInstructions second definition.
+	self assert: closure dynamicLiterals size >= 3.
+	self assert: closure asFullSExpressionForTesting equals: #(
+closure '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.9__lambda0E' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
+	arguments (
+	)
+	literals (
+		(dynobject computeSomeValue)
+		(dynobject nil)
+		(dynobject (literalVariable WithSuperClosure))
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::Symbol') gc) () ((local 0 nil)))
+			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 6 nil)))
+			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) (superSend) ((local 5 nil) (local 7 nil)))
+			(nil return void () ((local 8 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosure [
 	| function |
 	self

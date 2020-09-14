@@ -45,17 +45,16 @@ MbndAstQuasiQuoteEvaluator >> visitExpandedMessageSendNode: node [
 
 { #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
-	| basicExpansion blockNode bodyNode activationAttempt |
+	| basicExpansion blockNode activationAttempt |
 	basicExpansion := super visitMacroExpansionInlineBlockNode: node.
 	blockNode := basicExpansion blockNode.
-	bodyNode := blockNode.
 	blockNode isBlockClosureNode ifTrue: [
 		node argumentNodes size < blockNode arguments size ifTrue: [ 
 			self error: 'Insufficient number of arguments for inline block expansion. Only {1} arguments are provided.' format: { node argumentNodes size asString } at: node
 		].
 	
 		"This is a block that we must expand."
-		bodyNode := MbndAstImmediateBlockClosureActivationNode new
+		activationAttempt := MbndAstImmediateBlockClosureActivationNode new
 			position: node;
 			blockNode: blockNode;
 			arguments: (basicExpansion argumentNodes first: blockNode arguments size);
@@ -63,9 +62,11 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 	].
 
 	"Allow applying unary selectors."
-	(node argumentNodes size = 1 and: [blockNode isLiteralSymbolValueNode]) ifTrue: [
+	(activationAttempt isNil and: [
+	node argumentNodes size = 1 and: [
+	blockNode isLiteralSymbolValueNode]]) ifTrue: [
 		blockNode value numArgs = 0 ifTrue: [
-			bodyNode := MbndAstUnexpandedMessageSendNode new
+			activationAttempt := MbndAstUnexpandedMessageSendNode new
 				position: node;
 				selector: blockNode;
 				receiver: (self visitNode: node argumentNodes first);
@@ -73,12 +74,15 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 		].
 	].
 
-	"The node is not a block, ignore the arguments."	
-	activationAttempt := MbndAstBlockClosureActivationAttemptNode new
-		position: basicExpansion;
-		blockNode: bodyNode;
-		arguments: basicExpansion argumentNodes;
-		yourself.
+	"The node is not a block, ignore the arguments."
+	activationAttempt ifNil:[
+		activationAttempt := MbndAstBlockClosureActivationAttemptNode new
+			position: basicExpansion;
+			blockNode: blockNode;
+			arguments: basicExpansion argumentNodes;
+			yourself.
+	].
+
 	basicExpansion ensureNode ifNotNil: [:ensureNode |
 		^ MbndAstExceptionScopeNode new 
 			position: node;

@@ -881,6 +881,19 @@ MbndAstSemanticAnalyzer >> visitBlockClosureActivationAttemptNode: node [
 					position: node
 		)
 	].
+
+	(blockNodeType isGarbageCollectedType and: [
+	blockNodeType == self compilationTarget dynamicObjectType and: [
+		scope currentLanguageHasImplicitDynamicObjectBlockEvaluation
+	]]) ifTrue: [
+		| selector |
+		selector := #(value cull: cull:cull: cull:cull:cull: cull:cull:cull:cull:) at: node arguments size + 1.
+		
+		^ self visitNode: (
+		(self astBuilder unexpandedSend: ((self astBuilder literalSymbol: selector) position: node; yourself) to: blockNode withArguments: node arguments)
+			position: node
+		)
+	].
 	
 	^ blockNode
 ]

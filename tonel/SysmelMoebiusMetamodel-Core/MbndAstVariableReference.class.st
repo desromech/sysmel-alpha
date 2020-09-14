@@ -11,7 +11,7 @@ MbndAstVariableReference >> accept: aVisitor [
 
 { #category : #testing }
 MbndAstVariableReference >> isSuperReference [
-	^ binding isFunctionSuperReceiverArgumentVariable
+	^ binding isFunctionSuperReceiverReference
 ]
 
 { #category : #testing }

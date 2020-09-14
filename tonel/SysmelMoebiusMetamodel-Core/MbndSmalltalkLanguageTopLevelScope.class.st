@@ -23,3 +23,8 @@ MbndSmalltalkLanguageTopLevelScope >> addTopLevelSymbols [
 		at: #true put: (MbndValue value: true type: compilationTarget literalBooleanTrueType);
 		at: #false put: (MbndValue value: false type: compilationTarget literalBooleanFalseType).
 ]
+
+{ #category : #'as yet unclassified' }
+MbndSmalltalkLanguageTopLevelScope >> currentLanguageHasImplicitDynamicObjectBlockEvaluation [
+	^ true
+]

@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -220,6 +221,11 @@ TMbndAbstractProgramEntity >> isFunctionReceiverArgumentVariable [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isFunctionSuperReceiverArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionSuperReceiverReference [
 	^ false
 ]
 
