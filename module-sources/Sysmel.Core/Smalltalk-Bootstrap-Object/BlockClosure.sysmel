@@ -63,6 +63,10 @@ BlockClosure definition: {
         } finally: {aBlock value}
     }.
 
+    method assert := {
+        self value ifFalse: {AssertionFailure signal: 'Assertion failure'}.
+        self
+    }.
 }.
 
 }. ## End of namespace Smalltalk

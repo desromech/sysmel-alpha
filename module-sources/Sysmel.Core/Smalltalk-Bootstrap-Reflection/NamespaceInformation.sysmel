@@ -74,6 +74,9 @@ NamespaceInformation definition: {
 
         return: result asArray
     }.
+
+    method bindingOf: name
+        := self associationAt: name asSymbol ifAbsent: {| nil}.
 }.
 
 }. ## End of namespace Smalltalk

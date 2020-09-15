@@ -24,6 +24,11 @@ gcclass SystemEnvironment definition: {
 
     method at: aSymbol ifAbsent: absentBlock
         := sharedNamespace at: aSymbol ifAbsent: absentBlock.
+
+    method lookupVar: name := {
+        name isString ifFalse: {return: nil}.
+        sharedNamespace bindingOf: name
+    }.
 }.
 
 }. ## End of namespace Smalltalk

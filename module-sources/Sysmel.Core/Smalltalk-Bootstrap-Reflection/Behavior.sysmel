@@ -104,6 +104,12 @@ Behavior definition: {
 
 	method allSlots
 		:= #().
+
+	method innerBindingOf: aSymbol
+		:= nil.
+
+	method bindingOf: aSymbol
+		:= self superclass bindingOf: aSymbol.
 }.
 
 }. ## End of namespace Smalltalk

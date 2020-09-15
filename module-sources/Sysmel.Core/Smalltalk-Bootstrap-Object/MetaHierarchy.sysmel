@@ -150,11 +150,17 @@ ProtoObject definition: {
     ## Variable data size
     field __variableDataSize private type: UInt32.
 
-	method initialize
-		:= self. ## By default do nothing.
+	method initialize := {
+		<trivial>
+		## By default do nothing.
+		self.
+	}.
 
-	method finalize
-		:= self. ## By default do nothing.
+	method finalize := {
+		<trivial>
+		## By default do nothing.
+		self.
+	}.
 
 	method basicSize => UIntPointer := {
 		self __isImmediateValue ifTrue: {self primitiveFailed}.

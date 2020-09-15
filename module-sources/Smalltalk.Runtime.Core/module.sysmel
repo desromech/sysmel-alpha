@@ -4,6 +4,7 @@ Compiler loadPackages: #(
     #"Collections-Sequenceable"
     #"Collections-Unordered"
     #"Collections-Stack"
+    #"Collections-Support"
     Colors
     #"Random-Core"
     #"Multilingual-Encodings"
