@@ -29,6 +29,16 @@ OrderedCollection definition: {
     method asOrderedCollection
         := self.
 
+    method with: otherCollection collect: aBlock := {
+		otherCollection size = self size ifFalse: {self errorSizeMismatch}.
+		let result := self species new: self size.
+		1 to: self size do: {:i :: Void |
+			result addLast:
+				(aBlock value: (self at: i) value: (otherCollection at: i))
+		}.
+		result
+	}.
+
     method add: newObject
         := self addLast: newObject.
 

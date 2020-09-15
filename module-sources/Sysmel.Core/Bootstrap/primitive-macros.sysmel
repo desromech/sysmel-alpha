@@ -123,7 +123,7 @@ namespace SysmelKernel definition: {
             let `,stopValue type: `,indexType := `,stopAnalyzedNode.
             let `,incrementValue type: `,indexType := `,increment.
 
-            while: (`,index <= `,stopValue) do: {
+            while: (`,incrementValue > 0 ifTrue: `,index <= `,stopValue ifFalse: `,index >= `,stopValue) do: {
                 `,aBlock  __macroInlineBlock: `,index
             } continueWith: (`,index := `,index + `,incrementValue)
         }
@@ -151,7 +151,7 @@ namespace SysmelKernel definition: {
             let `,stopValue type: `,indexType := `,stopAnalyzedNode.
             let `,incrementValue type: `,indexType := `,increment.
 
-            while: (`,index < `,stopValue) do: {
+            while: (`,incrementValue > 0 ifTrue: `,index < `,stopValue ifFalse: `,index > `,stopValue) do: {
                 `,aBlock  __macroInlineBlock: `,index
             } continueWith: (`,index := `,index + `,incrementValue)
         }
@@ -160,4 +160,19 @@ namespace SysmelKernel definition: {
     _NumberType macro method until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
 
     Boolean8 macro method asBit := ``(`,self castTo: UInt8).
+
+    _AbstractBlockClosureType macro method repeat := ``(while: true do: `,self __macroInlineBlock).
+    _AbstractBlockClosureType macro method doWhileFalse: conditionBlock := ``(do: `,self __macroInlineBlock while: `,conditionBlock __macroInlineBlock == false).
+    _AbstractBlockClosureType macro method doWhileTrue: conditionBlock := ``(do: `,self __macroInlineBlock while: `,conditionBlock __macroInlineBlock == true).
+
+    _AbstractBlockClosureType macro method whileTrue := ``(while: `,self __macroInlineBlock == true do: void).
+    _AbstractBlockClosureType macro method whileTrue: aBlock := ``(while: `,self __macroInlineBlock == true do: `,aBlock __macroInlineBlock).
+    _AbstractBlockClosureType macro method whileFalse := ``(while: `,self __macroInlineBlock == false do: void).
+    _AbstractBlockClosureType macro method whileFalse: aBlock := ``(while: `,self __macroInlineBlock == false do: `,aBlock __macroInlineBlock).
+
+    _AbstractBlockClosureType macro method whileNil := ``(while: `,self __macroInlineBlock isNil do: void).
+    _AbstractBlockClosureType macro method whileNil: aBlock := ``(while: `,self __macroInlineBlock isNil do: `,aBlock __macroInlineBlock).
+    _AbstractBlockClosureType macro method whileNotNil := ``(while: `,self __macroInlineBlock isNotNil do: void).
+    _AbstractBlockClosureType macro method whileNotNil: aBlock := ``(while: `,self __macroInlineBlock isNotNil do: `,aBlock __macroInlineBlock).
+
 }.

@@ -6,18 +6,28 @@ gcclass SmalltalkImage superclass: Object; definition: {
 
         method uniqueInstance
             := uniqueInstance ifNil: {uniqueInstance := self new}.
+
+        method initialize := {
+            self uniqueInstance.
+            self
+        }.
     }.
 
     field vm.
+    field globals.
 
     method initialize := {
         super initialize.
         vm := VirtualMachine new.
+        globals := SystemEnvironment for: (NamespaceInformation globalNamespace getOrCreateSharedNamespaceNamed: #Smalltalk).
         self
     }.
 
     method vm
         := vm.
+
+    method globals
+        := globals.
 
     method wordSize
         := UIntPointer instanceSize.

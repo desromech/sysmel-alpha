@@ -69,7 +69,14 @@ SequenceableCollection definition: {
 	}.
 
 	method do: aBlock := {
-		1 to: self size do: {:i :: Void |
+		1 to: (self size castTo: UIntPointer) do: {:i :: Void |
+			aBlock value: (self at: i)
+		}.
+		nil
+	}.
+
+	method reverseDo: aBlock := {
+		(self size castTo: IntPointer) to: 1 by: -1 do: {:i :: Void |
 			aBlock value: (self at: i)
 		}.
 		nil
@@ -95,6 +102,16 @@ SequenceableCollection definition: {
 			aBlock value: (self at: i) value: (otherCollection at: i)
 		}.
 		self
+	}.
+
+	method with: otherCollection collect: aBlock := {
+		otherCollection size = self size ifFalse: {self errorSizeMismatch}.
+		let result := self species new: self size.
+		1 to: self size do: {:i :: Void |
+			result at: i put:
+				(aBlock value: (self at: i) value: (otherCollection at: i))
+		}.
+		result
 	}.
 
 	method withIndexDo: aBlock := {
@@ -170,6 +187,16 @@ SequenceableCollection definition: {
 		self copyWithSize: (n castTo: UIntPointer)
 	}.
 
+	method allButLast: n := {
+		n > self size ifTrue: {self error: 'Invalid copy size'}.
+		self copyWithSize: ((self size castTo: UIntPointer) - n castTo: UIntPointer)
+	}.
+
+	method allButLast := {
+		self emptyCheck.
+		self copyWithSize: ((self size castTo: UIntPointer) - 1u)
+	}.
+
 	method copyWith: anElement := {
 		let size := self size.
 		let result := self species new: size + 1.
@@ -202,6 +229,11 @@ SequenceableCollection definition: {
 		, other
 			^ self -- other
 	".
+
+	method anyOne := {
+		self emptyCheck.
+		self at: 1
+	}.
 
 	method first := self at: 1.
 	method second := self at: 2.
@@ -259,6 +291,13 @@ SequenceableCollection definition: {
 		}.
 
 		exceptionBlock value
+	}.
+
+	method swap: oneIndex with: anotherIndex := {
+		let temp := self at: oneIndex.
+		self at: oneIndex put: (self at: anotherIndex).
+		self at: anotherIndex put: temp.
+		self.
 	}.
 
 	method writeStream

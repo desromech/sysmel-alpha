@@ -1,4 +1,5 @@
 loadFileOnce: "ReflectionLock.sysmel".
+loadFileOnce: "SystemEnvironment.sysmel".
 loadFileOnce: "SmalltalkImage.sysmel".
 loadFileOnce: "VirtualMachine.sysmel".
 loadFileOnce: "TypeInformation.sysmel".
@@ -7,9 +8,21 @@ loadFileOnce: "Class.sysmel".
 loadFileOnce: "Metaclass.sysmel".
 loadFileOnce: "Pragma.sysmel".
 
+loadFileOnce: "LiteralVariable.sysmel".
+loadFileOnce: "CompiledCode.sysmel".
+loadFileOnce: "NativeCompiledMethod.sysmel".
+loadFileOnce: "ProgramEntity.sysmel".
+loadFileOnce: "ModuleDefinedProgramEntity.sysmel".
+loadFileOnce: "ModuleNamespaceInformation.sysmel".
+loadFileOnce: "NamespaceInformation.sysmel".
+loadFileOnce: "ProgramEntityExtensionElement.sysmel".
+loadFileOnce: "ExtensionMacroMessage.sysmel".
+loadFileOnce: "ExtensionOverloadedMethod.sysmel".
+loadFileOnce: "ExtensionMethod.sysmel".
+loadFileOnce: "ModuleInformation.sysmel".
 loadFileOnce: "SessionManager.sysmel".
 loadFileOnce: "ModuleRootRegistration.sysmel".
-loadFileOnce: "ModuleInitialization.sysmel".
+loadFileOnce: "ModuleInformation.sysmel".
 loadFileOnce: "PackageManifest.sysmel".
 
 loadFileOnce: "InstructionStream.sysmel".

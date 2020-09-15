@@ -1,0 +1,13 @@
+namespace Smalltalk definition: {
+
+ExtensionMethod definition: {
+    method apply := {
+        ##Stdn stdout << "Apply " << self; nl.
+        extendedParent methodDict ifNotNil: {:methodDict :: Void |
+            methodDict at: name put: extension.
+        }.
+        self
+    }.
+}.
+
+}. ## End of namespace Smalltalk

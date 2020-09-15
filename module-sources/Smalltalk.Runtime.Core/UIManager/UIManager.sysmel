@@ -1,7 +1,17 @@
 namespace Smalltalk definition: {
 
 gcclass UIManager definition: {
+    meta definition: {
+        field default.
 
+        method default
+            := default ifNil: {default := self new}.
+    }.
+
+    method syntaxErrorNotificationDefaultAction: syntaxError := {
+        ## TODO: Decide what to do here.
+        self
+    }.
 }.
 
 }.

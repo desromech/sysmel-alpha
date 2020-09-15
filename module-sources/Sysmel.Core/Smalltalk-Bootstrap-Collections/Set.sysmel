@@ -8,7 +8,7 @@ Object extend: {
 Set definition: {
     method asSet
         := self.
-        
+
     method add: newObject := {
         let index := self scanFor: newObject.
         (array at: index) ifNil: {
@@ -16,6 +16,30 @@ Set definition: {
         }.
 
         newObject
+    }.
+
+    method remove: oldObject ifAbsent: aBlock := {
+        let index := self scanFor: oldObject.
+        (array at: index) ifNil: {
+            return: aBlock value
+        }.
+
+        array at: index put: nil.
+        tally := tally - 1u.
+        self fixCollisionsFrom: index.
+
+        oldObject
+    }.
+
+    method fixCollisionsFrom: (start: UIntPointer) := {
+        let arraySize := array basicSize.
+        let index mutable := start.
+        let element mutable.
+        until: (element := array at: (index := index % arraySize + 1u)) isNil do: {
+            (let newIndex := self scanFor: element enclosedElement) = index ifFalse: {
+                array swap: index with: newIndex
+            }.
+        }.
     }.
 
     method scanFor: key ::=> UIntPointer := {

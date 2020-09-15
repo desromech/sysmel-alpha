@@ -97,9 +97,9 @@ Integer extend: {
                 ifFalse: {return: 1}
         }.
 
-		1 to: len do: {:i :: Void |
-            let leftByte := self byteAt: i.
-            let rightByte := integerArg byteAt: i.
+		(len castTo: IntPointer) to: 1 by: -1 do: {:i :: Void |
+            let leftByte := self byteAt: (i castTo: UIntPointer).
+            let rightByte := integerArg byteAt: (i castTo: UIntPointer).
             leftByte ~= rightByte ifTrue: {
                 leftByte < rightByte
                     ifTrue: {return: -1}

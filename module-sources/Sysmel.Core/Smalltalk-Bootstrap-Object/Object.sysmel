@@ -20,6 +20,9 @@ Object definition: {
     method isKindOf: aClass
         := self class == aClass || (self class inheritsFrom: aClass).
 
+    method respondsTo: aSymbol
+        := self class canUnderstand: aSymbol.
+
     method isLiteral
         := false.
 
@@ -92,6 +95,11 @@ Object definition: {
 
     method shallowCopy
         := self class makeCopyOfInstance: self.
+
+    method flattenOn: aStream := {
+        aStream nextPut: self.
+        self
+    }.
 }.
 
 }. ## End of namespace Smalltalk

@@ -1,0 +1,79 @@
+namespace Smalltalk definition: {
+
+NamespaceInformation definition: {
+    meta definition: {
+        let GlobalNamespaceSingleton mutable type: NamespaceInformation.
+        let GlobalNamespaceSingletonOnceCreation mutable type: Stdn OnceFlag.
+
+        method globalNamespace => NamespaceInformation := {
+            GlobalNamespaceSingletonOnceCreation do: {
+                GlobalNamespaceSingleton := NamespaceInformation new.
+                GlobalNamespaceSingleton name: #__global.
+            }.
+
+            GlobalNamespaceSingleton
+        }.
+    }.
+
+    method initialize := {
+        moduleNamespaces := OrderedCollection new.
+        children := OrderedCollection new.
+        childrenTable := Dictionary new.
+        self
+    }.
+
+    method addModuleNamespaceInformation: (moduleNamespace: ModuleNamespaceInformation) ::=> Void := {
+        moduleNamespaces add: moduleNamespace
+    }.
+
+    method removeModuleNamespaceInformation: (moduleNamespace: ModuleNamespaceInformation) ::=> Void := {
+        moduleNamespaces remove: moduleNamespace
+    }.
+
+    method getOrCreateSharedNamespaceNamed: (childName: Symbol) ::=> NamespaceInformation := {
+        (childrenTable at: childName ifAbsentPut: { :: ProtoObject |
+            let newChild := NamespaceInformation new name: childName; yourself.
+            children add: newChild.
+            newChild
+        }) reinterpretCastTo: NamespaceInformation.
+    }.
+
+    method associationAt: key
+        := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method associationAt: key ifAbsent: aBlock := {
+        __global Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
+                    return: found
+                }
+            }.
+        }.
+
+        return: aBlock value
+    }.
+
+    method associations := {
+        let result := OrderedCollection new.
+        __global Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                result addAll: eachModuleNamespace localSymbolTable associations
+            }.
+        }.
+
+        return: result asArray
+    }.
+
+    method keys := {
+        let result := OrderedCollection new.
+        __global Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                result addAll: eachModuleNamespace localSymbolTable keys
+            }.
+        }.
+
+        return: result asArray
+    }.
+}.
+
+}. ## End of namespace Smalltalk

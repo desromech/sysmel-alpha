@@ -176,8 +176,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
     Stdn stdout << (__global Smalltalk Object name -- " with concat") asStdnMutableString; nl.
 
     Stdn stdout << "Printing Smalltalk global values"; nl.
-    let nspace := (__global Smalltalk castTo: ProtoObject) sharedNamespace.
-    nspace associations do: {:each :: Void |
+    Smalltalk globals associations do: {:each :: Void |
         Stdn stdout << each; nl.
     }.
 

@@ -30,6 +30,27 @@ MethodDictionary definition: {
         nil
     }.
 
+    method at: key ifAbsent: aBlock := {
+        let index := self findElementIndex: key.
+        let slotKey := array at: index.
+        slotKey ifNil: {aBlock value}
+            ifNotNil: {values at: index}
+    }.
+
+    method at: key ifPresent: aPresentBlock ifAbsent: anAbsentBlock := {
+        let index := self findElementIndex: key.
+        let slotKey := array at: index.
+        slotKey ifNil: {anAbsentBlock value}
+            ifNotNil: {aPresentBlock cull: (values at: index)}
+    }.
+
+    method at: key ifPresent: aPresentBlock ifAbsentPut: anAbsentBlock := {
+        let index := self findElementIndex: key.
+        let slotKey := array at: index.
+        slotKey ifNil: {self at: key put: anAbsentBlock value}
+            ifNotNil: {aPresentBlock cull: (values at: index)}
+    }.
+
     method at: key put: anObject := {
         self at: key putNoSpaceCheck: anObject.
         self fullCheck.

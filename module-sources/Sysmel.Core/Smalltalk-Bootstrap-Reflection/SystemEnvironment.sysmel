@@ -1,0 +1,29 @@
+namespace Smalltalk definition: {
+
+gcclass SystemEnvironment definition: {
+    field sharedNamespace.
+
+    meta definition: {
+        method for: aSharedNamespace
+            := self new sharedNamespace: aSharedNamespace; yourself.
+    }.
+
+    method sharedNamespace
+        := sharedNamespace.
+
+    method sharedNamespace: aNamespace := {
+        sharedNamespace := aNamespace.
+        self.
+    }.
+
+    method associations
+        := sharedNamespace associations.
+
+    method at: aSymbol
+        := sharedNamespace at: aSymbol.
+
+    method at: aSymbol ifAbsent: absentBlock
+        := sharedNamespace at: aSymbol ifAbsent: absentBlock.
+}.
+
+}. ## End of namespace Smalltalk

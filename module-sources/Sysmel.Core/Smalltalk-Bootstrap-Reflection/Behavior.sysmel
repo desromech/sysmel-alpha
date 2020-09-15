@@ -89,6 +89,21 @@ Behavior definition: {
 			}
 		}.
 	}.
+
+	method environment
+		:= Smalltalk globals.
+
+	method >> aSelector
+		:= self compiledMethodAt: aSelector.
+
+	method compiledMethodAt: aSelector := {
+		__global Smalltalk Runtime withReflectionLockedRead: {
+			methodDict at: aSelector
+		}
+	}.
+
+	method allSlots
+		:= #().
 }.
 
 }. ## End of namespace Smalltalk

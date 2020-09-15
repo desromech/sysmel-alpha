@@ -1,0 +1,79 @@
+namespace Smalltalk definition: {
+
+ModuleInformation definition: {
+
+    method allExtensionsDo: aBlock ::=> Void := {
+        extensionMacros ifNotNil: {
+            extensionMacros do: aBlock
+        }.
+
+        extensionOverloadedMethods ifNotNil: {
+            extensionOverloadedMethods do: aBlock
+        }.
+
+        extensionMethods ifNotNil: {
+            extensionMethods do: aBlock
+        }.
+    }.
+
+    method allImportedModulesDo: aBlock ::=> Void := {
+        importedModules ifNotNil: {
+            importedModules do: aBlock.
+        }.
+    }.
+
+    method startUp => Void := {
+        ## Fix the parent relationships.
+        __global Smalltalk Runtime withReflectionLockedWrite: {
+            started ifTrue: {return: void}.
+            started := true.
+
+            Smalltalk ifNil: {Smalltalk := SmalltalkImage uniqueInstance}.
+            self allImportedModulesDo: {:each :: Void | each startUp}.
+
+            parent := nil.
+            globalNamespace ifNotNil: {
+                globalNamespace setupProgramEntityParent: self fromModule: self.
+            }.
+
+            ## Apply all of the extensions.
+            self allExtensionsDo: {:each :: Void | each apply }.
+
+            ## Ensure the GC subclasses are added into their superclasses.
+            addedGCClasses ifNotNil: {
+                addedGCClasses do: {:each :: Void |
+                    each ensureIsAddedToSuperClass.
+                }.
+
+                ## Initialize the added classes.
+                addedGCClasses do: {:each :: Void |
+                    each initialize
+                }
+            }.
+
+        }.
+    }.
+
+    method shutDown => Void  := {
+        ##Stdn stdout << "Module " << name << " shutDown called."; nl
+    }.
+}.
+
+namespace Runtime definition: {
+
+function callModuleStartUp(module: ModuleInformation) => Void := {
+    ensureInitialSymbolDeduplication().
+
+    module startUp
+}.
+
+function callModuleShutdown(module: ModuleInformation) => Void := {
+    module shutDown
+}.
+
+Compiler compilationTarget managedObjectModel
+    moduleStartUpFunction: callModuleStartUp;
+    moduleShutDownFunction: callModuleShutdown.
+}. ## End of namespace Runtime
+
+}. ## End of namespace Smalltalk

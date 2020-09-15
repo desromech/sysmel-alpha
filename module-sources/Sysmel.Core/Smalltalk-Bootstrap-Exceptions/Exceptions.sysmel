@@ -159,6 +159,16 @@ gcclass Warning superclass: Notification; definition: {}.
 gcclass Deprecation superclass: Warning; definition: {}.
 gcclass SimulationExceptionWrapper superclass: Exception; definition: {}.
 
+gcclass CollectionIsEmpty superclass: Error; definition: {
+    public field object.
+    public field collection.
+
+    meta definition: {
+        method signalWith: aCollection
+            := self new collection: aCollection; signal.
+    }.
+}.
+
 gcclass NotFound superclass: Error; definition: {
     public field object.
     public field collection.
@@ -170,6 +180,9 @@ gcclass NotFound superclass: Error; definition: {
         method signalFor: anObject in: aCollection
             := self new object: anObject; collection: aCollection; signal.
     }.
+}.
+
+gcclass SizeMismatch superclass: Error; definition: {
 }.
 
 gcclass KeyNotFound superclass: NotFound; definition: {

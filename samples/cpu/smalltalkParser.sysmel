@@ -28,6 +28,14 @@ Stdn MainEntryPoint: {:args :: Int32 |
         } catch: Smalltalk Error doing: {:e :: Void |
             Stdn stdout << "Error during parsing: " << e; nl.
         }.
+
+        #*try:
+        {
+            Stdn stdout << "CompiledMethod "<< (Smalltalk OpalCompiler new noPattern: true; compile: args[i] asSmalltalkString); nl.
+        } catch: Smalltalk Error doing: {:e :: Void |
+            Stdn stdout << "Error during compilation: " << e; nl.
+        }.*#
+        Stdn stdout << "CompiledMethod "<< (Smalltalk OpalCompiler new noPattern: true; compile: args[i] asSmalltalkString); nl.
     }.
 
     return: 0.

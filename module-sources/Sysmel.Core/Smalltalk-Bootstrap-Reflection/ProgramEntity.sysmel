@@ -1,0 +1,9 @@
+namespace Smalltalk definition: {
+
+ProgramEntity definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+        parent := theParent.
+    }.
+}.
+
+}. ## End of namespace Smalltalk

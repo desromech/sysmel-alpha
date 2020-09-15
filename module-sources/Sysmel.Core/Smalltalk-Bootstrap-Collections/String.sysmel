@@ -29,8 +29,9 @@ String definition: {
 	}.
 
     method isString := true.
+	method isWideString := false.
 
-	method isLiteral := false.
+	method isLiteral := true.
 
 	method beginsWith: prefix := {
 		prefix class == String || prefix class == Symbol ifTrue: {
@@ -219,6 +220,11 @@ String definition: {
 			each isSpecial ifFalse: {return: -1}
 		}.
 		1
+	}.
+
+	method flattenOn: aStream := {
+		aStream nextPut: self.
+		self
 	}.
 }.
 

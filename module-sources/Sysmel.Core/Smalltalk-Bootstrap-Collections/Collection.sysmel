@@ -121,6 +121,19 @@ Collection definition: {
 		self
 	}.
 
+	method remove: oldObject
+		:= self remove oldObject ifAbsent: {| self errorNotFound: oldObject }.
+
+	method remove: oldObject ifAbsent: absentBlock
+		:= self subclassResponsibility.
+
+	method removeAll := {
+		self do: {:each :: Void |
+			self remove: each
+		}.
+		self
+	}.
+
 	method asArray := {
 		let result := Array new: self size.
 		let index mutable := 1.
@@ -244,7 +257,43 @@ Collection definition: {
 			}
 		}.
 		result
-	}
+	}.
+
+	method flattened
+		:= Array streamContents: {:out :: Void | self flattenOn: out }.
+
+	method flattenOn: aStream
+		:= self do: {:each :: Void | each flattenOn: aStream }.
+
+	method errorSizeMismatch
+		:= SizeMismatch signal.
+
+	method errorEmptyCollection
+		:= CollectionIsEmpty signalWith: self.
+
+	method emptyCheck := {
+		self isEmpty ifTrue: {self errorEmptyCollection}.
+		self.
+	}.
+
+	method anyOne := {
+		self emptyCheck.
+		self do: {:each :: Void | return: each}.
+		nil
+	}.
+
+	method max
+		:= self inject: self anyOne into: {:a :b | a max: b}.
+
+	method min
+		:= self inject: self anyOne into: {:a :b | a min: b}.
+
+	method sum := {
+		self emptyCheck.
+		let sample := self anyOne.
+		let sum := self self inject: sample into: {:a :b | a + b}.
+		sum - sample
+	}.
 }.
 
 }. ## End of namespace Smalltalk.

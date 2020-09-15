@@ -217,6 +217,9 @@ TypeInformation definition: {
         return: (superclass lookupSelector: selector)
     }.
 
+	method canUnderstand: aSymbol
+		:= (self lookupSelector: aSymbol) isNotNil.
+
 	method isGarbageCollectedType => Boolean8
 		:= false.
 }.
