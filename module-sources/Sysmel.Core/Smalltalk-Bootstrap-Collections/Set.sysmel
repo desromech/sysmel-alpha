@@ -85,6 +85,17 @@ Set definition: {
     method like: key := {
         (array at: (self scanFor: key)) enclosedSetElement
     }.
+
+    method intersection: aCollection := {
+        let outputSet := self class new.
+        aCollection do: {:each :: Void |
+            (self includes: each) ifTrue: {
+                outputSet add: each
+            }
+        }.
+
+        outputSet
+    }.
 }.
 
 }. ## End of namespace Smalltalk

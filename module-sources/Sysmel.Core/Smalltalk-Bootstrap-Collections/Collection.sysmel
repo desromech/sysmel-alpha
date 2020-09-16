@@ -200,6 +200,9 @@ Collection definition: {
 	method copyWithout: anElement
 		:= self reject: {:each | each = anElement}.
 
+	method copyWithoutAll: aCollection
+		:= self reject: {:each | aCollection includes: each}.
+
 	method detect: aBlock ifNone: exceptionBlock
 		:= self detect: aBlock ifFound: {:element | element } ifNone: exceptionBlock.
 
@@ -297,6 +300,9 @@ Collection definition: {
 		let sum := self self inject: sample into: {:a :b | a + b}.
 		sum - sample
 	}.
+
+	method intersection: aCollection
+		:= self species withAll: (self asSet intersection: aCollection) asArray.
 }.
 
 }. ## End of namespace Smalltalk.

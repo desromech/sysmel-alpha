@@ -34,6 +34,9 @@ Message definition: {
 
     method sends: aSelector
         := selector == aSelector.
+
+    method sendTo: aReceiver
+        := aReceiver perform: selector withArguments: args.
 }.
 
 }. ## End of namespace Smalltalk

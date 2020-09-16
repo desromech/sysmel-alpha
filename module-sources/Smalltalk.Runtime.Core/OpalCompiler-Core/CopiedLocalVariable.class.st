@@ -1,5 +1,5 @@
 "
-A copying variable is an arg or temp var that is copied into a block that later reads this variable
+A copied variable is an arg or temp var that is copied into a block that later reads this variable
 "
 Class {
 	#name : #CopiedLocalVariable,
@@ -9,6 +9,11 @@ Class {
 	],
 	#category : #'OpalCompiler-Core-Semantics'
 }
+
+{ #category : #visiting }
+CopiedLocalVariable >> acceptVisitor: aProgramNodeVisitor node: aNode [
+	^ originalVar acceptVisitor: aProgramNodeVisitor node: aNode
+]
 
 { #category : #queries }
 CopiedLocalVariable >> definingNode [

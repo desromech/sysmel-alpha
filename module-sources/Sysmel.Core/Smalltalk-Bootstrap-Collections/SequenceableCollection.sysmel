@@ -151,6 +151,27 @@ SequenceableCollection definition: {
 		}
 	}.
 
+	method select: aPredicate thenCollect: collectBlock := {
+		self species new: self size streamContents: {:stream :: Void |
+			1 to: self size do: {:i :: Void|
+				let element := self at: i.
+				(aPredicate value: element) ifTrue: {
+					stream nextPut: (collectBlock value: element)
+				}
+			}
+		}
+	}.
+
+	method select: aPredicate thenDo: aBlock := {
+		1 to: self size do: {:i :: Void|
+			let element := self at: i.
+			(aPredicate value: element) ifTrue: {
+				(aBlock value: element)
+			}
+		}.
+		self
+	}.
+
 	method reject: aPredicate := {
 		self species new: self size streamContents: {:stream :: Void |
 			1 to: self size do: {:i :: Void|
@@ -160,6 +181,27 @@ SequenceableCollection definition: {
 				}
 			}
 		}
+	}.
+
+	method reject: aPredicate thenCollect: collectBlock := {
+		self species new: self size streamContents: {:stream :: Void |
+			1 to: self size do: {:i :: Void|
+				let element := self at: i.
+				(aPredicate value: element) ifFalse: {
+					stream nextPut: (collectBlock value: element)
+				}
+			}
+		}
+	}.
+
+	method reject: aPredicate thenDo: aBlock := {
+		1 to: self size do: {:i :: Void|
+			let element := self at: i.
+			(aPredicate value: element) ifFalse: {
+				(aBlock value: element)
+			}
+		}.
+		self
 	}.
 
 	method copyFrom: start to: stop := {
@@ -195,6 +237,13 @@ SequenceableCollection definition: {
 	method allButLast := {
 		self emptyCheck.
 		self copyWithSize: ((self size castTo: UIntPointer) - 1u)
+	}.
+
+	method allButLastDo: aBlock := {
+		1 to: (self size castTo: IntPointer) - 1 do: {:i :: Void |
+			aBlock value: (self at: i)
+		}.
+		nil
 	}.
 
 	method copyWith: anElement := {

@@ -112,6 +112,16 @@ OrderedCollection definition: {
         lastObject
     }.
 
+    method removeLast: n := {
+        let count := n castTo: IntPointer.
+        let list := self allocateStorageArrayWithCapacity: (n castTo: UIntPointer).
+        count to: 1 by: -1 do: {:i :: Void |
+            list at: (i castTo: UIntPointer) put: self removeLast
+        }.
+
+        list
+    }.
+
     method reset
         := self resetTo: 1.
 

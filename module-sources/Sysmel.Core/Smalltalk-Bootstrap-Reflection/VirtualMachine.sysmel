@@ -6,6 +6,9 @@ gcclass VirtualMachine superclass: Object; definition: {
 
     method isSpur
         := true.
+
+    method supportsWriteBarrier
+        := false.
 }.
 
 }. ## End of namespace Smalltalk
