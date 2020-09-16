@@ -28,6 +28,14 @@ Dictionary definition: {
         nil
     }.
 
+    method collect: aBlock := {
+        let newCollection := self species new.
+        self associationsDo: {:each :: Void |
+            newCollection at: each key put: (aBlock value: each value)
+        }.
+        newCollection
+    }.
+
     method do: aBlock := {
         self valuesDo: aBlock
     }.

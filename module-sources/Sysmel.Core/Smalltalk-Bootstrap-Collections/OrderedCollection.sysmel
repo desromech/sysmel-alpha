@@ -74,8 +74,8 @@ OrderedCollection definition: {
         self at: (index castTo: UIntPointer) put: block value
     }.
 
-    method setCollection: (theArray: Array) := {
-        array := theArray.
+    method setCollection: theArray := {
+        array := theArray reinterpretCastTo: Array.
         self reset.
         self
     }.

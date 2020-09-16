@@ -8,8 +8,14 @@ loadFileOnce: "Class.sysmel".
 loadFileOnce: "Metaclass.sysmel".
 loadFileOnce: "Pragma.sysmel".
 
+loadFileOnce: "Variable.sysmel".
 loadFileOnce: "LiteralVariable.sysmel".
+loadFileOnce: "AdditionalMethodState.sysmel".
+loadFileOnce: "AbstractCompiledCode.sysmel".
 loadFileOnce: "CompiledCode.sysmel".
+loadFileOnce: "CompiledMethod.sysmel".
+loadFileOnce: "CompiledBlock.sysmel".
+loadFileOnce: "CleanBlockClosure.sysmel".
 loadFileOnce: "NativeCompiledMethod.sysmel".
 loadFileOnce: "ProgramEntity.sysmel".
 loadFileOnce: "ModuleDefinedProgramEntity.sysmel".

@@ -1,8 +1,130 @@
 namespace Smalltalk definition: {
 
 CompiledCode definition: {
-    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+    public field header type: IntPointer.
+    public field literals type: Array.
+    public field __bytecodes type: UInt8 array.
+    global SmallFrame mutable.
+    global LargeFrame mutable.
+
+    meta definition: {
+        method newMethod: numberOfBytes header: headerWord := {
+            (self basicNew: (numberOfBytes castTo: UIntPointer))
+                createLiteralsWithHeaderWord: headerWord;
+                yourself.
+        }.
+
+        method initialize := {
+            SmallFrame := 16.
+            LargeFrame := 56.
+            self
+        }.
     }.
+
+    method createLiteralsWithHeaderWord: headerWord := {
+        headerWord __isSmallInteger ifFalse: {self error: "Compiled code header word must be a SmallInteger."}.
+        header := headerWord __decodeSmallInteger.
+        Stdn stdout << "Compiled code numLiterals " << self numLiterals; nl.
+        literals := Array basicNew: self numLiterals.
+        self
+    }.
+
+    inline method numLiterals => UIntPointer := {
+        <staticBinding>
+        <nogc>
+        header & 16r7FFF castTo: UIntPointer
+    }.
+
+    inline method numArgs => UIntPointer := {
+        <staticBinding>
+        <nogc>
+        (header >> 24) & 16r0F castTo: UIntPointer
+    }.
+
+    inline method numTemps => UIntPointer := {
+        <staticBinding>
+        <nogc>
+        (header >> 18) & 16r3F castTo: UIntPointer
+    }.
+
+    inline method initialPC => UIntPointer := {
+        <staticBinding>
+        <nogc>
+        (self numLiterals + 1u) * UIntPointer instanceSize + 1
+    }.
+
+    inline method signFlag => Boolean8 := {
+        <staticBinding>
+        <nogc>
+        header < 0
+    }.
+
+    method literalAt: (index: UIntPointer)
+        := literals at: index.
+
+    method literalAt: (index: UIntPointer) put: value
+        := literals at: index put: value.
+
+    method size
+        := (1u + self numLiterals) * UIntPointer instanceSize + __bytecodes size.
+
+    method at: (index: UIntPointer) := {
+        let initialPC := self initialPC.
+
+        index < initialPC ifTrue: {
+            let wordIndex := index // UIntPointer instanceSize.
+            wordIndex = 0 ifTrue: {self errorSubscriptBounds: index}.
+            wordIndex = 1 ifTrue: {return: header }.
+
+            let literalIndex := wordIndex - 1.
+            literalIndex <= self numLiterals ifTrue: {return: (literals basicAt: literalIndex) }.
+            self errorSubscriptBounds: index
+        }.
+
+        let bytecodeIndex := index - initialPC.
+        bytecodeIndex < __bytecodes size ifFalse: {self errorSubscriptBounds: index }.
+        __bytecodes[bytecodeIndex]
+    }.
+
+    method at: (index: UIntPointer) put: value := {
+        let initialPC := self initialPC.
+
+        index < initialPC ifTrue: {
+            let wordIndex := index // UIntPointer instanceSize.
+            wordIndex = 0 ifTrue: {self errorSubscriptBounds: index}.
+            wordIndex = 1 ifTrue: {return: header }.
+
+            let literalIndex := wordIndex - 1.
+            literalIndex <= self numLiterals ifTrue: {return: (literals basicAt: literalIndex put: value) }.
+            self errorSubscriptBounds: index
+        }.
+
+        let bytecodeIndex := index - initialPC.
+        bytecodeIndex < __bytecodes size ifFalse: {self errorSubscriptBounds: index }.
+        __bytecodes[bytecodeIndex] := value castTo: UInt8
+    }.
+
+    method primitive
+        := 0.
+
+    method setFrameBit: boolean := {
+        let largeFrameBit := 16r20000 castTo: IntPointer.
+        boolean ifTrue: {
+            header := header | largeFrameBit
+        } ifFalse: {
+            header := header & (~largeFrameBit)
+        }.
+        self
+    }.
+
+    method needsFrameSize: newFrameSize := {
+        (self numTemps + newFrameSize) > LargeFrame ifTrue: {
+            return: (self error: "Cannot compile -- stack including temps is too deep")
+        }.
+
+        self setFrameBit: ((self numTemps + newFrameSize) > SmallFrame || self primitive = 84 #* perform:withArguments: *#)
+    }.
+
 }.
 
 }. ## End of namespace Smalltalk

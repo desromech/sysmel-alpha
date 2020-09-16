@@ -15,7 +15,13 @@ Object definition: {
 		:= false.
 
 	method isClass
-		:= false.
+        := false.
+
+    method isMethodProperties
+        := false.
+
+    method isEmbeddedBlock
+        := false.
 
     method isKindOf: aClass
         := self class == aClass || (self class inheritsFrom: aClass).

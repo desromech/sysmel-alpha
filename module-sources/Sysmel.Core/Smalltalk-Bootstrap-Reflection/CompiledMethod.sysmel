@@ -1,19 +1,11 @@
 namespace Smalltalk definition: {
 
-NativeCompiledMethod definition: {
-    inline method numLiterals => UIntPointer := {
-        <staticBinding>
-        <nogc>
-        __literals size
-    }.
-
-    method literalAt: (index: UIntPointer) := {
-        index < 1 || index > __literals size ifTrue: {self errorSubscriptBounds: index}.
-        __literals at: index
-    }.
-
+CompiledCode definition: {
     method classBinding
         := self literalAt: self numLiterals.
+
+    method classBinding: aBinding
+        := self literalAt: self numLiterals put: aBinding.
 
     method methodClass
         := self classBinding methodClass.
@@ -26,6 +18,16 @@ NativeCompiledMethod definition: {
         literal isMethodProperties
             ifTrue: {literal selector}
             ifFalse: {literal}
+    }.
+
+    method selector: aSelector := {
+        let literal := self penultimateLiteral.
+        literal isMethodProperties ifTrue: {
+            literal selector: aSelector
+        } ifFalse: {
+            self literalAt: self numLiterals - 1 put: aSelector
+        }.
+        self
     }.
 }.
 

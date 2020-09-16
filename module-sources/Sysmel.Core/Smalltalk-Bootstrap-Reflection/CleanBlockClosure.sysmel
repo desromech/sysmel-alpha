@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+CleanBlockClosure definition: {
+    method isEmbeddedBlock
+        := true.
+}.
+
+}. ## End of namespace Smalltalk

@@ -1,0 +1,20 @@
+namespace Smalltalk definition: {
+
+AbstractCompiledCode definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+    }.
+
+    method numLiterals => UIntPointer
+        := {self subclassResponsiblity. 0}.
+
+    method literalAt: (index: UIntPointer)
+        := self subclassResponsiblity.
+
+    method methodClass
+        := self subclassResponsiblity.
+
+    method selector
+        := self subclassResponsiblity.
+}.
+
+}. ## End of namespace Smalltalk

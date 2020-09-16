@@ -1,0 +1,11 @@
+namespace Smalltalk definition: {
+
+Variable definition: {
+    method isLocalVariable
+        := false.
+
+    method isUninitialized
+        := false.
+}.
+
+}. ## End of namespace Smalltalk

@@ -119,10 +119,11 @@ gcclass NativeBlockClosure superclass: NativeBlockClosureHeaderClass.
 gcclass NativeSimpleBlockClosure superclass: NativeBlockClosure.
 
 ## Methods
-gcclass CompiledCode superclass: Object.
+gcclass AbstractCompiledCode superclass: Object.
+gcclass CompiledCode superclass: AbstractCompiledCode.
 	gcclass CompiledMethod superclass: CompiledCode.
 	gcclass CompiledBlock superclass: CompiledCode.
-gcclass NativeCompiledMethod superclass: Object.
+gcclass NativeCompiledMethod superclass: AbstractCompiledCode.
 
 gcclass Pragma superclass: Object.
 gcclass AdditionalMethodState superclass: Object.

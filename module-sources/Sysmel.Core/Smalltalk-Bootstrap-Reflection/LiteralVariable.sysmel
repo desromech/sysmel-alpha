@@ -4,6 +4,19 @@ LiteralVariable definition: {
     method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
     }.
 
+    meta definition: {
+        method key: aKey
+            := self basicNew
+                name: aKey;
+                yourself.
+
+        method key: aKey value: aValue
+            := self basicNew
+                name: aKey;
+                value: aValue;
+                yourself.
+    }.
+
     method key
         := name.
 }.

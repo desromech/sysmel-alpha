@@ -110,6 +110,9 @@ Behavior definition: {
 
 	method bindingOf: aSymbol
 		:= self superclass bindingOf: aSymbol.
+
+	method binding
+		:= LiteralVariable key: nil value: self.
 }.
 
 }. ## End of namespace Smalltalk

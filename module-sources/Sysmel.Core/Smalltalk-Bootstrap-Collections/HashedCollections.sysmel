@@ -36,6 +36,9 @@ HashedCollection definition: {
         0u
     }.
 
+    inline method findElementOrNil: key
+        := self findElementIndex: key.
+
     method scanFor: key ::=> UIntPointer := {
         self subclassResponsibility.
         return: 0

@@ -1,0 +1,8 @@
+namespace Smalltalk definition: {
+
+CompiledBlock definition: {
+    method isEmbeddedBlock
+        := true.
+}.
+
+}. ## End of namespace Smalltalk
