@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -310,6 +311,11 @@ TMbndAbstractProgramEntity >> isTemplate [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isTemplateInstance [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isTrivialMethod [
 	^ false
 ]
 

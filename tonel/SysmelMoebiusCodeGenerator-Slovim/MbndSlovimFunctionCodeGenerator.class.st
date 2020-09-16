@@ -209,6 +209,13 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+
+	concreteMethod requiresCompiledMethodMetadata ifTrue: [
+		ssaFunction
+			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
+			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
+			hasSelectorAndClassBinding: true
+	].
 	
 	self cleanUpStructuredControlFlow.
 	ssaFunction validate.
@@ -537,7 +544,7 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticFinalizationCode [
 	concreteMethod hasExplicitSuperSend ifTrue: [ ^ self ].
 	
 	concreteMethod parent supertype ifNotNil: [ :supertype |
-		supertype hasTrivialFinalization ifFalse: [
+		supertype hasTrivialInstanceFinalization ifFalse: [
 			superFinalize := supertype finalizeMethod.
 			self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superFinalize receiverType))
 				receiverType: superFinalize receiverType
@@ -554,7 +561,7 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
 	receiver := ssaFunction arguments first.
 	concreteMethod hasExplicitSuperSend ifFalse: [
 		concreteMethod parent supertype ifNotNil: [ :supertype |
-			supertype hasTrivialInitialization ifFalse: [
+			supertype hasTrivialInstanceInitialization ifFalse: [
 				superInitialize := supertype initializeMethod.
 				self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superInitialize receiverType))
 					receiverType: superInitialize receiverType

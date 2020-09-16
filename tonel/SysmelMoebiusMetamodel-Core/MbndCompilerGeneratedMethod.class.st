@@ -7,6 +7,12 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> classBindingLiteral [
+	self flag: 'TODO: Support nested method'.
+	^ parent globalBindingAssociation
+]
+
 { #category : #serialization }
 MbndCompilerGeneratedMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
@@ -34,6 +40,11 @@ MbndCompilerGeneratedMethod >> isMessageMethod [
 	^ true
 ]
 
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> isTrivialMethod [
+	^ true
+]
+
 { #category : #serialization }
 MbndCompilerGeneratedMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
@@ -48,4 +59,18 @@ MbndCompilerGeneratedMethod >> module [
 { #category : #accessing }
 MbndCompilerGeneratedMethod >> module: anObject [
 	module := anObject
+]
+
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> requiresCompiledMethodMetadata [
+	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
+	(parent isMbndType and: [parent isGarbageCollectedType]) ifTrue: [ ^ true ].
+	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
+	^ false
+]
+
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> selectorRequiredLiteral [
+	self flag: 'Create the MethodAdditionalState for the pragmas'.
+	^ self typedSelector
 ]

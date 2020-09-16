@@ -90,7 +90,7 @@ MbndAbstractSpecificMethod >> analyzePragmaInDefinitionBodyWithSelector: selecto
 	super analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments.
 
 	"Turn some pragmas into flags."
-	(#(notInCompileTime compileTime gpu nogc staticBinding constructor) includes: selector) ifTrue: [ 
+	(#(notInCompileTime compileTime gpu nogc staticBinding constructor trivial) includes: selector) ifTrue: [ 
 		self addFlag: selector.
 	].
 
@@ -314,7 +314,7 @@ MbndAbstractSpecificMethod >> isNewVirtualTableEntry [
 
 { #category : #testing }
 MbndAbstractSpecificMethod >> isNoGC [
-	^ (self hasPragmaNamed: #nogc) or: [ parent isNotNil and: [ parent isNoGC ] ]
+	^ (self hasFlag: #nogc) or: [(self hasPragmaNamed: #nogc) or: [ parent isNotNil and: [ parent isNoGC ] ]]
 ]
 
 { #category : #testing }
@@ -330,6 +330,11 @@ MbndAbstractSpecificMethod >> isSealed [
 { #category : #testing }
 MbndAbstractSpecificMethod >> isStatic [
 	^ self hasFlag: #static
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> isTrivialMethod [
+	^ (self hasFlag: #trivial) or: [ self hasPragmaNamed: #trivial ]
 ]
 
 { #category : #testing }

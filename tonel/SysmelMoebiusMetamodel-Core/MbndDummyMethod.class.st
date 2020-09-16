@@ -16,3 +16,8 @@ MbndDummyMethod class >> messagePackTypeName [
 MbndDummyMethod >> getNonLocalReturnTarget [
 	^ nil
 ]
+
+{ #category : #testing }
+MbndDummyMethod >> requiresCompiledMethodMetadata [
+	^ false
+]

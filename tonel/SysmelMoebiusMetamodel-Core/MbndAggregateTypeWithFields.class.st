@@ -214,6 +214,13 @@ MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector withArgum
 ]
 
 { #category : #testing }
+MbndAggregateTypeWithFields >> hasNonTrivialMethod: selector [
+	| method |
+	method := self overloadedMethodDict at: selector ifAbsent: [ ^ false ].
+	^ method isTrivialMethod not
+]
+
+{ #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceBasicInitialization ].
 	self isDefined ifFalse: [ ^ true ].
@@ -241,7 +248,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceFinalization [
 	^ hasTrivialInstanceFinalization ifNil: [
 		hasTrivialInstanceFinalization := self supertype hasTrivialInstanceFinalization
 		and: [self slotLayout hasTrivialFinalization
-		and: [ (self hasNonCompilerGeneratedMethod: #finalize) not ] ]
+		and: [ (self hasNonTrivialMethod: #finalize) not ] ]
 	]
 ]
 
@@ -253,7 +260,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitialization [
 	^ hasTrivialInstanceInitialization ifNil: [
 		hasTrivialInstanceInitialization := self supertype hasTrivialInstanceInitialization
 		and: [self slotLayout hasTrivialInitialization
-		and: [ (self hasNonCompilerGeneratedMethod: #initialize) not ] ]
+		and: [ (self hasNonTrivialMethod: #initialize) not ] ]
 	]
 ]
 
@@ -265,7 +272,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationCopyingFrom [
 	^ hasTrivialInstanceInitializationFromCopy ifNil: [
 		hasTrivialInstanceInitializationFromCopy := self supertype hasTrivialInstanceInitializationCopyingFrom
 		and: [self slotLayout hasTrivialInitializationCopyingFrom
-		and: [ (self hasNonCompilerGeneratedMethod: #initializeCopyingFrom:) not ] ]
+		and: [ (self hasNonTrivialMethod: #initializeCopyingFrom:) not ] ]
 	]
 ]
 
@@ -277,7 +284,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 	^ hasTrivialInstanceInitializationMovingFrom ifNil: [
 		hasTrivialInstanceInitializationMovingFrom := self supertype hasTrivialInstanceInitializationMovingFrom
 		and: [self slotLayout hasTrivialInitializationMovingFrom
-		and: [ (self hasNonCompilerGeneratedMethod: #initializeMovingFrom:) not ] ]
+		and: [ (self hasNonTrivialMethod: #initializeMovingFrom:) not ] ]
 	]
 ]
 
