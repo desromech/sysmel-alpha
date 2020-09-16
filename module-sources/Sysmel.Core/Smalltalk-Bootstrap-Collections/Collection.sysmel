@@ -185,6 +185,9 @@ Collection definition: {
 	method includes: anElement
 		:= self anySatisfy: {:each | each = anElement}.
 
+	method identityIncludes: anElement
+		:= self anySatisfy: {:each | each == anElement}.
+
 	method collect: aBlock as: aClass
 		:= (aClass new: self size) fillFrom: self with: aBlock.
 

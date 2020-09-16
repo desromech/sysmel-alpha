@@ -6,3 +6,4 @@ loadFileOnce: "Boolean.sysmel".
 loadFileOnce: "False.sysmel".
 loadFileOnce: "True.sysmel".
 loadFileOnce: "BlockClosure.sysmel".
+loadFileOnce: "Message.sysmel".

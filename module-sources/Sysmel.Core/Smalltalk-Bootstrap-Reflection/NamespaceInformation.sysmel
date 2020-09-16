@@ -53,6 +53,18 @@ NamespaceInformation definition: {
         return: aBlock value
     }.
 
+    method at: key ifAbsent: aBlock := {
+        __global Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                eachModuleNamespace localSymbolTable at: key ifPresent: {:found :: Void |
+                    return: found
+                }
+            }.
+        }.
+
+        return: aBlock value
+    }.
+
     method associations := {
         let result := OrderedCollection new.
         __global Smalltalk Runtime withReflectionLockedRead: {

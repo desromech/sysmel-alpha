@@ -3,6 +3,9 @@ namespace Smalltalk definition: {
 LiteralVariable definition: {
     method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
     }.
+
+    method key
+        := name.
 }.
 
 }. ## End of namespace Smalltalk

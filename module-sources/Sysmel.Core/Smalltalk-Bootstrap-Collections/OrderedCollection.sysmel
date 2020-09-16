@@ -63,15 +63,53 @@ OrderedCollection definition: {
         array at: elementIndex put: anElement
     }.
 
+    method at: index ifAbsentPut: block := {
+        let v mutable.
+        index <= self size ifTrue: {
+            v := self at: (index castTo: UIntPointer).
+            return: (v ifNotNil: v ifNil: {self at: (index castTo: UIntPointer) put: block value})
+        }.
+
+        while: (self size < index) do: {self add: nil}.
+        self at: (index castTo: UIntPointer) put: block value
+    }.
+
     method setCollection: (theArray: Array) := {
         array := theArray.
         self reset.
         self
     }.
 
+    method remove: oldObject ifAbsent: absentBlock := {
+        firstIndex to: lastIndex do: {:index :: Void |
+            (oldObject = (array at: index)) ifTrue: {
+                self removeIndex: index.
+                return: oldObject
+            }
+        }.
+
+        absentBlock value
+    }.
+
+    method removeIndex: index := {
+        let removedIndex := index castTo: UIntPointer.
+        array replaceFrom: removedIndex until: lastIndex with: array startingAt: removedIndex.
+        array at: lastIndex put: nil.
+	    lastIndex := lastIndex - 1.
+        self
+    }.
+
     method removeAll := {
         self setCollection: (self allocateStorageArrayWithCapacity: array basicSize).
         self.
+    }.
+
+    method removeLast := {
+        self emptyCheck.
+        let lastObject := array at: lastIndex.
+        array at: lastIndex put: nil.
+        lastIndex := lastIndex - 1.
+        lastObject
     }.
 
     method reset
