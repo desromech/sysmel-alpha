@@ -35,7 +35,10 @@ Stdn MainEntryPoint: {:args :: Int32 |
         } catch: Smalltalk Error doing: {:e :: Void |
             Stdn stdout << "Error during compilation: " << e; nl.
         }.*#
-        Stdn stdout << "CompiledMethod "<< (Smalltalk OpalCompiler new noPattern: true; compile: args[i] asSmalltalkString); nl.
+
+        let compiledMethod := Smalltalk OpalCompiler new noPattern: true; compile: args[i] asSmalltalkString.
+        Stdn stdout << "CompiledMethod " << compiledMethod; nl.
+        Stdn stdout << "CompiledMethod " << compiledMethod dumpString; nl.
     }.
 
     return: 0.

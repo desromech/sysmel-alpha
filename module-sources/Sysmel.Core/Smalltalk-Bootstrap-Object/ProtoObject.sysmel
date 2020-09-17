@@ -67,5 +67,5 @@ ProtoObject extend: {
     }.
 }.
 
-AnyValue macro method asProtoObject := ``(`,self castTo: __global Smalltalk ProtoObject).
+AnyValue macro method asProtoObject := ``(`,self implicitCastTo: __global Smalltalk ProtoObject).
 }.

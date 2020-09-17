@@ -24,7 +24,6 @@ CompiledCode definition: {
     method createLiteralsWithHeaderWord: headerWord := {
         headerWord __isSmallInteger ifFalse: {self error: "Compiled code header word must be a SmallInteger."}.
         header := headerWord __decodeSmallInteger.
-        Stdn stdout << "Compiled code numLiterals " << self numLiterals; nl.
         literals := Array basicNew: self numLiterals.
         self
     }.
@@ -123,6 +122,31 @@ CompiledCode definition: {
         }.
 
         self setFrameBit: ((self numTemps + newFrameSize) > SmallFrame || self primitive = 84 #* perform:withArguments: *#)
+    }.
+
+    method actualBytecodeSize => UIntPointer := {
+        ## This may be optionally defined on a separate package.
+        ## FIXME: Remove this ugly hack.
+        (self respondsTo: #trailerSize)
+            ifTrue: {__bytecodes size - (self trailerSize castTo: UIntPointer)}
+            ifFalse: {__bytecodes size}
+    }.
+
+    method dumpString := {
+        String streamContents: {:out :: Void |
+            out
+                print: self class;
+                nextPutAll: " numArgs: "; print: self numArgs;
+                nextPutAll: " numLiterals: "; print: self numLiterals;
+                nextPutAll: " numTemps: "; print: self numTemps; nl.
+            literals do: {:each :: Void | out print: each } separatedBy: {:: Void | out space }.
+            out nl.
+            0 until: self actualBytecodeSize do: {:i :: Void |
+                out space.
+                __bytecodes[i] asProtoObject printOn: out base: 16 length: 2 padded: true.
+                (i % 16) = 15 ifTrue: {out nl}.
+            }.
+        }
     }.
 
 }.

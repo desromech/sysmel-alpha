@@ -260,11 +260,21 @@ SequenceableCollection definition: {
 		:= self copyWithSize: (self size castTo: UIntPointer) + extraSize.
 
 	method replaceFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) with: other
-		:= self replaceFrom: startIndex until: endIndex with: other startingAt: 1.
+		:= self replaceFrom: startIndex until: endIndex with: other startingAt: 0.
 
 	method replaceFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) with: other startingAt: (otherStartIndex: UIntPointer) := {
 		startIndex until: endIndex do: {:i :: Void |
-			self at: i + 1 put: (other at: i - startIndex + otherStartIndex)
+			self at: i + 1 put: (other at: i - startIndex + otherStartIndex + 1)
+		}.
+		self
+	}.
+
+	method replaceFrom: (startIndex: UIntPointer) to: (endIndex: UIntPointer) with: other
+		:= self replaceFrom: startIndex to: endIndex with: other startingAt: 1.
+
+	method replaceFrom: (startIndex: UIntPointer) to: (endIndex: UIntPointer) with: other startingAt: (otherStartIndex: UIntPointer) := {
+		startIndex to: endIndex do: {:i :: Void |
+			self at: i put: (other at: (i - startIndex) + otherStartIndex)
 		}.
 		self
 	}.
