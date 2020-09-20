@@ -150,7 +150,7 @@ inline function atan2(y: Float64, x: Float64) => Float64 := {
     }
 }.
 
-function raiseToIntegerPower(x: Float64, i: UInt32) => Float64 := {
+function raiseToPositiveIntegerPower(x: Float64, i: UInt64) => Float64 := {
     x = 0 && i == 0 ifTrue: {return: Float64 nan}.
     i = 0 ifTrue: {return: 1}.
     i = 1 ifTrue: {return: x}.
@@ -171,6 +171,14 @@ function raiseToIntegerPower(x: Float64, i: UInt32) => Float64 := {
     }.
 
     result
+}.
+
+inline function raiseToIntegerPower(x: Float64, i: Int64) => Float64 := {
+    i < 0 ifTrue: {
+        1.0 / raiseToPositiveIntegerPower(x, i negated castTo: UInt64)
+    } ifFalse: {
+        raiseToPositiveIntegerPower(x, i castTo: UInt64)
+    }
 }.
 
 function positiveExp(value: Float64) => Float64 := {
@@ -196,9 +204,50 @@ function positiveExp(value: Float64) => Float64 := {
 }.
 
 inline function exp(value: Float64) => Float64 := {
-    value < 0 ifTrue: {return: positiveExp(value)}.
+    value < 0 ifTrue: {return: 1.0 / positiveExp(value negated)}.
     value = 0 ifTrue: {return: 1.0}.
     positiveExp(value)
+}.
+
+inline function log(value: Float64) => Float64 := {
+    value < 0 ifTrue: {return: Float64 nan}.
+    value = 0 ifTrue: {return: Float64 negativeInfinity}.
+    value isInfinity ifTrue: {return: value}.
+
+    let exponent := value exponent.
+    let signedExp2 := value signedExponent.
+    let n := 0.6931471805599453 * signedExp2.
+    let mantissa := ((value reinterpretCastTo: UInt64) & ((1<<52) - 1 castTo: UInt64) | (1023<<52 castTo: UInt64)) reinterpretCastTo: Float64.
+
+    let x mutable := mantissa.
+    let y mutable := x.
+    let delta mutable := x.
+    let eps mutable := Epsilon * (n abs + 1.0).
+
+    ## Newton method from: https://en.wikipedia.org/wiki/Natural_logarithm
+    until: eps negated < delta && delta < eps do: {
+        let ey := exp(y).
+        delta := 2 * (x - ey) / (x + ey).
+        y := y + delta.
+    }.
+
+	n + y
+}.
+
+inline function pow(x: Float64, y: Float64) => Float64 := {
+    x = 1 ifTrue: {return: 1}.
+    x = 0 ifTrue: {
+        y = 0 ifTrue: {return: Float64 nan}.
+        return: 0
+    }.
+    y = 0 ifTrue: {return: 1}.
+    y = 1 ifTrue: {return: x}.
+
+    let inty := y castTo: Int64.
+    y = inty ifTrue: {return: raiseToIntegerPower(x, inty).}.
+
+    x < 0 ifTrue: {return: Float64 nan}.
+    exp(y*log(x)).
 }.
 
 inline function truncf(x: Float32) => Float32
@@ -232,6 +281,11 @@ inline function atan2f(y: Float32, x: Float32) => Float32
 inline function expf(value: Float32) => Float32
     := exp(value) castTo: Float32.
 
+inline function powf(x: Float32, y: Float32) => Float32
+    := pow(x, y) castTo: Float32.
+
+inline function logf(value: Float32) => Float32
+    := log(value) castTo: Float32.
 
 }.
 }.

@@ -29,6 +29,12 @@ inline function atan2 externC(y: Float64, x: Float64) => Float64
 inline function exp externC(x: Float64) => Float64
     := Stdn Math exp(x).
 
+inline function log externC(x: Float64) => Float64
+    := Stdn Math log(x).
+
+inline function pow externC(x: Float64, y: Float64) => Float64
+    := Stdn Math pow(x, y).
+
 inline function truncf externC(x: Float32) => Float32
     := Stdn Math truncf(x).
 
@@ -56,4 +62,9 @@ inline function atan2f externC(y: Float32, x: Float32) => Float32
 inline function expf externC(x: Float32) => Float32
     := Stdn Math expf(x).
 
+inline function logf externC(x: Float32) => Float32
+    := Stdn Math logf(x).
+
+inline function powf externC(x: Float32, y: Float32) => Float32
+    := Stdn Math powf(x, y).
 }. ## End of namespace LibC

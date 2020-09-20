@@ -8,6 +8,8 @@ Float32 extend: {
     macro method exponent := ``((`,self asIEEE754Float >> 23) & 16rFF).
     macro method mantissa := ``(`,self asIEEE754Float & ((1<<23) - 1)).
 
+    macro method signedExponent := ``((`,self castTo: Int32) - 127).
+
     macro method isPositiveInfinity := ``(`,self = Float32 infinity).
     macro method isNegativeInfinity := ``(`,self = Float32 negativeInfinity).
 
@@ -25,6 +27,8 @@ Float64 extend: {
     macro method signBit := ``(`,self asIEEE754Double >> 63).
     macro method exponent := ``((`,self asIEEE754Double >> 52) & 16r7FF).
     macro method mantissa := ``(`,self asIEEE754Double & ((1<<52) - 1)).
+
+    macro method signedExponent := ``((`,self exponent castTo: Int32) - 1023).
 
     macro method isPositiveInfinity := ``(`,self = Float32 infinity).
     macro method isNegativeInfinity := ``(`,self = Float32 negativeInfinity).
