@@ -31,6 +31,11 @@ sealed template GenericBox(ST: Type)
 
         const inline method point: (thePoint: Vector3) ::=> Box
             := self min: thePoint max: thePoint.
+
+        compileTime if: Scalar isPrimitiveFloatType then: {
+            const inline method unitBox ::=> Box
+                := self min: -0.5 max: 0.5.
+        }.
     }.
 
     const inline method hash => Stdn Hash
@@ -195,6 +200,16 @@ sealed template GenericBox(ST: Type)
                 makeOrthoLeft: min x right: max x
             	bottom: min y top: max y
             	near: max z negated far: min z negated;
+                yourself.
+
+        const inline method reversibleTransformToConvertUnitBoxToMe ::=> ReversibleAffineTransform3d
+            := self reversibleTransformToConvertToMe: SelfType unitBox.
+
+        const inline method reversibleTransformToConvertToMe: (sourceBox: SelfType const ref) ::=> ReversibleAffineTransform3d
+            := ReversibleAffineTransform3d identity
+                translateBy: sourceBox center negated;
+                scaleBy: self halfExtent / sourceBox halfExtent;
+                translateBy: self center;
                 yourself.
     }.
 }.
