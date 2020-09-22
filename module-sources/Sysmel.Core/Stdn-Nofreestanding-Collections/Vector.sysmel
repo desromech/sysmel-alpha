@@ -243,12 +243,14 @@ template Vector(ET: Stdn Concepts Copyable)
 			}
 		}.
 
-		destIndex until: size_ do: {:(UIntPointer)i :: Void |
-			storage_[i] finalize.
-		}.
-		memset(storage_[destIndex] address, 0, (destIndex - size_)*ValueType alignedInstanceSize).
+		destIndex < size_ ifTrue: {
+			destIndex until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] finalize.
+			}.
+			memset(storage_[destIndex] address, 0, (size_ - destIndex)*ValueType alignedInstanceSize).
 
-		size_ := destIndex.
+			size_ := destIndex.
+		}.
 	}.
 
 	Stdn Concepts Equalable ifType: ValueType complies: {
