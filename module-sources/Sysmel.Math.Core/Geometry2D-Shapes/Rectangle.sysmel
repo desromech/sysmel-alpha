@@ -118,7 +118,7 @@ sealed template GenericRectangle(ST: Type)
         := RectangleF64 min: (min castTo: Float64x2) max: (max castTo: Float64x2).
 
     compileTime if: Scalar isPrimitiveFloatType then: {
-        method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
+        const method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
             ## Slab testing algorithm from: A Ray-Box Intersection Algorithm andEfficient Dynamic Voxel Rendering. By Majercik et al
 
             let t0 := (min - ray origin)*ray inverseDirection.
@@ -133,14 +133,13 @@ sealed template GenericRectangle(ST: Type)
                 return: ParametricCurveIntersectionResult empty.
             }.
 
-
             return: (ParametricCurveIntersectionResult with: (maxTMin min: minTMax))
         }.
 
-        method hasIntersectionWithRay: (ray: Ray2d const ref) ::=> Boolean8
+        const method hasIntersectionWithRay: (ray: Ray2d const ref) ::=> Boolean8
             := (self intersectionWithRay: ray) isPresent.
 
-        method computePenetrationNormalAndDistanceForPoint: (point: Vector2) ::=> (Vector2 -- Scalar) := {
+        const method computePenetrationNormalAndDistanceForPoint: (point: Vector2) ::=> (Vector2 -- Scalar) := {
             let delta := point - self center.
             let deltaAbsolute := delta abs / self halfExtent.
             let normal := deltaAbsolute x >= deltaAbsolute y ifTrue: {

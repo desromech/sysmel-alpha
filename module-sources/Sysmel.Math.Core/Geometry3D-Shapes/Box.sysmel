@@ -211,6 +211,48 @@ sealed template GenericBox(ST: Type)
                 scaleBy: self halfExtent / sourceBox halfExtent;
                 translateBy: self center;
                 yourself.
+
+        const method intersectionWithRay: (ray: Ray3d const ref) ::=> ParametricCurveIntersectionResult := {
+            ## Slab testing algorithm from: A Ray-Box Intersection Algorithm andEfficient Dynamic Voxel Rendering. By Majercik et al
+
+            let t0 := (min - ray origin)*ray inverseDirection.
+            let t1 := (max - ray origin)*ray inverseDirection.
+            let tmin := t0 min: t1.
+            let tmax := t0 max: t1.
+            let maxTMin := (tmin x max: tmin y) max: ray tmin.
+            let minTMax := (tmax x min: tmax y) min: ray tmax.
+
+            let hasIntersection := maxTMin <= minTMax.
+            hasIntersection ifFalse: {
+                return: ParametricCurveIntersectionResult empty.
+            }.
+
+            return: (ParametricCurveIntersectionResult with: (maxTMin min: minTMax))
+        }.
+
+        const method hasIntersectionWithRay: (ray: Ray3d const ref) ::=> Boolean8
+            := (self intersectionWithRay: ray) isPresent.
+
+        const method computePenetrationNormalAndDistanceForPoint: (point: Vector3) ::=> (Vector3 -- Scalar) := {
+            let delta := point - self center.
+            let deltaAbsolute := delta abs / self halfExtent.
+            let normal := deltaAbsolute x >= deltaAbsolute y ifTrue: {
+                deltaAbsolute x >= deltaAbsolute z ifTrue: {
+                    Vector3(delta x sign, 0, 0)
+                } ifFalse: {
+                    Vector3(0, 0, delta z sign)
+                }.
+            } ifFalse: {
+                deltaAbsolute y >= deltaAbsolute z ifTrue: {
+                    Vector3(0, delta y sign, 0)
+                } ifFalse: {
+                    Vector3(0, 0, delta z sign)
+                }.
+            }.
+
+            let penetrationDistance := delta - self halfExtent*normal dot: normal.
+            (normal, penetrationDistance)
+    	}.
     }.
 }.
 

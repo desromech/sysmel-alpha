@@ -238,8 +238,8 @@ template Vector(ET: Stdn Concepts Copyable)
 			predicate(storage_[i]) ifFalse: {
 				destIndex ~~ i ifTrue: {
 					storage_[destIndex] := storage_[i] asMoveReference.
-					destIndex := destIndex + 1
-				}
+				}.
+				destIndex := destIndex + 1
 			}
 		}.
 
