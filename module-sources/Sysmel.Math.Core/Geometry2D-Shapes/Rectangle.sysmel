@@ -148,7 +148,7 @@ sealed template GenericRectangle(ST: Type)
                 Vector2(0, delta y sign)
             }.
 
-            let penetrationDistance := delta - self halfExtent*normal dot: normal.
+            let penetrationDistance := (delta - self halfExtent*normal dot: normal) abs.
             (normal, penetrationDistance)
     	}.
 

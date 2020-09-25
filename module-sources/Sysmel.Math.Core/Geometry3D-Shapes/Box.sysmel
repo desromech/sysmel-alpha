@@ -250,7 +250,7 @@ sealed template GenericBox(ST: Type)
                 }.
             }.
 
-            let penetrationDistance := delta - self halfExtent*normal dot: normal.
+            let penetrationDistance := (delta - self halfExtent*normal dot: normal) abs.
             (normal, penetrationDistance)
     	}.
     }.
