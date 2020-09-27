@@ -99,6 +99,13 @@ sealed template GenericRectangle(ST: Type)
         := (min x <= other min x && other max x < max x) &&
            (min y <= other min y && other max y < max y).
 
+   const inline method isRectangleOutside: (other: Rectangle const ref) ::=> Boolean8
+       := other max x < min x || max x < other min x ||
+          other max y < min y || max y < other min y.
+
+   const inline method hasIntersectionWithRectangle: (other: Rectangle const ref) ::=> Boolean8
+       := (self isRectangleOutside: other) not.
+
     const inline method intersectionWith: (other: Rectangle const ref) ::=> SelfType
         := SelfType min: (min max: other min) max: (max min: other max).
 
