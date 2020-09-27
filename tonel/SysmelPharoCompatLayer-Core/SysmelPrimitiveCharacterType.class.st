@@ -1,6 +1,6 @@
 Class {
 	#name : #SysmelPrimitiveCharacterType,
-	#superclass : #SysmelPrimitiveIntegerType,
+	#superclass : #SysmelPrimitiveUnsignedIntegerType,
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 

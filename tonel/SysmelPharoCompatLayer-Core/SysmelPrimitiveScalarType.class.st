@@ -13,5 +13,5 @@ SysmelPrimitiveScalarType class >> isAbstract [
 SysmelPrimitiveScalarType class >> primitiveVectorWithElements: elementCount [
 	| vectorTypeName |
 	vectorTypeName := (self name , 'x' , elementCount asString) asSymbol.
-	^ self environment globals at: vectorTypeName
+	^ self environment at: vectorTypeName
 ]

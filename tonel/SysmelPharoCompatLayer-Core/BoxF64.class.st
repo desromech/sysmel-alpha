@@ -1,7 +1,7 @@
 Class {
 	#name : #BoxF64,
 	#superclass : #GenericBox,
-	#category : #'SysmelPharoCompatLayer-Core-Geometry'
+	#category : #'SysmelPharoCompatLayer-Core-Math-Geometry'
 }
 
 { #category : #'as yet unclassified' }

@@ -4,13 +4,53 @@ Class {
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> infinity [
+	^ Float infinity
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> infinityOrMaxValue [
+	^ Float infinity
+]
+
 { #category : #testing }
 SysmelPrimitiveFloatType class >> isAbstract [
 	^ self == SysmelPrimitiveFloatType
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> negativeInfinity [
+	^ Float negativeInfinity
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> negativeInfinityOrMinValue [
+	^ Float negativeInfinity
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> one [
+	^ 1.0
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> ones [
+	^ 1.0
 ]
 
 { #category : #'as yet unclassified' }
 SysmelPrimitiveFloatType class >> validateImplicitCastOfValue: aValue [
 	self assert: aValue isNumber.
 	^ aValue asFloat
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> zero [
+	^ 0.0
+]
+
+{ #category : #construction }
+SysmelPrimitiveFloatType class >> zeros [
+	^ 0.0
 ]

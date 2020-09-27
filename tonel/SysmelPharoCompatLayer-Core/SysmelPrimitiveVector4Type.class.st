@@ -47,6 +47,11 @@ SysmelPrimitiveVector4Type >> dot: other [
 	^ (x*castedOther x) + (y*castedOther y) + (z*castedOther z) + (w*castedOther w)
 ]
 
+{ #category : #serialization }
+SysmelPrimitiveVector4Type >> encodeForJSON [
+	^ { x . y . z . w }
+]
+
 { #category : #printing }
 SysmelPrimitiveVector4Type >> printOn: aStream [
 	aStream nextPut: $(; nextPutAll: self class name;

@@ -1,6 +1,6 @@
 Class {
 	#name : #UInt16,
-	#superclass : #SysmelPrimitiveIntegerType,
+	#superclass : #SysmelPrimitiveUnsignedIntegerType,
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 

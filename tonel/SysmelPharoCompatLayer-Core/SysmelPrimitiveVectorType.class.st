@@ -14,6 +14,41 @@ SysmelPrimitiveVectorType class >> elements [
 	^ self subclassResponsibility
 ]
 
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> infinity [
+	^ self withAll: self elementType infinity
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> infinityOrMaxValue [
+	^ self withAll: self elementType infinityOrMaxValue
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> maxValue [
+	^ self withAll: self elementType maxValue
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> minValue [
+	^ self withAll: self elementType minValue
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> negativeInfinity [
+	^ self withAll: self elementType negativeInfinity
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> negativeInfinityOrMinValue [
+	^ self withAll: self elementType negativeInfinityOrMinValue
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> ones [
+	^ self withAll: self elementType ones
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveVectorType class >> validateImplicitCastOfValue: aValue [
 	aValue isNumber ifTrue: [
@@ -28,6 +63,11 @@ SysmelPrimitiveVectorType class >> validateImplicitCastOfValue: aValue [
 { #category : #'instance creation' }
 SysmelPrimitiveVectorType class >> withAll: element [
 	self subclassResponsibility
+]
+
+{ #category : #constants }
+SysmelPrimitiveVectorType class >> zeros [
+	^ self withAll: self elementType zero
 ]
 
 { #category : #arithmetic }

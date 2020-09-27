@@ -1,6 +1,6 @@
 Class {
 	#name : #Int8,
-	#superclass : #SysmelPrimitiveIntegerType,
+	#superclass : #SysmelPrimitiveSignedIntegerType,
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
