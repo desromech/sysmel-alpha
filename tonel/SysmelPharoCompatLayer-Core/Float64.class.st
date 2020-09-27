@@ -1,0 +1,15 @@
+Class {
+	#name : #Float64,
+	#superclass : #SysmelPrimitiveFloatType,
+	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
+}
+
+{ #category : #sizes }
+Float64 class >> instanceAlignment [
+	^ 8
+]
+
+{ #category : #sizes }
+Float64 class >> instanceSize [
+	^ 8
+]
