@@ -28,6 +28,11 @@ SysmelPrimitiveVector3Type class >> x: x y: y z: z [
 		yourself
 ]
 
+{ #category : #converting }
+SysmelPrimitiveVector3Type >> asVector3 [
+	^ self
+]
+
 { #category : #enumerating }
 SysmelPrimitiveVector3Type >> collect: aBlock [
 	^ self class basicNew

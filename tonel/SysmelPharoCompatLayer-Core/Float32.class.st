@@ -13,3 +13,8 @@ Float32 class >> instanceAlignment [
 Float32 class >> instanceSize [
 	^ 4
 ]
+
+{ #category : #'as yet unclassified' }
+Float32 class >> shortCapitalTypeSuffix [
+	^ #F32
+]

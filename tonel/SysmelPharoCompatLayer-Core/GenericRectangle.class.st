@@ -1,5 +1,5 @@
 Class {
-	#name : #GenericBox,
+	#name : #GenericRectangle,
 	#superclass : #GenericGeometricShape,
 	#instVars : [
 		'min',
@@ -9,12 +9,12 @@ Class {
 }
 
 { #category : #constructing }
-GenericBox class >> center: center extent: extent [
+GenericRectangle class >> center: center extent: extent [
 	^ self center: center halfExtent: extent / 2
 ]
 
 { #category : #constructing }
-GenericBox class >> center: center halfExtent: halfExtent [
+GenericRectangle class >> center: center halfExtent: halfExtent [
 	^ self basicNew
 		min: center - halfExtent;
 		max: center + halfExtent;
@@ -22,7 +22,7 @@ GenericBox class >> center: center halfExtent: halfExtent [
 ]
 
 { #category : #constructing }
-GenericBox class >> empty [
+GenericRectangle class >> empty [
 	^ self basicNew
 		min: self vector3Type infinityOrMaxValue;
 		max: self vector3Type negativeInfinityOrMinValue;
@@ -30,7 +30,7 @@ GenericBox class >> empty [
 ]
 
 { #category : #constructing }
-GenericBox class >> extent: extent [
+GenericRectangle class >> extent: extent [
 	^ self basicNew
 		min: 0;
 		max: extent;
@@ -38,7 +38,7 @@ GenericBox class >> extent: extent [
 ]
 
 { #category : #constructing }
-GenericBox class >> fullSpace [
+GenericRectangle class >> fullSpace [
 	^ self basicNew
 		min: self vector3Type negativeInfinityOrMinValue;
 		max: self vector3Type infinityOrMaxValue;
@@ -46,12 +46,12 @@ GenericBox class >> fullSpace [
 ]
 
 { #category : #testing }
-GenericBox class >> isAbstract [
+GenericRectangle class >> isAbstract [
 	^ self == GenericBox
 ]
 
 { #category : #constructing }
-GenericBox class >> min: min extent: extent [
+GenericRectangle class >> min: min extent: extent [
 	^ self basicNew
 		min: min;
 		max: min + extent;
@@ -59,7 +59,7 @@ GenericBox class >> min: min extent: extent [
 ]
 
 { #category : #constructing }
-GenericBox class >> min: min max: max [
+GenericRectangle class >> min: min max: max [
 	^ self basicNew
 		min: min;
 		max: max;
@@ -67,7 +67,7 @@ GenericBox class >> min: min max: max [
 ]
 
 { #category : #constructing }
-GenericBox class >> point: aPoint [
+GenericRectangle class >> point: aPoint [
 	^ self basicNew
 		min: aPoint;
 		max: aPoint;
@@ -75,22 +75,22 @@ GenericBox class >> point: aPoint [
 ]
 
 { #category : #constructing }
-GenericBox class >> unitBox [
+GenericRectangle class >> unitBox [
 	^ self min: 0.5 max: 0.5
 ]
 
+{ #category : #converting }
+GenericRectangle >> asBox [
+	^ self class boxType min: min asVector3 max: max asVector3
+]
+
 { #category : #accessing }
-GenericBox >> center [
+GenericRectangle >> center [
 	^ min + ((max - min) / 2)
 ]
 
-{ #category : #accessing }
-GenericBox >> depth [
-	^ max z - min z
-]
-
 { #category : #serialization }
-GenericBox >> encodeForJSON [
+GenericRectangle >> encodeForJSON [
 	^ OrderedDictionary newFromPairs: {
 		#min . min encodeForJSON.
 		#max . max encodeForJSON.
@@ -98,47 +98,47 @@ GenericBox >> encodeForJSON [
 ]
 
 { #category : #accessing }
-GenericBox >> extent [
+GenericRectangle >> extent [
 	^ max - min
 ]
 
 { #category : #accessing }
-GenericBox >> halfExtent [
+GenericRectangle >> halfExtent [
 	^ (max - min) / 2
 ]
 
 { #category : #accessing }
-GenericBox >> height [
+GenericRectangle >> height [
 	^ max y - min y
 ]
 
 { #category : #testing }
-GenericBox >> isEmpty [
-	^ min x > max x or: [ min y > max y or: [min z > max z]]
+GenericRectangle >> isEmpty [
+	^ min x > max x or: [ min y > max y ]
 ]
 
 { #category : #accessing }
-GenericBox >> max [
+GenericRectangle >> max [
 	^ max
 ]
 
 { #category : #accessing }
-GenericBox >> max: anObject [
-	max := anObject implicitCastTo: self class vector3Type
+GenericRectangle >> max: anObject [
+	max := anObject implicitCastTo: self class vector2Type
 ]
 
 { #category : #accessing }
-GenericBox >> min [
+GenericRectangle >> min [
 	^ min
 ]
 
 { #category : #accessing }
-GenericBox >> min: anObject [
-	min := anObject implicitCastTo: self class vector3Type
+GenericRectangle >> min: anObject [
+	min := anObject implicitCastTo: self class vector2Type
 ]
 
 { #category : #printing }
-GenericBox >> printOn: aStream [
+GenericRectangle >> printOn: aStream [
 	self isEmpty ifTrue: [ 
 		^ aStream nextPutAll: self class name; nextPutAll: ' empty'
 	].
@@ -150,11 +150,11 @@ GenericBox >> printOn: aStream [
 ]
 
 { #category : #transforming }
-GenericBox >> translatedBy: translation [
+GenericRectangle >> translatedBy: translation [
 	^ self class min: min + translation max: max + translation
 ]
 
 { #category : #accessing }
-GenericBox >> width [
+GenericRectangle >> width [
 	^ max x - min x
 ]

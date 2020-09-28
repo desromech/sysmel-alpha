@@ -26,11 +26,17 @@ SysmelPrimitiveVector2Type class >> x: x y: y [
 		yourself
 ]
 
+{ #category : #converting }
+SysmelPrimitiveVector2Type >> asVector3 [
+	^ (self class elementType primitiveVectorWithElements: 3)
+		x: x y: y z: 0
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveVector2Type >> collect: aBlock [
 	^ self class basicNew
-		x: (aBlock value x);
-		y: (aBlock value y);
+		x: (aBlock value: x);
+		y: (aBlock value: y);
 		yourself
 ]
 

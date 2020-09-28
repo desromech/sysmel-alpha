@@ -13,3 +13,8 @@ Float64 class >> instanceAlignment [
 Float64 class >> instanceSize [
 	^ 8
 ]
+
+{ #category : #'as yet unclassified' }
+Float64 class >> shortCapitalTypeSuffix [
+	^ #F64
+]
