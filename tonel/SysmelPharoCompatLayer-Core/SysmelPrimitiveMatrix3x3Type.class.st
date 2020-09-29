@@ -176,6 +176,11 @@ SysmelPrimitiveMatrix3x3Type >> firstColumn: anObject [
 	firstColumn := anObject implicitCastTo: self class columnType
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrix3x3Type >> firstRow [
+	^ self class rowType x: firstColumn x y: secondColumn x z: thirdColumn x
+]
+
 { #category : #comparing }
 SysmelPrimitiveMatrix3x3Type >> hash [
 	^ (firstColumn hash hashMultiply + secondColumn hash) hashMultiply + thirdColumn hash
@@ -252,6 +257,11 @@ SysmelPrimitiveMatrix3x3Type >> secondColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix3x3Type >> secondRow [
+	^ self class rowType x: firstColumn y y: secondColumn y z: thirdColumn y
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> thirdColumn [
 	^ thirdColumn
 ]
@@ -262,8 +272,17 @@ SysmelPrimitiveMatrix3x3Type >> thirdColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix3x3Type >> thirdRow [
+	^ self class rowType x: firstColumn z y: secondColumn z z: thirdColumn z
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> transpose [
-	^ self class rows: { firstColumn . secondColumn . thirdColumn }
+	^ self class basicNew
+		firstColumn: self firstRow;
+		secondColumn: self secondRow;
+		thirdColumn: self thirdRow;
+		yourself
 ]
 
 { #category : #enumerating }

@@ -83,6 +83,12 @@ BaselineOfSysmel >> baseline: spec [
 			package: #'SysmelCalypso' with: [
 				spec requires: #(#'SysmelMoebiusMetamodel-Core' #'SysmelLanguage-Pharo')
 			].
+		spec
+			package: #'SysmelPharoCompatLayer-Core' with: [].
+		spec
+			package: #'SysmelPharoCompatLayer-Core-Tests' with: [
+				spec requires: #(#'SysmelPharoCompatLayer-Core')
+			].
 
 	].
 ]

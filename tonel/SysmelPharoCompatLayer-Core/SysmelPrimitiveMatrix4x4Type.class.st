@@ -234,6 +234,11 @@ SysmelPrimitiveMatrix4x4Type >> firstColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix4x4Type >> firstRow [
+	^ self class rowType x: firstColumn x y: secondColumn x z: thirdColumn x w: fourthColumn x
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> fourthColumn [
 	^ fourthColumn
 ]
@@ -241,6 +246,11 @@ SysmelPrimitiveMatrix4x4Type >> fourthColumn [
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> fourthColumn: anObject [
 	fourthColumn := anObject implicitCastTo: self class columnType
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrix4x4Type >> fourthRow [
+	^ self class rowType x: firstColumn w y: secondColumn w z: thirdColumn w w: fourthColumn w
 ]
 
 { #category : #comparing }
@@ -383,6 +393,11 @@ SysmelPrimitiveMatrix4x4Type >> secondColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix4x4Type >> secondRow [
+	^ self class rowType x: firstColumn y y: secondColumn y z: thirdColumn y w: fourthColumn y
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> thirdColumn [
 	^ thirdColumn
 ]
@@ -393,8 +408,18 @@ SysmelPrimitiveMatrix4x4Type >> thirdColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix4x4Type >> thirdRow [
+	^ self class rowType x: firstColumn z y: secondColumn z z: thirdColumn z w: fourthColumn z
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> transpose [
-	^ self class rows: { firstColumn . secondColumn . thirdColumn . fourthColumn }
+	^ self class basicNew
+		firstColumn: self firstRow;
+		secondColumn: self secondRow;
+		thirdColumn: self thirdRow;
+		fourthColumn: self fourthRow;
+		yourself
 ]
 
 { #category : #enumerating }

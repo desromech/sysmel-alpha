@@ -160,6 +160,11 @@ SysmelPrimitiveMatrix2x2Type >> firstColumn: anObject [
 	firstColumn := anObject implicitCastTo: self class columnType
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrix2x2Type >> firstRow [
+	^ self class rowType x: firstColumn x y: secondColumn x
+]
+
 { #category : #comparing }
 SysmelPrimitiveMatrix2x2Type >> hash [
 	^ firstColumn hash hashMultiply + secondColumn hash
@@ -214,8 +219,16 @@ SysmelPrimitiveMatrix2x2Type >> secondColumn: anObject [
 ]
 
 { #category : #accessing }
+SysmelPrimitiveMatrix2x2Type >> secondRow [
+	^ self class rowType x: firstColumn y y: secondColumn y
+]
+
+{ #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> transpose [
-	^ self class rows: { firstColumn . secondColumn }
+	^ self class basicNew
+		firstColumn: self firstRow;
+		secondColumn: self secondRow;
+		yourself
 ]
 
 { #category : #enumerating }
