@@ -19,6 +19,11 @@ SysmelPrimitiveFloatType class >> isAbstract [
 	^ self == SysmelPrimitiveFloatType
 ]
 
+{ #category : #testing }
+SysmelPrimitiveFloatType class >> isPrimitiveFloatType [
+	^ true
+]
+
 { #category : #construction }
 SysmelPrimitiveFloatType class >> negativeInfinity [
 	^ Float negativeInfinity

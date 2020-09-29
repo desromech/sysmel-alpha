@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #testing }
+SysmelPrimitiveSignedIntegerType class >> isPrimitiveSignedIntegerType [
+	^ true
+]
+
+{ #category : #testing }
 SysmelPrimitiveSignedIntegerType class >> isSigned [
 	^ true
 ]

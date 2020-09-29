@@ -10,6 +10,11 @@ SysmelPrimitiveIntegerType class >> isAbstract [
 ]
 
 { #category : #testing }
+SysmelPrimitiveIntegerType class >> isPrimitiveIntegerType [
+	^ true
+]
+
+{ #category : #testing }
 SysmelPrimitiveIntegerType class >> isSigned [
 	^ self subclassResponsibility
 ]

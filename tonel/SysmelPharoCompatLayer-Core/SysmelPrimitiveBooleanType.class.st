@@ -9,6 +9,11 @@ SysmelPrimitiveBooleanType class >> isAbstract [
 	^ self == SysmelPrimitiveBooleanType
 ]
 
+{ #category : #testing }
+SysmelPrimitiveBooleanType class >> isPrimitiveBooleanType [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveBooleanType class >> validateImplicitCastOfValue: aValue [
 	self assert: (aValue == false or: [aValue == true]).

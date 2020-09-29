@@ -24,6 +24,16 @@ SysmelPrimitiveVectorType class >> infinityOrMaxValue [
 	^ self withAll: self elementType infinityOrMaxValue
 ]
 
+{ #category : #sizes }
+SysmelPrimitiveVectorType class >> instanceSize [
+	^ self elementType instanceSize * self elements
+]
+
+{ #category : #testing }
+SysmelPrimitiveVectorType class >> isPrimitiveVectorType [
+	^ true
+]
+
 { #category : #constants }
 SysmelPrimitiveVectorType class >> maxValue [
 	^ self withAll: self elementType maxValue
@@ -42,6 +52,11 @@ SysmelPrimitiveVectorType class >> negativeInfinity [
 { #category : #constants }
 SysmelPrimitiveVectorType class >> negativeInfinityOrMinValue [
 	^ self withAll: self elementType negativeInfinityOrMinValue
+]
+
+{ #category : #'instance creation' }
+SysmelPrimitiveVectorType class >> new [
+	^ self zeros
 ]
 
 { #category : #constants }
@@ -88,6 +103,31 @@ SysmelPrimitiveVectorType >> - other [
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> / other [
 	^ self with: other collect: [ :a :b | a / b ]
+]
+
+{ #category : #comparing }
+SysmelPrimitiveVectorType >> < other [
+	^ (self <=> other) < 0
+]
+
+{ #category : #comparing }
+SysmelPrimitiveVectorType >> <= other [
+	^ (self <=> other) <= 0
+]
+
+{ #category : #comparing }
+SysmelPrimitiveVectorType >> <=> other [
+	self subclassResponsibility
+]
+
+{ #category : #comparing }
+SysmelPrimitiveVectorType >> > other [
+	^ (self <=> other) > 0
+]
+
+{ #category : #comparing }
+SysmelPrimitiveVectorType >> >= other [
+	^ (self <=> other) >= 0
 ]
 
 { #category : #arithmetic }

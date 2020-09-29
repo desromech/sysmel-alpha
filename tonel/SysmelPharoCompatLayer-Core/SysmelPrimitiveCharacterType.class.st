@@ -8,3 +8,8 @@ Class {
 SysmelPrimitiveCharacterType class >> isAbstract [
 	^ self == SysmelPrimitiveCharacterType
 ]
+
+{ #category : #testing }
+SysmelPrimitiveCharacterType class >> isPrimitiveCharacterType [
+	^ true
+]

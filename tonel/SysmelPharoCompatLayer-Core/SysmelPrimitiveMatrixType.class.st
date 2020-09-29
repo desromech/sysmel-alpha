@@ -23,9 +23,34 @@ SysmelPrimitiveMatrixType class >> elementType [
 	self subclassResponsibility
 ]
 
+{ #category : #sizes }
+SysmelPrimitiveMatrixType class >> instanceAlignment [
+	^ self columnType instanceSize
+]
+
+{ #category : #sizes }
+SysmelPrimitiveMatrixType class >> instanceSize [
+	^ self columnType alignedInstanceSize * self columns
+]
+
 { #category : #testing }
 SysmelPrimitiveMatrixType class >> isAbstract [
 	^ self == SysmelPrimitiveMatrixType
+]
+
+{ #category : #testing }
+SysmelPrimitiveMatrixType class >> isPrimitiveMatrixType [
+	^ true
+]
+
+{ #category : #'instance creation' }
+SysmelPrimitiveMatrixType class >> new [
+	^ self zeros
+]
+
+{ #category : #construction }
+SysmelPrimitiveMatrixType class >> ones [
+	^ self withAll: self elementType one
 ]
 
 { #category : #accessing }
@@ -36,6 +61,11 @@ SysmelPrimitiveMatrixType class >> rowType [
 { #category : #accessing }
 SysmelPrimitiveMatrixType class >> rows [
 	self subclassResponsibility
+]
+
+{ #category : #construction }
+SysmelPrimitiveMatrixType class >> zeros [
+	^ self withAll: self elementType zero
 ]
 
 { #category : #arithmetic }

@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #sizes }
+SysmelNativeType class >> alignedInstanceSize [
+	^ self instanceSize alignedTo: self instanceAlignment
+]
+
+{ #category : #sizes }
 SysmelNativeType class >> instanceAlignment [
 	self subclassResponsibility
 ]
@@ -17,6 +22,46 @@ SysmelNativeType class >> instanceSize [
 { #category : #testing }
 SysmelNativeType class >> isAbstract [
 	^ self == SysmelNativeType
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveBooleanType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveCharacterType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveFloatType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveIntegerType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveMatrixType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveSignedIntegerType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveUnsignedIntegerType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPrimitiveVectorType [
+	^ false
 ]
 
 { #category : #'as yet unclassified' }
