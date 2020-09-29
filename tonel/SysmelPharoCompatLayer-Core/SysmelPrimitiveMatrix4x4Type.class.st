@@ -138,6 +138,48 @@ SysmelPrimitiveMatrix4x4Type >> = other [
 	  fourthColumn = coercedOther fourthColumn ]]]
 ]
 
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> adjugateMatrix [
+	^ self class columns: { 
+			self cofactorAtRow: 1 atColumn: 1.
+			self cofactorAtRow: 1 atColumn: 2.
+			self cofactorAtRow: 1 atColumn: 3.
+			self cofactorAtRow: 1 atColumn: 4.
+
+			self cofactorAtRow: 2 atColumn: 1.
+			self cofactorAtRow: 2 atColumn: 2.
+			self cofactorAtRow: 2 atColumn: 3.
+			self cofactorAtRow: 2 atColumn: 4.
+
+			self cofactorAtRow: 3 atColumn: 1.
+			self cofactorAtRow: 3 atColumn: 2.
+			self cofactorAtRow: 3 atColumn: 3.
+			self cofactorAtRow: 3 atColumn: 4.
+
+			self cofactorAtRow: 4 atColumn: 1.
+			self cofactorAtRow: 4 atColumn: 2.
+			self cofactorAtRow: 4 atColumn: 3.
+			self cofactorAtRow: 4 atColumn: 4.
+		}
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> at: column [
+	column = 1 ifTrue: [
+		^ firstColumn
+	].
+	column = 2 ifTrue: [
+		^ secondColumn
+	].
+	column = 3 ifTrue: [
+		^ thirdColumn
+	].
+	column = 4 ifTrue: [
+		^ fourthColumn
+	].
+	self error
+]
+
 { #category : #comparing }
 SysmelPrimitiveMatrix4x4Type >> closeTo: other [
 	| coercedOther |
@@ -156,6 +198,11 @@ SysmelPrimitiveMatrix4x4Type >> closeTo: other precision: precision [
 	  (secondColumn closeTo: coercedOther secondColumn precision: precision) and: [
 	  (thirdColumn closeTo: coercedOther thirdColumn precision: precision) and: [
 	   fourthColumn closeTo: coercedOther fourthColumn precision: precision ]]]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> cofactorAtRow: row atColumn: column [
+	^ (self minorMatrixAtRow: row atColumn: column) determinant * ((row + column) even ifTrue: [ 1 ] ifFalse: [ -1 ])
 ]
 
 { #category : #enumerating }
@@ -199,6 +246,21 @@ SysmelPrimitiveMatrix4x4Type >> fourthColumn: anObject [
 { #category : #comparing }
 SysmelPrimitiveMatrix4x4Type >> hash [
 	^ ((firstColumn hash hashMultiply + secondColumn hash) hashMultiply + thirdColumn hash) hashMultiply + fourthColumn hash
+]
+
+{ #category : #operations }
+SysmelPrimitiveMatrix4x4Type >> inverse [
+	| det detVector adjugate |
+	det := self determinant.
+	(det closeTo: 0) ifTrue: [ ^ self error: 'Matrix is not invertible.' ].
+	detVector := det implicitCastTo: self class columnType.
+	adjugate := self adjugateMatrix.
+	^ self class basicNew
+		firstColumn: adjugate firstColumn / detVector;
+		secondColumn: adjugate secondColumn / detVector;
+		thirdColumn: adjugate thirdColumn / detVector;
+		fourthColumn: adjugate fourthColumn / detVector;
+		yourself
 ]
 
 { #category : #testing }

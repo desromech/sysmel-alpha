@@ -60,6 +60,15 @@ SysmelPrimitiveVector4Type >> = other [
 	^ x = coercedOther x and: [ y = coercedOther y and: [ z = coercedOther z and: [ w = coercedOther w]]]
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveVector4Type >> at: elementIndex [
+	elementIndex = 1 ifTrue: [ ^ x ].
+	elementIndex = 2 ifTrue: [ ^ y ].
+	elementIndex = 3 ifTrue: [ ^ z ].
+	elementIndex = 4 ifTrue: [ ^ w ].
+	^ self error
+]
+
 { #category : #comparing }
 SysmelPrimitiveVector4Type >> closeTo: other [
 	| coercedOther |

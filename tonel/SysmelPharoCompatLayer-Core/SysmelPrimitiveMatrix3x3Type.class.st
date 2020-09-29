@@ -120,6 +120,20 @@ SysmelPrimitiveMatrix3x3Type >> = other [
 	  thirdColumn = coercedOther thirdColumn ]]
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrix3x3Type >> at: column [
+	column = 1 ifTrue: [
+		^ firstColumn
+	].
+	column = 2 ifTrue: [
+		^ secondColumn
+	].
+	column = 3 ifTrue: [
+		^ thirdColumn
+	].
+	self error
+]
+
 { #category : #comparing }
 SysmelPrimitiveMatrix3x3Type >> closeTo: other [
 	| coercedOther |

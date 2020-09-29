@@ -110,6 +110,17 @@ SysmelPrimitiveMatrix2x2Type >> = other [
 	  secondColumn = coercedOther secondColumn ]
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrix2x2Type >> at: column [
+	column = 1 ifTrue: [
+		^ firstColumn
+	].
+	column = 2 ifTrue: [
+		^ secondColumn
+	].
+	self error
+]
+
 { #category : #comparing }
 SysmelPrimitiveMatrix2x2Type >> closeTo: other [
 	| coercedOther |

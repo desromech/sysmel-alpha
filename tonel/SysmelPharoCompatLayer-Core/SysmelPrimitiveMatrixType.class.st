@@ -83,6 +83,11 @@ SysmelPrimitiveMatrixType >> abs [
 	^ self collect: [ :each | each abs ]
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrixType >> at: columnIndex [
+	self subclassResponsibility
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveMatrixType >> ceiling [
 	^ self collect: [ :each | each ceiling ]
@@ -91,6 +96,11 @@ SysmelPrimitiveMatrixType >> ceiling [
 { #category : #enumerating }
 SysmelPrimitiveMatrixType >> collect: aBlock [
 	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrixType >> elementAtRow: row column: column [
+	^ (self at: column) at: row
 ]
 
 { #category : #arithmetic }

@@ -81,6 +81,22 @@ SysmelPrimitiveMatrix4x4TypeTest >> testIdentity [
 ]
 
 { #category : #tests }
+SysmelPrimitiveMatrix4x4TypeTest >> testInverse [
+	Scalar isPrimitiveFloatType ifFalse: [ ^ self skip ].
+	self assert: Matrix4x4 identity inverse equals: Matrix4x4 identity.
+	self assert: (Matrix4x4 columns: #(
+		0 1 2 4
+		10 8 5 3
+		9 3 8 1
+		20 21 25 24)) inverse closeTo: (Matrix4x4 columns: #(
+		0.807654   0.309164   0.168177  -0.180262
+		-0.891239  -0.132931  -0.241692   0.175227
+		-0.675730  -0.322256   0.020141   0.152064
+		0.810675   0.194361   0.050352  -0.119839
+	)).
+]
+
+{ #category : #tests }
 SysmelPrimitiveMatrix4x4TypeTest >> testNotEquals [
 	self deny: Matrix4x4 ones equals: Matrix4x4 zeros.
 	self deny: Matrix4x4 ones equals: Matrix4x4 identity.
