@@ -13,3 +13,13 @@ Int16 class >> instanceAlignment [
 Int16 class >> instanceSize [
 	^ 2
 ]
+
+{ #category : #'as yet unclassified' }
+Int16 class >> newFromBytes: aByteArray position: byteArrayPosition [
+	^ aByteArray signedShortAt: byteArrayPosition
+]
+
+{ #category : #'as yet unclassified' }
+Int16 class >> storeValue: value bytesIn: aByteArray position: byteArrayPosition [
+	aByteArray signedShortAt: byteArrayPosition put: value
+]

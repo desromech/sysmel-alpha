@@ -39,6 +39,11 @@ SysmelPrimitiveFloatType class >> negativeInfinityOrMinValue [
 	^ Float negativeInfinity
 ]
 
+{ #category : #'instance creation' }
+SysmelPrimitiveFloatType class >> new [
+	^ 0.0
+]
+
 { #category : #construction }
 SysmelPrimitiveFloatType class >> one [
 	^ 1.0

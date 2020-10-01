@@ -36,6 +36,12 @@ GenericQuaternion class >> r: r i: i j: j k: k [
 	^ self xyzw: (self vector4Type x: i y: j z: k w: r)
 ]
 
+{ #category : #'as yet unclassified' }
+GenericQuaternion class >> typeOfGenericSlotNamed: slotName [
+	slotName = #xyzw ifTrue: [ ^ self vector4Type ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #accessing }
 GenericQuaternion class >> x: x y: y z: z w: w [
 	^ self xyzw: (self vector4Type x: x y: y z: z w: w)

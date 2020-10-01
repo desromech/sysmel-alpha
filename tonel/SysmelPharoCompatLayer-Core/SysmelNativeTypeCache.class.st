@@ -2,7 +2,8 @@ Class {
 	#name : #SysmelNativeTypeCache,
 	#superclass : #Object,
 	#classVars : [
-		'ArrayTypeCache'
+		'ArrayTypeCache',
+		'GenericTypeCache'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -16,4 +17,14 @@ SysmelNativeTypeCache class >> arrayOf: baseType elements: elements [
 { #category : #'as yet unclassified' }
 SysmelNativeTypeCache class >> arrayTypeCache [
 	^ ArrayTypeCache ifNil: [ ArrayTypeCache := Dictionary new ]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeTypeCache class >> genericTypeCache [
+	^ GenericTypeCache ifNil: [ GenericTypeCache := Dictionary new ]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeTypeCache class >> getGeneric: generic withArguments: genericArguments orCreateWith: genericInstatiationBlock [
+	^ self genericTypeCache at: { generic . genericArguments } ifAbsentPut: genericInstatiationBlock
 ]

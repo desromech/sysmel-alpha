@@ -1,6 +1,6 @@
 Class {
 	#name : #GenericLinearAlgebra,
-	#superclass : #SysmelNativeGenericInstanceType,
+	#superclass : #SysmelGenericStructureType,
 	#classInstVars : [
 		'vector2Type',
 		'vector3Type',

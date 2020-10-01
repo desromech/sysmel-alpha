@@ -13,6 +13,13 @@ GenericCircle class >> isAbstract [
 	^ self == GenericSphere
 ]
 
+{ #category : #'as yet unclassified' }
+GenericCircle class >> typeOfGenericSlotNamed: slotName [
+	slotName = #center ifTrue: [ ^ self vector2Type ].
+	slotName = #radius ifTrue: [ ^ self scalarType ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #accessing }
 GenericCircle >> center [
 	^ center

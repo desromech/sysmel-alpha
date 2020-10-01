@@ -8,3 +8,8 @@ Class {
 ReversibleAffineTransform3dF64 class >> scalarType [
 	^ Float64
 ]
+
+{ #category : #converting }
+ReversibleAffineTransform3dF64 >> asReversibleAffineTransform3dF64 [
+	^ self
+]

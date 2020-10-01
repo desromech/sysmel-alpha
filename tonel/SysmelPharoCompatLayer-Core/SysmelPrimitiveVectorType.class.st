@@ -260,6 +260,14 @@ SysmelPrimitiveVectorType >> negated [
 	^ self collect: [ :each | each negated ]
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveVectorType >> normalized [
+	| l |
+	l := self length.
+	(l closeTo: 0) ifTrue: [ ^ self class zeros ].
+	^ self collect: [ :each | each / l ]
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> sqrt [
 	^ self collect: [ :each | each sqrt ]

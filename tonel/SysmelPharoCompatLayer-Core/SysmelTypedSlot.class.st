@@ -15,6 +15,16 @@ SysmelTypedSlot class >> named: aSymbol for: aType [
 		yourself
 ]
 
+{ #category : #converting }
+SysmelTypedSlot >> asSysmelAggregateSlotDescription [
+	^ SysmelAggregateSlotDescription new
+		name: name;
+		type: type;
+		location: location;
+		instanceVariableIndex: index;
+		yourself
+]
+
 { #category : #printing }
 SysmelTypedSlot >> definitionString [
 	^ self printString

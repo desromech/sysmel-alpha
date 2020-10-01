@@ -74,6 +74,13 @@ GenericRectangle class >> point: aPoint [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericRectangle class >> typeOfGenericSlotNamed: slotName [
+	slotName = #min ifTrue: [ ^ self vector2Type ].
+	slotName = #max ifTrue: [ ^ self vector2Type ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #constructing }
 GenericRectangle class >> unitBox [
 	^ self min: 0.5 max: 0.5

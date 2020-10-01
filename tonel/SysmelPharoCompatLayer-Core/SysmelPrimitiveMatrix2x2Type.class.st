@@ -276,6 +276,15 @@ SysmelPrimitiveMatrix2x2Type >> secondRow [
 	^ self class rowType x: firstColumn y y: secondColumn y
 ]
 
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix2x2Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	columnType storeValue: firstColumn bytesIn: aByteArray position: byteArrayPosition.
+	columnType storeValue: secondColumn bytesIn: aByteArray position: byteArrayPosition + columnTypeSize.
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> transpose [
 	^ self class basicNew

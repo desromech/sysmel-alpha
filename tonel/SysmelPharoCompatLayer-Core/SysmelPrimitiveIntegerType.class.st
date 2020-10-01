@@ -24,6 +24,11 @@ SysmelPrimitiveIntegerType class >> isUnsigned [
 	^ self subclassResponsibility
 ]
 
+{ #category : #'instance creation' }
+SysmelPrimitiveIntegerType class >> new [
+	^ 0
+]
+
 { #category : #'accessing structure variables' }
 SysmelPrimitiveIntegerType class >> one [
 	^ 1

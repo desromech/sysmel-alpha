@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
+{ #category : #'as yet unclassified' }
+SysmelUnionType class >> aggregateLayoutKind [
+	^ SysmelUnionAggregateLayout
+]
+
 { #category : #testing }
 SysmelUnionType class >> isUnionType [
 	^ true

@@ -3,7 +3,8 @@ Class {
 	#superclass : #SysmelAggregateType,
 	#classInstVars : [
 		'elements',
-		'elementType'
+		'elementType',
+		'instanceSize'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -24,10 +25,20 @@ SysmelArrayType class >> initializeFor: newElementType elements: newElements [
 	elements := newElements.
 ]
 
+{ #category : #sizes }
+SysmelArrayType class >> instanceAlignment [
+	^ elementType instanceAlignment
+]
+
 { #category : #accessing }
 SysmelArrayType class >> instanceFor: newElementType elements: newElements [
 	^ self newAnonymousSubclass
 		initializeFor: newElementType elements: newElements
+]
+
+{ #category : #sizes }
+SysmelArrayType class >> instanceSize [
+	^ instanceSize ifNil: [ instanceSize := elementType alignedInstanceSize * elements ]
 ]
 
 { #category : #testing }

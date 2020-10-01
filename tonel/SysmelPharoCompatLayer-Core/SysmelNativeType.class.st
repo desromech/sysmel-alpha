@@ -124,6 +124,26 @@ SysmelNativeType class >> named: aSymbol [
 	^ SysmelTypedSlot named: aSymbol for: self
 ]
 
+{ #category : #'instance creation' }
+SysmelNativeType class >> newFromBytes: aByteArray [
+	^ self newFromBytes: aByteArray position: 1
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeType class >> newFromBytes: aByteArray position: byteArrayPosition [
+	^ self basicNew readBytesFrom: aByteArray position: byteArrayPosition; yourself
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeType class >> storeValue: value bytesIn: aByteArray [
+	^ self storeValue: value bytesIn: aByteArray position: 1
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeType class >> storeValue: value bytesIn: aByteArray position: byteArrayPosition [
+	^ value storeBytesIn: aByteArray position: byteArrayPosition
+]
+
 { #category : #'as yet unclassified' }
 SysmelNativeType class >> validateExplicitCastOfValue: aValue [
 	^ self validateImplicitCastOfValue: aValue
@@ -133,4 +153,29 @@ SysmelNativeType class >> validateExplicitCastOfValue: aValue [
 SysmelNativeType class >> validateImplicitCastOfValue: aValue [
 	self assert: aValue class == self.
 	^ aValue
+]
+
+{ #category : #'memory access' }
+SysmelNativeType >> readBytesFrom: aByteArray [
+	self readBytesFrom: aByteArray position: 1
+]
+
+{ #category : #'memory access' }
+SysmelNativeType >> readBytesFrom: aByteArray position: byteArrayPosition [
+	^ self class aggregateLayout readBytesFrom: aByteArray position: byteArrayPosition intoInstance: self
+]
+
+{ #category : #'memory access' }
+SysmelNativeType >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	^ self subclassResponsibility
+]
+
+{ #category : #'memory access' }
+SysmelNativeType >> storeBytesIn: aByteArray [
+	^ self storeBytesIn: aByteArray position: 1
+]
+
+{ #category : #'memory access' }
+SysmelNativeType >> storeBytesIn: aByteArray position: byteArrayPosition [
+	^ self subclassResponsibility
 ]

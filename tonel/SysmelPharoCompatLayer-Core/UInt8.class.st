@@ -13,3 +13,13 @@ UInt8 class >> instanceAlignment [
 UInt8 class >> instanceSize [
 	^ 1
 ]
+
+{ #category : #'as yet unclassified' }
+UInt8 class >> newFromBytes: aByteArray position: byteArrayPosition [
+	^ aByteArray unsignedByteAt: byteArrayPosition
+]
+
+{ #category : #'as yet unclassified' }
+UInt8 class >> storeValue: value bytesIn: aByteArray position: byteArrayPosition [
+	aByteArray unsignedByteAt: byteArrayPosition put: value
+]

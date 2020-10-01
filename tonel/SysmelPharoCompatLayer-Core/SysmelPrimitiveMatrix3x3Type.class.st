@@ -406,6 +406,16 @@ SysmelPrimitiveMatrix3x3Type >> secondRow [
 	^ self class rowType x: firstColumn y y: secondColumn y z: thirdColumn y
 ]
 
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix3x3Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	columnType storeValue: firstColumn bytesIn: aByteArray position: byteArrayPosition.
+	columnType storeValue: secondColumn bytesIn: aByteArray position: byteArrayPosition + columnTypeSize.
+	columnType storeValue: thirdColumn bytesIn: aByteArray position: byteArrayPosition + (columnTypeSize*2).
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> thirdColumn [
 	^ thirdColumn

@@ -13,6 +13,13 @@ GenericSphere class >> isAbstract [
 	^ self == GenericSphere
 ]
 
+{ #category : #'as yet unclassified' }
+GenericSphere class >> typeOfGenericSlotNamed: slotName [
+	slotName = #center ifTrue: [ ^ self vector3Type ].
+	slotName = #radius ifTrue: [ ^ self scalarType ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #accessing }
 GenericSphere >> center [
 	^ center
