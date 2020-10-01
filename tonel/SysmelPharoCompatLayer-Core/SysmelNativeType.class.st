@@ -25,6 +25,31 @@ SysmelNativeType class >> isAbstract [
 ]
 
 { #category : #testing }
+SysmelNativeType class >> isAbstractClassType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isAggregateType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isAggregateTypeWithFields [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isClassType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isInterfaceType [
+	^ false
+]
+
+{ #category : #testing }
 SysmelNativeType class >> isPrimitiveBooleanType [
 	^ false
 ]
@@ -61,6 +86,16 @@ SysmelNativeType class >> isPrimitiveUnsignedIntegerType [
 
 { #category : #testing }
 SysmelNativeType class >> isPrimitiveVectorType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isStructureType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isUnionType [
 	^ false
 ]
 
