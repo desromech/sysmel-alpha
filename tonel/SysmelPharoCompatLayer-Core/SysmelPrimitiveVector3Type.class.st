@@ -35,6 +35,15 @@ SysmelPrimitiveVector3Type class >> x: x [
 ]
 
 { #category : #construction }
+SysmelPrimitiveVector3Type class >> x: x y: y [
+	^ self basicNew
+		x: x;
+		y: y;
+		z: 0;
+		yourself
+]
+
+{ #category : #construction }
 SysmelPrimitiveVector3Type class >> x: x y: y z: z [
 	^ self basicNew
 		x: x;

@@ -1,6 +1,9 @@
 Class {
 	#name : #SysmelArrayType,
 	#superclass : #SysmelAggregateType,
+	#instVars : [
+		'storage'
+	],
 	#classInstVars : [
 		'elements',
 		'elementType',
@@ -60,4 +63,62 @@ SysmelArrayType class >> printOn: aStream [
 		aStream nextPut: $(; print: elementType; nextPutAll: ' array: '; print: elements; nextPut: $).
 	].
 
+]
+
+{ #category : #accessing }
+SysmelArrayType >> at: index [
+	^ storage at: index
+]
+
+{ #category : #accessing }
+SysmelArrayType >> at: index put: value [
+	^ storage at: index put: (value implicitCastTo: self class elementType)
+]
+
+{ #category : #enumerating }
+SysmelArrayType >> do: aBlock [
+	^ storage do: aBlock
+]
+
+{ #category : #accessing }
+SysmelArrayType >> elementSize [
+	^ self class elementType alignedInstanceSize
+]
+
+{ #category : #initialization }
+SysmelArrayType >> initialize [
+	| elementType |
+	elementType := self class elementType.
+	storage := (1 to: self class elements) collect: [ :i | elementType new ].
+]
+
+{ #category : #'memory access' }
+SysmelArrayType >> readBytesFrom: aByteArray position: byteArrayPosition [
+	| elementCount elementType elementSize sourcePosition |
+	elementCount := self class elements.
+	elementType := self class elementType.
+	elementSize := elementType alignedInstanceSize.
+	storage := Array new: elementCount.
+	
+	sourcePosition := byteArrayPosition.
+	1 to: elementCount do: [ :i |
+		storage at: i put: (elementType newFromBytes: aByteArray position: sourcePosition).
+		sourcePosition := sourcePosition + elementSize
+	].
+]
+
+{ #category : #accessing }
+SysmelArrayType >> size [
+	^ self class elements
+]
+
+{ #category : #'memory access' }
+SysmelArrayType >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| elementSize destIndex |
+	elementSize := self class elementType alignedInstanceSize.
+	destIndex := byteArrayPosition.
+	storage do: [ :each |
+		each storeBytesIn: aByteArray position: destIndex.
+		destIndex := destIndex + elementSize
+	]
 ]

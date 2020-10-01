@@ -2,6 +2,7 @@ Class {
 	#name : #SysmelNativeTypeCache,
 	#superclass : #Object,
 	#classVars : [
+		'ArraySliceTypeCache',
 		'ArrayTypeCache',
 		'GenericTypeCache'
 	],
@@ -12,6 +13,17 @@ Class {
 SysmelNativeTypeCache class >> arrayOf: baseType elements: elements [
 	self assert: baseType isSysmelNativeType.
 	^ self arrayTypeCache at: {baseType . elements} ifAbsentPut: [ SysmelArrayType instanceFor: baseType elements: elements ]
+]
+
+{ #category : #'derived types' }
+SysmelNativeTypeCache class >> arraySliceOf: baseType [
+	self assert: baseType isSysmelNativeType.
+	^ self arraySliceTypeCache at: baseType ifAbsentPut: [ SysmelArraySliceType instanceFor: baseType ]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeTypeCache class >> arraySliceTypeCache [
+	^ ArraySliceTypeCache ifNil: [ ArraySliceTypeCache := Dictionary new ]
 ]
 
 { #category : #'as yet unclassified' }

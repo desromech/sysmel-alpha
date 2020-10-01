@@ -136,6 +136,11 @@ StdnVector >> remove: anElement [
 	^ storage remove: (anElement implicitCastTo: self class elementType)
 ]
 
+{ #category : #removing }
+StdnVector >> removeAll [
+	^ storage removeAll
+]
+
 { #category : #adding }
 StdnVector >> size [
 	^ storage size

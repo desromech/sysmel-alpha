@@ -50,6 +50,11 @@ SysmelNativeType class >> isAggregateTypeWithFields [
 ]
 
 { #category : #testing }
+SysmelNativeType class >> isArraySliceType [
+	^ false
+]
+
+{ #category : #testing }
 SysmelNativeType class >> isArrayType [
 	^ false
 ]
