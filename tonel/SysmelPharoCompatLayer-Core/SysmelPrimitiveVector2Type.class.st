@@ -18,6 +18,11 @@ SysmelPrimitiveVector2Type class >> instanceAlignment [
 	^ self elementType instanceSize * 2
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector2Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector2Type
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector2Type class >> withAll: element [
 	^ self x: element y: element

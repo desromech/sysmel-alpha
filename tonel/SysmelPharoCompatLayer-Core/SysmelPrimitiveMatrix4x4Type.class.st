@@ -554,6 +554,16 @@ SysmelPrimitiveMatrix4x4Type >> preMultiplyVector: vector [
 	+ (thirdColumn * coercedVector z) + (fourthColumn * coercedVector w)
 ]
 
+{ #category : #printing }
+SysmelPrimitiveMatrix4x4Type >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name; nextPutAll: ' rows: {'; cr;
+		tab; print: self firstRow; nextPut: $.; cr;
+		tab; print: self secondRow; nextPut: $.; cr;
+		tab; print: self thirdRow; nextPut: $.; cr;
+		tab; print: self fourthRow; nextPut: $.; cr;
+		nextPutAll: '})'
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> secondColumn [
 	^ secondColumn

@@ -382,6 +382,15 @@ SysmelPrimitiveMatrix3x3Type >> preMultiplyVector: vector [
 	+ (thirdColumn * coercedVector z)
 ]
 
+{ #category : #printing }
+SysmelPrimitiveMatrix3x3Type >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name; nextPutAll: ' rows: {'; cr;
+		tab; print: self firstRow; nextPut: $.; cr;
+		tab; print: self secondRow; nextPut: $.; cr;
+		tab; print: self thirdRow; nextPut: $.; cr;
+		nextPutAll: '})'
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> secondColumn [
 	^ secondColumn

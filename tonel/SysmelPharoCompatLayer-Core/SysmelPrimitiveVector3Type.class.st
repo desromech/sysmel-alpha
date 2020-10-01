@@ -19,6 +19,11 @@ SysmelPrimitiveVector3Type class >> instanceAlignment [
 	^ self elementType instanceSize * 4
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector3Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector3Type
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector3Type class >> withAll: element [
 	^ self x: element y: element z: element

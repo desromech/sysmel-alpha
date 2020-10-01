@@ -2,7 +2,8 @@ Class {
 	#name : #SysmelTypedSlot,
 	#superclass : #InstanceVariableSlot,
 	#instVars : [
-		'type'
+		'type',
+		'location'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -36,13 +37,26 @@ SysmelTypedSlot >> isSysmelTypedSlot [
 	^ true
 ]
 
+{ #category : #accessing }
+SysmelTypedSlot >> location [
+	^ location
+]
+
+{ #category : #accessing }
+SysmelTypedSlot >> location: anObject [
+	location := anObject
+]
+
 { #category : #printing }
 SysmelTypedSlot >> printOn: aStream [
 	"Every subclass that adds state must redefine either this method or #definitionString"
 	aStream 
 		store: self name;
 		nextPutAll: ' => ';
-		print: type
+		print: type.
+		
+	location ifNotNil: [ aStream nextPutAll: ' location: '; print: location ].
+
 ]
 
 { #category : #accessing }

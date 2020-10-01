@@ -253,6 +253,14 @@ SysmelPrimitiveMatrix2x2Type >> preMultiplyVector: vector [
 	^ (firstColumn * coercedVector x) + (secondColumn * coercedVector y)
 ]
 
+{ #category : #printing }
+SysmelPrimitiveMatrix2x2Type >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name; nextPutAll: ' rows: {'; cr;
+		tab; print: self firstRow; nextPut: $.; cr;
+		tab; print: self secondRow; nextPut: $.; cr;
+		nextPutAll: '})'
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondColumn [
 	^ secondColumn

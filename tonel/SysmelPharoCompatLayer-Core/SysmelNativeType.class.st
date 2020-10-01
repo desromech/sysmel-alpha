@@ -9,6 +9,16 @@ SysmelNativeType class >> alignedInstanceSize [
 	^ self instanceSize alignedTo: self instanceAlignment
 ]
 
+{ #category : #'type composition' }
+SysmelNativeType class >> array [
+	^ self array: 0
+]
+
+{ #category : #'type composition' }
+SysmelNativeType class >> array: elements [
+	^ SysmelNativeTypeCache arrayOf: self elements: elements
+]
+
 { #category : #sizes }
 SysmelNativeType class >> instanceAlignment [
 	self subclassResponsibility
@@ -36,6 +46,11 @@ SysmelNativeType class >> isAggregateType [
 
 { #category : #testing }
 SysmelNativeType class >> isAggregateTypeWithFields [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isArrayType [
 	^ false
 ]
 
@@ -95,8 +110,18 @@ SysmelNativeType class >> isStructureType [
 ]
 
 { #category : #testing }
+SysmelNativeType class >> isSysmelNativeType [
+	^ true
+]
+
+{ #category : #testing }
 SysmelNativeType class >> isUnionType [
 	^ false
+]
+
+{ #category : #'instance creation' }
+SysmelNativeType class >> named: aSymbol [
+	^ SysmelTypedSlot named: aSymbol for: self
 ]
 
 { #category : #'as yet unclassified' }

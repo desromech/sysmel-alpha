@@ -23,6 +23,11 @@ SysmelPrimitiveVector4Type class >> instanceAlignment [
 	^ self elementType instanceSize * 4
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector4Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector4Type
+]
+
 { #category : #accessing }
 SysmelPrimitiveVector4Type class >> minorVectorType [
 	^ minorVectorType ifNil: [ minorVectorType := self elementType primitiveVectorWithElements: 3]

@@ -145,13 +145,9 @@ GenericRectangle >> min: anObject [
 
 { #category : #printing }
 GenericRectangle >> printOn: aStream [
-	self isEmpty ifTrue: [ 
-		^ aStream nextPutAll: self class name; nextPutAll: ' empty'
-	].
-
 	aStream nextPut: $(; nextPutAll: self class name;
-		nextPutAll:  ' min: '; print: min;
-		nextPutAll:  ' max: '; print: max;
+		nextPutAll: ' min: '; print: min;
+		nextPutAll: ' max '; print: max;
 		nextPut: $)
 ]
 

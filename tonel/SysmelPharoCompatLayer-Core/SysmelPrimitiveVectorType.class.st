@@ -35,6 +35,11 @@ SysmelPrimitiveVectorType class >> instanceSize [
 ]
 
 { #category : #testing }
+SysmelPrimitiveVectorType class >> isAbstract [
+	^ self == SysmelPrimitiveVectorType
+]
+
+{ #category : #testing }
 SysmelPrimitiveVectorType class >> isPrimitiveVectorType [
 	^ true
 ]

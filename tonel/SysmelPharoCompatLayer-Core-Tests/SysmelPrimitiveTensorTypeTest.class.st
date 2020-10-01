@@ -5,6 +5,7 @@ Class {
 		'Scalar',
 		'Vector2',
 		'Vector3',
+		'CompactVector3',
 		'Vector4',
 		'Matrix2x2',
 		'Matrix3x3',
@@ -12,6 +13,11 @@ Class {
 	],
 	#category : #'SysmelPharoCompatLayer-Core-Tests-PrimitiveTypes'
 }
+
+{ #category : #accessing }
+SysmelPrimitiveTensorTypeTest class >> compactVector3Type [
+	^ self scalarType primitiveCompactVectorWithElements: 3
+]
 
 { #category : #accessing }
 SysmelPrimitiveTensorTypeTest class >> isAbstract [
@@ -59,6 +65,7 @@ SysmelPrimitiveTensorTypeTest >> setUp [
 	Scalar := self class scalarType.
 	Vector2 := self class vector2Type.
 	Vector3 := self class vector3Type.
+	CompactVector3 := self class compactVector3Type.
 	Vector4 := self class vector4Type.
 	Matrix2x2 := self class matrix2x2Type.
 	Matrix3x3 := self class matrix3x3Type.
