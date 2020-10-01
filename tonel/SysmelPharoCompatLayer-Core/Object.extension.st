@@ -9,3 +9,13 @@ Object >> castTo: targetType [
 Object >> implicitCastTo: targetType [
 	^ targetType validateImplicitCastOfValue: self
 ]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Object >> isPrimitiveMatrix [
+	^ false
+]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Object >> isPrimitiveVector [
+	^ false
+]

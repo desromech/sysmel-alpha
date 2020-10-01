@@ -3,7 +3,13 @@ Class {
 	#superclass : #SysmelPrimitiveType,
 	#classInstVars : [
 		'columnType',
-		'rowType'
+		'rowType',
+		'vector2Type',
+		'vector3Type',
+		'vector4Type',
+		'matrix3x3Type',
+		'matrix4x4Type',
+		'matrix2x2Type'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -43,6 +49,21 @@ SysmelPrimitiveMatrixType class >> isPrimitiveMatrixType [
 	^ true
 ]
 
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> matrix2x2Type [
+	^ matrix2x2Type ifNil: [matrix2x2Type := self scalarType primitiveMatrixWithRows: 2 columns: 2]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> matrix3x3Type [
+	^ matrix3x3Type ifNil: [matrix3x3Type := self scalarType primitiveMatrixWithRows: 3 columns: 3]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> matrix4x4Type [
+	^ matrix4x4Type ifNil: [matrix4x4Type := self scalarType primitiveMatrixWithRows: 4 columns: 4]
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveMatrixType class >> new [
 	^ self zeros
@@ -63,9 +84,55 @@ SysmelPrimitiveMatrixType class >> rows [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrixType class >> validateExplicitCastOfValue: aValue [
+	aValue class == self ifTrue: [ ^ aValue ].
+	
+	aValue class isPrimitiveMatrixType ifTrue: [
+		(aValue class rows = self rows and: [ aValue class columns = self columns ]) ifFalse: [
+			self error: 'Cannot cast vectors with mismatching number of elements.'
+		].
+	
+		^ aValue collect: [ :each | each castTo: self columnType ] as: self
+	].
+
+	^ super validateExplicitCastOfValue: aValue
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> vector2Type [
+	^ vector2Type ifNil: [vector2Type := self scalarType primitiveVectorWithElements: 2]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> vector3Type [
+	^ vector3Type ifNil: [vector3Type := self scalarType primitiveVectorWithElements: 3]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> vector4Type [
+	^ vector4Type ifNil: [vector4Type := self scalarType primitiveVectorWithElements: 4]
+]
+
 { #category : #construction }
 SysmelPrimitiveMatrixType class >> zeros [
 	^ self withAll: self elementType zero
+]
+
+{ #category : #arithmetic }
+SysmelPrimitiveMatrixType >> * other [
+	other isNumber ifTrue: [
+		^ self collect: [ :each | each * other ]
+	].
+	other isPrimitiveVector ifTrue: [
+		^ self preMultiplyVector: other
+	].
+
+	self assert: other isPrimitiveMatrix.
+	self class columns = other class rows ifFalse: [
+		self error: 'Mismatching matrix rank for multiplication.'
+	].
+	^ self multiplyWithMatrix: other
 ]
 
 { #category : #arithmetic }
@@ -83,6 +150,11 @@ SysmelPrimitiveMatrixType >> abs [
 	^ self collect: [ :each | each abs ]
 ]
 
+{ #category : #converting }
+SysmelPrimitiveMatrixType >> adaptToNumber: rcvr andSend: selector [
+	^ (rcvr implicitCastTo: self class) perform: selector with: self
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrixType >> at: columnIndex [
 	self subclassResponsibility
@@ -98,6 +170,11 @@ SysmelPrimitiveMatrixType >> collect: aBlock [
 	self subclassResponsibility
 ]
 
+{ #category : #enumerating }
+SysmelPrimitiveMatrixType >> collect: aBlock as: matrixType [
+	self subclassResponsibility
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveMatrixType >> elementAtRow: row column: column [
 	^ (self at: column) at: row
@@ -106,6 +183,16 @@ SysmelPrimitiveMatrixType >> elementAtRow: row column: column [
 { #category : #arithmetic }
 SysmelPrimitiveMatrixType >> floor [
 	^ self collect: [ :each | each floor ]
+]
+
+{ #category : #testing }
+SysmelPrimitiveMatrixType >> isPrimitiveMatrix [
+	^ true
+]
+
+{ #category : #testing }
+SysmelPrimitiveMatrixType >> isZero [
+	^ false
 ]
 
 { #category : #arithmetic }

@@ -9,7 +9,7 @@ Class {
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix3x3Type class >> columnMajorIndices [
 	^ self columns: #(0 1 2 3 4 5 6 7 8)
 ]
@@ -53,7 +53,58 @@ SysmelPrimitiveMatrix3x3Type class >> isAbstract [
 	^ self == SysmelPrimitiveMatrix3x3Type
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtBack [
+	^ self yRotation: Float pi
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtBottom [
+	^ self xRotation: Float halfPi negated
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtDirection: direction up: upVector [
+	| up f s u |
+	up := upVector normalized.
+
+	f := direction normalized.
+	s := (direction cross: up) normalized.
+	u := s cross: f.
+
+	^ self columns: {s, u, f negated}.
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtFront [
+	^ self identity
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtLeft [
+	^ self yRotation: Float halfPi
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtRight [
+	^ self yRotation: Float halfPi negated
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> lookAtTop [
+	^ self yRotation: Float halfPi
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> ndcToTexcoord2D [
+	^ self columns: #(
+		0.5 0 0
+		0 0.5 0
+		0.5 0.5 1
+	)
+]
+
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix3x3Type class >> rowMajorIndices [
 	^ self rows: #(0 1 2 3 4 5 6 7 8)
 ]
@@ -93,7 +144,7 @@ SysmelPrimitiveMatrix3x3Type class >> scale: scale [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix3x3Type class >> scaleX: x y: y z: z [
 	^ self basicNew
 		firstColumn: (self columnType x: x y: 0 z: 0);
@@ -109,6 +160,52 @@ SysmelPrimitiveMatrix3x3Type class >> withAll: value [
 		secondColumn: value;
 		thirdColumn: value;
 		yourself
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> xRotation: angle [
+	| c s |
+	c := angle cos.
+	s := angle sin.
+	^ self columns: {
+		1. 0. 0.
+		0. c. s.
+		0. s negated. c
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> xyzRotation: angles [
+	^ (self xRotation: angles x) * (self yRotation: angles y) * (self zRotation: angles z)
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> yRotation: angle [
+	| c s |
+	c := angle cos.
+	s := angle sin.
+	^ self columns: {
+		c. 0. s negated.
+		0. 1. 0.
+		s. 0. c
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> zRotation: angle [
+	| c s |
+	c := angle cos.
+	s := angle sin.
+	^ self columns: {
+		c. s. 0.
+		s negated. c. 0.
+		0. 0. 1
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> zyxRotation: angles [
+	^ (self zRotation: angles z) * (self yRotation: angles y) * (self xRotation: angles x)
 ]
 
 { #category : #comparing }
@@ -155,6 +252,15 @@ SysmelPrimitiveMatrix3x3Type >> closeTo: other precision: precision [
 { #category : #enumerating }
 SysmelPrimitiveMatrix3x3Type >> collect: aBlock [
 	^ self class basicNew
+		firstColumn: (aBlock value: firstColumn);
+		secondColumn: (aBlock value: secondColumn);
+		thirdColumn: (aBlock value: thirdColumn);
+		yourself
+]
+
+{ #category : #enumerating }
+SysmelPrimitiveMatrix3x3Type >> collect: aBlock as: matrixType [
+	^ matrixType basicNew
 		firstColumn: (aBlock value: firstColumn);
 		secondColumn: (aBlock value: secondColumn);
 		thirdColumn: (aBlock value: thirdColumn);
@@ -244,6 +350,36 @@ SysmelPrimitiveMatrix3x3Type >> isZeros [
 	  thirdColumn x = 0 and: [
 	  thirdColumn y = 0 and: [
 	  thirdColumn z = 0 ]]]]]]]]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix3x3Type >> multiplyWithMatrix: other [
+	| coerced |
+	coerced := other implicitCastTo: self class.
+	^ self class basicNew
+		firstColumn: (firstColumn * coerced firstColumn x) + (secondColumn * coerced firstColumn y) + (thirdColumn * coerced firstColumn z);
+		secondColumn: (firstColumn * coerced secondColumn x) + (secondColumn * coerced secondColumn y) + (thirdColumn * coerced secondColumn z);
+		thirdColumn: (firstColumn * coerced thirdColumn x) + (secondColumn * coerced thirdColumn y) + (thirdColumn * coerced thirdColumn z);
+		yourself
+
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix3x3Type >> postMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ self class rowType
+		x: (firstColumn dot: coercedVector)
+		y: (secondColumn dot: coercedVector)
+		z: (thirdColumn dot: coercedVector)
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix3x3Type >> preMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ (firstColumn * coercedVector x) + (secondColumn * coercedVector y)
+	+ (thirdColumn * coercedVector z)
 ]
 
 { #category : #accessing }

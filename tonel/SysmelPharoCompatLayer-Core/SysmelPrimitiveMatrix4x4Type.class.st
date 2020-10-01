@@ -44,6 +44,22 @@ SysmelPrimitiveMatrix4x4Type class >> columns: columns [
 	self error: 'Unsupported element count for matrix creation.'
 ]
 
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> frustumLeft: left right: right bottom: bottom top: top
+	near: near far: far invertedY: invertedY [
+	| yAxisFactor |
+	yAxisFactor := invertedY
+		ifTrue: [self columnType ones negated]
+		ifFalse: [self columnType ones].
+
+	^ self rows: {
+		columnType x: 2*near /(right - left) y: 0 z: (right + left) / (right - left) w: 0.
+		(columnType x: 0 y: 2*near /(top - bottom) z: (top + bottom) / (top - bottom) w: 0) * yAxisFactor.
+		columnType x: 0 y: 0 z: far negated / (far - near) w: near*far negated / (far - near).
+		columnType x: 0 y: 0 z: -1 w: 0
+	}
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveMatrix4x4Type class >> identity [
 	^ self basicNew
@@ -60,9 +76,103 @@ SysmelPrimitiveMatrix4x4Type class >> isAbstract [
 	^ self == SysmelPrimitiveMatrix4x4Type
 ]
 
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> mat3: mat3 [
+	^ self columns: {
+		self columnType xyz: mat3 firstColumn w: 0.
+		self columnType xyz: mat3 secondColumn w: 0.
+		self columnType xyz: mat3 thirdColumn w: 0.
+		self columnType w: 1.
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> mat3: mat3 translation4: translation4 [
+	^ self columns: {
+		self columnType xyz: mat3 firstColumn w: 0.
+		self columnType xyz: mat3 secondColumn w: 0.
+		self columnType xyz: mat3 thirdColumn w: 0.
+		translation4
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> mat3: mat3 translation: translation [
+	^ self columns: {
+		self columnType xyz: mat3 firstColumn w: 0.
+		self columnType xyz: mat3 secondColumn w: 0.
+		self columnType xyz: mat3 thirdColumn w: 0.
+		self columnType xyz: translation w: 1.
+	}
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type class >> minorMatrixType [
 	^ minorMatrixType ifNil: [ minorMatrixType := self elementType primitiveMatrixWithRows: 3 columns: 3 ]
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> orthoLeft: left right: right bottom: bottom top: top
+	near: near far: far invertedY: invertedY [
+	| yAxisFactor |
+	yAxisFactor := invertedY
+		ifTrue: [self columnType ones negated]
+		ifFalse: [self columnType ones].
+
+	^ self rows: {
+		columnType x: 2 /(right - left) y: 0 z: 0 w: ((right + left) / (right - left)) negated.
+		(columnType x: 0 y: 2 /(top - bottom) z: 0 w: ((top + bottom) / (top - bottom)) negated) * yAxisFactor.
+		columnType x: 0 y: 0 z: -1 / (far - near) w: near / (far - near).
+		columnType x: 0 y: 0 z: 0 w: 1
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> perspectiveFovY: fovy aspect: aspect near: near far: far invertedY: invertedY [
+	| fovyRad top right |
+	fovyRad := fovy degreesToRadians * 0.5.
+	top := near * fovyRad tan.
+	right := top * aspect.
+	^ self frustumLeft: right negated right: right bottom: top negated top: top near: near far: far invertedY: invertedY
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> reverseDepthFrustumLeft: left right: right bottom: bottom top: top near: near far: far invertedY: invertedY [
+	| yAxisFactor |
+	yAxisFactor := invertedY
+		ifTrue: [self columnType ones negated]
+		ifFalse: [self columnType ones].
+
+	^ self rows: {
+		columnType x: 2*near /(right - left) y: 0 z: (right + left) / (right - left) w: 0.
+		(columnType x: 0 y: 2*near /(top - bottom) z: (top + bottom) / (top - bottom) w: 0) * yAxisFactor.
+		columnType x: 0 y: 0 z: near / (far - near) w: near*far / (far - near).
+		columnType x: 0 y: 0 z: -1 w: 0
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> reverseDepthOrthoLeft: left right: right bottom: bottom top: top near: near far: far invertedY: invertedY [
+	| yAxisFactor |
+	yAxisFactor := invertedY
+		ifTrue: [self columnType ones negated]
+		ifFalse: [self columnType ones].
+
+	^ self rows: {
+		columnType x: 2 /(right - left) y: 0 z: 0 w: ((right + left) / (right - left)) negated.
+		(columnType x: 0 y: 2 /(top - bottom) z: 0 w: ((top + bottom) / (top - bottom)) negated) * yAxisFactor.
+		columnType x: 0 y: 0 z: 1 / (far - near) w: far / (far - near).
+		columnType x: 0 y: 0 z: 0 w: 1
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> reversePerspectiveFovY: fovy aspect: aspect near: near far: far invertedY: invertedY [
+	| fovyRad top right |
+	fovyRad := fovy degreesToRadians * 0.5.
+	top := near * fovyRad tan.
+	right := top * aspect.
+	^ self reverseDepthFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far invertedY: invertedY
 ]
 
 { #category : #'as yet unclassified' }
@@ -96,7 +206,7 @@ SysmelPrimitiveMatrix4x4Type class >> rows: rows [
 	self error: 'Unsupported element count for matrix creation.'
 ]
 
-{ #category : #accessing }
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix4x4Type class >> scale: scale [
 	| coercedScale |
 	coercedScale := scale implicitCastTo: self columnType.
@@ -108,7 +218,7 @@ SysmelPrimitiveMatrix4x4Type class >> scale: scale [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix4x4Type class >> scaleX: x y: y z: z w: w [
 	^ self basicNew
 		firstColumn: (self columnType x: x y: 0 z: 0 w: 0);
@@ -116,6 +226,26 @@ SysmelPrimitiveMatrix4x4Type class >> scaleX: x y: y z: z w: w [
 		thirdColumn: (columnType x: 0 y: 0 z: z w: 0);
 		fourthColumn: (columnType x: 0 y: 0 z: 0 w: w);
 		yourself
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> translation4: translation4 [
+	^ self columns: {
+		self columnType x: 1 y: 0 z: 0 w: 0.
+		self columnType x: 0 y: 1 z: 0 w: 0.
+		self columnType x: 0 y: 0 z: 1 w: 0.
+		translation4
+	}
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix4x4Type class >> translation: translation [
+	^ self columns: {
+		self columnType x: 1 y: 0 z: 0 w: 0.
+		self columnType x: 0 y: 1 z: 0 w: 0.
+		self columnType x: 0 y: 0 z: 1 w: 0.
+		self columnType xyz: translation w: 1.
+	}
 ]
 
 { #category : #'instance creation' }
@@ -208,6 +338,16 @@ SysmelPrimitiveMatrix4x4Type >> cofactorAtRow: row atColumn: column [
 { #category : #enumerating }
 SysmelPrimitiveMatrix4x4Type >> collect: aBlock [
 	^ self class basicNew
+		firstColumn: (aBlock value: firstColumn);
+		secondColumn: (aBlock value: secondColumn);
+		thirdColumn: (aBlock value: thirdColumn);
+		fourthColumn: (aBlock value: fourthColumn);
+		yourself
+]
+
+{ #category : #enumerating }
+SysmelPrimitiveMatrix4x4Type >> collect: aBlock as: matrixType [
+	^ matrixType basicNew
 		firstColumn: (aBlock value: firstColumn);
 		secondColumn: (aBlock value: secondColumn);
 		thirdColumn: (aBlock value: thirdColumn);
@@ -382,6 +522,38 @@ SysmelPrimitiveMatrix4x4Type >> minorMatrixAtRow: row atColumn: column [
 	self error
 ]
 
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> multiplyWithMatrix: other [
+	| coerced |
+	coerced := other implicitCastTo: self class.
+	^ self class basicNew
+		firstColumn: (firstColumn * coerced firstColumn x) + (secondColumn * coerced firstColumn y) + (thirdColumn * coerced firstColumn z) + (fourthColumn * coerced firstColumn w);
+		secondColumn: (firstColumn * coerced secondColumn x) + (secondColumn * coerced secondColumn y) + (thirdColumn * coerced secondColumn z) + (fourthColumn * coerced secondColumn w);
+		thirdColumn: (firstColumn * coerced thirdColumn x) + (secondColumn * coerced thirdColumn y) + (thirdColumn * coerced thirdColumn z) + (fourthColumn * coerced thirdColumn w);
+		fourthColumn: (firstColumn * coerced fourthColumn x) + (secondColumn * coerced fourthColumn y) + (thirdColumn * coerced fourthColumn z) + (fourthColumn * coerced fourthColumn w);
+		yourself
+
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> postMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ self class rowType
+		x: (firstColumn dot: coercedVector)
+		y: (secondColumn dot: coercedVector)
+		z: (thirdColumn dot: coercedVector)
+		w: (fourthColumn dot: coercedVector)
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> preMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ (firstColumn * coercedVector x) + (secondColumn * coercedVector y)
+	+ (thirdColumn * coercedVector z) + (fourthColumn * coercedVector w)
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> secondColumn [
 	^ secondColumn
@@ -410,6 +582,15 @@ SysmelPrimitiveMatrix4x4Type >> thirdColumn: anObject [
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> thirdRow [
 	^ self class rowType x: firstColumn z y: secondColumn z z: thirdColumn z w: fourthColumn z
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> topLeft3x3 [
+	^ self class matrix3x3Type columns: {
+		firstColumn xyz.
+		secondColumn xyz.
+		thirdColumn xyz.
+	}
 ]
 
 { #category : #accessing }

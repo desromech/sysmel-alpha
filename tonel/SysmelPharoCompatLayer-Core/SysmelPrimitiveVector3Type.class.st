@@ -81,6 +81,15 @@ SysmelPrimitiveVector3Type >> collect: aBlock [
 		yourself
 ]
 
+{ #category : #enumerating }
+SysmelPrimitiveVector3Type >> collect: aBlock as: resultType [
+	^ resultType basicNew
+		x: (aBlock value: x);
+		y: (aBlock value: y);
+		z: (aBlock value: z);
+		yourself
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveVector3Type >> cross: other [
 	| castedOther |

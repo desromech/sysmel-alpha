@@ -35,6 +35,21 @@ SysmelPrimitiveIntegerType class >> ones [
 ]
 
 { #category : #'as yet unclassified' }
+SysmelPrimitiveIntegerType class >> truncateValue: aValue [
+	self flag: 'TODO: Implement this method'.
+	^ aValue
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveIntegerType class >> validateExplicitCastOfValue: aValue [
+	aValue isNumber ifTrue: [
+		aValue isInteger ifTrue: [ ^ self truncateValue: aValue ].
+		aValue isFloat ifTrue: [ ^ self truncateValue: aValue asInteger ]
+	].
+	^ super validateExplicitCastOfValue: aValue
+]
+
+{ #category : #'as yet unclassified' }
 SysmelPrimitiveIntegerType class >> validateImplicitCastOfValue: aValue [
 	self assert: aValue isInteger.
 	^ aValue

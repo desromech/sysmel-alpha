@@ -1,16 +1,24 @@
 Class {
 	#name : #GenericLinearAlgebra,
-	#superclass : #Object,
+	#superclass : #SysmelNativeGenericInstanceType,
 	#classInstVars : [
 		'vector2Type',
 		'vector3Type',
 		'vector4Type',
 		'matrix2x2Type',
 		'matrix3x3Type',
-		'matrix4x4Type'
+		'matrix4x4Type',
+		'reversibleAffineTransform3dType',
+		'complexType',
+		'quaternionType'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-Math'
 }
+
+{ #category : #accessing }
+GenericLinearAlgebra class >> complexType [
+	^ complexType ifNil: [ complexType := self environment at: (#Complex , self scalarType shortCapitalTypeSuffix) asSymbol ]
+]
 
 { #category : #testing }
 GenericLinearAlgebra class >> isAbstract [
@@ -30,6 +38,16 @@ GenericLinearAlgebra class >> matrix3x3Type [
 { #category : #accessing }
 GenericLinearAlgebra class >> matrix4x4Type [
 	^ matrix4x4Type ifNil: [ matrix4x4Type := self scalarType primitiveMatrixWithRows: 4 columns: 4 ]
+]
+
+{ #category : #accessing }
+GenericLinearAlgebra class >> quaternionType [
+	^ quaternionType ifNil: [ quaternionType := self environment at: (#Quaternion , self scalarType shortCapitalTypeSuffix) asSymbol ]
+]
+
+{ #category : #accessing }
+GenericLinearAlgebra class >> reversibleAffineTransform3dType [
+	^ reversibleAffineTransform3dType ifNil: [ reversibleAffineTransform3dType := self environment at: (#ReversibleAffineTransform3d , self scalarType shortCapitalTypeSuffix) asSymbol ]
 ]
 
 { #category : #accessing }

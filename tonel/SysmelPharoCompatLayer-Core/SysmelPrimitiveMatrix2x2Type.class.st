@@ -49,6 +49,18 @@ SysmelPrimitiveMatrix2x2Type class >> isAbstract [
 	^ self == SysmelPrimitiveMatrix2x2Type
 ]
 
+{ #category : #'manage rotation' }
+SysmelPrimitiveMatrix2x2Type class >> rotation: angle [
+	| c s |
+	c := angle cos.
+	s := angle sin.
+	^ self columns: {
+		c. s.
+		s negated. c
+	}
+	
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveMatrix2x2Type class >> rowMajorIndices [
 	^ self rows: #(0 1 2 3)
@@ -145,6 +157,14 @@ SysmelPrimitiveMatrix2x2Type >> collect: aBlock [
 		yourself
 ]
 
+{ #category : #enumerating }
+SysmelPrimitiveMatrix2x2Type >> collect: aBlock as: matrixType [
+	^ matrixType basicNew
+		firstColumn: (aBlock value: firstColumn);
+		secondColumn: (aBlock value: secondColumn);
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveMatrix2x2Type >> determinant [
 	^ (firstColumn x * secondColumn y) - (firstColumn y * secondColumn x)
@@ -206,6 +226,31 @@ SysmelPrimitiveMatrix2x2Type >> isZeros [
 
 	  secondColumn x = 0 and: [
 	  secondColumn y = 0 ]]]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix2x2Type >> multiplyWithMatrix: other [
+	| coerced |
+	coerced := other implicitCastTo: self class.
+	^ self class basicNew
+		firstColumn: (firstColumn * coerced firstColumn x) + (secondColumn * coerced firstColumn y);
+		secondColumn: (firstColumn * coerced secondColumn x) + (secondColumn * coerced secondColumn y);
+		yourself
+
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix2x2Type >> postMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ self class rowType x: (firstColumn dot: coercedVector) y: (secondColumn dot: coercedVector)
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix2x2Type >> preMultiplyVector: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class rowType.
+	^ (firstColumn * coercedVector x) + (secondColumn * coercedVector y)
 ]
 
 { #category : #accessing }

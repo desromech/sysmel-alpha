@@ -76,6 +76,14 @@ SysmelPrimitiveVector2Type >> collect: aBlock [
 		yourself
 ]
 
+{ #category : #arithmetic }
+SysmelPrimitiveVector2Type >> collect: aBlock as: resultType [
+	^ resultType basicNew
+		x: (aBlock value: x);
+		y: (aBlock value: y);
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 SysmelPrimitiveVector2Type >> cross: other [
 	| coercedOther |

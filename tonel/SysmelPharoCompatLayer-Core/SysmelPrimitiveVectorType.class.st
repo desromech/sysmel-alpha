@@ -1,6 +1,11 @@
 Class {
 	#name : #SysmelPrimitiveVectorType,
 	#superclass : #SysmelPrimitiveType,
+	#classInstVars : [
+		'vector2Type',
+		'vector3Type',
+		'vector4Type'
+	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
@@ -65,6 +70,21 @@ SysmelPrimitiveVectorType class >> ones [
 ]
 
 { #category : #'as yet unclassified' }
+SysmelPrimitiveVectorType class >> validateExplicitCastOfValue: aValue [
+	aValue class == self ifTrue: [ ^ aValue ].
+	
+	aValue class isPrimitiveVectorType ifTrue: [
+		aValue class elements = self elements ifFalse: [
+			self error: 'Cannot cast vectors with mismatching number of elements.'
+		].
+	
+		^ aValue collect: [ :each | each castTo: self elementType ] as: self
+	].
+
+	^ super validateExplicitCastOfValue: aValue
+]
+
+{ #category : #'as yet unclassified' }
 SysmelPrimitiveVectorType class >> validateImplicitCastOfValue: aValue [
 	aValue isNumber ifTrue: [
 		| castedNumber |
@@ -73,6 +93,21 @@ SysmelPrimitiveVectorType class >> validateImplicitCastOfValue: aValue [
 	].
 
 	^ super validateImplicitCastOfValue: aValue
+]
+
+{ #category : #accessing }
+SysmelPrimitiveVectorType class >> vector2Type [
+	^ vector2Type ifNil: [vector2Type := self scalarType primitiveVectorWithElements: 2]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveVectorType class >> vector3Type [
+	^ vector3Type ifNil: [vector3Type := self scalarType primitiveVectorWithElements: 3]
+]
+
+{ #category : #accessing }
+SysmelPrimitiveVectorType class >> vector4Type [
+	^ vector4Type ifNil: [vector4Type := self scalarType primitiveVectorWithElements: 4]
 ]
 
 { #category : #'instance creation' }
@@ -87,6 +122,7 @@ SysmelPrimitiveVectorType class >> zeros [
 
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> * other [
+	other isPrimitiveMatrix ifTrue: [ ^ other preMultiplyVector: self ].
 	^ self with: other collect: [ :a :b | a * b ]
 ]
 
@@ -102,7 +138,16 @@ SysmelPrimitiveVectorType >> - other [
 
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> / other [
-	^ self with: other collect: [ :a :b | a / b ]
+	^ self class elementType isPrimitiveFloatType ifTrue: [ 
+		self with: other collect: [ :a :b |
+			a floatDivide: b
+		]
+	] ifFalse: [ 
+		self with: other collect: [ :a :b |
+			a // b
+		]
+	]
+
 ]
 
 { #category : #comparing }
@@ -135,6 +180,11 @@ SysmelPrimitiveVectorType >> abs [
 	^ self collect: [ :each | each abs ]
 ]
 
+{ #category : #converting }
+SysmelPrimitiveVectorType >> adaptToNumber: rcvr andSend: selector [
+	^ (rcvr implicitCastTo: self class) perform: selector with: self
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> ceiling [
 	^ self collect: [ :each | each ceiling ]
@@ -146,6 +196,11 @@ SysmelPrimitiveVectorType >> collect: aBlock [
 ]
 
 { #category : #arithmetic }
+SysmelPrimitiveVectorType >> collect: aBlock as: resultType [
+	self subclassResponsibility
+]
+
+{ #category : #arithmetic }
 SysmelPrimitiveVectorType >> dot: other [
 	self subclassResponsibility
 ]
@@ -153,6 +208,26 @@ SysmelPrimitiveVectorType >> dot: other [
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> floor [
 	^ self collect: [ :each | each floor ]
+]
+
+{ #category : #testing }
+SysmelPrimitiveVectorType >> isOnes [
+	^ self = 1
+]
+
+{ #category : #testing }
+SysmelPrimitiveVectorType >> isPrimitiveVector [
+	^ true
+]
+
+{ #category : #testing }
+SysmelPrimitiveVectorType >> isZero [
+	^ false
+]
+
+{ #category : #testing }
+SysmelPrimitiveVectorType >> isZeros [
+	^ self = 0
 ]
 
 { #category : #arithmetic }

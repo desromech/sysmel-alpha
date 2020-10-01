@@ -112,6 +112,12 @@ GenericRectangle >> height [
 	^ max y - min y
 ]
 
+{ #category : #initialization }
+GenericRectangle >> initialize [
+	min := self class vector2Type zeros.
+	max := self class vector2Type zeros.
+]
+
 { #category : #testing }
 GenericRectangle >> isEmpty [
 	^ min x > max x or: [ min y > max y ]

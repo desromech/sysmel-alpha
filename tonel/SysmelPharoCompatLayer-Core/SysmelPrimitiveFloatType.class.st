@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
+{ #category : #constants }
+SysmelPrimitiveFloatType class >> halfPi [
+	^ Float halfPi
+]
+
 { #category : #construction }
 SysmelPrimitiveFloatType class >> infinity [
 	^ Float infinity
@@ -42,6 +47,16 @@ SysmelPrimitiveFloatType class >> one [
 { #category : #construction }
 SysmelPrimitiveFloatType class >> ones [
 	^ 1.0
+]
+
+{ #category : #constants }
+SysmelPrimitiveFloatType class >> pi [
+	^ Float pi
+]
+
+{ #category : #constants }
+SysmelPrimitiveFloatType class >> twoPi [
+	^ Float twoPi
 ]
 
 { #category : #'as yet unclassified' }

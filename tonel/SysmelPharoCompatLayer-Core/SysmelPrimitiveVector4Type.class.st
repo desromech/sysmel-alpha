@@ -28,9 +28,19 @@ SysmelPrimitiveVector4Type class >> minorVectorType [
 	^ minorVectorType ifNil: [ minorVectorType := self elementType primitiveVectorWithElements: 3]
 ]
 
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> w: w [
+	^ self x: 0 y: 0 z: 0 w: w
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector4Type class >> withAll: element [
 	^ self x: element y: element z: element w: element
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> x: x [
+	^ self x: x y: 0 z: 0 w: 0
 ]
 
 { #category : #constructing }
@@ -41,6 +51,26 @@ SysmelPrimitiveVector4Type class >> x: x y: y z: z w: w [
 		z: z;
 		w: w;
 		yourself
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> xyz: xyz w: w [
+	^ self basicNew
+		x: xyz x;
+		y: xyz y;
+		z: xyz z;
+		w: w;
+		yourself
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> y: y [
+	^ self x: 0 y: y z: 0 w: 0
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> z: z [
+	^ self x: 0 y: 0 z: z w: 0
 ]
 
 { #category : #comparing }
@@ -92,6 +122,16 @@ SysmelPrimitiveVector4Type >> closeTo: other precision: precision [
 { #category : #enumerating }
 SysmelPrimitiveVector4Type >> collect: aBlock [
 	^ self class basicNew
+		x: (aBlock value: x);
+		y: (aBlock value: y);
+		z: (aBlock value: z);
+		w: (aBlock value: w);
+		yourself
+]
+
+{ #category : #enumerating }
+SysmelPrimitiveVector4Type >> collect: aBlock as: resultType [
+	^ resultType basicNew
 		x: (aBlock value: x);
 		y: (aBlock value: y);
 		z: (aBlock value: z);
@@ -157,6 +197,16 @@ SysmelPrimitiveVector4Type >> with: other collect: aBlock [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveVector4Type >> wxyz [
+	^ self class basicNew
+		x: w;
+		y: x;
+		z: y;
+		w: z;
+		yourself
+]
+
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> x [
 	^ x
@@ -165,6 +215,11 @@ SysmelPrimitiveVector4Type >> x [
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> x: anObject [
 	x := anObject implicitCastTo: self class elementType
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveVector4Type >> xyz [
+	^ self class vector3Type x: x y: y z: z
 ]
 
 { #category : #accessing }
