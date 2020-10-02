@@ -55,6 +55,12 @@ GenericComplex class >> radius: r angle: theta [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericComplex class >> typeOfGenericSlotNamed: slotName [
+	slotName = #xy ifTrue: [ ^ self vector2Type ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #'accessing structure variables' }
 GenericComplex class >> x: x y: y [
 	^ self basicNew

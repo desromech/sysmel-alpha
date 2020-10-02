@@ -45,6 +45,14 @@ GenericBox class >> fullSpace [
 		yourself
 ]
 
+{ #category : #constructing }
+GenericBox class >> halfExtent: halfExtent [
+	^ self basicNew
+		min: halfExtent negated;
+		max: halfExtent;
+		yourself
+]
+
 { #category : #testing }
 GenericBox class >> isAbstract [
 	^ self == GenericBox
@@ -72,6 +80,13 @@ GenericBox class >> point: aPoint [
 		min: aPoint;
 		max: aPoint;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox class >> typeOfGenericSlotNamed: slotName [
+	slotName = #min ifTrue: [ ^ self vector3Type ].
+	slotName = #max ifTrue: [ ^ self vector3Type ].
+	^ super typeOfGenericSlotNamed: slotName
 ]
 
 { #category : #constructing }
@@ -210,6 +225,12 @@ GenericBox >> initialize [
 	max := self class vector3Type zeros.
 ]
 
+{ #category : #building }
+GenericBox >> insertPoint: aPoint [
+	min := min min: aPoint.
+	max := max max: aPoint.
+]
+
 { #category : #intersection }
 GenericBox >> intersectionWith: other [
 	^ self class basicNew
@@ -292,13 +313,9 @@ GenericBox >> positiveVertex: direction [
 
 { #category : #printing }
 GenericBox >> printOn: aStream [
-	self isEmpty ifTrue: [ 
-		^ aStream nextPutAll: self class name; nextPutAll: ' empty'
-	].
-
 	aStream nextPut: $(; nextPutAll: self class name;
-		nextPutAll:  ' min: '; print: min;
-		nextPutAll:  ' max: '; print: max;
+		nextPutAll: ' min: '; print: min;
+		nextPutAll: ' max '; print: max;
 		nextPut: $)
 ]
 
@@ -308,11 +325,21 @@ GenericBox >> support: direction [
 ]
 
 { #category : #transforming }
+GenericBox >> transformedWith: transform [
+	| result |
+	result := self class empty.
+	self corners do: [ :each |
+		result insertPoint: (transform transformPosition: each)
+	].
+	^ result
+]
+
+{ #category : #transforming }
 GenericBox >> translatedBy: translation [
 	^ self class min: min + translation max: max + translation
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GenericBox >> unionWith: other [
 	^ other class isPrimitiveVectorType ifTrue: [
 		self unionWithPoint: other
@@ -321,7 +348,7 @@ GenericBox >> unionWith: other [
 	]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GenericBox >> unionWithBox: other [
 	^ self class basicNew
 		min: (min min: other min);
@@ -329,7 +356,7 @@ GenericBox >> unionWithBox: other [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GenericBox >> unionWithPoint: point [
 	^ self class basicNew
 		min: (min min: point);

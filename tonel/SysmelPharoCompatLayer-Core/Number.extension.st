@@ -6,6 +6,26 @@ Number >> <=> other [
 ]
 
 { #category : #'*SysmelPharoCompatLayer-Core' }
+Number >> asFloatFromNormalizedSByte [
+	^ self asFloat / 16r7F min: 1.0 max: -1.0
+]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Number >> asFloatFromNormalizedSShort [
+	^ self asFloat / 16r7FFF.0 min: 1.0 max: -1.0
+]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Number >> asFloatFromNormalizedUByte [
+	^ self asFloat / 255.0
+]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Number >> asFloatFromNormalizedUShort [
+	^ self asFloat / 65535.0
+]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
 Number >> f [
 	^ self castTo: Float32
 ]

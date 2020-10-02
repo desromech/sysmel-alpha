@@ -18,9 +18,19 @@ SysmelPrimitiveVector2Type class >> instanceAlignment [
 	^ self elementType instanceSize * 2
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector2Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector2Type
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector2Type class >> withAll: element [
 	^ self x: element y: element
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector2Type class >> x: x [
+	^ self x: x y: 0
 ]
 
 { #category : #construction }
@@ -29,6 +39,11 @@ SysmelPrimitiveVector2Type class >> x: x y: y [
 		x: x;
 		y: y;
 		yourself
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector2Type class >> y: y [
+	^ self x: 0 y: y
 ]
 
 { #category : #comparing }
@@ -114,6 +129,24 @@ SysmelPrimitiveVector2Type >> printOn: aStream [
 		nextPutAll:  ' x: '; print: x;
 		nextPutAll:  ' y: '; print: y;
 		nextPut: $)
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector2Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	x := elementType newFromBytes: aByteArray position: byteArrayPosition.
+	y := elementType newFromBytes: aByteArray position: byteArrayPosition + elementTypeSize.
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector2Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	elementType storeValue: x bytesIn: aByteArray position: byteArrayPosition.
+	elementType storeValue: y bytesIn: aByteArray position: byteArrayPosition + elementTypeSize.
 ]
 
 { #category : #arithmetic }

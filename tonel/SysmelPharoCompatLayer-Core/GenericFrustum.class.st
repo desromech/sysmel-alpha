@@ -20,6 +20,13 @@ GenericFrustum class >> isAbstract [
 	^ self == GenericFrustum
 ]
 
+{ #category : #'as yet unclassified' }
+GenericFrustum class >> typeOfGenericSlotNamed: slotName [
+	(#(leftBottomNear rightBottomNear leftTopNear rightTopNear leftBottomFar rightBottomFar leftTopFar rightTopFar) includes: slotName) ifTrue: [ ^ self vector3Type ].
+	slotName = #planes ifTrue: [ ^ self planeType array: 6  ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #comparing }
 GenericFrustum >> = other [
 	^ self class == other class and: [

@@ -46,6 +46,13 @@ GenericRay2d class >> origin: origin direction: direction tmin: tmin tmax: tmax 
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericRay2d class >> typeOfGenericSlotNamed: slotName [
+	(#(origin direction inverseDirection) includes: slotName) ifTrue: [ ^ self vector2Type ].
+	(#(tmin tmax) includes: slotName) ifTrue: [ ^ self scalarType ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #accessing }
 GenericRay2d >> direction [
 	^ direction

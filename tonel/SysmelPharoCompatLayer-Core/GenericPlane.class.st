@@ -31,6 +31,13 @@ GenericPlane class >> point: firstPoint point: secondPoint point: thirdPoint [
 	^ self normal: n distance: d
 ]
 
+{ #category : #'as yet unclassified' }
+GenericPlane class >> typeOfGenericSlotNamed: slotName [
+	slotName = #normal ifTrue: [ ^ self vector3Type ].
+	slotName = #distance ifTrue: [ ^ self scalarType ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
 { #category : #accessing }
 GenericPlane >> distance [
 	^ distance

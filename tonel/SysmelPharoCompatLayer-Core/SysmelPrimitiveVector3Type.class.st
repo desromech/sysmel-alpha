@@ -19,9 +19,28 @@ SysmelPrimitiveVector3Type class >> instanceAlignment [
 	^ self elementType instanceSize * 4
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector3Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector3Type
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector3Type class >> withAll: element [
 	^ self x: element y: element z: element
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector3Type class >> x: x [
+	^ self x: x y: 0 z: 0
+]
+
+{ #category : #construction }
+SysmelPrimitiveVector3Type class >> x: x y: y [
+	^ self basicNew
+		x: x;
+		y: y;
+		z: 0;
+		yourself
 ]
 
 { #category : #construction }
@@ -31,6 +50,16 @@ SysmelPrimitiveVector3Type class >> x: x y: y z: z [
 		y: y;
 		z: z;
 		yourself
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector3Type class >> y: y [
+	^ self x: 0 y: y z: 0
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector3Type class >> z: z [
+	^ self x: 0 y: 0 z: z
 ]
 
 { #category : #comparing }
@@ -125,6 +154,26 @@ SysmelPrimitiveVector3Type >> printOn: aStream [
 		nextPutAll:  ' y: '; print: y;
 		nextPutAll:  ' z: '; print: z;
 		nextPut: $)
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector3Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	x := elementType newFromBytes: aByteArray position: byteArrayPosition.
+	y := elementType newFromBytes: aByteArray position: byteArrayPosition + elementTypeSize.
+	z := elementType newFromBytes: aByteArray position: byteArrayPosition + (elementTypeSize*2).
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector3Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	elementType storeValue: x bytesIn: aByteArray position: byteArrayPosition.
+	elementType storeValue: y bytesIn: aByteArray position: byteArrayPosition + elementTypeSize.
+	elementType storeValue: z bytesIn: aByteArray position: byteArrayPosition + (elementTypeSize*2).
 ]
 
 { #category : #enumerating }

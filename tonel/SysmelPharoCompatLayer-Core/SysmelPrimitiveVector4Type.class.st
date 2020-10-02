@@ -23,6 +23,11 @@ SysmelPrimitiveVector4Type class >> instanceAlignment [
 	^ self elementType instanceSize * 4
 ]
 
+{ #category : #testing }
+SysmelPrimitiveVector4Type class >> isAbstract [
+	^ self == SysmelPrimitiveVector4Type
+]
+
 { #category : #accessing }
 SysmelPrimitiveVector4Type class >> minorVectorType [
 	^ minorVectorType ifNil: [ minorVectorType := self elementType primitiveVectorWithElements: 3]
@@ -50,6 +55,16 @@ SysmelPrimitiveVector4Type class >> x: x y: y z: z w: w [
 		y: y;
 		z: z;
 		w: w;
+		yourself
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> xy: xy zw: zw [
+	^ self basicNew
+		x: xy x;
+		y: xy y;
+		z: zw x;
+		w: zw y;
 		yourself
 ]
 
@@ -173,6 +188,28 @@ SysmelPrimitiveVector4Type >> printOn: aStream [
 		nextPutAll:  ' z: '; print: z;
 		nextPutAll:  ' w: '; print: w;
 		nextPut: $)
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector4Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	x := elementType newFromBytes: aByteArray position: byteArrayPosition.
+	y := elementType newFromBytes: aByteArray position: byteArrayPosition + elementTypeSize.
+	z := elementType newFromBytes: aByteArray position: byteArrayPosition + (elementTypeSize*2).
+	w := elementType newFromBytes: aByteArray position: byteArrayPosition + (elementTypeSize*3).
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVector4Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| elementType elementTypeSize |
+	elementType := self class elementType.
+	elementTypeSize := elementType instanceSize.
+	elementType storeValue: x bytesIn: aByteArray position: byteArrayPosition.
+	elementType storeValue: y bytesIn: aByteArray position: byteArrayPosition + elementTypeSize.
+	elementType storeValue: z bytesIn: aByteArray position: byteArrayPosition + (elementTypeSize*2).
+	elementType storeValue: w bytesIn: aByteArray position: byteArrayPosition + (elementTypeSize*3).
 ]
 
 { #category : #accessing }

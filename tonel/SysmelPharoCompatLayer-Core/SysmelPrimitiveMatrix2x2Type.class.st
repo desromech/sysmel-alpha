@@ -253,6 +253,14 @@ SysmelPrimitiveMatrix2x2Type >> preMultiplyVector: vector [
 	^ (firstColumn * coercedVector x) + (secondColumn * coercedVector y)
 ]
 
+{ #category : #printing }
+SysmelPrimitiveMatrix2x2Type >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name; nextPutAll: ' rows: {'; cr;
+		tab; print: self firstRow; nextPut: $.; cr;
+		tab; print: self secondRow; nextPut: $.; cr;
+		nextPutAll: '})'
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondColumn [
 	^ secondColumn
@@ -266,6 +274,15 @@ SysmelPrimitiveMatrix2x2Type >> secondColumn: anObject [
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondRow [
 	^ self class rowType x: firstColumn y y: secondColumn y
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix2x2Type >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	columnType storeValue: firstColumn bytesIn: aByteArray position: byteArrayPosition.
+	columnType storeValue: secondColumn bytesIn: aByteArray position: byteArrayPosition + columnTypeSize.
 ]
 
 { #category : #accessing }

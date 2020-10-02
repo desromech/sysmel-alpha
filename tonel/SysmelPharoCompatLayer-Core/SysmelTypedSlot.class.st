@@ -2,7 +2,8 @@ Class {
 	#name : #SysmelTypedSlot,
 	#superclass : #InstanceVariableSlot,
 	#instVars : [
-		'type'
+		'type',
+		'location'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -11,6 +12,16 @@ Class {
 SysmelTypedSlot class >> named: aSymbol for: aType [
 	^ (self named: aSymbol)
 		type: aType;
+		yourself
+]
+
+{ #category : #converting }
+SysmelTypedSlot >> asSysmelAggregateSlotDescription [
+	^ SysmelAggregateSlotDescription new
+		name: name;
+		type: type;
+		location: location;
+		instanceVariableIndex: index;
 		yourself
 ]
 
@@ -36,13 +47,26 @@ SysmelTypedSlot >> isSysmelTypedSlot [
 	^ true
 ]
 
+{ #category : #accessing }
+SysmelTypedSlot >> location [
+	^ location
+]
+
+{ #category : #accessing }
+SysmelTypedSlot >> location: anObject [
+	location := anObject
+]
+
 { #category : #printing }
 SysmelTypedSlot >> printOn: aStream [
 	"Every subclass that adds state must redefine either this method or #definitionString"
 	aStream 
 		store: self name;
 		nextPutAll: ' => ';
-		print: type
+		print: type.
+		
+	location ifNotNil: [ aStream nextPutAll: ' location: '; print: location ].
+
 ]
 
 { #category : #accessing }

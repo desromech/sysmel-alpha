@@ -15,6 +15,16 @@ Float64 class >> instanceSize [
 ]
 
 { #category : #'as yet unclassified' }
+Float64 class >> newFromBytes: aByteArray position: byteArrayPosition [
+	^ aByteArray doubleAt: byteArrayPosition
+]
+
+{ #category : #'as yet unclassified' }
 Float64 class >> shortCapitalTypeSuffix [
 	^ #F64
+]
+
+{ #category : #'as yet unclassified' }
+Float64 class >> storeValue: value bytesIn: aByteArray position: byteArrayPosition [
+	aByteArray doubleAt: byteArrayPosition put: value
 ]

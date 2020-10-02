@@ -8,3 +8,8 @@ Class {
 Float64x4 class >> elementType [
 	^ Float64
 ]
+
+{ #category : #converting }
+Float64x4 >> asFloat64x4 [
+	^ self
+]

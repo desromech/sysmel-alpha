@@ -19,3 +19,8 @@ Object >> isPrimitiveMatrix [
 Object >> isPrimitiveVector [
 	^ false
 ]
+
+{ #category : #'*SysmelPharoCompatLayer-Core' }
+Object >> isSysmelNativeType [
+	^ false
+]

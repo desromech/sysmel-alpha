@@ -8,3 +8,8 @@ Class {
 Float32x2 class >> elementType [
 	^ Float32
 ]
+
+{ #category : #converting }
+Float32x2 >> asFloat32x2 [
+	^ self
+]

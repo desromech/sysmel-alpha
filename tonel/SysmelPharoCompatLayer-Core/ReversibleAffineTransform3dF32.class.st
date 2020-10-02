@@ -8,3 +8,8 @@ Class {
 ReversibleAffineTransform3dF32 class >> scalarType [
 	^ Float32
 ]
+
+{ #category : #converting }
+ReversibleAffineTransform3dF32 >> asReversibleAffineTransform3dF32 [
+	^ self
+]

@@ -39,6 +39,15 @@ GenericReversibleAffineTransform3d class >> isAbstract [
 ]
 
 { #category : #'as yet unclassified' }
+GenericReversibleAffineTransform3d class >> typeOfGenericSlotNamed: slotName [
+	slotName = #matrix ifTrue: [ ^ self matrix3x3Type ].
+	slotName = #translation ifTrue: [ ^ self vector3Type ].
+	slotName = #inverseMatrix ifTrue: [ ^ self matrix3x3Type ].
+	slotName = #inverseTranslation ifTrue: [ ^ self vector3Type ].
+	^ super typeOfGenericSlotNamed: slotName
+]
+
+{ #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> applyMatrix: extraMatrix inverseMatrix: extraMatrixInverse [
 	| coercedExtraMatrix coercedExtraMatrixInverse |
 	coercedExtraMatrix := extraMatrix implicitCastTo: self class matrix3x3Type.
@@ -52,6 +61,16 @@ GenericReversibleAffineTransform3d >> applyMatrix: extraMatrix inverseMatrix: ex
 { #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> applyOrthonormalMatrix: orthonormal [
 	^ self applyMatrix: orthonormal inverseMatrix: orthonormal transpose
+]
+
+{ #category : #converting }
+GenericReversibleAffineTransform3d >> asReversibleAffineTransform3dF32 [
+	^ ReversibleAffineTransform3dF32 basicNew matrix: matrix asFloat32x3x3 inverseMatrix: inverseMatrix asFloat32x3x3 translation: translation asFloat32x3
+]
+
+{ #category : #converting }
+GenericReversibleAffineTransform3d >> asReversibleAffineTransform3dF64 [
+	^ ReversibleAffineTransform3dF64 basicNew matrix: matrix asFloat64x3x3 inverseMatrix: inverseMatrix asFloat64x3x3 translation: translation asFloat64x3
 ]
 
 { #category : #initialization }
@@ -157,8 +176,8 @@ GenericReversibleAffineTransform3d >> matrix4: matrix4 inverseMatrix4: inverseMa
 
 { #category : #testing }
 GenericReversibleAffineTransform3d >> matrix: newMatrix inverseMatrix: newInverseMatrix translation: newTranslation [
-	matrix := newMatrix implicitCastTo: self class matrix4x4Type.
-	inverseMatrix := newMatrix implicitCastTo: self class matrix4x4Type.
+	matrix := newMatrix implicitCastTo: self class matrix3x3Type.
+	inverseMatrix := newMatrix implicitCastTo: self class matrix3x3Type.
 	translation := newTranslation implicitCastTo: self class vector3Type.
 	inverseTranslation := inverseMatrix * translation negated
 ]
@@ -246,6 +265,14 @@ GenericReversibleAffineTransform3d >> setIdentity [
 { #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> setInvertibleMatrix4: matrix4 [
 	self matrix4: matrix4 inverseMatrix4: matrix4 inverse
+]
+
+{ #category : #'memory access' }
+GenericReversibleAffineTransform3d >> storeBytesIn: aByteArray position: byteArrayPosition [
+	| matrix4 |
+	matrix4 := self matrix4.
+	matrix4 storeBytesIn: aByteArray position: byteArrayPosition.
+	self inverseMatrix4 storeBytesIn: aByteArray position: byteArrayPosition + matrix4 class instanceSize.
 ]
 
 { #category : #'as yet unclassified' }
