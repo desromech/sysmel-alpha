@@ -58,7 +58,7 @@ SysmelAggregateSlotDescription >> offset: anObject [
 
 { #category : #'as yet unclassified' }
 SysmelAggregateSlotDescription >> readBytesFrom: aByteArray position: byteArrayPosition intoInstance: instance [
-	instance instVarAt: instanceVariableIndex put: (type newFromBytes: aByteArray position: byteArrayPosition).
+	instance instVarAt: instanceVariableIndex put: (type newFromBytes: aByteArray position: byteArrayPosition + offset).
 ]
 
 { #category : #'as yet unclassified' }
