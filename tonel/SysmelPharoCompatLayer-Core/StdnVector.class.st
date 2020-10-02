@@ -50,7 +50,7 @@ StdnVector >> add: anElement [
 
 { #category : #accessing }
 StdnVector >> asByteArray [
-	^ rawData
+	^ self rawData
 ]
 
 { #category : #enumerating }
@@ -111,16 +111,19 @@ StdnVector >> isNotEmpty [
 
 { #category : #accessing }
 StdnVector >> rawData [
-	| elementSize |
+	| elementSize destIndex elementType |
 	rawData ifNotNil: [ ^ rawData ].
 	storage ifEmpty: [
 		^ rawData := ByteArray new
 	].
 
 	elementSize := self elementSize.
+	elementType := self class elementType.
 	rawData := ByteArray new: elementSize * storage size.
-	storage doWithIndex: [ :each :index |
-		
+	destIndex := 1.
+	storage do: [ :each |
+		elementType storeValue: each bytesIn: rawData position: destIndex.
+		destIndex := destIndex + elementSize.
 	].
 
 	^ rawData
@@ -138,7 +141,8 @@ StdnVector >> remove: anElement [
 
 { #category : #removing }
 StdnVector >> removeAll [
-	^ storage removeAll
+	storage removeAll.
+	rawData := nil.
 ]
 
 { #category : #adding }
