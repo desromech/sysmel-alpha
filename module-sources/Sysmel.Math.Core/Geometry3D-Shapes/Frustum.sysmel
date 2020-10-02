@@ -69,17 +69,17 @@ sealed template GenericFrustum(ST: Type)
         self makeFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far
     }.
 
-    const inline method ndcPointInFarPlane: (normalizedPoint: Vector2) ::=> Vector3
+    const inline method normalizedPointInFarPlane: (normalizedPoint: Vector2) ::=> Vector3
         := (leftBottomFar interpolateTo: rightBottomFar at: normalizedPoint x) interpolateTo:
             (leftTopFar interpolateTo: rightTopFar at: normalizedPoint x) at: normalizedPoint y.
 
-    const inline method ndcPointInNearPlane: (normalizedPoint: Vector2) ::=> Vector3
+    const inline method normalizedPointInNearPlane: (normalizedPoint: Vector2) ::=> Vector3
         := (leftBottomNear interpolateTo: rightBottomNear at: normalizedPoint x) interpolateTo:
             (leftTopNear interpolateTo: rightTopNear at: normalizedPoint x) at: normalizedPoint y.
 
-    const inline method rayForNDCPoint: (normalizedPoint: Vector2) ::=> Ray3d := {
-        let nearPoint := self ndcPointInNearPlane: normalizedPoint.
-        let farPoint := self ndcPointInFarPlane: normalizedPoint.
+    const inline method rayForNormalizedPoint: (normalizedPoint: Vector2) ::=> Ray3d := {
+        let nearPoint := self normalizedPointInNearPlane: normalizedPoint.
+        let farPoint := self normalizedPointInFarPlane: normalizedPoint.
 
         Ray3d from: nearPoint to: farPoint
     }.

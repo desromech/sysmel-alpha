@@ -227,8 +227,8 @@ sealed template GenericBox(ST: Type)
             let t1 := (max - ray origin)*ray inverseDirection.
             let tmin := t0 min: t1.
             let tmax := t0 max: t1.
-            let maxTMin := (tmin x max: tmin y) max: ray tmin.
-            let minTMax := (tmax x min: tmax y) min: ray tmax.
+            let maxTMin := ((tmin x max: tmin y) max: tmin z) max: ray tmin.
+            let minTMax := ((tmax x min: tmax y) min: tmax z) min: ray tmax.
 
             let hasIntersection := maxTMin <= minTMax.
             hasIntersection ifFalse: {
