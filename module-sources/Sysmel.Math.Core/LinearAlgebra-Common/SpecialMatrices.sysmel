@@ -150,7 +150,7 @@ GenericLinearAlgebra extend: {
                     Matrix4x4 rows: (
                         Vector4(2 /(right - left), 0, 0, ((right + left) / (right - left)) negated),
                         Vector4(0, 2 /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
-                        Vector4(0, 0, -1 / (far - near), near / (far - near)),
+                        Vector4(0, 0, -1 / (far - near), near / (far - near)) negated,
                         Vector4(0, 0, 0, 1)
                     )
                 }.
