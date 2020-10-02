@@ -115,3 +115,11 @@ GenericRay3d >> tmin [
 GenericRay3d >> tmin: anObject [
 	tmin := anObject implicitCastTo: self class scalarType
 ]
+
+{ #category : #transforming }
+GenericRay3d >> transformedWith: aTransform [
+	self flag: 'Fixme: handle the non-orthonomal transform case'.
+	^ self class
+		origin: (aTransform transformPosition: origin)
+		direction: (aTransform transformVector: direction) tmin: tmin tmax: tmax
+]

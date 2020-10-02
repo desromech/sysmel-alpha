@@ -28,6 +28,11 @@ SysmelPrimitiveVector4Type class >> isAbstract [
 	^ self == SysmelPrimitiveVector4Type
 ]
 
+{ #category : #serialization }
+SysmelPrimitiveVector4Type class >> loadFromJson: jsonData [
+	^ self x: (jsonData at: 1) y: (jsonData at: 2) z: (jsonData at: 3) w: (jsonData at: 4)
+]
+
 { #category : #accessing }
 SysmelPrimitiveVector4Type class >> minorVectorType [
 	^ minorVectorType ifNil: [ minorVectorType := self elementType primitiveVectorWithElements: 3]
@@ -35,6 +40,7 @@ SysmelPrimitiveVector4Type class >> minorVectorType [
 
 { #category : #constructing }
 SysmelPrimitiveVector4Type class >> w: w [
+	<constructor>
 	^ self x: 0 y: 0 z: 0 w: w
 ]
 
@@ -45,11 +51,35 @@ SysmelPrimitiveVector4Type class >> withAll: element [
 
 { #category : #constructing }
 SysmelPrimitiveVector4Type class >> x: x [
+	<constructor>
 	^ self x: x y: 0 z: 0 w: 0
 ]
 
 { #category : #constructing }
+SysmelPrimitiveVector4Type class >> x: x y: y [
+	<constructor>
+	^ self basicNew
+		x: x;
+		y: y;
+		z: 0;
+		w: 0;
+		yourself
+]
+
+{ #category : #constructing }
+SysmelPrimitiveVector4Type class >> x: x y: y z: z [
+	<constructor>
+	^ self basicNew
+		x: x;
+		y: y;
+		z: z;
+		w: 0;
+		yourself
+]
+
+{ #category : #constructing }
 SysmelPrimitiveVector4Type class >> x: x y: y z: z w: w [
+	<constructor>
 	^ self basicNew
 		x: x;
 		y: y;
@@ -60,6 +90,7 @@ SysmelPrimitiveVector4Type class >> x: x y: y z: z w: w [
 
 { #category : #constructing }
 SysmelPrimitiveVector4Type class >> xy: xy zw: zw [
+	<constructor>
 	^ self basicNew
 		x: xy x;
 		y: xy y;
@@ -69,7 +100,19 @@ SysmelPrimitiveVector4Type class >> xy: xy zw: zw [
 ]
 
 { #category : #constructing }
+SysmelPrimitiveVector4Type class >> xyz: xyz [
+	<constructor>
+	^ self basicNew
+		x: xyz x;
+		y: xyz y;
+		z: xyz z;
+		w: 0;
+		yourself
+]
+
+{ #category : #constructing }
 SysmelPrimitiveVector4Type class >> xyz: xyz w: w [
+	<constructor>
 	^ self basicNew
 		x: xyz x;
 		y: xyz y;
@@ -80,11 +123,13 @@ SysmelPrimitiveVector4Type class >> xyz: xyz w: w [
 
 { #category : #constructing }
 SysmelPrimitiveVector4Type class >> y: y [
+	<constructor>
 	^ self x: 0 y: y z: 0 w: 0
 ]
 
 { #category : #constructing }
 SysmelPrimitiveVector4Type class >> z: z [
+	<constructor>
 	^ self x: 0 y: 0 z: z w: 0
 ]
 
@@ -214,11 +259,13 @@ SysmelPrimitiveVector4Type >> storeBytesIn: aByteArray position: byteArrayPositi
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> w [
+	<accessor>
 	^ w
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> w: anObject [
+	<accessor>
 	w := anObject implicitCastTo: self class elementType
 ]
 
@@ -246,11 +293,13 @@ SysmelPrimitiveVector4Type >> wxyz [
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> x [
+	<accessor>
 	^ x
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> x: anObject [
+	<accessor>
 	x := anObject implicitCastTo: self class elementType
 ]
 
@@ -261,21 +310,25 @@ SysmelPrimitiveVector4Type >> xyz [
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> y [
+	<accessor>
 	^ y
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> y: anObject [
+	<accessor>
 	y := anObject implicitCastTo: self class elementType
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> z [
+	<accessor>
 	^ z
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector4Type >> z: anObject [
+	<accessor>
 	z := anObject implicitCastTo: self class elementType
 ]
 

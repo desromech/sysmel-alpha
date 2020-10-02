@@ -25,6 +25,7 @@ SysmelPrimitiveMatrix4x4Type class >> columns [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type class >> columns: columns [
+	<constructor>
 	columns size = 4 ifTrue: [ 
 		^ self basicNew
 			firstColumn: columns first;
@@ -122,7 +123,7 @@ SysmelPrimitiveMatrix4x4Type class >> orthoLeft: left right: right bottom: botto
 	^ self rows: {
 		columnType x: 2 /(right - left) y: 0 z: 0 w: ((right + left) / (right - left)) negated.
 		(columnType x: 0 y: 2 /(top - bottom) z: 0 w: ((top + bottom) / (top - bottom)) negated) * yAxisFactor.
-		columnType x: 0 y: 0 z: -1 / (far - near) w: near / (far - near).
+		columnType x: 0 y: 0 z: -1 / (far - near) w: near / (far - near) negated.
 		columnType x: 0 y: 0 z: 0 w: 1
 	}
 ]
@@ -365,11 +366,13 @@ SysmelPrimitiveMatrix4x4Type >> determinant [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> firstColumn [
+	<accessor>
 	^ firstColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> firstColumn: anObject [
+	<accessor>
 	firstColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -380,11 +383,13 @@ SysmelPrimitiveMatrix4x4Type >> firstRow [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> fourthColumn [
+	<accessor>
 	^ fourthColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> fourthColumn: anObject [
+	<accessor>
 	fourthColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -536,6 +541,15 @@ SysmelPrimitiveMatrix4x4Type >> multiplyWithMatrix: other [
 ]
 
 { #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix4x4Type >> perspectiveTransformPosition3: position3 [
+	| coercedPosition result4 |
+	coercedPosition := position3 implicitCastTo: self class vector3Type.
+	result4 := (firstColumn * coercedPosition x) + (secondColumn * coercedPosition y)
+	+ (thirdColumn * coercedPosition z) + fourthColumn.
+	^ result4 xyz / result4 w
+]
+
+{ #category : #'as yet unclassified' }
 SysmelPrimitiveMatrix4x4Type >> postMultiplyVector: vector [
 	| coercedVector |
 	coercedVector := vector implicitCastTo: self class rowType.
@@ -566,11 +580,13 @@ SysmelPrimitiveMatrix4x4Type >> printOn: aStream [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> secondColumn [
+	<accessor>
 	^ secondColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> secondColumn: anObject [
+	<accessor>
 	secondColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -592,11 +608,13 @@ SysmelPrimitiveMatrix4x4Type >> storeBytesIn: aByteArray position: byteArrayPosi
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> thirdColumn [
+	<accessor>
 	^ thirdColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix4x4Type >> thirdColumn: anObject [
+	<accessor>
 	thirdColumn := anObject implicitCastTo: self class columnType
 ]
 

@@ -21,6 +21,7 @@ SysmelPrimitiveMatrix3x3Type class >> columns [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type class >> columns: columns [
+	<constructor>
 	columns size = 3 ifTrue: [ 
 		^ self basicNew
 			firstColumn: columns first;
@@ -72,7 +73,7 @@ SysmelPrimitiveMatrix3x3Type class >> lookAtDirection: direction up: upVector [
 	s := (direction cross: up) normalized.
 	u := s cross: f.
 
-	^ self columns: {s, u, f negated}.
+	^ self columns: {s . u . f negated}.
 ]
 
 { #category : #'special matrices' }
@@ -153,6 +154,18 @@ SysmelPrimitiveMatrix3x3Type class >> scaleX: x y: y z: z [
 		yourself
 ]
 
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> texScale: scale offset: offset [
+	| coercedScale coercedOffset |
+	coercedScale := scale implicitCastTo: self vector2Type.
+	coercedOffset := scale implicitCastTo: self vector2Type.
+	^ self basicNew
+		firstColumn: (self vector3Type x: coercedScale x y: 0 z: 0);
+		secondColumn: (self vector3Type x: 0 y: coercedScale y z: 0);
+		thirdColumn: (self vector3Type x: coercedOffset x y: coercedOffset y z: 1);
+		yourself
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveMatrix3x3Type class >> withAll: value [
 	^ self basicNew
@@ -217,6 +230,24 @@ SysmelPrimitiveMatrix3x3Type >> = other [
 	  thirdColumn = coercedOther thirdColumn ]]
 ]
 
+{ #category : #converting }
+SysmelPrimitiveMatrix3x3Type >> asFloat32x3x3 [
+	^ Float32x3x3 basicNew
+		firstColumn: firstColumn asFloat32x3;
+		secondColumn: secondColumn asFloat32x3;
+		thirdColumn: thirdColumn asFloat32x3;
+		yourself
+]
+
+{ #category : #converting }
+SysmelPrimitiveMatrix3x3Type >> asFloat64x3x3 [
+	^ Float64x3x3 basicNew
+		firstColumn: firstColumn asFloat64x3;
+		secondColumn: secondColumn asFloat64x3;
+		thirdColumn: thirdColumn asFloat64x3;
+		yourself
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> at: column [
 	column = 1 ifTrue: [
@@ -274,11 +305,13 @@ SysmelPrimitiveMatrix3x3Type >> determinant [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> firstColumn [
+	<accessor>
 	^ firstColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> firstColumn: anObject [
+	<accessor>
 	firstColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -296,7 +329,8 @@ SysmelPrimitiveMatrix3x3Type >> hash [
 SysmelPrimitiveMatrix3x3Type >> inverse [
 	| det detVector |
 	det := self determinant.
-	(det closeTo: 0) ifTrue: [ ^ self error: 'Matrix is not invertible.' ].
+	self flag: 'Select a more appropiate epsilon here.'.
+	det = 0 ifTrue: [ ^ self error: 'Matrix is not invertible.' ].
 	"Formula from: https://en.wikipedia.org/wiki/Invertible_matrix#Inversion_of_3_%C3%97_3_matrices [30th September, 2020]"
 
 	detVector := det implicitCastTo: self class columnType.
@@ -393,11 +427,13 @@ SysmelPrimitiveMatrix3x3Type >> printOn: aStream [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> secondColumn [
+	<accessor>
 	^ secondColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> secondColumn: anObject [
+	<accessor>
 	secondColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -418,17 +454,33 @@ SysmelPrimitiveMatrix3x3Type >> storeBytesIn: aByteArray position: byteArrayPosi
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> thirdColumn [
+	<accessor>
 	^ thirdColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> thirdColumn: anObject [
+	<accessor>
 	thirdColumn := anObject implicitCastTo: self class columnType
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> thirdRow [
 	^ self class rowType x: firstColumn z y: secondColumn z z: thirdColumn z
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix3x3Type >> transformPosition2: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class vector2Type.
+	^ ((firstColumn * coercedVector x) + (secondColumn * coercedVector y) + thirdColumn) xy
+]
+
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveMatrix3x3Type >> transformVector2: vector [
+	| coercedVector |
+	coercedVector := vector implicitCastTo: self class vector2Type.
+	^ ((firstColumn * coercedVector x) + (secondColumn * coercedVector y)) xy
 ]
 
 { #category : #accessing }

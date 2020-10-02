@@ -65,6 +65,27 @@ SysmelArrayType class >> printOn: aStream [
 
 ]
 
+{ #category : #'instance creation' }
+SysmelArrayType class >> with: anArray [
+	| convertedData |
+	self assert: self isAbstract not.
+	self assert: anArray size = 6.
+	convertedData := anArray collect: [:each | each implicitCastTo: self elementType] as: Array.
+	^ self basicNew
+		initializeWithStorage: convertedData;
+		yourself
+]
+
+{ #category : #enumerating }
+SysmelArrayType >> allSatisfy: aBlock [
+	^ storage allSatisfy: aBlock
+]
+
+{ #category : #enumerating }
+SysmelArrayType >> anySatisfy: aBlock [
+	^ storage anySatisfy: aBlock
+]
+
 { #category : #accessing }
 SysmelArrayType >> at: index [
 	^ storage at: index
@@ -73,6 +94,11 @@ SysmelArrayType >> at: index [
 { #category : #accessing }
 SysmelArrayType >> at: index put: value [
 	^ storage at: index put: (value implicitCastTo: self class elementType)
+]
+
+{ #category : #accessing }
+SysmelArrayType >> atAllPut: aValue [
+	storage atAllPut: (aValue implicitCastTo: self class elementType)
 ]
 
 { #category : #enumerating }
@@ -90,6 +116,11 @@ SysmelArrayType >> initialize [
 	| elementType |
 	elementType := self class elementType.
 	storage := (1 to: self class elements) collect: [ :i | elementType new ].
+]
+
+{ #category : #initialization }
+SysmelArrayType >> initializeWithStorage: theStorage [
+	storage := theStorage
 ]
 
 { #category : #'memory access' }

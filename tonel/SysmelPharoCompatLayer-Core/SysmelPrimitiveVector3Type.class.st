@@ -24,6 +24,11 @@ SysmelPrimitiveVector3Type class >> isAbstract [
 	^ self == SysmelPrimitiveVector3Type
 ]
 
+{ #category : #serialization }
+SysmelPrimitiveVector3Type class >> loadFromJson: jsonData [
+	^ self x: (jsonData at: 1) y: (jsonData at: 2) z: (jsonData at: 3)
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector3Type class >> withAll: element [
 	^ self x: element y: element z: element
@@ -31,11 +36,13 @@ SysmelPrimitiveVector3Type class >> withAll: element [
 
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector3Type class >> x: x [
+	<constructor>
 	^ self x: x y: 0 z: 0
 ]
 
 { #category : #construction }
 SysmelPrimitiveVector3Type class >> x: x y: y [
+	<constructor>
 	^ self basicNew
 		x: x;
 		y: y;
@@ -45,6 +52,7 @@ SysmelPrimitiveVector3Type class >> x: x y: y [
 
 { #category : #construction }
 SysmelPrimitiveVector3Type class >> x: x y: y z: z [
+	<constructor>
 	^ self basicNew
 		x: x;
 		y: y;
@@ -54,11 +62,13 @@ SysmelPrimitiveVector3Type class >> x: x y: y z: z [
 
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector3Type class >> y: y [
+	<constructor>
 	^ self x: 0 y: y z: 0
 ]
 
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector3Type class >> z: z [
+	<constructor>
 	^ self x: 0 y: 0 z: z
 ]
 
@@ -189,31 +199,42 @@ SysmelPrimitiveVector3Type >> with: other collect: aBlock [
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> x [
+	<accessor>
 	^ x
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> x: anObject [
+	<accessor>
 	x := anObject implicitCastTo: self class elementType
+]
+
+{ #category : #'accessing structure variables' }
+SysmelPrimitiveVector3Type >> xy [
+	^ self class vector2Type x: x y: y
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> y [
+	<accessor>
 	^ y
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> y: anObject [
+	<accessor>
 	y := anObject implicitCastTo: self class elementType
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> z [
+	<accessor>
 	^ z
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector3Type >> z: anObject [
+	<accessor>
 	z := anObject implicitCastTo: self class elementType
 ]
 

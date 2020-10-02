@@ -101,17 +101,17 @@ SysmelPrimitiveMatrixType class >> validateExplicitCastOfValue: aValue [
 
 { #category : #accessing }
 SysmelPrimitiveMatrixType class >> vector2Type [
-	^ vector2Type ifNil: [vector2Type := self scalarType primitiveVectorWithElements: 2]
+	^ vector2Type ifNil: [vector2Type := self elementType primitiveVectorWithElements: 2]
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrixType class >> vector3Type [
-	^ vector3Type ifNil: [vector3Type := self scalarType primitiveVectorWithElements: 3]
+	^ vector3Type ifNil: [vector3Type := self elementType primitiveVectorWithElements: 3]
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrixType class >> vector4Type [
-	^ vector4Type ifNil: [vector4Type := self scalarType primitiveVectorWithElements: 4]
+	^ vector4Type ifNil: [vector4Type := self elementType primitiveVectorWithElements: 4]
 ]
 
 { #category : #construction }

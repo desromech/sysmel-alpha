@@ -53,7 +53,7 @@ GenericFrustum >> boundingBox [
 
 { #category : #private }
 GenericFrustum >> computePlanes [
-	planes := { 
+	planes := (self class planeType array: 6) with: { 
 		"Near plane"
    		(self class planeType point: leftBottomNear point: rightBottomNear point: leftTopNear).
 		"Far plane"
@@ -84,6 +84,20 @@ GenericFrustum >> corners [
 		leftTopFar. 
 		rightTopFar. 
 	}
+]
+
+{ #category : #accessing }
+GenericFrustum >> cornersDo: aBlock [
+	aBlock value: leftBottomNear.
+	aBlock value: rightBottomNear. 
+	aBlock value: leftTopNear. 
+	aBlock value: rightTopNear. 
+
+	aBlock value: leftBottomFar.
+	aBlock value: rightBottomFar.
+	aBlock value: leftTopFar.
+	aBlock value: rightTopFar.
+
 ]
 
 { #category : #accessing }
@@ -179,7 +193,7 @@ GenericFrustum >> makeFrustumLeft: left right: right bottom: bottom top: top nea
 	leftTopFar := leftTopNear * factor.
 	rightTopFar := rightTopNear * factor.
 
-self computePlanes.
+	self computePlanes.
 ]
 
 { #category : #computation }
@@ -209,21 +223,21 @@ GenericFrustum >> makePerspectiveFovY: fovy aspect: aspect near: near far: far [
 	self makeFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far
 ]
 
+{ #category : #accessing }
+GenericFrustum >> nearPlane [
+	^ planes first
+]
+
 { #category : #computation }
-GenericFrustum >> ndcPointInFarPlane: normalizedPoint [
+GenericFrustum >> normalizedPointInFarPlane: normalizedPoint [
 	^ (leftBottomFar interpolateTo: rightBottomFar at: normalizedPoint x) interpolateTo:
 		(leftTopFar interpolateTo: rightTopFar at: normalizedPoint x) at: normalizedPoint y.
 ]
 
 { #category : #computation }
-GenericFrustum >> ndcPointInNearPlane: normalizedPoint [
+GenericFrustum >> normalizedPointInNearPlane: normalizedPoint [
 	^ (leftBottomNear interpolateTo: rightBottomNear at: normalizedPoint x) interpolateTo:
 		(leftTopNear interpolateTo: rightTopNear at: normalizedPoint x) at: normalizedPoint y.
-]
-
-{ #category : #accessing }
-GenericFrustum >> nearPlane [
-	^ planes first
 ]
 
 { #category : #accessing }
@@ -232,11 +246,10 @@ GenericFrustum >> planes [
 ]
 
 { #category : #computation }
-GenericFrustum >> rayForNDCPoint: normalizedPoint [
+GenericFrustum >> rayForNormalizedPoint: normalizedPoint [
 	| nearPoint farPoint |
-	nearPoint := self ndcPointInNearPlane: normalizedPoint.
-	farPoint := self ndcPointInFarPlane: normalizedPoint.
-
+	nearPoint := self normalizedPointInNearPlane: normalizedPoint.
+	farPoint := self normalizedPointInFarPlane: normalizedPoint.
 	^ self class ray3dType from: nearPoint to: farPoint
 ]
 
@@ -313,6 +326,7 @@ GenericFrustum >> transformedWith: transform [
 		rightBottomNear: (transform transformPosition: rightBottomNear);
 		leftTopNear: (transform transformPosition: leftTopNear);
 		rightTopNear: (transform transformPosition: rightTopNear);
+
 		leftBottomFar: (transform transformPosition: leftBottomFar);
 		rightBottomFar: (transform transformPosition: rightBottomFar);
 		leftTopFar: (transform transformPosition: leftTopFar);

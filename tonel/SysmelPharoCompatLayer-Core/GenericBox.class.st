@@ -91,7 +91,7 @@ GenericBox class >> typeOfGenericSlotNamed: slotName [
 
 { #category : #constructing }
 GenericBox class >> unitBox [
-	^ self min: 0.5 max: 0.5
+	^ self min: -0.5 max: 0.5
 ]
 
 { #category : #converting }
@@ -118,9 +118,40 @@ GenericBox >> asBoxI32 [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericBox >> asFrustum [
+	^ self class frustumType basicNew
+		makeOrthoLeft: min x right: max x
+		bottom: min y top: max y
+		near: max z negated far: min z negated;
+		yourself.
+]
+
 { #category : #accessing }
 GenericBox >> center [
 	^ min + ((max - min) / 2)
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> computePenetrationNormalAndDistanceForPoint: point [
+	| delta deltaAbsolute normal penetrationDistance |
+	delta := point - self center.
+	deltaAbsolute := delta abs / self halfExtent.
+	normal := deltaAbsolute x >= deltaAbsolute y ifTrue: [
+			deltaAbsolute x >= deltaAbsolute z ifTrue: [
+				self class vector3Type x: delta x sign
+			] ifFalse: [ 
+				self class vector3Type z: delta z sign
+			]
+		] ifFalse: [
+			deltaAbsolute y >= deltaAbsolute z ifTrue: [
+				self class vector3Type y: delta y sign
+			] ifFalse: [
+				self class vector3Type z: delta z sign
+			].
+		].
+	penetrationDistance := (delta - (self halfExtent*normal) dot: normal) abs.
+	^ {normal . penetrationDistance}
 ]
 
 { #category : #accessing }
@@ -136,6 +167,22 @@ GenericBox >> corners [
 		self farTopLeft.
 		self farTopRight
 	}
+]
+
+{ #category : #accessing }
+GenericBox >> cornersDo: aBlock [
+	aBlock value: self nearBottomLeft.
+	aBlock value: self nearBottomRight.
+	aBlock value: self nearTopLeft.
+	aBlock value: self nearTopRight.
+
+	aBlock value: self farBottomLeft.
+	aBlock value: self farBottomRight.
+	aBlock value: self farTopLeft.
+	aBlock value: self farTopRight.
+
+	^ nil.
+
 ]
 
 { #category : #accessing }
@@ -186,6 +233,11 @@ GenericBox >> hasIntersectionWithBox: other [
 	^ (self isBoxOutside: other) not
 ]
 
+{ #category : #'as yet unclassified' }
+GenericBox >> hasIntersectionWithRay: ray [
+	^ (self intersectionWithRay: ray) isNotNil.
+]
+
 { #category : #accessing }
 GenericBox >> height [
 	^ max y - min y
@@ -226,6 +278,12 @@ GenericBox >> initialize [
 ]
 
 { #category : #building }
+GenericBox >> insertBox: aBox [
+	min := min min: aBox min.
+	max := max max: aBox max.
+]
+
+{ #category : #building }
 GenericBox >> insertPoint: aPoint [
 	min := min min: aPoint.
 	max := max max: aPoint.
@@ -239,6 +297,23 @@ GenericBox >> intersectionWith: other [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericBox >> intersectionWithRay: ray [
+	"Slab testing algorithm from: A Ray-Box Intersection Algorithm andEfficient Dynamic Voxel Rendering. By Majercik et al"
+	| t0 t1 tmin tmax maxTMin minTMax hasIntersection |
+	t0 := (min - ray origin)*ray inverseDirection.
+	t1 := (max - ray origin)*ray inverseDirection.
+	tmin := t0 min: t1.
+	tmax := t0 max: t1.
+	maxTMin := ((tmin x max: tmin y) max: tmin z) max: ray tmin.
+	minTMax := ((tmax x min: tmax y) min: tmax z) min: ray tmax.
+
+	hasIntersection := maxTMin <= minTMax.
+ 	hasIntersection ifFalse: [ ^ nil ].
+
+	^ maxTMin min: minTMax
+]
+
 { #category : #testing }
 GenericBox >> isBoxOutside: other [
 	^ other max x < min x or: [ max x < other min x or: [
@@ -249,6 +324,31 @@ GenericBox >> isBoxOutside: other [
 { #category : #testing }
 GenericBox >> isEmpty [
 	^ min x > max x or: [ min y > max y or: [min z > max z]]
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> mappingToNDCCoordinates [
+	^ self mappingToNDCCoordinatesInvertedY: false
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> mappingToNDCCoordinatesInvertedY: invertedY [
+	^ self class matrix4x4Type orthoLeft: min x right: max x
+            	bottom: min y top: max y
+            	near: max z negated far: min z negated invertedY: invertedY.
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> mappingToNDCCoordinatesReverseDepth [
+	^ self mappingToNDCCoordinatesReverseDepthWithInvertedY: false
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> mappingToNDCCoordinatesReverseDepthWithInvertedY: invertedY [
+	^ self class matrix4x4Type reverseDepthOrthoLeft: min x right: max x
+		bottom: min y top: max y
+		near: max z negated far: min z negated
+		invertedY: invertedY
 ]
 
 { #category : #accessing }
@@ -296,9 +396,38 @@ GenericBox >> negativeVertex: direction [
 	| vertex |
 	vertex := max copy.
 	direction x >= 0.0 ifTrue: [ vertex x: min x ].
-	direction y >= 0.0 ifTrue: [ vertex x: min y ].
-	direction z >= 0.0 ifTrue: [ vertex x: min z ].
+	direction y >= 0.0 ifTrue: [ vertex y: min y ].
+	direction z >= 0.0 ifTrue: [ vertex z: min z ].
 	^ vertex
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> octants [
+	| center vector3Type |
+	center := self center.
+	vector3Type := self class vector3Type.
+	^ {
+		"Bottom quadrant"
+
+		"Left near"
+		self class min: (vector3Type x: min x y: min y z: min z) max: (vector3Type x: center x y: center y z: center z).
+		"Right near"
+		self class min: (vector3Type x: center x y: min y z: min z) max: (vector3Type x: max x y: center y z: center z).
+		"Left far"
+		self class min: (vector3Type x: min x y: min y z: center z) max: (vector3Type x: center x y: center y z: max z).
+		"Right far"
+		self class min: (vector3Type x: center x y: min y z: center z) max: (vector3Type x: max x y: center y z: max z).
+
+		"Top quadrant"
+		"Left near"
+		self class min: (vector3Type x: min x y: center y z: min z) max: (vector3Type x: center x y: max y z: center z).
+		"Right near"
+		self class min: (vector3Type x: center x y: center y z: min z) max: (vector3Type x: max x y: max y z: center z).
+		"Left far"
+		self class min: (vector3Type x: min x y: center y z: center z) max: (vector3Type x: center x y: max y z: max z).
+		"Right far"
+		self class min: (vector3Type x: center x y: center y z: center z) max: (vector3Type x: max x y: max y z: max z).
+	}
 ]
 
 { #category : #accessing }
@@ -306,8 +435,8 @@ GenericBox >> positiveVertex: direction [
 	| vertex |
 	vertex := min copy.
 	direction x >= 0.0 ifTrue: [ vertex x: max x ].
-	direction y >= 0.0 ifTrue: [ vertex x: max y ].
-	direction z >= 0.0 ifTrue: [ vertex x: max z ].
+	direction y >= 0.0 ifTrue: [ vertex y: max y ].
+	direction z >= 0.0 ifTrue: [ vertex z: max z ].
 	^ vertex
 ]
 
@@ -319,6 +448,37 @@ GenericBox >> printOn: aStream [
 		nextPut: $)
 ]
 
+{ #category : #'as yet unclassified' }
+GenericBox >> quadrants [
+	| center vector3Type |
+	center := self center.
+	vector3Type := self class vector3Type.
+	^ {
+		"Left near"
+		self class min: (vector3Type x: min x y: min y z: min z) max: (vector3Type x: center x y: max y z: center z).
+		"Right near"
+		self class min: (vector3Type x: center x y: min y z: min z) max: (vector3Type x: max x y: max y z: center z).
+		"Left far"
+		self class min: (vector3Type x: min x y: min y z: center z) max: (vector3Type x: center x y: max y z: max z).
+		"Right far"
+		self class min: (vector3Type x: center x y: min y z: center z) max: (vector3Type x: max x y: max y z: max z).
+	}
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> reversibleTransformToConvertToMe: sourceBox [
+	^ self class reversibleAffineTransform3dType identity
+		translateBy: sourceBox center negated;
+		scaleBy: self halfExtent / sourceBox halfExtent;
+		translateBy: self center;
+		yourself.
+]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> reversibleTransformToConvertUnitBoxToMe [
+	^ self reversibleTransformToConvertToMe: self class unitBox
+]
+
 { #category : #accessing }
 GenericBox >> support: direction [
 	^ self positiveVertex: direction
@@ -328,7 +488,7 @@ GenericBox >> support: direction [
 GenericBox >> transformedWith: transform [
 	| result |
 	result := self class empty.
-	self corners do: [ :each |
+	self cornersDo: [ :each |
 		result insertPoint: (transform transformPosition: each)
 	].
 	^ result

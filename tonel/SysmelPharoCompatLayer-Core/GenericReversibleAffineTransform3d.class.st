@@ -177,7 +177,7 @@ GenericReversibleAffineTransform3d >> matrix4: matrix4 inverseMatrix4: inverseMa
 { #category : #testing }
 GenericReversibleAffineTransform3d >> matrix: newMatrix inverseMatrix: newInverseMatrix translation: newTranslation [
 	matrix := newMatrix implicitCastTo: self class matrix3x3Type.
-	inverseMatrix := newMatrix implicitCastTo: self class matrix3x3Type.
+	inverseMatrix := newInverseMatrix implicitCastTo: self class matrix3x3Type.
 	translation := newTranslation implicitCastTo: self class vector3Type.
 	inverseTranslation := inverseMatrix * translation negated
 ]
@@ -296,7 +296,7 @@ GenericReversibleAffineTransform3d >> transformTransform: transform [
 
 { #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> transformVector: aVector [
-	^ (matrix*aVector)
+	^ matrix*aVector
 ]
 
 { #category : #'as yet unclassified' }

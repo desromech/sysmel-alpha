@@ -102,17 +102,17 @@ SysmelPrimitiveVectorType class >> validateImplicitCastOfValue: aValue [
 
 { #category : #accessing }
 SysmelPrimitiveVectorType class >> vector2Type [
-	^ vector2Type ifNil: [vector2Type := self scalarType primitiveVectorWithElements: 2]
+	^ vector2Type ifNil: [vector2Type := self elementType primitiveVectorWithElements: 2]
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVectorType class >> vector3Type [
-	^ vector3Type ifNil: [vector3Type := self scalarType primitiveVectorWithElements: 3]
+	^ vector3Type ifNil: [vector3Type := self elementType primitiveVectorWithElements: 3]
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVectorType class >> vector4Type [
-	^ vector4Type ifNil: [vector4Type := self scalarType primitiveVectorWithElements: 4]
+	^ vector4Type ifNil: [vector4Type := self elementType primitiveVectorWithElements: 4]
 ]
 
 { #category : #'instance creation' }
@@ -127,7 +127,7 @@ SysmelPrimitiveVectorType class >> zeros [
 
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> * other [
-	other isPrimitiveMatrix ifTrue: [ ^ other preMultiplyVector: self ].
+	other isPrimitiveMatrix ifTrue: [ ^ other postMultiplyVector: self ].
 	^ self with: other collect: [ :a :b | a * b ]
 ]
 
@@ -213,6 +213,11 @@ SysmelPrimitiveVectorType >> dot: other [
 { #category : #arithmetic }
 SysmelPrimitiveVectorType >> floor [
 	^ self collect: [ :each | each floor ]
+]
+
+{ #category : #transforming }
+SysmelPrimitiveVectorType >> interpolateTo: end at: alpha [
+	^ (self*(1-alpha)) + (end*alpha)
 ]
 
 { #category : #testing }

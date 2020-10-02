@@ -20,6 +20,7 @@ SysmelPrimitiveMatrix2x2Type class >> columns [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type class >> columns: columns [
+	<constructor>
 	columns size = 2 ifTrue: [ 
 		^ self basicNew
 			firstColumn: columns first;
@@ -172,11 +173,13 @@ SysmelPrimitiveMatrix2x2Type >> determinant [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> firstColumn [
+	<accessor>
 	^ firstColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> firstColumn: anObject [
+	<accessor>
 	firstColumn := anObject implicitCastTo: self class columnType
 ]
 
@@ -263,11 +266,13 @@ SysmelPrimitiveMatrix2x2Type >> printOn: aStream [
 
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondColumn [
+	<accessor>
 	^ secondColumn
 ]
 
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondColumn: anObject [
+	<accessor>
 	secondColumn := anObject implicitCastTo: self class columnType
 ]
 

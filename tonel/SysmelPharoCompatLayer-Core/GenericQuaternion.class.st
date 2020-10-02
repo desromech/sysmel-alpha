@@ -57,6 +57,11 @@ GenericQuaternion class >> xRotation: angle [
 ]
 
 { #category : #accessing }
+GenericQuaternion class >> xyz: xyz w: w [
+	^ self xyzw: (self vector4Type xyz: xyz w: w)
+]
+
+{ #category : #accessing }
 GenericQuaternion class >> xyzRotation: angles [
 	^ (self xRotation: angles x) * (self yRotation: angles y) * (self zRotation: angles z)
 ]
@@ -254,6 +259,11 @@ GenericQuaternion >> length2 [
 { #category : #comparing }
 GenericQuaternion >> negated [
 	^ self class basicNew xyzw: xyzw negated; yourself
+]
+
+{ #category : #accessing }
+GenericQuaternion >> normalized [
+	^ self class basicNew xyzw: xyzw normalized; yourself
 ]
 
 { #category : #accessing }

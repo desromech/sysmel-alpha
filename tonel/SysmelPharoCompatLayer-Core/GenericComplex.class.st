@@ -233,6 +233,11 @@ GenericComplex >> negated [
 ]
 
 { #category : #accessing }
+GenericComplex >> normalized [
+	^ self class basicNew xy: xy normalized; yourself
+]
+
+{ #category : #accessing }
 GenericComplex >> r [
 	^ xy x
 ]

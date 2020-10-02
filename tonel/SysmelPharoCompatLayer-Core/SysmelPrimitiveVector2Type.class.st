@@ -23,6 +23,11 @@ SysmelPrimitiveVector2Type class >> isAbstract [
 	^ self == SysmelPrimitiveVector2Type
 ]
 
+{ #category : #serialization }
+SysmelPrimitiveVector2Type class >> loadFromJson: jsonData [
+	^ self x: (jsonData at: 1) y: (jsonData at: 2)
+]
+
 { #category : #'instance creation' }
 SysmelPrimitiveVector2Type class >> withAll: element [
 	^ self x: element y: element
@@ -30,11 +35,13 @@ SysmelPrimitiveVector2Type class >> withAll: element [
 
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector2Type class >> x: x [
+	<constructor>
 	^ self x: x y: 0
 ]
 
 { #category : #construction }
 SysmelPrimitiveVector2Type class >> x: x y: y [
+	<constructor>
 	^ self basicNew
 		x: x;
 		y: y;
@@ -43,6 +50,7 @@ SysmelPrimitiveVector2Type class >> x: x y: y [
 
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector2Type class >> y: y [
+	<constructor>
 	^ self x: 0 y: y
 ]
 
@@ -161,21 +169,25 @@ SysmelPrimitiveVector2Type >> with: other collect: aBlock [
 
 { #category : #accessing }
 SysmelPrimitiveVector2Type >> x [
+	<accessor>
 	^ x
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector2Type >> x: anObject [
+	<accessor>
 	x := anObject implicitCastTo: self class elementType
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector2Type >> y [
+	<accessor>
 	^ y
 ]
 
 { #category : #accessing }
 SysmelPrimitiveVector2Type >> y: anObject [
+	<accessor>
 	y := anObject implicitCastTo: self class elementType
 ]
 

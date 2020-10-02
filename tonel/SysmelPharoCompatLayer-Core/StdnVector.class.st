@@ -38,6 +38,12 @@ StdnVector class >> isAbstract [
 ]
 
 { #category : #'instance creation' }
+StdnVector class >> new: initialSize [
+	self assert: self isAbstract not.
+	^ self basicNew initializeWithCapacity: 10; yourself
+]
+
+{ #category : #'instance creation' }
 StdnVector class >> newFor: anElementType [
 	^ (self for: anElementType) new
 ]
@@ -46,6 +52,17 @@ StdnVector class >> newFor: anElementType [
 StdnVector >> add: anElement [
 	rawData := nil.
 	^ storage add: (anElement implicitCastTo: self class elementType)
+]
+
+{ #category : #adding }
+StdnVector >> addAll: aCollection [
+	| elementType |
+	rawData := nil.
+	elementType := self class elementType.
+	aCollection do: [ :each |
+		storage add: (each implicitCastTo: elementType)
+	].
+
 ]
 
 { #category : #accessing }
@@ -64,6 +81,11 @@ StdnVector >> at: index put: value [
 	^ storage at: index put: (value implicitCastTo: self class elementType)
 ]
 
+{ #category : #accessing }
+StdnVector >> capacity [
+	^ storage capacity
+]
+
 { #category : #enumerating }
 StdnVector >> do: aBlock [
 	^ storage do: aBlock
@@ -72,6 +94,13 @@ StdnVector >> do: aBlock [
 { #category : #accessing }
 StdnVector >> elementSize [
 	^ self class elementType alignedInstanceSize
+]
+
+{ #category : #private }
+StdnVector >> fillFrom: aCollection with: aBlock [
+	| elementType |
+	elementType := self class elementType.
+	storage fillFrom: aCollection with: [:each | (aBlock value: each) implicitCastTo: elementType]
 ]
 
 { #category : #testing }
@@ -97,6 +126,11 @@ StdnVector >> ifNotEmpty: notEmptyBlock ifEmpty: emptyBlock [
 { #category : #initialization }
 StdnVector >> initialize [
 	storage := OrderedCollection new.
+]
+
+{ #category : #initialization }
+StdnVector >> initializeWithCapacity: initialCapacity [
+	storage := OrderedCollection new: initialCapacity.
 ]
 
 { #category : #testing }
@@ -136,7 +170,9 @@ StdnVector >> rawDataSize [
 
 { #category : #adding }
 StdnVector >> remove: anElement [
-	^ storage remove: (anElement implicitCastTo: self class elementType)
+	storage remove: (anElement implicitCastTo: self class elementType).
+	rawData := nil.
+	
 ]
 
 { #category : #removing }
