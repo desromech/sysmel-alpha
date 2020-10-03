@@ -123,3 +123,11 @@ GenericRay3d >> transformedWith: aTransform [
 		origin: (aTransform transformPosition: origin)
 		direction: (aTransform transformVector: direction) tmin: tmin tmax: tmax
 ]
+
+{ #category : #transforming }
+GenericRay3d >> transformedWithInverseOf: aTransform [
+	self flag: 'Fixme: handle the non-orthonomal transform case'.
+	^ self class
+		origin: (aTransform inverseTransformPosition: origin)
+		direction: (aTransform inverseTransformVector: direction) tmin: tmin tmax: tmax
+]
