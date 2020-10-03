@@ -40,7 +40,7 @@ GenericRay2d class >> origin: origin direction: direction tmin: tmin tmax: tmax 
 	^ self basicNew
 		origin: origin;
 		direction: direction;
-		inverseDirection: 1.0 / direction;
+		inverseDirection: self vector2Type ones / direction;
 		tmin: tmin;
 		tmax: tmax;
 		yourself

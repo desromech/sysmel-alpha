@@ -49,6 +49,12 @@ StdnVector class >> newFor: anElementType [
 	^ (self for: anElementType) new
 ]
 
+{ #category : #'instance creation' }
+StdnVector class >> newFrom: aCollection [
+	self assert: self isAbstract not.
+	^ (self new: aCollection size) addAll: aCollection; yourself
+]
+
 { #category : #adding }
 StdnVector >> add: anElement [
 	rawData := nil.
