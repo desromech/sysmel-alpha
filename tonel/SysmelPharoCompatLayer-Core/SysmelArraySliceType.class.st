@@ -12,10 +12,17 @@ Class {
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
 
+{ #category : #'as yet unclassified' }
+SysmelArraySliceType class >> elements: elements offset: offset size: size [
+	^ self basicNew
+		initializeWithElements: elements offset: offset size: size;
+		yourself
+]
+
 { #category : #initialization }
 SysmelArraySliceType class >> initializeFor: newElementType [
 	elementType := newElementType.
-	name := newElementType asString , ' arraySlice'.
+	name := (newElementType asString , ' arraySlice') asSymbol.
 ]
 
 { #category : #sizes }

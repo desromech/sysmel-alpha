@@ -29,6 +29,14 @@ GenericBox class >> empty [
 		yourself
 ]
 
+{ #category : #'instance creation' }
+GenericBox class >> encompassing: listOfPoints [
+	| result |
+	result := self empty.
+	listOfPoints do: [ :each | result insertPoint: each ].
+	^ result
+]
+
 { #category : #constructing }
 GenericBox class >> extent: extent [
 	^ self basicNew

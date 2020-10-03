@@ -27,9 +27,9 @@ SysmelArrayType class >> initializeFor: newElementType elements: newElements [
 	elementType := newElementType.
 	elements := newElements.
 	elements = 0 ifTrue: [ 
-		name := elementType asString ,  ' array'.
+		name := (elementType asString ,  ' array') asSymbol.
 	] ifFalse: [ 
-		name := '(' , elementType asString ,  ' array: ', elements asString , ')'.
+		name := ('(' , elementType asString ,  ' array: ', elements asString , ')') asSymbol.
 	].
 
 ]

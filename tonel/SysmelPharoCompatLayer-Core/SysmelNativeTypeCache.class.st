@@ -4,7 +4,8 @@ Class {
 	#classVars : [
 		'ArraySliceTypeCache',
 		'ArrayTypeCache',
-		'GenericTypeCache'
+		'GenericTypeCache',
+		'PointerTypeCache'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -39,4 +40,14 @@ SysmelNativeTypeCache class >> genericTypeCache [
 { #category : #'as yet unclassified' }
 SysmelNativeTypeCache class >> getGeneric: generic withArguments: genericArguments orCreateWith: genericInstatiationBlock [
 	^ self genericTypeCache at: { generic . genericArguments } ifAbsentPut: genericInstatiationBlock
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeTypeCache class >> pointerFor: addressSpace to: baseType [
+	^ self pointerTypeCache at: { baseType . addressSpace } ifAbsentPut: [ SysmelPointerType instanceFor: addressSpace to: baseType ]
+]
+
+{ #category : #'as yet unclassified' }
+SysmelNativeTypeCache class >> pointerTypeCache [
+	^ PointerTypeCache ifNil: [ PointerTypeCache := Dictionary new ]
 ]

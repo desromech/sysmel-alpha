@@ -48,6 +48,11 @@ SysmelAggregateTypeWithFields >> initialize [
 ]
 
 { #category : #'memory access' }
+SysmelAggregateTypeWithFields >> readBytesFrom: aByteArray position: byteArrayPosition [
+	^ self class aggregateLayout readBytesFrom: aByteArray position: byteArrayPosition intoInstance: self
+]
+
+{ #category : #'memory access' }
 SysmelAggregateTypeWithFields >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
 	^ self class aggregateLayout readBytesFrom: aByteArray size: readSize position: byteArrayPosition intoInstance: self
 ]

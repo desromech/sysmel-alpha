@@ -19,6 +19,11 @@ SysmelNativeType class >> array: elements [
 	^ SysmelNativeTypeCache arrayOf: self elements: elements
 ]
 
+{ #category : #'type composition' }
+SysmelNativeType class >> arraySlice [
+	^ SysmelNativeTypeCache arraySliceOf: self
+]
+
 { #category : #sizes }
 SysmelNativeType class >> instanceAlignment [
 	self subclassResponsibility
@@ -65,7 +70,32 @@ SysmelNativeType class >> isClassType [
 ]
 
 { #category : #testing }
+SysmelNativeType class >> isDecoratedType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isDerivedType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isEnumType [
+	^ false
+]
+
+{ #category : #testing }
 SysmelNativeType class >> isInterfaceType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPointerLikeType [
+	^ false
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isPointerType [
 	^ false
 ]
 
@@ -110,6 +140,11 @@ SysmelNativeType class >> isPrimitiveVectorType [
 ]
 
 { #category : #testing }
+SysmelNativeType class >> isReferenceType [
+	^ false
+]
+
+{ #category : #testing }
 SysmelNativeType class >> isStructureType [
 	^ false
 ]
@@ -117,6 +152,11 @@ SysmelNativeType class >> isStructureType [
 { #category : #testing }
 SysmelNativeType class >> isSysmelNativeType [
 	^ true
+]
+
+{ #category : #testing }
+SysmelNativeType class >> isTemporaryReferenceType [
+	^ false
 ]
 
 { #category : #testing }
@@ -137,6 +177,16 @@ SysmelNativeType class >> newFromBytes: aByteArray [
 { #category : #'as yet unclassified' }
 SysmelNativeType class >> newFromBytes: aByteArray position: byteArrayPosition [
 	^ self basicNew readBytesFrom: aByteArray position: byteArrayPosition; yourself
+]
+
+{ #category : #'type composition' }
+SysmelNativeType class >> pointer [
+	^ self pointerFor: SysmelPointerLikeType genericAddressSpace
+]
+
+{ #category : #'type composition' }
+SysmelNativeType class >> pointerFor: addressSpace [
+	^ SysmelNativeTypeCache pointerFor: addressSpace to: self 
 ]
 
 { #category : #'as yet unclassified' }
@@ -167,7 +217,7 @@ SysmelNativeType >> readBytesFrom: aByteArray [
 
 { #category : #'memory access' }
 SysmelNativeType >> readBytesFrom: aByteArray position: byteArrayPosition [
-	^ self class aggregateLayout readBytesFrom: aByteArray position: byteArrayPosition intoInstance: self
+	^ self subclassResponsibility
 ]
 
 { #category : #'memory access' }

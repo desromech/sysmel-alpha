@@ -30,7 +30,7 @@ StdnVector class >> for: anElementType [
 { #category : #private }
 StdnVector class >> initializeForElementType: theElementType [
 	elementType := theElementType.
-	name := '(' , StdnVector name , ' for: ' , elementType asString , ')'
+	name := ('(' , StdnVector name , ' for: ' , elementType asString , ')') asSymbol
 ]
 
 { #category : #testing }

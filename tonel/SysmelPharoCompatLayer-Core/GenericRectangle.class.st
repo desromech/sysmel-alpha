@@ -29,6 +29,14 @@ GenericRectangle class >> empty [
 		yourself
 ]
 
+{ #category : #'instance creation' }
+GenericRectangle class >> encompassing: listOfPoints [
+	| result |
+	result := self empty.
+	listOfPoints do: [ :each | result insertPoint: each ].
+	^ result
+]
+
 { #category : #constructing }
 GenericRectangle class >> extent: extent [
 	^ self basicNew
@@ -123,6 +131,18 @@ GenericRectangle >> height [
 GenericRectangle >> initialize [
 	min := self class vector2Type zeros.
 	max := self class vector2Type zeros.
+]
+
+{ #category : #building }
+GenericRectangle >> insertPoint: aPoint [
+	min := min min: aPoint.
+	max := max max: aPoint.
+]
+
+{ #category : #building }
+GenericRectangle >> insertRectangle: aRectangle [
+	min := min min: aRectangle min.
+	max := max max: aRectangle max.
 ]
 
 { #category : #testing }

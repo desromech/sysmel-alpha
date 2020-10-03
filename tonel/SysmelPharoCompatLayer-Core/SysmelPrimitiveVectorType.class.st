@@ -269,8 +269,13 @@ SysmelPrimitiveVectorType >> negated [
 SysmelPrimitiveVectorType >> normalized [
 	| l |
 	l := self length.
-	(l closeTo: 0) ifTrue: [ ^ self class zeros ].
+	l <= 0 ifTrue: [ ^ self class zeros ].
 	^ self collect: [ :each | each / l ]
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveVectorType >> readBytesFrom: aByteArray position: byteArrayPosition [
+	^ self readBytesFrom: aByteArray size: self class instanceSize position: byteArrayPosition
 ]
 
 { #category : #arithmetic }

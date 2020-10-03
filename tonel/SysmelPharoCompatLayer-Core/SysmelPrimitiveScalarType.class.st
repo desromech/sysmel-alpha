@@ -42,6 +42,11 @@ SysmelPrimitiveScalarType class >> storeValue: value bytesIn: aByteArray positio
 ]
 
 { #category : #'memory access' }
+SysmelPrimitiveScalarType >> readBytesFrom: aByteArray position: byteArrayPosition [
+	^ self shouldNotImplement
+]
+
+{ #category : #'memory access' }
 SysmelPrimitiveScalarType >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
 	^ self shouldNotImplement
 ]
