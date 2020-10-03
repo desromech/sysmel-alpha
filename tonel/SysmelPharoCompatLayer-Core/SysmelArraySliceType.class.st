@@ -15,6 +15,7 @@ Class {
 { #category : #initialization }
 SysmelArraySliceType class >> initializeFor: newElementType [
 	elementType := newElementType.
+	name := newElementType asString , ' arraySlice'.
 ]
 
 { #category : #sizes }
@@ -41,12 +42,6 @@ SysmelArraySliceType class >> isAbstract [
 { #category : #testing }
 SysmelArraySliceType class >> isArraySliceType [
 	^ true
-]
-
-{ #category : #printing }
-SysmelArraySliceType class >> printOn: aStream [
-	self == SysmelArrayType ifTrue: [ ^ super printOn: aStream ].
-	aStream print: elementType; nextPutAll: ' arraySlice'
 ]
 
 { #category : #converting }

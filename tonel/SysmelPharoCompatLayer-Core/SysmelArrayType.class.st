@@ -26,6 +26,12 @@ SysmelArrayType class >> elements [
 SysmelArrayType class >> initializeFor: newElementType elements: newElements [
 	elementType := newElementType.
 	elements := newElements.
+	elements = 0 ifTrue: [ 
+		name := elementType asString ,  ' array'.
+	] ifFalse: [ 
+		name := '(' , elementType asString ,  ' array: ', elements asString , ')'.
+	].
+
 ]
 
 { #category : #sizes }
@@ -52,17 +58,6 @@ SysmelArrayType class >> isAbstract [
 { #category : #testing }
 SysmelArrayType class >> isArrayType [
 	^ true
-]
-
-{ #category : #printing }
-SysmelArrayType class >> printOn: aStream [
-	self == SysmelArrayType ifTrue: [ ^ super printOn: aStream ].
-	elements = 0 ifTrue: [ 
-		aStream print: elementType; nextPutAll: ' array'.
-	] ifFalse: [ 
-		aStream nextPut: $(; print: elementType; nextPutAll: ' array: '; print: elements; nextPut: $).
-	].
-
 ]
 
 { #category : #'instance creation' }

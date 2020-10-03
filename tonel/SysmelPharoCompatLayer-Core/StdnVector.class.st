@@ -29,7 +29,8 @@ StdnVector class >> for: anElementType [
 
 { #category : #private }
 StdnVector class >> initializeForElementType: theElementType [
-	elementType := theElementType
+	elementType := theElementType.
+	name := '(' , StdnVector name , ' for: ' , elementType asString , ')'
 ]
 
 { #category : #testing }
