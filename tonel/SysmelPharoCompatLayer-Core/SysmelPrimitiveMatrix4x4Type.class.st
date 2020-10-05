@@ -168,7 +168,7 @@ SysmelPrimitiveMatrix4x4Type class >> reverseDepthOrthoLeft: left right: right b
 ]
 
 { #category : #'special matrices' }
-SysmelPrimitiveMatrix4x4Type class >> reversePerspectiveFovY: fovy aspect: aspect near: near far: far invertedY: invertedY [
+SysmelPrimitiveMatrix4x4Type class >> reverseDepthPerspectiveFovY: fovy aspect: aspect near: near far: far invertedY: invertedY [
 	| fovyRad top right |
 	fovyRad := fovy degreesToRadians * 0.5.
 	top := near * fovyRad tan.
