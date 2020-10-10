@@ -536,3 +536,8 @@ GenericBox >> unionWithPoint: point [
 GenericBox >> width [
 	^ max x - min x
 ]
+
+{ #category : #'as yet unclassified' }
+GenericBox >> withExpandedHalfExtent: extension [
+	^ self class center: self center halfExtent: self halfExtent + extension
+]
