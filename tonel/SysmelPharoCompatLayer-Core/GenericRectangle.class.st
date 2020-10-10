@@ -90,7 +90,7 @@ GenericRectangle class >> typeOfGenericSlotNamed: slotName [
 ]
 
 { #category : #constructing }
-GenericRectangle class >> unitBox [
+GenericRectangle class >> unitRectangle [
 	^ self min: 0.5 max: 0.5
 ]
 
