@@ -60,6 +60,16 @@ SysmelPrimitiveVector3Type class >> x: x y: y z: z [
 		yourself
 ]
 
+{ #category : #construction }
+SysmelPrimitiveVector3Type class >> xy: xy z: z [
+	<constructor>
+	^ self basicNew
+		x: xy x;
+		y: xy y;
+		z: z;
+		yourself
+]
+
 { #category : #'accessing structure variables' }
 SysmelPrimitiveVector3Type class >> y: y [
 	<constructor>
