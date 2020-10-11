@@ -135,6 +135,11 @@ GenericBox >> asFrustum [
 		yourself.
 ]
 
+{ #category : #converting }
+GenericBox >> asRectangleXY [
+	^ self class rectangleType min: min xy max: max xy
+]
+
 { #category : #accessing }
 GenericBox >> bottomPoint [
 	^ (self leftBottomPoint + self rightBottomPoint) / 2
@@ -582,6 +587,7 @@ GenericBox >> quadrants [
 
 { #category : #'as yet unclassified' }
 GenericBox >> reversibleTransformToConvertToMe: sourceBox [
+	(self isEmpty or: [ sourceBox isEmpty ]) ifTrue: [ ^ self class reversibleAffineTransform3dType identity ].
 	^ self class reversibleAffineTransform3dType identity
 		translateBy: sourceBox center negated;
 		scaleBy: self halfExtent / sourceBox halfExtent;

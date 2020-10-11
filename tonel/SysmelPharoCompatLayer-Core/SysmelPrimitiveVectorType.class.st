@@ -279,6 +279,11 @@ SysmelPrimitiveVectorType >> readBytesFrom: aByteArray position: byteArrayPositi
 ]
 
 { #category : #arithmetic }
+SysmelPrimitiveVectorType >> sign [
+	^ self collect: [ :each | each sign ]
+]
+
+{ #category : #arithmetic }
 SysmelPrimitiveVectorType >> sqrt [
 	^ self collect: [ :each | each sqrt ]
 ]

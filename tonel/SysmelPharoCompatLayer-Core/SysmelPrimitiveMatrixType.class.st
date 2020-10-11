@@ -201,6 +201,11 @@ SysmelPrimitiveMatrixType >> negated [
 ]
 
 { #category : #arithmetic }
+SysmelPrimitiveMatrixType >> sign [
+	^ self collect: [ :each | each sign ]
+]
+
+{ #category : #arithmetic }
 SysmelPrimitiveMatrixType >> sqrt [
 	^ self collect: [ :each | each sqrt ]
 ]

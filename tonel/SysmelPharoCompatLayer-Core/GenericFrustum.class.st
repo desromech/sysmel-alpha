@@ -229,6 +229,11 @@ GenericFrustum >> nearPlane [
 ]
 
 { #category : #computation }
+GenericFrustum >> normalizedPoint: aPosition linearDepth: aDepth [
+	^ (self normalizedPointInNearPlane: aPosition) interpolateTo: (self normalizedPointInFarPlane: aPosition) at: aDepth
+]
+
+{ #category : #computation }
 GenericFrustum >> normalizedPointInFarPlane: normalizedPoint [
 	^ (leftBottomFar interpolateTo: rightBottomFar at: normalizedPoint x) interpolateTo:
 		(leftTopFar interpolateTo: rightTopFar at: normalizedPoint x) at: normalizedPoint y.
