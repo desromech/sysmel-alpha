@@ -136,6 +136,11 @@ GenericBox >> asFrustum [
 ]
 
 { #category : #accessing }
+GenericBox >> bottomPoint [
+	^ (self leftBottomPoint + self rightBottomPoint) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> center [
 	^ min + ((max - min) / 2)
 ]
@@ -217,13 +222,38 @@ GenericBox >> farBottomLeft [
 ]
 
 { #category : #accessing }
+GenericBox >> farBottomPoint [
+	^ (self farBottomLeft + self farBottomRight) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> farBottomRight [
 	^ self class vector3Type x: max x y:min y z: max z
 ]
 
 { #category : #accessing }
+GenericBox >> farLeftPoint [
+	^ (self farBottomLeft + self farTopLeft) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> farPoint [
+	^ (self farLeftPoint + self farRightPoint) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> farRightPoint [
+	^ (self farBottomRight + self farTopRight) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> farTopLeft [
 	^ self class vector3Type x: min x y: max y z: max z
+]
+
+{ #category : #accessing }
+GenericBox >> farTopPoint [
+	^ (self farTopLeft + self farTopRight) / 2
 ]
 
 { #category : #accessing }
@@ -334,6 +364,58 @@ GenericBox >> isEmpty [
 	^ min x > max x or: [ min y > max y or: [min z > max z]]
 ]
 
+{ #category : #accessing }
+GenericBox >> leftBottomPoint [
+	^ (self nearBottomLeft + self farBottomLeft) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> leftPoint [
+	^ (self leftBottomPoint + self leftTopPoint) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> leftTopPoint [
+	^ (self nearTopLeft + self farTopLeft) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> manipulationPoints [
+	^ { 
+		self nearBottomLeft .
+		self nearBottomRight .
+		self nearTopLeft .	
+		self nearTopRight .
+
+		self farBottomLeft .
+		self farBottomRight .
+		self farTopLeft .
+		self farTopRight .
+
+		self nearLeftPoint .
+		self nearRightPoint .
+		self nearTopPoint .
+		self nearBottomPoint .
+
+		self farLeftPoint .
+		self farRightPoint .
+		self farTopPoint .
+		self farBottomPoint .
+
+		self leftBottomPoint .
+		self rightBottomPoint .
+		self leftTopPoint .
+		self rightTopPoint .
+
+		self leftPoint .
+		self rightPoint .
+		self bottomPoint .
+		self topPoint .
+		self nearPoint .
+		self farPoint .
+	}
+]
+
 { #category : #'as yet unclassified' }
 GenericBox >> mappingToNDCCoordinates [
 	^ self mappingToNDCCoordinatesInvertedY: false
@@ -385,13 +467,38 @@ GenericBox >> nearBottomLeft [
 ]
 
 { #category : #accessing }
+GenericBox >> nearBottomPoint [
+	^ (self nearBottomLeft + self nearBottomRight) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> nearBottomRight [
 	^ self class vector3Type x: max x y: min y z: min z
 ]
 
 { #category : #accessing }
+GenericBox >> nearLeftPoint [
+	^ (self nearBottomLeft + self nearTopLeft) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> nearPoint [
+	^ (self nearLeftPoint + self nearRightPoint) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> nearRightPoint [
+	^ (self nearBottomRight + self nearTopRight) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> nearTopLeft [
 	^ self class vector3Type x: min x y: max y z: min z
+]
+
+{ #category : #accessing }
+GenericBox >> nearTopPoint [
+	^ (self nearTopLeft + self nearTopRight) / 2
 ]
 
 { #category : #accessing }
@@ -488,8 +595,28 @@ GenericBox >> reversibleTransformToConvertUnitBoxToMe [
 ]
 
 { #category : #accessing }
+GenericBox >> rightBottomPoint [
+	^ (self nearBottomRight + self farBottomRight) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> rightPoint [
+	^ (self rightBottomPoint + self rightTopPoint) / 2
+]
+
+{ #category : #accessing }
+GenericBox >> rightTopPoint [
+	^ (self nearTopRight + self farTopRight) / 2
+]
+
+{ #category : #accessing }
 GenericBox >> support: direction [
 	^ self positiveVertex: direction
+]
+
+{ #category : #accessing }
+GenericBox >> topPoint [
+	^ (self leftTopPoint + self rightTopPoint) / 2
 ]
 
 { #category : #transforming }
