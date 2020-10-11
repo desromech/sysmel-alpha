@@ -299,6 +299,38 @@ GenericFrustum >> rightTopNear: anObject [
 ]
 
 { #category : #transforming }
+GenericFrustum >> splitAtBottomLambda: bottomLambda topLambda: topLambda [
+	^ self class basicNew
+		leftBottomNear: (leftBottomNear interpolateTo: leftTopNear at: bottomLambda);
+		rightBottomNear: (rightBottomNear interpolateTo: rightTopNear at: bottomLambda);
+		leftTopNear: (leftBottomNear interpolateTo: leftTopNear at: topLambda);
+		rightTopNear: (rightBottomNear interpolateTo: rightTopNear at: topLambda);
+
+		leftBottomFar: (leftBottomFar interpolateTo: leftTopFar at: bottomLambda);
+		rightBottomFar: (rightBottomFar interpolateTo: rightTopFar at: bottomLambda);
+		leftTopFar: (leftBottomFar interpolateTo: leftTopFar at: topLambda);
+		rightTopFar: (rightBottomFar interpolateTo: rightTopFar at: topLambda);
+		computePlanes;
+		yourself
+]
+
+{ #category : #transforming }
+GenericFrustum >> splitAtLeftLambda: leftLambda rightLambda: rightLambda [
+	^ self class basicNew
+		leftBottomNear: (leftBottomNear interpolateTo: rightBottomNear at: leftLambda);
+		rightBottomNear: (leftBottomNear interpolateTo: rightBottomNear at: rightLambda);
+		leftTopNear: (leftTopNear interpolateTo: rightTopNear at: leftLambda);
+		rightTopNear: (leftTopNear interpolateTo: rightTopNear at: rightLambda);
+
+		leftBottomFar: (leftBottomFar interpolateTo: rightBottomFar at: leftLambda);
+		rightBottomFar: (leftBottomFar interpolateTo: rightBottomFar at: rightLambda);
+		leftTopFar: (leftTopFar interpolateTo: rightTopFar at: leftLambda);
+		rightTopFar: (leftTopFar interpolateTo: rightTopFar at: rightLambda);
+		computePlanes;
+		yourself
+]
+
+{ #category : #transforming }
 GenericFrustum >> splitAtNearLambda: splitNearLambda farLambda: splitFarLambda [
 	^ self class basicNew
 		leftBottomNear: (leftBottomNear interpolateTo: leftBottomFar at: splitNearLambda);
