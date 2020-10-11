@@ -407,7 +407,7 @@ SysmelPrimitiveMatrix4x4Type >> hash [
 SysmelPrimitiveMatrix4x4Type >> inverse [
 	| det detVector adjugate |
 	det := self determinant.
-	(det closeTo: 0) ifTrue: [ ^ self error: 'Matrix is not invertible.' ].
+	(det = 0) ifTrue: [ ^ self error: 'Matrix is not invertible.' ].
 	detVector := det implicitCastTo: self class columnType.
 	adjugate := self adjugateMatrix.
 	^ self class basicNew
