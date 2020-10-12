@@ -10,6 +10,11 @@ Float64x4 class >> elementType [
 ]
 
 { #category : #converting }
+Float64x4 >> asColor [
+	^ Color r: x encodeSRGBComponent g: y encodeSRGBComponent b: z encodeSRGBComponent alpha: w
+]
+
+{ #category : #converting }
 Float64x4 >> asFloat64x4 [
 	^ self
 ]

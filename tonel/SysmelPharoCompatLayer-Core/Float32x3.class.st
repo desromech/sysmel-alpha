@@ -16,6 +16,11 @@ Float32x3 class >> validateImplicitCastOfValue: aValue [
 ]
 
 { #category : #converting }
+Float32x3 >> asColor [
+	^ Color r: x encodeSRGBComponent g: y encodeSRGBComponent b: z encodeSRGBComponent
+]
+
+{ #category : #converting }
 Float32x3 >> asCompactFloat32x3 [
 	^ CompactFloat32x3 x: x y: y z: z
 ]
