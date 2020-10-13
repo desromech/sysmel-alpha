@@ -66,6 +66,12 @@ GenericBox class >> isAbstract [
 	^ self == GenericBox
 ]
 
+{ #category : #serialization }
+GenericBox class >> loadFromJson: jsonData [
+	^ self min: (self vector3Type loadFromJson: (jsonData at: 'min'))
+		max: (self vector3Type loadFromJson: (jsonData at: 'max'))
+]
+
 { #category : #constructing }
 GenericBox class >> min: min extent: extent [
 	^ self basicNew
@@ -100,6 +106,11 @@ GenericBox class >> typeOfGenericSlotNamed: slotName [
 { #category : #constructing }
 GenericBox class >> unitBox [
 	^ self min: -0.5 max: 0.5
+]
+
+{ #category : #comparing }
+GenericBox >> = other [
+	^ self class == other class and: [ min = other min and: [ max = other max ] ]
 ]
 
 { #category : #converting }
@@ -279,6 +290,11 @@ GenericBox >> hasIntersectionWithBox: other [
 { #category : #'as yet unclassified' }
 GenericBox >> hasIntersectionWithRay: ray [
 	^ (self intersectionWithRay: ray) isNotNil.
+]
+
+{ #category : #comparing }
+GenericBox >> hash [
+	^ min hash hashMultiply + max hash
 ]
 
 { #category : #accessing }

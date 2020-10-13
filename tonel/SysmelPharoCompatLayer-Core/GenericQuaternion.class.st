@@ -21,6 +21,11 @@ GenericQuaternion class >> identity [
 	^ self xyzw: (self vector4Type x: 0 y: 0 z: 0 w: 1)
 ]
 
+{ #category : #serialization }
+GenericQuaternion class >> loadFromJson: jsonData [
+	^ self xyzw: (self vector4Type loadFromJson: jsonData)
+]
+
 { #category : #accessing }
 GenericQuaternion class >> one [
 	^ self xyzw: (self vector4Type x: 0 y: 0 z: 0 w: 1)

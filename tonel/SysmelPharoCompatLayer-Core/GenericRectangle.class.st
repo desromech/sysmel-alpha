@@ -53,9 +53,23 @@ GenericRectangle class >> fullSpace [
 		yourself
 ]
 
+{ #category : #constructing }
+GenericRectangle class >> halfExtent: halfExtent [
+	^ self basicNew
+		min: halfExtent negated;
+		max: halfExtent;
+		yourself
+]
+
 { #category : #testing }
 GenericRectangle class >> isAbstract [
 	^ self == GenericBox
+]
+
+{ #category : #serialization }
+GenericRectangle class >> loadFromJson: jsonData [
+	^ self min: (self vector2Type loadFromJson: (jsonData at: 'min'))
+		max: (self vector2Type loadFromJson: (jsonData at: 'max'))
 ]
 
 { #category : #constructing }
@@ -94,6 +108,11 @@ GenericRectangle class >> unitRectangle [
 	^ self min: 0.5 max: 0.5
 ]
 
+{ #category : #comparing }
+GenericRectangle >> = other [
+	^ self class == other class and: [ min = other min and: [ max = other max ] ]
+]
+
 { #category : #converting }
 GenericRectangle >> asBox [
 	^ self class boxType min: min asVector3 max: max asVector3
@@ -120,6 +139,11 @@ GenericRectangle >> extent [
 { #category : #accessing }
 GenericRectangle >> halfExtent [
 	^ (max - min) / 2
+]
+
+{ #category : #comparing }
+GenericRectangle >> hash [
+	^ min hash hashMultiply + max hash
 ]
 
 { #category : #accessing }

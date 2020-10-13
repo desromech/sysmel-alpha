@@ -24,6 +24,11 @@ GenericComplex class >> identity [
 		yourself
 ]
 
+{ #category : #serialization }
+GenericComplex class >> loadFromJson: jsonData [
+	^ self xy: (self vector2Type loadFromJson: jsonData)
+]
+
 { #category : #'accessing structure variables' }
 GenericComplex class >> one [
 	^ self basicNew
