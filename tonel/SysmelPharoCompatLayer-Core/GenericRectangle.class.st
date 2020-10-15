@@ -105,7 +105,7 @@ GenericRectangle class >> typeOfGenericSlotNamed: slotName [
 
 { #category : #constructing }
 GenericRectangle class >> unitRectangle [
-	^ self min: 0.5 max: 0.5
+	^ self min: -0.5 max: 0.5
 ]
 
 { #category : #comparing }
@@ -200,6 +200,23 @@ GenericRectangle >> printOn: aStream [
 		nextPutAll: ' min: '; print: min;
 		nextPutAll: ' max '; print: max;
 		nextPut: $)
+]
+
+{ #category : #'as yet unclassified' }
+GenericRectangle >> reversibleTransform3dToConvertToMe: sourceRectangle [
+	| vector3Type |
+	(self isEmpty or: [ sourceRectangle isEmpty ]) ifTrue: [ ^ self class reversibleAffineTransform3dType identity ].
+	vector3Type := self class vector3Type.
+	^ self class reversibleAffineTransform3dType identity
+		translateBy: (vector3Type xy: sourceRectangle center negated z: 0);
+		scaleBy: (vector3Type xy: self halfExtent / sourceRectangle halfExtent z: 1);
+		translateBy: (vector3Type xy: self center z: 0);
+		yourself.
+]
+
+{ #category : #'as yet unclassified' }
+GenericRectangle >> reversibleTransformToConvertUnitRectangleToMe [
+	^ self reversibleTransform3dToConvertToMe: self class unitRectangle
 ]
 
 { #category : #transforming }
