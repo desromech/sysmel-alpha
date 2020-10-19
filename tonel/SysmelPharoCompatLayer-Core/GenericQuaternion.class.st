@@ -26,6 +26,36 @@ GenericQuaternion class >> loadFromJson: jsonData [
 	^ self xyzw: (self vector4Type loadFromJson: jsonData)
 ]
 
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtBack [
+	^ self yRotation: Float pi
+]
+
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtBottom [
+	^ self xRotation: Float halfPi negated
+]
+
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtFront [
+	^ self identity
+]
+
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtLeft [
+	^ self yRotation: Float halfPi
+]
+
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtRight [
+	^ self yRotation: Float halfPi negated
+]
+
+{ #category : #'special quaternions' }
+GenericQuaternion class >> lookAtTop [
+	^ self yRotation: Float halfPi
+]
+
 { #category : #accessing }
 GenericQuaternion class >> one [
 	^ self xyzw: (self vector4Type x: 0 y: 0 z: 0 w: 1)
