@@ -198,6 +198,11 @@ GenericComplex >> dot: other [
 	^ xy dot: other xy
 ]
 
+{ #category : #serialization }
+GenericComplex >> encodeForJSON [
+	^ xy encodeForJSON
+]
+
 { #category : #comparing }
 GenericComplex >> hash [
 	^ xy hash

@@ -249,6 +249,11 @@ GenericQuaternion >> dot: other [
 	^ xyzw dot: other xyzw
 ]
 
+{ #category : #serialization }
+GenericQuaternion >> encodeForJSON [
+	^ xyzw encodeForJSON
+]
+
 { #category : #comparing }
 GenericQuaternion >> hash [
 	^ xyzw hash
