@@ -10,6 +10,15 @@ Class {
 }
 
 { #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> cieXYZD65ToRGB [
+	^ self rows: #(
+		3.24096994 -1.53738318 -0.49861076
+		-0.96924364 1.8759675 0.04155506
+		0.05563008 -0.20397696 1.05697151
+	)
+]
+
+{ #category : #'special matrices' }
 SysmelPrimitiveMatrix3x3Type class >> columnMajorIndices [
 	^ self columns: #(0 1 2 3 4 5 6 7 8)
 ]
@@ -102,6 +111,15 @@ SysmelPrimitiveMatrix3x3Type class >> ndcToTexcoord2D [
 		0.5 0 0
 		0 0.5 0
 		0.5 0.5 1
+	)
+]
+
+{ #category : #'special matrices' }
+SysmelPrimitiveMatrix3x3Type class >> rgbToCieXYZD65 [
+	^ self rows: #(
+	0.41239080048064336 0.3575843413327116 0.18048078863120978
+	0.2126390074514529 0.7151686808619413 0.07219231450020425
+	0.01933081913945106 0.11919478122389784 0.9505321559112775
 	)
 ]
 
@@ -423,6 +441,16 @@ SysmelPrimitiveMatrix3x3Type >> printOn: aStream [
 		tab; print: self secondRow; nextPut: $.; cr;
 		tab; print: self thirdRow; nextPut: $.; cr;
 		nextPutAll: '})'
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix3x3Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	firstColumn := columnType newFromBytes: aByteArray position: byteArrayPosition.
+	secondColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + columnTypeSize.
+	thirdColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + (columnTypeSize*2).
 ]
 
 { #category : #accessing }

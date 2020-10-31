@@ -200,6 +200,11 @@ SysmelPrimitiveMatrixType >> negated [
 	^ self collect: [ :each | each negated ]
 ]
 
+{ #category : #'memory access' }
+SysmelPrimitiveMatrixType >> readBytesFrom: aByteArray position: byteArrayPosition [
+	^ self readBytesFrom: aByteArray size: self class instanceSize position: byteArrayPosition
+]
+
 { #category : #arithmetic }
 SysmelPrimitiveMatrixType >> sign [
 	^ self collect: [ :each | each sign ]

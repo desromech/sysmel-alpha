@@ -170,7 +170,7 @@ SysmelPrimitiveMatrix4x4Type class >> reverseDepthOrthoLeft: left right: right b
 { #category : #'special matrices' }
 SysmelPrimitiveMatrix4x4Type class >> reverseDepthPerspectiveFovY: fovy aspect: aspect near: near far: far invertedY: invertedY [
 	| fovyRad top right |
-	fovyRad := fovy degreesToRadians * 0.5.
+	fovyRad := fovy degreesToRadians / 2.0.
 	top := near * fovyRad tan.
 	right := top * aspect.
 	^ self reverseDepthFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far invertedY: invertedY
@@ -576,6 +576,17 @@ SysmelPrimitiveMatrix4x4Type >> printOn: aStream [
 		tab; print: self thirdRow; nextPut: $.; cr;
 		tab; print: self fourthRow; nextPut: $.; cr;
 		nextPutAll: '})'
+]
+
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix4x4Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	firstColumn := columnType newFromBytes: aByteArray position: byteArrayPosition.
+	secondColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + columnTypeSize.
+	thirdColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + (columnTypeSize*2).
+	fourthColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + (columnTypeSize*3).
 ]
 
 { #category : #accessing }

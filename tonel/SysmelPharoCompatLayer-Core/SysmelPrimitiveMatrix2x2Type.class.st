@@ -264,6 +264,16 @@ SysmelPrimitiveMatrix2x2Type >> printOn: aStream [
 		nextPutAll: '})'
 ]
 
+{ #category : #'memory access' }
+SysmelPrimitiveMatrix2x2Type >> readBytesFrom: aByteArray size: readSize position: byteArrayPosition [
+	| columnType columnTypeSize |
+	columnType := self class columnType.
+	columnTypeSize := columnType alignedInstanceSize.
+	firstColumn := columnType newFromBytes: aByteArray position: byteArrayPosition.
+	secondColumn := columnType newFromBytes: aByteArray position: byteArrayPosition + columnTypeSize.
+
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix2x2Type >> secondColumn [
 	<accessor>
