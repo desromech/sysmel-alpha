@@ -72,6 +72,19 @@ GenericQuaternion class >> r: r i: i j: j k: k [
 ]
 
 { #category : #'as yet unclassified' }
+GenericQuaternion class >> rotationFromVector: sourceVector into: targetVector [
+	"https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another"
+	| cosTheta k |
+	cosTheta := sourceVector dot: targetVector.
+	k := (sourceVector length2 * targetVector length2) sqrt.
+	cosTheta / k = -1 ifTrue: [ 
+		^ self xyz: (sourceVector anyOrthogonalVector normalized) w: 0.0.
+	].
+
+	^ (self xyz: (sourceVector cross: targetVector) w: k + cosTheta) normalized
+]
+
+{ #category : #'as yet unclassified' }
 GenericQuaternion class >> typeOfGenericSlotNamed: slotName [
 	slotName = #xyzw ifTrue: [ ^ self vector4Type ].
 	^ super typeOfGenericSlotNamed: slotName
@@ -304,6 +317,16 @@ GenericQuaternion >> negated [
 { #category : #accessing }
 GenericQuaternion >> normalized [
 	^ self class basicNew xyzw: xyzw normalized; yourself
+]
+
+{ #category : #printing }
+GenericQuaternion >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name;
+		nextPutAll:  ' x: '; print: xyzw x;
+		nextPutAll:  ' y: '; print: xyzw y;
+		nextPutAll:  ' z: '; print: xyzw z;
+		nextPutAll:  ' w: '; print: xyzw w;
+		nextPut: $)
 ]
 
 { #category : #accessing }

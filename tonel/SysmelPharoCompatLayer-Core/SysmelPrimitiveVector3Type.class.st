@@ -98,6 +98,25 @@ SysmelPrimitiveVector3Type >> = other [
 	^ x = coercedOther x and: [ y = coercedOther y and: [ z = coercedOther z ]]
 ]
 
+{ #category : #'as yet unclassified' }
+SysmelPrimitiveVector3Type >> anyOrthogonalVector [
+	"Method from: https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another"
+	| ax ay az other |
+	ax := x abs.
+	ay := y abs.
+	az := z abs.
+	other := ax < ay ifTrue: [
+		ax < az
+			ifTrue: [ self class x: 1.0 ]
+			ifFalse: [ self class z: 1.0 ]
+	] ifFalse: [ 
+		ay < az
+			ifTrue: [ self class y: 1.0 ]
+			ifFalse: [ self class z: 1.0 ]
+	].
+	^ self cross: other
+]
+
 { #category : #converting }
 SysmelPrimitiveVector3Type >> asVector3 [
 	^ self
