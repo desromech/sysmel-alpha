@@ -16,7 +16,8 @@ Class {
 		'importModuleFileReference',
 		'relativeFileReference',
 		'objectFileReference',
-		'linkerArguments'
+		'linkerArguments',
+		'depsCacheFileReference'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-WBT'
 }
@@ -59,7 +60,7 @@ MbndWBTSysmelModuleTarget >> computeBuildTargetDependencies [
 	wbtModule
 		addIndirectLinkLibraries: linkLibraries;
 		addIndirectLinkerArguments: linkerArguments.
-	^ implicitFileDependencies , linkLibraries
+	^ sources , implicitFileDependencies , linkLibraries
 		
 ]
 
@@ -82,9 +83,9 @@ MbndWBTSysmelModuleTarget >> coreModuleName [
 	^ MbndCompilationEnvironment coreModuleName
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MbndWBTSysmelModuleTarget >> depsCacheFileReference [
-	^ self buildEnvironment validBuildSysmelCacheDirectory / (self sysmelModuleName , '.deps').
+	^ depsCacheFileReference ifNil: [depsCacheFileReference := self buildEnvironment validBuildSysmelCacheDirectory / (self sysmelModuleName , '.deps') ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -97,7 +98,13 @@ MbndWBTSysmelModuleTarget >> ensureBuildAction [
 MbndWBTSysmelModuleTarget >> fetchDependenciesFromCache [
 	self depsCacheFileReference exists ifFalse: [ ^ false ].
 	self parseDepsCacheFile.
-	self halt.
+	
+	buildTargetDependencies := sources , implicitFileDependencies , importedModules , importedIndirectModules,
+		thirdPartyPackageDependencies.
+	self isSatisfiedBuildTarget ifTrue: [ ^ true ].
+	buildTargetDependencies := nil.
+	self invalidateTimestamps.
+	^ false
 ]
 
 { #category : #'as yet unclassified' }
@@ -213,6 +220,11 @@ MbndWBTSysmelModuleTarget >> sysmelModuleName [
 { #category : #accessing }
 MbndWBTSysmelModuleTarget >> sysmelModuleName: anObject [
 	sysmelModuleName := anObject
+]
+
+{ #category : #accessing }
+MbndWBTSysmelModuleTarget >> targetOutputFileReferences [
+	^ { self objectFileReference . self importModuleFileReference . self depsCacheFileReference}
 ]
 
 { #category : #accessing }

@@ -221,7 +221,8 @@ MbndCompilationEnvironmentSettings >> wbtEnvironment [
 
 { #category : #accessing }
 MbndCompilationEnvironmentSettings >> wbtEnvironment: anObject [
-	wbtEnvironment := anObject
+	wbtEnvironment := anObject.
+	wbtEnvironment addPackageSpecLocations: thirdPartyLibrarySpecLocations.
 ]
 
 { #category : #accessing }
