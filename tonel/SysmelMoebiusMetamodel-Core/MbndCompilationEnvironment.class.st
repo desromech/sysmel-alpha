@@ -4,35 +4,19 @@ Class {
 	#traits : 'TMbndObject',
 	#classTraits : 'TMbndObject classTrait',
 	#instVars : [
+		'settings',
 		'compilationTarget',
 		'coreModule',
-		'useLibC',
-		'hasRuntimeTypeInformation',
-		'hasStandardLibrary',
-		'hasGarbageCollectionSupport',
-		'hasGarbageCollectionStackMap',
-		'hasLibC',
-		'optimizationLevel',
-		'hasGPUSupport',
-		'hasExceptions',
 		'linkerArguments',
 		'currentModule',
 		'loadedModuleDictionary',
 		'loadedModules',
-		'moduleSourceLocations',
 		'moduleTranslationMode',
 		'currentModuleStack',
-		'outputDirectory',
 		'outputMode',
 		'hasBeginModule',
 		'importedModuleModificationTimeCache',
-		'validatedDependencyModules',
-		'thirdPartyLibrarySpecLocations',
-		'outputObjDirectory',
-		'outputDistDirectory',
-		'outputResourcesDirectory',
 		'loadedThirdPartyLibrarySpecs',
-		'wbtEnvironment',
 		'hasSeparateDistFolders'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
@@ -149,6 +133,14 @@ MbndCompilationEnvironment class >> spirv_vulkan [
 	^ self compilationTarget: MbndSlovimCompilationTarget spirv_vulkan
 ]
 
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> withSettings: aCompilationTarget [
+	^ self basicNew
+		initializeWithSettings: aCompilationTarget;
+		yourself
+
+]
+
 { #category : #parameters }
 MbndCompilationEnvironment >> addLinkerArguments: arguments [
 	<compileTime>
@@ -164,7 +156,7 @@ MbndCompilationEnvironment >> addLoadedModule: module [
 
 { #category : #initialization }
 MbndCompilationEnvironment >> addModuleSourceLocation: location [
-	moduleSourceLocations add: location asFileReference
+	settings addModuleSourceLocation: location
 ]
 
 { #category : #parameters }
@@ -210,6 +202,12 @@ MbndCompilationEnvironment >> beginModule: moduleName [
 	self addLoadedModule: currentModule.
 ]
 
+{ #category : #initialization }
+MbndCompilationEnvironment >> buildDirectory: anOutputDirectory [
+	settings buildDirectory: anOutputDirectory
+
+]
+
 { #category : #accessing }
 MbndCompilationEnvironment >> compilationTarget [
 	^ compilationTarget
@@ -219,7 +217,7 @@ MbndCompilationEnvironment >> compilationTarget [
 MbndCompilationEnvironment >> compileModuleNamed: moduleName [
 	| importedModuleSourceLocations location resultModule isCoreModule |
 	importedModuleSourceLocations := OrderedCollection new.
-	moduleSourceLocations do: [ :each | 
+	self moduleSourceLocations do: [ :each | 
 		location := each / moduleName. 
 		(location exists and: [ location isDirectory ]) ifTrue: [
 			importedModuleSourceLocations add: location
@@ -248,7 +246,7 @@ MbndCompilationEnvironment >> concretizeModuleImportObjectFileName: aFileName [
 	fileRef := aFileName asFileReference.
 	fileRef exists ifTrue: [ ^ fileRef asAbsolute fullName ].
 	
-	testFileRef := self validOutputObjDirectory resolve: fileRef.
+	testFileRef := self validBuildObjectDirectory resolve: fileRef.
 	testFileRef exists ifTrue: [ ^ testFileRef asAbsolute fullName ].
 	self error: 'Failed required import module object file {1}.' format: { aFileName }
 ]
@@ -256,7 +254,7 @@ MbndCompilationEnvironment >> concretizeModuleImportObjectFileName: aFileName [
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> copyResourceIntoDistFolder: each [
 	| destFileReference sourceFileReference |
-	destFileReference := self validOutputResourcesDirectory resolve: each first asFileReference.
+	destFileReference := self validBuildResourcesDirectory resolve: each first asFileReference.
 	sourceFileReference := each second asFileReference.
 	sourceFileReference isFile ifFalse: [ ^ self ].
 	(destFileReference isFile and: [destFileReference modificationTime asUnixTime > sourceFileReference modificationTime asUnixTime ]) ifTrue: [ ^ self ].
@@ -413,52 +411,60 @@ MbndCompilationEnvironment >> fetchThirdPartyLibraryLinkerFlags: thirdPartyLibra
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findImportModuleFileReferenceFor: moduleName [
-	^ self validOutputObjDirectory / (moduleName , '.smpmodule')
+	^ self validBuildSysmelCacheDirectory / (moduleName , '.smpmodule')
 ]
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findImportModuleLFlagsFileReferenceFor: moduleName [
-	^ self validOutputObjDirectory / (moduleName , '.smpmodule.lflags')
+	^ self validBuildSysmelCacheDirectory / (moduleName , '.smpmodule.lflags')
 ]
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findImportModuleRequiredResourcesFileReferenceFor: moduleName [
-	^ self validOutputObjDirectory / (moduleName , '.smpmodule.rlst')
+	^ self validBuildSysmelCacheDirectory / (moduleName , '.smpmodule.rlst')
 ]
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findImportModuleThirdPartyLibrariesFileReferenceFor: moduleName [
-	^ self validOutputObjDirectory / (moduleName , '.smpmodule.plst')
+	^ self validBuildSysmelCacheDirectory / (moduleName , '.smpmodule.plst')
 ]
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findModuleObjectFileReferenceFor: moduleName [
-	^ self validOutputObjDirectory / (moduleName , self importedModuleExtension)
+	^ self validBuildObjectDirectory / (moduleName , self importedModuleExtension)
 ]
 
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> finishAndEmitModule [
+	currentModule ifNil: [ ^ self ].
+	^ (#(llvm_assembly assembly object objectLib) includes: outputMode) ifTrue: [ 
+		self finishAndEmitModuleInOutputDirectory: self validBuildObjectDirectory cacheDirectory: self validBuildSysmelCacheDirectory
+	] ifFalse: [ 
+		self finishAndEmitModuleInOutputDirectory: self validBuildOutputDirectory cacheDirectory: self validBuildSysmelCacheDirectory
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> finishAndEmitModuleInOutputDirectory: outputDirectory cacheDirectory: cacheDirectory [
 	| outputFileName outputFileReference result outputShaderFileName |
 	currentModule ifNil: [ ^ self ].
 	self finishSemanticAnalysis.
 	
 	outputFileName := self validCurrentModule name , (compilationTarget extensionForModuleOutputMode: outputMode).
 	outputShaderFileName := self validCurrentModule name , (compilationTarget extensionForEmbeddedShaderCopy).
+	outputFileReference := outputDirectory / outputFileName.
 
-	(#(object objectLib) includes: outputMode) ifTrue: [ 
-		outputFileReference := self validOutputObjDirectory / outputFileName.
-	] ifFalse: [ 
-		outputFileReference := self validOutputDistDirectory / outputFileName.
-	].
 	result := self validCurrentModule
-		embeddedShaderCopyOutputFile: self validOutputObjDirectory / outputShaderFileName;
+		embeddedShaderCopyOutputFile: outputDirectory / outputShaderFileName;
 		writeMode: outputMode toFileNamed: outputFileReference.
 	(#(executable) includes: outputMode) ifTrue: [
 		self
 			copyResourcesIntoDistFolder;
 			installThirdPartyLibrariesIntoDistFolder.
 	].
-	self writeExportModuleFor: self validOutputObjDirectory / outputFileName.
+	cacheDirectory ensureCreateDirectory.
+	self writeExportModuleFor: cacheDirectory / outputFileName.
 	^ result
 ]
 
@@ -550,19 +556,19 @@ MbndCompilationEnvironment >> hasDLLTranslationMode [
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasExceptions [
-	^ hasExceptions ifNil: [ hasExceptions := true ]
+	^ settings hasExceptions
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasExceptions: aBoolean [
 	<compileTime>
-	hasExceptions := aBoolean
+	settings hasExceptions: aBoolean
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGPUSupport [
 	<compileTime>
-	^ hasGPUSupport ifNil: [ hasGPUSupport := true ]
+	^ settings hasGPUSupport
 ]
 
 { #category : #parameters }
@@ -574,37 +580,37 @@ MbndCompilationEnvironment >> hasGarbageCollectedRuntime [
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectionStackMap [
 	<compileTime>
-	^ hasGarbageCollectionStackMap ifNil: [ hasGarbageCollectionStackMap := false ]
+	^ settings hasGarbageCollectionStackMap
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectionStackMap: aBoolean [
 	<compileTime>
-	hasGarbageCollectionStackMap := aBoolean
+	settings hasGarbageCollectionStackMap: aBoolean
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectionSupport [
 	<compileTime>
-	^ hasGarbageCollectionSupport ifNil: [ hasGarbageCollectionSupport := self hasRuntimeTypeInformation ]
+	^ settings hasGarbageCollectionSupport
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectionSupport: aBoolean [
 	<compileTime>
-	hasGarbageCollectionSupport := aBoolean
+	settings hasGarbageCollectionSupport: aBoolean
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasLibC [
 	<compileTime>
-	^ hasLibC ifNil: [ hasLibC := self compilationTarget isGPU not ]
+	^ settings hasLibC
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasLibC: aBoolean [
 	<compileTime>
-	hasLibC := aBoolean
+	settings hasLibC: aBoolean
 ]
 
 { #category : #testing }
@@ -638,13 +644,13 @@ MbndCompilationEnvironment >> hasReferenceCountingCollector [
 { #category : #parameters }
 MbndCompilationEnvironment >> hasRuntimeTypeInformation [
 	<compileTime>
-	^ hasRuntimeTypeInformation ifNil: [ hasRuntimeTypeInformation := self compilationTarget isGPU not ]
+	^ settings hasRuntimeTypeInformation
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasRuntimeTypeInformation: aBoolean [
 	<compileTime>
-	hasRuntimeTypeInformation := aBoolean
+	settings hasRuntimeTypeInformation: aBoolean
 ]
 
 { #category : #'module import' }
@@ -660,13 +666,13 @@ MbndCompilationEnvironment >> hasSeparateDistFolders: aBoolean [
 { #category : #parameters }
 MbndCompilationEnvironment >> hasStandardLibrary [
 	<compileTime>
-	^ hasStandardLibrary ifNil: [ hasStandardLibrary := true ]
+	^ settings hasStandardLibrary
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 	<compileTime>
-	hasStandardLibrary := aBoolean
+	settings hasStandardLibrary: aBoolean
 ]
 
 { #category : #'module import' }
@@ -734,7 +740,7 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName indirectDep
 	| importModuleFileReference |
 	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
 
-	importModuleFileReference := self validateDependencyModuleIsUpdated: moduleName.	
+	importModuleFileReference := self validateDependencyModuleIsUpdated: moduleName indirectDependency: isIndirectDependency.	
 	^ isIndirectDependency
 		ifTrue: [self importIndirectModuleFrom: importModuleFileReference]
 		ifFalse: [self importModuleFrom: importModuleFileReference]
@@ -748,25 +754,14 @@ MbndCompilationEnvironment >> importedModuleExtension [
 { #category : #initialization }
 MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarget [
 	compilationTarget := aCompilationTarget.
-	moduleSourceLocations := OrderedCollection new.
-	thirdPartyLibrarySpecLocations := OrderedCollection new.
-	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
-	thirdPartyLibrarySpecLocations add: MbndCoreAssets location / 'third-party'.
+	settings ifNil: [ 
+		settings := MbndCompilationEnvironmentSettings new.
+		settings compilationTarget: aCompilationTarget.
+	].
 	importedModuleModificationTimeCache := Dictionary new.
 	outputMode := #executable.
 	hasBeginModule := false.
 
-	"Additional dependency."
-	[
-		{
-			MbndAbstractGPUAssets location / 'bindings' / 'sysmel'
-		} do: [ :each |
-			moduleSourceLocations add: each / 'module-sources'.
-			thirdPartyLibrarySpecLocations add: each / 'third-party'
-		]
-	]on: Error do: [:e |
-	].
-	
 	coreModule := MbndStandaloneModule for: self.
 	currentModuleStack := OrderedCollection new.
 	currentModule := coreModule.
@@ -774,30 +769,15 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 ]
 
 { #category : #initialization }
-MbndCompilationEnvironment >> initializeWithSanitizedCompilationTarget: aCompilationTarget [
-	compilationTarget := aCompilationTarget.
-	moduleSourceLocations := OrderedCollection new.
-	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
-	importedModuleModificationTimeCache := Dictionary new.
-	outputMode := #executable.
-	hasBeginModule := false.
-
-	"Optional dependency."
-	[
-		moduleSourceLocations add: MbndAbstractGPUAssets location / 'bindings' / 'sysmel'
-	]on: Error do: [:e |
-	].
-	
-	coreModule := MbndStandaloneModule for: self.
-	currentModuleStack := OrderedCollection new.
-	currentModule := coreModule.
-	self defaultModuleTranslationMode.
+MbndCompilationEnvironment >> initializeWithSettings: theSettings [
+	settings := theSettings.
+	self initializeWithCompilationTarget: settings compilationTarget
 ]
 
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> installThirdPartyLibrariesIntoDistFolder [
 	self validCurrentModule allThirdPartyLibraryDependencies do: [ :each |
-		(self getThirdPartyLibrarySpec: each) installExportedLibrariesInto: self validOutputDistDirectory
+		(self getThirdPartyLibrarySpec: each) installExportedLibrariesInto: self validBuildOutputDirectory
 	]
 ]
 
@@ -838,9 +818,14 @@ MbndCompilationEnvironment >> loadedThirdPartyLibrarySpecs [
 	^ loadedThirdPartyLibrarySpecs ifNil: [ loadedThirdPartyLibrarySpecs := Dictionary new ]
 ]
 
+{ #category : #accessing }
+MbndCompilationEnvironment >> moduleSourceLocations [
+	^ settings moduleSourceLocations
+]
+
 { #category : #adding }
 MbndCompilationEnvironment >> moduleSourceLocations: theSourceLocations [
-	moduleSourceLocations := theSourceLocations.
+	settings moduleSourceLocations: theSourceLocations
 ]
 
 { #category : #accessing }
@@ -860,22 +845,13 @@ MbndCompilationEnvironment >> monolithic [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
-	| result |
-	result := self class compilationTarget: compilationTarget asCleanCompilationTarget.
+	| result cleanTarget |
+	cleanTarget := compilationTarget asCleanCompilationTarget.
+	result := self class compilationTarget: cleanTarget.
 	result
-		validatedDependencyModules: self validatedDependencyModules;
-		hasRuntimeTypeInformation: self hasRuntimeTypeInformation;
-		hasExceptions: self hasExceptions;
-		hasStandardLibrary: self hasStandardLibrary;
-		hasGarbageCollectionSupport: self hasGarbageCollectionSupport;
-		hasGarbageCollectionStackMap: self hasGarbageCollectionStackMap;
-		hasLibC: self hasLibC;
-		useLibC: self useLibC;
-		optimizationLevel: self optimizationLevel;
 		moduleTranslationMode: moduleTranslationMode;
 		outputMode: self outputModeForDependencies;
-		outputDirectory: outputDirectory;
-		moduleSourceLocations: moduleSourceLocations copy.
+		settings: (settings copy compilationTarget: cleanTarget).
 
 	^ result.
 ]
@@ -888,38 +864,36 @@ MbndCompilationEnvironment >> newSourceEvaluationScopeForLanguageNamed: aLanguag
 { #category : #parameters }
 MbndCompilationEnvironment >> noExceptions [
 	<compileTime>
-	self hasExceptions: false
+	settings noExceptions
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> noGC [
 	<compileTime>
-	self hasGarbageCollectionSupport: false
+	settings noGC
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> noLibC [
 	<compileTime>
-	self
-		hasLibC: false;
-		useLibC: false
+	settings noLibC
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> noRTTI [
 	<compileTime>
-	self hasRuntimeTypeInformation: false
+	settings noRTTI
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> noStandardLibrary [
 	<compileTime>
-	self hasStandardLibrary: false
+	settings noStandardLibrary
 ]
 
 { #category : #initialization }
 MbndCompilationEnvironment >> noStandardModuleSourceLocations [
-	moduleSourceLocations removeAll
+	settings noStandardModuleSourceLocations
 ]
 
 { #category : #'module output format' }
@@ -939,18 +913,12 @@ MbndCompilationEnvironment >> objectPerModule [
 
 { #category : #parameters }
 MbndCompilationEnvironment >> optimizationLevel [
-	^ optimizationLevel ifNil: [ optimizationLevel := 0 ]
+	^ settings optimizationLevel
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> optimizationLevel: anInteger [
-	^ optimizationLevel := anInteger
-]
-
-{ #category : #initialization }
-MbndCompilationEnvironment >> outputDirectory: anOutputDirectory [
-	outputDirectory := anOutputDirectory asFileReference asAbsolute canonicalize.
-
+	^ settings optimizationLevel: anInteger
 ]
 
 { #category : #accessing }
@@ -1059,6 +1027,16 @@ MbndCompilationEnvironment >> setNoExceptionModel [
 	compilationTarget setNoExceptionModel
 ]
 
+{ #category : #accessing }
+MbndCompilationEnvironment >> settings [
+	^ settings
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> settings: theSettings [
+	settings := theSettings
+]
+
 { #category : #'module output format' }
 MbndCompilationEnvironment >> shared [
 	self outputMode: #shared
@@ -1072,6 +1050,11 @@ MbndCompilationEnvironment >> shouldCompileModule: moduleName withFileReference:
 
 ]
 
+{ #category : #accessing }
+MbndCompilationEnvironment >> thirdPartyLibrarySpecLocations [
+	^ settings thirdPartyLibrarySpecLocations
+]
+
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> useExplicitSJLJ [
 	compilationTarget setNoExceptionModel
@@ -1080,13 +1063,38 @@ MbndCompilationEnvironment >> useExplicitSJLJ [
 { #category : #parameters }
 MbndCompilationEnvironment >> useLibC [
 	<compileTime>
-	^ useLibC ifNil: [ useLibC := self hasLibC ]
+	^ settings useLibC
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> useLibC: aBoolean [
 	<compileTime>
-	useLibC := aBoolean
+	settings useLibC: aBoolean
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validBuildCacheDirectory [
+	^ self wbtEnvironment validBuildCacheDirectory
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validBuildObjectDirectory [
+	^ self wbtEnvironment validBuildObjectDirectory
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validBuildOutputDirectory [
+	^ self wbtEnvironment validBuildOutputDirectory
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validBuildResourcesDirectory [
+	^ self wbtEnvironment validBuildResourcesDirectory
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validBuildSysmelCacheDirectory [
+	^ self wbtEnvironment validBuildSysmelCacheDirectory ensureCreateDirectory; yourself
 ]
 
 { #category : #'module import' }
@@ -1100,89 +1108,17 @@ MbndCompilationEnvironment >> validCurrentModule [
 	^ currentModule
 ]
 
-{ #category : #initialization }
-MbndCompilationEnvironment >> validOutputDirectory [
-	outputDirectory ifNil: [ self outputDirectory: (FileSystem workingDirectory / 'sysmel-out-dir') asAbsolute canonicalize ].
-	outputDirectory ensureCreateDirectory.
-
-	(outputDirectory exists and: [ outputDirectory isDirectory ]) ifFalse: [ 
-		self error: 'Output directory "{1}" could not be created.' format: { outputDirectory fullName }
-	].
-
-	^ outputDirectory
-]
-
-{ #category : #initialization }
-MbndCompilationEnvironment >> validOutputDistDirectory [
-	outputDistDirectory ifNil: [
-		self validOutputDirectory.
-		outputDistDirectory := outputDirectory  / 'dist'.
-		self hasSeparateDistFolders ifTrue: [
-			outputDistDirectory := outputDistDirectory / self validCurrentModule name
-		]
-	].
-	outputDistDirectory ensureCreateDirectory.
-
-	(outputDistDirectory exists and: [ outputDistDirectory isDirectory ]) ifFalse: [ 
-		self error: 'Output dist directory "{1}" could not be created.' format: { outputDistDirectory fullName }
-	].
-
-	^ outputDistDirectory
-]
-
-{ #category : #initialization }
-MbndCompilationEnvironment >> validOutputObjDirectory [
-	outputObjDirectory ifNil: [
-		self validOutputDirectory.
-		outputObjDirectory := outputDirectory  / 'obj'
-	].
-	outputObjDirectory ensureCreateDirectory.
-
-	(outputObjDirectory exists and: [ outputObjDirectory isDirectory ]) ifFalse: [ 
-		self error: 'Output dist directory "{1}" could not be created.' format: { outputObjDirectory fullName }
-	].
-	^ outputObjDirectory
-]
-
-{ #category : #initialization }
-MbndCompilationEnvironment >> validOutputResourcesDirectory [
-	outputResourcesDirectory ifNil: [
-		outputResourcesDirectory := self validOutputDistDirectory / 'resources'
-	].
-	outputResourcesDirectory ensureCreateDirectory.
-
-	(outputResourcesDirectory exists and: [ outputResourcesDirectory isDirectory ]) ifFalse: [ 
-		self error: 'Output resources directory "{1}" could not be created.' format: { outputResourcesDirectory fullName }
-	].
-	^ outputResourcesDirectory
-]
-
 { #category : #'module import' }
-MbndCompilationEnvironment >> validateDependencyModuleIsUpdated: moduleName [
-	| importModuleFileReference result |
-	result := self validatedDependencyModules at: moduleName ifAbsent: [nil].
-	result == #pending ifTrue: [ self error: 'Cylic dependencies for module ' , moduleName ].
-	result ifNotNil: [ ^ result ].
-
-	self validatedDependencyModules at: moduleName put: nil.
-	
-	importModuleFileReference := self findImportModuleFileReferenceFor: moduleName.
-	(self shouldCompileModule: moduleName withFileReference: importModuleFileReference) ifTrue: [
-		| moduleCompilationEnvironment |
-		moduleCompilationEnvironment := self newCompilationEnvironmentForCleanModuleBuilding.
-		moduleName ~= self coreModuleName ifTrue: [ 
-			moduleCompilationEnvironment loadRuntimeCoreLibrary
-		].
-			
-		moduleCompilationEnvironment
-			compileModuleNamed: moduleName;
-			finishAndEmitModule.
-		importedModuleModificationTimeCache at: moduleName put: importModuleFileReference modificationTime.
+MbndCompilationEnvironment >> validateDependencyModuleIsUpdated: moduleName indirectDependency: isIndirectDependency [
+	| moduleDependencyTarget sysmelModuleTarget |
+	moduleDependencyTarget := self wbtEnvironment 	getOrLoadSysmelModulePackage: moduleName.
+	sysmelModuleTarget := moduleDependencyTarget sysmelModuleTarget.
+	isIndirectDependency ifFalse: [
+		sysmelModuleTarget ensureIsBuilt
 	].
 
-	result := importModuleFileReference.
-	self validatedDependencyModules at: moduleName put: result.
-	^ result
+	^ sysmelModuleTarget importModuleFileReference
+
 ]
 
 { #category : #'module import' }
@@ -1192,7 +1128,7 @@ MbndCompilationEnvironment >> validateIndirectModuleIsUpdated: moduleName [
 
 { #category : #adding }
 MbndCompilationEnvironment >> validateThirdPartyDependencyName: dependencyName [
-	thirdPartyLibrarySpecLocations do: [ :each |
+	settings thirdPartyLibrarySpecLocations do: [ :each |
 		| folderName |
 		folderName := each / dependencyName.
 		(folderName exists and: [ folderName isDirectory ]) ifTrue: [
@@ -1203,23 +1139,9 @@ MbndCompilationEnvironment >> validateThirdPartyDependencyName: dependencyName [
 	self error: 'Failed to validate third party dependency named "{1}".' format: { dependencyName }
 ]
 
-{ #category : #'module import' }
-MbndCompilationEnvironment >> validatedDependencyModules [
-	^ validatedDependencyModules ifNil: [ validatedDependencyModules := Dictionary new ]
-]
-
-{ #category : #'module import' }
-MbndCompilationEnvironment >> validatedDependencyModules: sharedDependencies [
-	^ validatedDependencyModules := sharedDependencies
-]
-
 { #category : #accessing }
 MbndCompilationEnvironment >> wbtEnvironment [
-	self flag: 'FIXME: Delegate this part into the compilation target.'.
-	^ wbtEnvironment ifNil: [ wbtEnvironment := WBTBuildEnvironment forCurrentPlatform
-		addPackageSpecLocations: thirdPartyLibrarySpecLocations;
-		yourself
-	]
+	^ settings wbtEnvironment
 ]
 
 { #category : #initialization }
@@ -1244,19 +1166,11 @@ MbndCompilationEnvironment >> writeExecutableToFileNamed: outputFileName [
 
 { #category : #writing }
 MbndCompilationEnvironment >> writeExportModuleFor: outputFileName [
-	| outputFileReference outputExportModuleFileReference outputExportDepsFileReference outputExportLinkerFlags outputExportThirdPartyPackages outputExportResourcesList |
+	| outputFileReference outputExportModuleFileReference |
 	outputFileReference := outputFileName asFileReference.
 	outputExportModuleFileReference := outputFileReference withExtension: 'smpmodule'.
-	outputExportDepsFileReference := outputExportModuleFileReference withExtension: 'smpmodule.deps'.
-	outputExportLinkerFlags := outputExportModuleFileReference withExtension: 'smpmodule.lflags'.
-	outputExportThirdPartyPackages := outputExportModuleFileReference withExtension: 'smpmodule.plst'.
-	outputExportResourcesList := outputExportModuleFileReference withExtension: 'smpmodule.rlst'.
 	self validCurrentModule
-		exportModulePublicInterfaceTo: outputExportModuleFileReference;
-		exportModuleDependenciesTo: outputExportDepsFileReference;
-		exportExportLinkerFlagsTo: outputExportLinkerFlags;
-		outputExportThirdPartyPackagesTo: outputExportThirdPartyPackages;
-		outputExportResourcesListTo: outputExportResourcesList.
+		exportModulePublicInterfaceTo: outputExportModuleFileReference
 
 ]
 

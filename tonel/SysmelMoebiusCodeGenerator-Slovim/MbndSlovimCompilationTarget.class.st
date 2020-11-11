@@ -9,6 +9,13 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> forWBTPlatform: wbtPlatform [
+	^ self basicNew
+		initializeWithWBTPlatform: wbtPlatform;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_arm [
 	^ self slvmCompilationTargetNamed: #llvm_arm
 ]
@@ -282,6 +289,12 @@ MbndSlovimCompilationTarget >> initialize [
 ]
 
 { #category : #accessing }
+MbndSlovimCompilationTarget >> initializeWithWBTPlatform: wbtPlatform [
+	targetName := wbtPlatform slvmTargetName.
+	^ self slvmCompilationTarget: wbtPlatform createSLVMCompilationTarget
+]
+
+{ #category : #accessing }
 MbndSlovimCompilationTarget >> int64Alignment [
 	^ slvmCompilationTarget int64 alignment
 ]
@@ -508,6 +521,11 @@ MbndSlovimCompilationTarget >> systemVendor [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> systemVendor: vendor [
 	slvmCompilationTarget systemVendor: vendor
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> wbtPlatform [
+	^ slvmCompilationTarget wbtPlatform
 ]
 
 { #category : #initialization }

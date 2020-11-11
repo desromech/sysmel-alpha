@@ -443,33 +443,6 @@ MbndStandaloneModule >> evaluateTonelPackageNamedIfExists: packageName [
 ]
 
 { #category : #'as yet unclassified' }
-MbndStandaloneModule >> exportExportLinkerFlagsTo: outputFileName [
-	outputFileName asFileReference writeStreamDo: [ :out |
-		out truncate.
-		self allLinkerArguments do: [ :each |
-			out nextPutAll: each; lf
-		].
-	]
-]
-
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule >> exportModuleDependenciesTo: outputFileName [
-	outputFileName asFileReference writeStreamDo: [ :out |
-		out truncate.
-		self allImportedModules asArray do: [ :each |
-			self assert: each ~~ self.
-			out nextPutAll: 'module:'; nextPutAll: each name; lf
-		].
-		self importedIndirectModules asArray do: [ :each |
-			out nextPutAll: 'imodule:'; nextPutAll: each; lf
-		].
-		self evaluatedFileSet asArray sorted do: [ :each |
-			out nextPutAll: 'file:'; nextPutAll: each asFileReference asAbsolute canonicalize fullName; lf
-		].
-	]
-]
-
-{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 	| publicModuleEncodedMessage |
 	publicModuleEncodedMessage := self encodeModulePublicInterface.
@@ -721,27 +694,6 @@ MbndStandaloneModule >> optimizationLevel [
 	^ compilationEnvironment optimizationLevel
 ]
 
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule >> outputExportResourcesListTo: outputFileName [
-	outputFileName asFileReference writeStreamDo: [ :out |
-		out truncate.
-		self allRequiredResources do: [ :each |
-			out nextPutAll: each first; lf.
-			out nextPutAll: each second; lf.
-		].
-	]
-]
-
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule >> outputExportThirdPartyPackagesTo: outputFileName [
-	outputFileName asFileReference writeStreamDo: [ :out |
-		out truncate.
-		self allThirdPartyLibraryDependencies do: [ :each |
-			out nextPutAll: each; lf
-		].
-	]
-]
-
 { #category : #accessing }
 MbndStandaloneModule >> requiredResources [
 	^ requiredResources ifNil: [requiredResources := OrderedCollection new]
@@ -790,11 +742,12 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	| lowLevelModule ssaModule outputFileReference |
 	self finishSemanticAnalysis.
 	outputFileReference := outputFileName asFileReference.
+	outputFileReference parent ensureCreateDirectory.
+
 	lowLevelModule := self generateLowLevelTargetCodeModule.
-	lowLevelModule linkerArguments: self allLinkerArguments , self allThirdPartyLibrariesLinkerArguments.
 	linkerImportModule isNil ifTrue: [
 		(#(assembly llvm_assembly object) includes: writeMode) ifTrue: [ 
-				linkerImportModule := outputFileReference basename
+			linkerImportModule := outputFileReference basename
 		] ifFalse: [ 
 			writeMode = #shared ifTrue: [
 				ssaModule compilationTarget sharedObjectsAreAlsoImports ifTrue: [ 

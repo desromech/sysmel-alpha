@@ -255,7 +255,7 @@ MbndCompilerCommandLineHandler >> activate [
 	].
 
 	compiler := MbndCompilationEnvironment compilationTarget: target.
-	compiler outputDirectory: outputDirectory.
+	compiler buildDirectory: outputDirectory.
 	compilationOptions do: [ :option |
 		option value: compiler.
 	].

@@ -65,6 +65,7 @@ Trait {
 		'pragmaClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
+	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
