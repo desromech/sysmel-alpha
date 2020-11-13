@@ -2,9 +2,9 @@
 set -ex
 
 if test "$PLATFORM_NAME" = ""; then
-    PLATFORM_NAME=`$(uname -s)`
+    PLATFORM_NAME="$(uname -s)"
 fi
 
-./sysmelc -o out-gc-tests -object tests/RuntimeLibrariesTests.sysmel
+./sysmelc --release -o build-gc-tests tests/RuntimeLibrariesTests.sysmel
 mkdir -p artifacts/test-results/$PLATFORM_NAME
-out-gc-tests/dist/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/gcRuntimeLibrariesTests.txt
+build-gc-tests/release/out/RuntimeLibrariesTests | tee artifacts/test-results/$PLATFORM_NAME/gcRuntimeLibrariesTests.txt
