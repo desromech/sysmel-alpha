@@ -7,7 +7,7 @@ WBTBuildEnvironment >> getOrLoadSysmelModulePackage: sysmelModulePackageName [
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
 WBTBuildEnvironment >> loadSysmelModulePackageNamed: sysmelModulePackageName [
-	^ self addPackageNamed: sysmelModulePackageName withBlock: [ :packageScript |
+	^ self addPackageNamed: sysmelModulePackageName with: [ :packageScript |
 		packageScript addMatchingNamedSysmelModule
 	]
 ]

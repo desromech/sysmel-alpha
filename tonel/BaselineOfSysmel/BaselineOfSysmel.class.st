@@ -90,5 +90,9 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(#'SysmelPharoCompatLayer-Core')
 			].
 
+		spec
+			package: #'SysmelMoebiusMetamodel-Core-Samples' with: [
+				spec requires: #(#'SysmelMoebiusMetamodel-Core')
+			].
 	].
 ]

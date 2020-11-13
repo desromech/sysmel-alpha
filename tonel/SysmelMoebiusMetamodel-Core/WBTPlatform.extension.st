@@ -9,8 +9,7 @@ WBTPlatform >> setSysmelSettingsWith: aBlock [
 { #category : #'*SysmelMoebiusMetamodel-Core' }
 WBTPlatform >> sysmelSettings [
 	^ self propertyAt: #sysmelSettings ifAbsentPut: [ MbndCompilationEnvironmentSettings new
-		wbtPlatform: self;
-		wbtEnvironment: self environment;
+		setupForWBTPlatform: self;
 		yourself
 	]
 ]

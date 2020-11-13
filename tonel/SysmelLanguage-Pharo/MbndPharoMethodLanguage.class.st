@@ -12,7 +12,7 @@ MbndPharoMethodLanguage class >> languageName [
 { #category : #parsing }
 MbndPharoMethodLanguage >> parse: sourceCollectionWithContext [
 	| ast |
-	ast := MbndProfiler component: #parsePharoMethod with: [RBParser parseMethod: sourceCollectionWithContext onError: [ :message :index |
+	ast := MbndProfiler component: #parsePharoMethod with: [RBParser parseMethod: sourceCollectionWithContext collection onError: [ :message :index |
 		^ self convertParseError: message at: index in: sourceCollectionWithContext
 	]].
 	^ MbndLanguageParsedSource new

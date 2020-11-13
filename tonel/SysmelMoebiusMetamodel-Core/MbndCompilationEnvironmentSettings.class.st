@@ -17,7 +17,8 @@ Class {
 		'thirdPartyLibrarySpecLocations',
 		'wbtPlatform',
 		'wbtEnvironment',
-		'compilationTarget'
+		'compilationTarget',
+		'enableDebugInformation'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -34,12 +35,26 @@ MbndCompilationEnvironmentSettings >> buildDirectory: aDirectory [
 
 { #category : #accessing }
 MbndCompilationEnvironmentSettings >> compilationTarget [
-	^ compilationTarget ifNil: [ compilationTarget := MbndSlovimCompilationTarget forWBTPlatform: wbtPlatform ]
+	^ compilationTarget ifNil: [
+		compilationTarget := MbndSlovimCompilationTarget forWBTPlatform: wbtPlatform.
+		self enableDebugInformation ifTrue: [ compilationTarget withDebugInformation ].
+		compilationTarget
+	]
 ]
 
 { #category : #accessing }
 MbndCompilationEnvironmentSettings >> compilationTarget: anObject [
 	compilationTarget := anObject
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironmentSettings >> enableDebugInformation [
+	^ enableDebugInformation ifNil: [ enableDebugInformation := false ]
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironmentSettings >> enableDebugInformation: aBoolean [
+	enableDebugInformation := aBoolean
 ]
 
 { #category : #accessing }
@@ -189,6 +204,14 @@ MbndCompilationEnvironmentSettings >> optimizationLevel: anObject [
 MbndCompilationEnvironmentSettings >> postCopy [
 	moduleSourceLocations := moduleSourceLocations copy.
 	thirdPartyLibrarySpecLocations := thirdPartyLibrarySpecLocations copy.
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironmentSettings >> setupForWBTPlatform: aWbtPlatform [
+	self
+		wbtPlatform: aWbtPlatform;
+		wbtEnvironment: aWbtPlatform environment;
+		enableDebugInformation: aWbtPlatform environment hasBuildModeWithDebugInformation.
 ]
 
 { #category : #accessing }
