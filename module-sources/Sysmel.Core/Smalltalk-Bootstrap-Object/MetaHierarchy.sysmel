@@ -961,8 +961,8 @@ function genericMessageLookup(receiver: ProtoObject, selector: Object, typeInfo:
 
     if: methodObject == nil then: {
         if: selector == #doesNotUnderstand: then: {
-            LibC printf("Fatal error: Failed to lookup doesNotUnderstand:\n").
-            LibC abort().
+            Stdn stderr << "Fatal error: Failed to lookup doesNotUnderstand:"; nl.
+            Stdn abort()
         }.
 
         lookupResult methodObject: (typeInfo reinterpretCastTo: Void pointer).
