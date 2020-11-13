@@ -187,35 +187,6 @@ MbndStandaloneModule >> allLinkerArguments [
 ]
 
 { #category : #accessing }
-MbndStandaloneModule >> allRequiredResources [
-	| resourcesSet |
-	resourcesSet := Set new.
-	^ Array streamContents: [ :out |
-		self allImportedModules do: [:each |
-			each importedIndirectModules do: [ :eachImportedModule |
-				self compilationEnvironment fetchIndirectModuleRequiredResources: eachImportedModule
-					removeDuplicatesWith: resourcesSet
-					into: out
-			].
-		
-			each requiredResources do: [ :eachResource |
-				(resourcesSet includes: eachResource) ifFalse: [
-					resourcesSet add: eachResource.
-					out nextPut: eachResource
-				]
-			].
-		].
-
-		self requiredResources do: [ :eachResource |
-			(resourcesSet includes: eachResource) ifFalse: [
-				resourcesSet add: eachResource.
-				out nextPut: eachResource
-			]
-		].
-	].
-]
-
-{ #category : #accessing }
 MbndStandaloneModule >> allThirdPartyLibrariesLinkerArguments [
 	^ Array streamContents: [ :out |
 		self compilationEnvironment fetchThirdPartyLibrariesLinkerFlags: self allThirdPartyLibraryDependencies into: out.

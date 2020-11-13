@@ -17,7 +17,8 @@ Class {
 		'relativeFileReference',
 		'objectFileReference',
 		'linkerArguments',
-		'depsCacheFileReference'
+		'depsCacheFileReference',
+		'requiredResources'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-WBT'
 }
@@ -49,7 +50,7 @@ MbndWBTSysmelModuleTarget >> buildTargetDependencies [
 
 { #category : #'as yet unclassified' }
 MbndWBTSysmelModuleTarget >> computeBuildTargetDependencies [
-	| linkLibraries |
+	| linkLibraries installedResources |
 	self fetchDependenciesFromCache ifFalse: [
 		self fetchDependenciesFromSemanticAnalysis ifFalse: [ ^ sources ]
 	].
@@ -57,10 +58,11 @@ MbndWBTSysmelModuleTarget >> computeBuildTargetDependencies [
 	self ensureBuildAction.
 	linkLibraries := importedModules , importedIndirectModules,
 		thirdPartyPackageDependencies.
+	installedResources := requiredResources collect: [ :each | each second makeInstallIntoTarget: (self buildEnvironment validBuildResourcesDirectory resolve: each first asFileReference) ].
 	wbtModule
 		addIndirectLinkLibraries: linkLibraries;
 		addIndirectLinkerArguments: linkerArguments.
-	^ sources , implicitFileDependencies , linkLibraries
+	^ sources , implicitFileDependencies , linkLibraries , installedResources
 		
 ]
 
@@ -99,7 +101,7 @@ MbndWBTSysmelModuleTarget >> fetchDependenciesFromCache [
 	self depsCacheFileReference exists ifFalse: [ ^ false ].
 	self parseDepsCacheFile.
 	
-	buildTargetDependencies := sources , implicitFileDependencies , importedModules , importedIndirectModules,
+	buildTargetDependencies := sources , implicitFileDependencies , importedModules ,
 		thirdPartyPackageDependencies.
 	self isSatisfiedBuildTarget ifTrue: [ ^ true ].
 	buildTargetDependencies := nil.
@@ -117,11 +119,15 @@ MbndWBTSysmelModuleTarget >> fetchDependenciesFromSemanticAnalysis [
 	explicitFileDependencies := sources collect: [ :each | each fileReference ] as: Set.
 	implicitFileDependencies := (sysmelModule evaluatedFileSet difference: explicitFileDependencies) asArray sorted
 		collect: [:each | self buildEnvironment makeImplicitSourceFileDependencyFor: each ].
+	requiredResources := sysmelModule requiredResources asArray collect: [:each |
+		{each first asFileReference . self buildEnvironment makeImplicitSourceFileDependencyFor: each second}
+	].
 
 	importedModules := sysmelModule importedModules collect: [:each | self buildEnvironment getOrLoadSysmelModulePackage: each name].
 	importedIndirectModules := sysmelModule importedIndirectModules collect: [:each | self buildEnvironment getOrLoadSysmelModulePackage: each].
 	thirdPartyPackageDependencies := sysmelModule thirdPartyLibraryDependencies collect: [ :each | self buildEnvironment getOrLoadPackageNamed: each].
 	linkerArguments := sysmelModule linkerArguments.
+
 	^ true
 ]
 
@@ -197,7 +203,10 @@ MbndWBTSysmelModuleTarget >> parseDepsCacheFile [
 	importedModules := (json at: 'importedModules') collect: [ :each | self buildEnvironment getOrLoadSysmelModulePackage: each].
 	importedIndirectModules := (json at: 'importedIndirectModules') collect: [ :each | self buildEnvironment getOrLoadSysmelModulePackage: each].
 	thirdPartyPackageDependencies := (json at: 'thirdPartyPackageDependencies') collect: [ :each | self buildEnvironment getOrLoadPackageNamed: each].
-	linkerArguments := json at: 'linkerArguments'
+	linkerArguments := json at: 'linkerArguments'.
+	requiredResources := (json at: 'requiredResources') collect: [:each |
+		{each first asFileReference . self buildEnvironment makeImplicitSourceFileDependencyFor: each second}
+	].
 
 ]
 
@@ -245,7 +254,8 @@ MbndWBTSysmelModuleTarget >> writeDepsToCache [
 		#importedModules . (importedModules collect: [:each | each name ]).
 		#importedIndirectModules . (importedIndirectModules collect: [:each | each name ]).
 		#thirdPartyPackageDependencies . (thirdPartyPackageDependencies collect: [:each | each name]).
-		#linkerArguments . (linkerArguments collect: [:each | each asWBTVarSubstitution])
+		#linkerArguments . (linkerArguments collect: [:each | each asWBTVarSubstitution]).
+		#requiredResources . (requiredResources collect: [:each | {each first path fullName . each second asFileReference fullName}])
 	}.
 	self depsCacheFileReference parent ensureCreateDirectory.
 	self depsCacheFileReference writeStreamDo: [ :out |

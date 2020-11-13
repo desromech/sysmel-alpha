@@ -251,25 +251,6 @@ MbndCompilationEnvironment >> concretizeModuleImportObjectFileName: aFileName [
 	self error: 'Failed required import module object file {1}.' format: { aFileName }
 ]
 
-{ #category : #'as yet unclassified' }
-MbndCompilationEnvironment >> copyResourceIntoDistFolder: each [
-	| destFileReference sourceFileReference |
-	destFileReference := self validBuildResourcesDirectory resolve: each first asFileReference.
-	sourceFileReference := each second asFileReference.
-	sourceFileReference isFile ifFalse: [ ^ self ].
-	(destFileReference isFile and: [destFileReference modificationTime asUnixTime > sourceFileReference modificationTime asUnixTime ]) ifTrue: [ ^ self ].
-	destFileReference parent ensureCreateDirectory.
-	destFileReference exists ifTrue: [ destFileReference delete ].
-	sourceFileReference copyTo: destFileReference
-]
-
-{ #category : #'as yet unclassified' }
-MbndCompilationEnvironment >> copyResourcesIntoDistFolder [
-	self validCurrentModule allRequiredResources do: [ :each |
-		self copyResourceIntoDistFolder: each
-	]
-]
-
 { #category : #accessing }
 MbndCompilationEnvironment >> coreModule [
 	^ coreModule
@@ -458,11 +439,6 @@ MbndCompilationEnvironment >> finishAndEmitModuleInOutputDirectory: outputDirect
 	result := self validCurrentModule
 		embeddedShaderCopyOutputFile: outputDirectory / outputShaderFileName;
 		writeMode: outputMode toFileNamed: outputFileReference.
-	(#(executable) includes: outputMode) ifTrue: [
-		self
-			copyResourcesIntoDistFolder;
-			installThirdPartyLibrariesIntoDistFolder.
-	].
 	cacheDirectory ensureCreateDirectory.
 	self writeExportModuleFor: cacheDirectory / outputFileName.
 	^ result
@@ -772,13 +748,6 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 MbndCompilationEnvironment >> initializeWithSettings: theSettings [
 	settings := theSettings.
 	self initializeWithCompilationTarget: settings compilationTarget
-]
-
-{ #category : #'as yet unclassified' }
-MbndCompilationEnvironment >> installThirdPartyLibrariesIntoDistFolder [
-	self validCurrentModule allThirdPartyLibraryDependencies do: [ :each |
-		(self getThirdPartyLibrarySpec: each) installExportedLibrariesInto: self validBuildOutputDirectory
-	]
 ]
 
 { #category : #'module output format' }
