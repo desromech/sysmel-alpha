@@ -1,3 +1,4 @@
 Compiler
+    addNativeLibraryDependency: #epal;
     loadPackage: #"EmbeddedPAL-Bindings";
     loadPackage: #"EmbeddedPAL-Stdn".
