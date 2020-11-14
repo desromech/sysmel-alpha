@@ -61,8 +61,9 @@ MbndWBTSysmelModuleTarget >> computeBuildTargetDependencies [
 	installedResources := requiredResources collect: [ :each | each second makeInstallIntoTarget: (self buildEnvironment validBuildResourcesDirectory resolve: each first asFileReference) ].
 	wbtModule
 		addIndirectLinkLibraries: linkLibraries;
-		addIndirectLinkerArguments: linkerArguments.
-	^ sources , implicitFileDependencies , linkLibraries , installedResources
+		addIndirectLinkerArguments: linkerArguments;
+		addIndirectResources: installedResources.
+	^ sources , implicitFileDependencies , importedModules , installedResources
 		
 ]
 
@@ -101,8 +102,7 @@ MbndWBTSysmelModuleTarget >> fetchDependenciesFromCache [
 	self depsCacheFileReference exists ifFalse: [ ^ false ].
 	self parseDepsCacheFile.
 	
-	buildTargetDependencies := sources , implicitFileDependencies , importedModules ,
-		thirdPartyPackageDependencies.
+	buildTargetDependencies := sources , implicitFileDependencies , importedModules.
 	self isSatisfiedBuildTarget ifTrue: [ ^ true ].
 	buildTargetDependencies := nil.
 	self invalidateTimestamps.
@@ -118,9 +118,9 @@ MbndWBTSysmelModuleTarget >> fetchDependenciesFromSemanticAnalysis [
 	sysmelModule := semanticAnalyzedCompilationEnvironment currentModule.
 	explicitFileDependencies := sources collect: [ :each | each fileReference ] as: Set.
 	implicitFileDependencies := (sysmelModule evaluatedFileSet difference: explicitFileDependencies) asArray sorted
-		collect: [:each | self buildEnvironment makeImplicitSourceFileDependencyFor: each ].
+		collect: [:each | self buildEnvironment makeFileTargetFor: each ].
 	requiredResources := sysmelModule requiredResources asArray collect: [:each |
-		{each first asFileReference . self buildEnvironment makeImplicitSourceFileDependencyFor: each second}
+		{each first asFileReference . self buildEnvironment makeFileTargetFor: each second}
 	].
 
 	importedModules := sysmelModule importedModules collect: [:each | self buildEnvironment getOrLoadSysmelModulePackage: each name].
@@ -162,6 +162,11 @@ MbndWBTSysmelModuleTarget >> isRuntimeCoreLibrary: anObject [
 	isRuntimeCoreLibrary := anObject
 ]
 
+{ #category : #testing }
+MbndWBTSysmelModuleTarget >> isSysmelModuleTarget [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndWBTSysmelModuleTarget >> makeCompilationEnvironment [
 	^ (MbndCompilationEnvironment withSettings: self platform sysmelSettings copy)
@@ -199,13 +204,13 @@ MbndWBTSysmelModuleTarget >> parseDepsCacheFile [
 	self depsCacheFileReference exists ifFalse: [ ^ false ].
 	
 	json := NeoJSONReader fromString: self depsCacheFileReference contents.
-	implicitFileDependencies := (json at: 'files') collect: [ :each | self buildEnvironment makeImplicitSourceFileDependencyFor: each].
+	implicitFileDependencies := (json at: 'files') collect: [ :each | self buildEnvironment makeFileTargetFor: each].
 	importedModules := (json at: 'importedModules') collect: [ :each | self buildEnvironment getOrLoadSysmelModulePackage: each].
 	importedIndirectModules := (json at: 'importedIndirectModules') collect: [ :each | self buildEnvironment getOrLoadSysmelModulePackage: each].
 	thirdPartyPackageDependencies := (json at: 'thirdPartyPackageDependencies') collect: [ :each | self buildEnvironment getOrLoadPackageNamed: each].
 	linkerArguments := json at: 'linkerArguments'.
 	requiredResources := (json at: 'requiredResources') collect: [:each |
-		{each first asFileReference . self buildEnvironment makeImplicitSourceFileDependencyFor: each second}
+		{each first asFileReference . self buildEnvironment makeFileTargetFor: each second}
 	].
 
 ]

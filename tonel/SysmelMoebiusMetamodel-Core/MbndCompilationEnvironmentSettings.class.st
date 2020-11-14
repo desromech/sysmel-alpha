@@ -129,12 +129,21 @@ MbndCompilationEnvironmentSettings >> hasStandardLibrary: anObject [
 
 { #category : #initialization }
 MbndCompilationEnvironmentSettings >> initialize [
+	| addedLocations |
 	super initialize.
 	moduleSourceLocations := OrderedCollection new.
 	thirdPartyLibrarySpecLocations := OrderedCollection new.
-	
-	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
-	thirdPartyLibrarySpecLocations add: MbndCoreAssets location / 'third-party'.
+
+	addedLocations := Set new.	
+	MbndIcebergProjectAssets allSubclasses do: [ : each |
+		| location |
+		location := each location.
+		(location exists and: [ (addedLocations includes: location) not ]) ifTrue: [ 
+			moduleSourceLocations add: location / 'module-sources'.
+			thirdPartyLibrarySpecLocations add: location / 'native-module-sources'.
+			addedLocations add: location
+		].
+	].
 	
 	"Additional dependency."
 	[

@@ -159,6 +159,18 @@ MbndCompilationEnvironment >> addModuleSourceLocation: location [
 	settings addModuleSourceLocation: location
 ]
 
+{ #category : #adding }
+MbndCompilationEnvironment >> addNativeLibraryDependencies: dependenciesName [
+	<compileTime>
+	self currentModule addNativeLibraryDependencies: dependenciesName
+]
+
+{ #category : #adding }
+MbndCompilationEnvironment >> addNativeLibraryDependency: dependencyName [
+	<compileTime>
+	self currentModule addNativeLibraryDependency: dependencyName
+]
+
 { #category : #parameters }
 MbndCompilationEnvironment >> addResourcesDirectory: directory [
 	<compileTime>

@@ -108,6 +108,16 @@ MbndStandaloneModule >> addLinkerArguments: arguments [
 ]
 
 { #category : #adding }
+MbndStandaloneModule >> addNativeLibraryDependencies: dependenciesName [
+	dependenciesName do: [ :each | self addNativeLibraryDependency: each ]
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addNativeLibraryDependency: dependencyName [
+	self addThirdPartyLibraryDependency: dependencyName
+]
+
+{ #category : #adding }
 MbndStandaloneModule >> addResourcesDirectory: directoryName [
 	| workingDirectory location |
 	workingDirectory := MbndHostMessageEvaluationScope value

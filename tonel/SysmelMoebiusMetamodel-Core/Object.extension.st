@@ -65,6 +65,11 @@ Object >> isMbndVTablePointerValue [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isSysmelObjectFileTarget [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ compilationTarget compilerObjectType
 ]

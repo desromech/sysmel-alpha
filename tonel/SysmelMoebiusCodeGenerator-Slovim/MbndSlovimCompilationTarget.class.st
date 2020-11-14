@@ -264,7 +264,7 @@ MbndSlovimCompilationTarget >> hasNoExceptionModel [
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> hasNoOperatingSystem [
-	^ slvmCompilationTarget isNoOperatingSystem
+	^ self wbtPlatform isNoOperatingSystem
 ]
 
 { #category : #testing }
@@ -301,12 +301,27 @@ MbndSlovimCompilationTarget >> int64Alignment [
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isARM32 [
-	^ slvmCompilationTarget isARM32
+	^ self wbtArchitecture isARM32
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isARM64 [
-	^ slvmCompilationTarget isARM64
+	^ self wbtArchitecture isARM64
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isAndroid [
+	^ self wbtPlatform isAndroid
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isAppleFamily [
+	^ self wbtPlatform isAppleFamily
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isBSD [
+	^ self wbtPlatform isBSD
 ]
 
 { #category : #testing }
@@ -326,7 +341,7 @@ MbndSlovimCompilationTarget >> isEmittingDebugInformation [
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isFreeBSD [
-	^ slvmCompilationTarget isFreeBSD
+	^ self wbtPlatform isFreeBSD
 ]
 
 { #category : #'platform testing' }
@@ -336,7 +351,7 @@ MbndSlovimCompilationTarget >> isGPU [
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isLinux [
-	^ slvmCompilationTarget isLinux
+	^ self wbtPlatform isLinux
 ]
 
 { #category : #testing }
@@ -346,42 +361,97 @@ MbndSlovimCompilationTarget >> isLittleEndian [
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isMIPS [
-	^ slvmCompilationTarget isMIPS
+	^ self wbtArchitecture isMIPS
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isMIPSEL [
+	^ self wbtArchitecture isMIPSEL
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isMicrosoftXboxOne [
+	^ self wbtPlatform isMicrosoftXboxOne
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isMicrosoftXboxSeriesOne [
+	^ self wbtPlatform isMicrosoftXboxSeriesOne
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isNintendo3DS [
+	^ self wbtPlatform isNintendo3DS
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isNintendoSwitch [
+	^ self wbtPlatform isNintendoSwitch
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isNoOperatingSystem [
+	^ self wbtPlatform isNoOperatingSystem
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isNullOS [
-	^ slvmCompilationTarget isNullOS
+	^ self wbtPlatform isNullOS
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isOSX [
-	^ slvmCompilationTarget isOSX
+	^ self wbtPlatform  isOSX
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isSonyPS4 [
+	^ self wbtPlatform isSonyPS4
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isSonyPS5 [
+	^ self wbtPlatform isSonyPS5
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isUniversalWindowsPlatform [
+	^ self wbtPlatform isUniversalWindowsPlatform
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isUnixFamily [
+	^ self wbtPlatform isUnixFamily
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isWebAssembly [
-	^ slvmCompilationTarget isWebAssembly
+	^ self wbtPlatform isWebAssembly
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isWindows [
-	^ slvmCompilationTarget isWindows
+	^ self wbtPlatform isWindows
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isWindowsFamily [
+	^ self wbtPlatform isWindowsFamily
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isWindowsStore [
-	^ slvmCompilationTarget isWindowsStore
+	^ self wbtPlatform isWindowsStore
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isX86_32 [
-	^ slvmCompilationTarget isX86_32
+	^ self wbtArchitecture isX86_32
 ]
 
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isX86_64 [
-	^ slvmCompilationTarget isX86_64
+	^ self wbtArchitecture isX86_64
 ]
 
 { #category : #'as yet unclassified' }
@@ -521,6 +591,11 @@ MbndSlovimCompilationTarget >> systemVendor [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> systemVendor: vendor [
 	slvmCompilationTarget systemVendor: vendor
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> wbtArchitecture [
+	^ self wbtPlatform architecture
 ]
 
 { #category : #accessing }
