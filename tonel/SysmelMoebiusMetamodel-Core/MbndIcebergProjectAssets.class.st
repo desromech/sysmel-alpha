@@ -14,9 +14,9 @@ MbndIcebergProjectAssets class >> findAssets [
 	packageName := self package name.
 	IceRepository registry
 		detect: [ :each | each includesPackageNamed: packageName ]
-		ifFound: [ :found | ^ found location ].
+		ifFound: [ :found | ^ found location asFileReference asAbsolute canonicalize ].
 
-	^ Smalltalk imageDirectory
+	^ Smalltalk imageDirectory asFileReference asAbsolute canonicalize
 ]
 
 { #category : #accessing }
