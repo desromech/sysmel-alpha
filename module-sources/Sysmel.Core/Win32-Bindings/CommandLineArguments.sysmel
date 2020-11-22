@@ -1,0 +1,6 @@
+namespace Win32 definition: {
+global __argc externC mutable type: Int32.
+global __argv externC mutable type: Char8 const pointer pointer.
+global __wargv externC mutable type: Char16 const pointer pointer.
+
+}. ## End of namespace Win32

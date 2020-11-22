@@ -5,3 +5,4 @@ loadFileOnce: "IO.sysmel".
 loadFileOnce: "Memory.sysmel".
 loadFileOnce: "ThreadAndProcess.sysmel".
 loadFileOnce: "Time.sysmel".
+loadFileOnce: "CommandLineArguments.sysmel".

@@ -1,7 +1,17 @@
 namespace Stdn definition: {
-    macro method GenerateMainEntryPointInvokationSupportCode := `'(
+compileTime if: Compiler compilationTarget isWindows then: {
+    macro method GenerateMainEntryPointInvokationSupportCode := `'{
         function main externC(argc: Int32, argv: Char8 const pointer pointer) ::=> Int32 := {
             sysmel_main(argv until: argc)
-        }
-    ).
+        }.
+
+        function wWinMain apicall externC(hInstance: Win32 HINSTANCE, hPrevInstance: Win32 HINSTANCE, pCmdLine: Char16 const pointer, nCmdShow: Int32) ::=> Int32 := {
+            sysmel_main(Win32 __argv until: Win32 __argc)
+        }.
+    }.
+} else: {
+    macro method GenerateMainEntryPointInvokationSupportCode := `'(
+        Compiler addNativeLibraryDependency: #SysmelUWPMain
+    )
+}.
 }.
