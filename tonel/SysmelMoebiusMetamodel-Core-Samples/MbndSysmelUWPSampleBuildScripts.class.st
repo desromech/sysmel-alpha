@@ -18,13 +18,13 @@ MbndSysmelUWPSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'tests/RuntimeLibrariesTests.sysmel'
+			packageScript bundleWithSource: 'tests/RuntimeLibrariesTests.sysmel'
 		]
 ]
 
 { #category : #'native samples' }
 MbndSysmelUWPSampleBuildScripts class >> newNativeBuildEnvironment [
-	^ WBTBuildEnvironment forUWPClangX64
+	^ WBTBuildEnvironment forUWPLLDX64
 		setReleaseWithDebugInfoBuildMode;
 		buildDirectory: 'build-sysmel-uwp-native';
 		setSysmelSettingsWith: [ :settings | settings noRTTI ];

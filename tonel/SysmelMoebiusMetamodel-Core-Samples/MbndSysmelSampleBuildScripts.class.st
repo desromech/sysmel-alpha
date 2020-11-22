@@ -45,7 +45,7 @@ MbndSysmelSampleBuildScripts class >> buildSampleNativeGame [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNativeGame.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeGame.sysmel'
 		]
 ]
 
@@ -54,7 +54,7 @@ MbndSysmelSampleBuildScripts class >> buildSampleNativeNorphic [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNativeNorphic.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeNorphic.sysmel'
 		]
 ]
 
@@ -63,7 +63,7 @@ MbndSysmelSampleBuildScripts class >> buildSampleNativeRendering2D [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
 		]
 ]
 
@@ -72,7 +72,7 @@ MbndSysmelSampleBuildScripts class >> buildSampleNativeRendering3D [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNativeRendering3D.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeRendering3D.sysmel'
 		]
 ]
 
@@ -105,7 +105,7 @@ MbndSysmelSampleBuildScripts class >> newGCBuildEnvironment [
 
 { #category : #'native samples' }
 MbndSysmelSampleBuildScripts class >> newNativeBuildEnvironment [
-	^ WBTBuildEnvironment forCurrentPlatformWithClang
+	^ WBTBuildEnvironment forCurrentPlatformWithLLD
 		setReleaseWithDebugInfoBuildMode;
 		buildDirectory: 'build-sysmel-native';
 		setSysmelSettingsWith: [ :settings | settings noRTTI ];
