@@ -6,6 +6,7 @@ build-*
 *.zip
 *.version
 *.log
+*.pdb
 .vs
 pharo-local
 pharo-vm

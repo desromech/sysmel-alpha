@@ -6,6 +6,7 @@ compileTime if: Compiler compilationTarget isWindows then: {
         }.
 
         function wWinMain apicall externC(hInstance: Win32 HINSTANCE, hPrevInstance: Win32 HINSTANCE, pCmdLine: Char16 const pointer, nCmdShow: Int32) ::=> Int32 := {
+            Win32 sysmel_connectOutputToWin32DebugStream().
             sysmel_main(Win32 __argv until: Win32 __argc)
         }.
     }.

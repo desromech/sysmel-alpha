@@ -124,16 +124,16 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
     }.
 
     method submitVertices => Boolean8 := {
-        let requiredCapacity := meshBuilder vertices size * MeshVertex instanceSize.
-        vertexBuffer isNil || requiredCapacity > vertexBuffer _ size ifTrue: {
-            self createVertexBufferWithCapacity: requiredCapacity.
+        let requiredSize := meshBuilder vertices size * MeshVertex instanceSize.
+        vertexBuffer isNil || requiredSize > vertexBuffer _ size ifTrue: {
+            self createVertexBufferWithCapacity: meshBuilder vertices size.
             vertexBuffer ifNil: {
                 return: false.
             }
         }.
 
-        requiredCapacity > 0 ifTrue: {
-            vertexBuffer _ uploadAt: 0 size: requiredCapacity data: meshBuilder vertices data
+        requiredSize > 0 ifTrue: {
+            vertexBuffer _ uploadAt: 0 size: requiredSize data: meshBuilder vertices data
         }.
 
         true
@@ -180,30 +180,30 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
     }.
 
     method submitIndices => Boolean8 := {
-        let requiredCapacity := meshBuilder indices size * 2.
-        indexBuffer isNil || requiredCapacity > indexBuffer _ size ifTrue: {
-            self createIndexBufferWithCapacity: requiredCapacity.
+        let requiredSize := meshBuilder indices size * 2.
+        indexBuffer isNil || requiredSize > indexBuffer _ size ifTrue: {
+            self createIndexBufferWithCapacity: meshBuilder indices size.
             indexBuffer ifNil: {
                 return: false.
             }
         }.
 
-        requiredCapacity > 0 ifTrue: {
-            indexBuffer _ uploadAt: 0 size: requiredCapacity data: meshBuilder indices data
+        requiredSize > 0 ifTrue: {
+            indexBuffer _ uploadAt: 0 size: requiredSize data: meshBuilder indices data
         }.
 
         true
     }.
 
     method createIndexBufferWithCapacity: (requiredCapacity: UIntPointer) ::=> Void := {
-        let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16) * 2.
+        let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16)*2.
         indexBuffer := device _ createBuffer: (BufferDescription()
             size: newCapacity;
             heapType: MemoryHeapType HostToDevice;
             usageModes: BufferUsageMode ElementArray;
             mainUsageMode: BufferUsageMode ElementArray;
             mappingFlags: BufferMappingFlags DynamicStorage;
-            stride: MeshVertex instanceSize;
+            stride: 2;
             yourself
         ) initialData: nil.
     }.

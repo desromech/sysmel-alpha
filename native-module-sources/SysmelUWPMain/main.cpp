@@ -53,8 +53,10 @@ struct SysmelUWPApp : implements<SysmelUWPApp, IFrameworkViewSource, IFrameworkV
     }
 };
 
+extern "C" void sysmel_connectOutputToWin32DebugStream();
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
+    sysmel_connectOutputToWin32DebugStream();
     CoreApplication::Run(make<SysmelUWPApp>());
 }
 
