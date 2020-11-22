@@ -158,6 +158,27 @@ definition: {
     }.
 }.
 
+class Win32OutputDebugStream superclass: Stream; definition: {
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let stackBuffer mutable type: (Char8 array: 4096).
+        let remainingSize mutable := size.
+        let source mutable := buffer reinterpretCastTo: Char8 const pointer.
+        while: remainingSize > 0 do: {
+            let copySize := remainingSize min: 4095u.
+            Stdn memcpy(stackBuffer[0] address, source, copySize).
+            stackBuffer[copySize] = 0.
+            Win32 OutputDebugStringA(stackBuffer[0] address).
+
+            remainingSize := remainingSize - copySize.
+            source := source + copySize
+        }.
+
+        size castTo: IntPointer.
+    }.
+
+}.
+
 class FileStream definition: {
     meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
         <notInCompileTime>
@@ -184,10 +205,16 @@ class AtomicFileStream definition: {
     }
 }.
 
-global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
-global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
-    bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block).
-global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
+compileTime if: Compiler compilationTarget isWindowsStore then: {
+    global stdinFile mutable type: NullStream.
+    global stdoutFile mutable type: Win32OutputDebugStream.
+    global stderrFile mutable type: Win32OutputDebugStream.
+} else: {
+    global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
+    global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
+        bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block).
+    global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
+}.
 
 }. ## End of namespace IO
 

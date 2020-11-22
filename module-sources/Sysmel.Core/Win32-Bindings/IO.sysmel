@@ -153,4 +153,7 @@ function WriteFile apicall externC(hFile: HANDLE, lpBuffer: Void const pointer,
     nNumberOfBytesToWrite: DWORD, lpNumberOfBytesWritten: DWORD pointer,
     lpOverlapped: OVERLAPPED pointer) => BOOL.
 
+function OutputDebugStringA apicall externC(outputString: Char8 const pointer) => Void.
+function OutputDebugStringW apicall externC(outputString: Char16 const pointer) => Void.
+
 }. ## End of namespace Win32

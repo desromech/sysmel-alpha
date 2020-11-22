@@ -137,7 +137,7 @@ gcclass WriteStream superclass: PositionableStream; definition: {
     method crlf
         := self cr; lf.
 
-    compileTime if: Compiler compilationTarget isWindows then: {
+    compileTime if: Compiler compilationTarget isWindowsFamily then: {
         method nl => SelfType ref
             := self crlf; yourself.
     } else: {

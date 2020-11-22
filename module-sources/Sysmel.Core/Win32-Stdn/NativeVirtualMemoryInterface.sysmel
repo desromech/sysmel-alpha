@@ -6,7 +6,7 @@ namespace Stdn definition: {
 namespace NativeVirtualMemoryInterface definition: {
     compileTime if: Compiler compilationTarget isWindowsStore then: {
         compileTime constant VirtualAlloc := Win32 VirtualAllocFromApp.
-        compileTime constant VirtualProtect := Win32 VirtualFreeFromApp.
+        compileTime constant VirtualProtect := Win32 VirtualProtectFromApp.
     } else: {
         compileTime constant VirtualAlloc := Win32 VirtualAlloc.
         compileTime constant VirtualProtect := Win32 VirtualFree.

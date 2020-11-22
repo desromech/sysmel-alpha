@@ -8,7 +8,7 @@ namespace LibC definition: {
     function printf externC dllimport  CVariadic (format: Char8 const pointer) => Int32.
     function perror externC dllimport (s: Char8 const pointer) => Int32.
 
-    compileTime if: Compiler compilationTarget isWindows then: {
+    compileTime if: Compiler compilationTarget isWindowsFamily then: {
         compileTime constant _CRT_INTERNAL_PRINTF_STANDARD_SNPRINTF_BEHAVIOR := (1 << 1).
         function __stdio_common_vsprintf externC(options: UInt64, buffer: Char8 pointer, size: SizeT, format: Char8 const pointer, locale: Void pointer, arglist: VAList) => Int32.
 

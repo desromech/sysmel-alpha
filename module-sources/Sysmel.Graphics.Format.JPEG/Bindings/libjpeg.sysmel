@@ -4,7 +4,7 @@ compileTime constant JPEG_LIB_VERSION := 80.
 
 compileTime constant JDIMENSION := UInt32.
 
-compileTime if: Compiler compilationTarget isWindows then: {
+compileTime if: Compiler compilationTarget isWindowsFamily then: {
     compileTime constant JBoolean := UInt8.
 } else: {
     compileTime constant JBoolean := UInt32.

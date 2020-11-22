@@ -12,7 +12,7 @@ if: Compiler hasLibC then: {
         Compiler loadPackage: #Unix.
     }.
 
-    if: Compiler compilationTarget isWindows then: {
+    if: Compiler compilationTarget isWindowsFamily then: {
         Compiler loadPackage: #Win32.
     }.
 

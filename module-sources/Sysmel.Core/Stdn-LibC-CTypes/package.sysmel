@@ -13,7 +13,7 @@ namespace CTypes definition: {
     compileTime constant ULongLong := UInt64.
 
     ## Select the correct long type according to the target platform."
-    if: Compiler compilationTarget isWindows then: {
+    if: Compiler compilationTarget isWindowsFamily then: {
         compileTime constant Long := Int32.
         compileTime constant ULong := UInt32.
     } else: {

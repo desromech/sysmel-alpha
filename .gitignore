@@ -1,5 +1,5 @@
 artifacts
-out
+build-*
 *.image
 *.changes
 *.sources
@@ -7,7 +7,6 @@ out
 *.version
 *.log
 .vs
-out-*
 pharo-local
 pharo-vm
 pharo

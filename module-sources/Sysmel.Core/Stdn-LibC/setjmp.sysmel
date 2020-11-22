@@ -15,7 +15,7 @@ compileTime if: Compiler compilationTarget isLinux then: {
         exceptionLongjmpFunction: _longjmp.
 }.
 
-compileTime if: Compiler compilationTarget isWindows then: {
+compileTime if: Compiler compilationTarget isWindowsFamily then: {
     compileTime if: Compiler compilationTarget isX86_32 then: {
         struct JmpBuffer definition: {
             public field state type: (UInt32 array: 16).

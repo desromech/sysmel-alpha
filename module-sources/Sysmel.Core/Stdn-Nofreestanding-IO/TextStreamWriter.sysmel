@@ -133,7 +133,7 @@ class TextStreamWriter definition: {
     method crlf => SelfType ref
         := self nextPutAll: "\r\n"; yourself.
 
-    compileTime if: Compiler compilationTarget isWindows then: {
+    compileTime if: Compiler compilationTarget isWindowsFamily then: {
         method nl => SelfType ref
             := self crlf; yourself.
     } else: {
