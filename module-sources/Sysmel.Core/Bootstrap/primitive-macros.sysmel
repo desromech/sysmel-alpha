@@ -157,7 +157,32 @@ namespace SysmelKernel definition: {
         }
     }.
 
-    _NumberType macro method until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
+    ## Unfold directly to avoid a bug in a gpu backend.
+    _NumberType macro method until: stop do: aBlock := {
+        let index := __astBuilder gensym: #index.
+        let stopValue := __astBuilder gensym: #stopValue.
+        let incrementValue := __astBuilder gensym: #incrementValue.
+        let stopAnalyzedNode := (__analyzer analyzeNodeIfNeeded: stop) castTo: _ASTNodeType.
+        let indexType mutable type: _ASTNodeType.
+
+		aBlock isBlockClosureNode && aBlock arguments size = 1
+			&& aBlock arguments first valueType isNotNil ifTrue: {
+            indexType := aBlock arguments first valueType castTo: _ASTNodeType
+        } ifFalse: {
+            indexType := (__analyzer computeArithmethicCoercionTypeNodeFor: self with: stopAnalyzedNode fallbackTo: Int32 at: self)
+                castTo: _ASTNodeType
+        }.
+
+        ``{
+            let `,index mutable type: `,indexType := `,self.
+            let `,stopValue type: `,indexType := `,stopAnalyzedNode.
+            let `,incrementValue type: `,indexType := 1.
+
+            while: (`,index < `,stopValue) do: {
+                `,aBlock  __macroInlineBlock: `,index
+            } continueWith: (`,index := `,index + `,incrementValue)
+        }
+    }.
 
     Boolean8 macro method asBit := ``(`,self castTo: UInt8).
 

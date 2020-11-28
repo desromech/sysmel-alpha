@@ -13,9 +13,15 @@ class VertexStageOutput definition: {
 
 class FragmentStageInput definition: {
 	<gpu>
-	public field fragCoord type: Float32x4; intrinsic: #fragCoord.
-	public field pointCoord type: Float32x2; intrinsic: #pointCoord.
 	public field isFrontFacing type: Boolean8; intrinsic: #frontFacing.
+
+	macro method fragCoord := ``(Float32x4 zeros).
+	macro method fragCoord: value := ``void.
+
+	##public field fragCoord type: Float32x4; intrinsic: #fragCoord.
+
+	## Point coord is not supported in HLSL.
+	##public field pointCoord type: Float32x2; intrinsic: #pointCoord.
 }.
 
 macro method discardFragment := __astBuilder discardFragment.

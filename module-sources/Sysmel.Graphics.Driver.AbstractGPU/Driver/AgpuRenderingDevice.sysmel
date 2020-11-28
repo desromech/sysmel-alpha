@@ -220,10 +220,14 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             builder _
                 setRenderTargetFormat: (index castTo: UInt32) format: (attachment format castTo: AGPU TextureFormat);
                 setBlendState: attachmentMask enabled: attachment blendingEnabled asBit;
-                setBlendFunction: attachmentMask
-                    sourceFactor: (blendingEquation sourceColorFactor castTo: AGPU BlendingFactor) destFactor: (blendingEquation destColorFactor castTo: AGPU BlendingFactor) colorOperation: (blendingEquation colorOperation castTo: AGPU BlendingOperation)
-                    sourceAlphaFactor: (blendingEquation sourceAlphaFactor castTo: AGPU BlendingFactor) destAlphaFactor: (blendingEquation destAlphaFactor castTo: AGPU BlendingFactor) alphaOperation: (blendingEquation alphaOperation castTo: AGPU BlendingOperation);
                 setColorMask: attachmentMask redEnabled: attachment colorMask r asBit greenEnabled: attachment colorMask g asBit blueEnabled: attachment colorMask b asBit alphaEnabled: attachment colorMask a asBit.
+
+            attachment blendingEnabled ifTrue: {
+                builder _
+                    setBlendFunction: attachmentMask
+                    sourceFactor: (blendingEquation sourceColorFactor castTo: AGPU BlendingFactor) destFactor: (blendingEquation destColorFactor castTo: AGPU BlendingFactor) colorOperation: (blendingEquation colorOperation castTo: AGPU BlendingOperation)
+                    sourceAlphaFactor: (blendingEquation sourceAlphaFactor castTo: AGPU BlendingFactor) destAlphaFactor: (blendingEquation destAlphaFactor castTo: AGPU BlendingFactor) alphaOperation: (blendingEquation alphaOperation castTo: AGPU BlendingOperation)
+            }.
         }.
 
         builder _
