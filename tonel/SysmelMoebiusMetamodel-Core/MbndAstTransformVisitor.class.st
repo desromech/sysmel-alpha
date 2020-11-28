@@ -485,6 +485,11 @@ MbndAstTransformVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitIndexTypeExpansionCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitInlineAssembly: node [
 	^ node copy
 		architecture: (self visitNode: node architecture);

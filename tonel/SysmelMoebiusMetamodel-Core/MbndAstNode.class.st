@@ -481,6 +481,11 @@ MbndAstNode >> isImplicitCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isIndexTypeExpansionCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isInlineAssembly [
 	^ false
 ]

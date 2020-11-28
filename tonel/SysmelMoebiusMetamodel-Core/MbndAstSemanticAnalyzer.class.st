@@ -428,9 +428,13 @@ MbndAstSemanticAnalyzer >> ensureIntegerIndexValue: node at: position [
 	self assert: resultType isPrimitiveIntegerType.
 	
 	resultType instanceSize < self compilationTarget pointerSize ifTrue: [
-		^ self addImplicitCastFor: result to: (resultType isSigned
-			ifTrue: [ self compilationTarget intPointerType ]
-			ifFalse: [ self compilationTarget uintPointerType ]) 
+		^ self visitNode: (MbndAstIndexTypeExpansionCastNode new
+			position: position;
+			expression: result;
+			targetType: (resultType isSigned
+				ifTrue: [ self compilationTarget intPointerType ]
+				ifFalse: [ self compilationTarget uintPointerType ]);
+			yourself)
 	].
 
 	^ result

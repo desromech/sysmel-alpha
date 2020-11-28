@@ -2766,6 +2766,15 @@ MbndSlovimFunctionCodeGenerator >> visitImmediateBlockClosureActivationNode: nod
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIndexTypeExpansionCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	self compilationTarget isGPU ifTrue: [ ^ source ].
+	^ slvmBuilder intCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIntegerToDynamicObjectCastNode: node [
 	| source targetType |
 	source := self visitNode: node expression.

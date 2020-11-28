@@ -340,6 +340,11 @@ MbndAstVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitIndexTypeExpansionCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitInlineAssembly: node [
 	self subclassResponsibility
 ]

@@ -343,6 +343,11 @@ MbndAstDelegationVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitIndexTypeExpansionCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitInlineAssembly: node [
 	^ self delegateNodeVisit: node
 ]

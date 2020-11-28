@@ -42,12 +42,12 @@ MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation class >> initialize [
 	).
 	
 	FloatingPointOperationMap := Dictionary newFromPairs: #(
-		eq ufeq
-		ne ufne
-		lt uflt
-		le ufle
-		ge ufge
-		gt ufgt
+		eq ofeq
+		ne ofne
+		lt oflt
+		le ofle
+		ge ofge
+		gt ofgt
 	).
 ]
 
