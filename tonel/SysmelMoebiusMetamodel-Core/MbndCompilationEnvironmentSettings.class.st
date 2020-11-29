@@ -135,7 +135,7 @@ MbndCompilationEnvironmentSettings >> initialize [
 	thirdPartyLibrarySpecLocations := OrderedCollection new.
 
 	addedLocations := Set new.	
-	MbndIcebergProjectAssets allSubclasses do: [ : each |
+	(MbndIcebergProjectAssets allSubclasses , {MbndAbstractGPUBindings}) do: [ : each |
 		| location |
 		location := each location.
 		(location exists and: [ (addedLocations includes: location) not ]) ifTrue: [ 
@@ -145,16 +145,6 @@ MbndCompilationEnvironmentSettings >> initialize [
 		].
 	].
 	
-	"Additional dependency."
-	[
-		{
-			MbndAbstractGPUAssets location / 'bindings' / 'sysmel'
-		} do: [ :each |
-			moduleSourceLocations add: each / 'module-sources'.
-			thirdPartyLibrarySpecLocations add: each / 'third-party'
-		]
-	]on: Error do: [:e |
-	].
 ]
 
 { #category : #accessing }

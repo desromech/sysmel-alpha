@@ -23,6 +23,16 @@ MbndSysmelUWPSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
 ]
 
 { #category : #'native samples' }
+MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeRendering2D [
+	<example>
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
+		]
+
+]
+
+{ #category : #'native samples' }
 MbndSysmelUWPSampleBuildScripts class >> newNativeBuildEnvironment [
 	^ WBTBuildEnvironment forUWPLLDX64
 		setReleaseWithDebugInfoBuildMode;
