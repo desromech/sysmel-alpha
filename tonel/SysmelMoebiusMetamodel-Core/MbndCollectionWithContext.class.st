@@ -40,6 +40,11 @@ MbndCollectionWithContext >> copyFrom: start to: stop [
 	^ collection copyFrom: start to: stop
 ]
 
+{ #category : #accessing }
+MbndCollectionWithContext >> indexOf: anObject startingAt: start ifAbsent: aBlock [
+	^ collection indexOf: anObject startingAt: start ifAbsent: aBlock
+]
+
 { #category : #initialization }
 MbndCollectionWithContext >> initialize [
 	super initialize.

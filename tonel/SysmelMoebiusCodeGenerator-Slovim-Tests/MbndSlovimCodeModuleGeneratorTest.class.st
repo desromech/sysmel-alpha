@@ -6353,7 +6353,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6369,7 +6369,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6385,7 +6385,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatGreater [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufgt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fgt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6401,7 +6401,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatGreaterOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufge.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fge).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6417,7 +6417,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatLess [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #uflt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #flt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6433,7 +6433,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatLessOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufle.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fle).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6616,7 +6616,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6632,7 +6632,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6648,7 +6648,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementGreater [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufgt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fgt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6664,7 +6664,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementGreaterOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufge.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fge).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6680,7 +6680,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementLess [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #uflt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #flt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6696,7 +6696,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementLessOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufle.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fle).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6712,7 +6712,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementNotEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6728,7 +6728,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementNotEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -6799,7 +6799,7 @@ function op cdecl b8
 			(nil jump void () () (block 2 body))
 		)
 		(()
-			(nil ufeq (matrix b8 4 4) () ((local 0 x) (local 1 y)))
+			(nil ofeq (matrix b8 4 4) () ((local 0 x) (local 1 y)))
 			(nil call b8 () ((builtInFunction (pointer (function cdecl ((matrix b8 4 4)) false b8) generic) 'matrix.all') (local 3 nil)))
 			(nil return void () ((local 4 nil)))
 		)
@@ -6828,7 +6828,7 @@ function op cdecl b8
 			(nil jump void () () (block 2 body))
 		)
 		(()
-			(nil ufeq (matrix b8 4 4) () ((local 0 x) (local 1 y)))
+			(nil ofeq (matrix b8 4 4) () ((local 0 x) (local 1 y)))
 			(nil call b8 () ((builtInFunction (pointer (function cdecl ((matrix b8 4 4)) false b8) generic) 'matrix.all') (local 3 nil)))
 			(nil return void () ((local 4 nil)))
 		)
@@ -7009,7 +7009,7 @@ function op cdecl b8
 			(nil jump void () () (block 2 body))
 		)
 		(()
-			(nil ufne (matrix b8 4 4) () ((local 0 x) (local 1 y)))
+			(nil ofne (matrix b8 4 4) () ((local 0 x) (local 1 y)))
 			(nil call b8 () ((builtInFunction (pointer (function cdecl ((matrix b8 4 4)) false b8) generic) 'matrix.any') (local 3 nil)))
 			(nil return void () ((local 4 nil)))
 		)
@@ -7038,7 +7038,7 @@ function op cdecl b8
 			(nil jump void () () (block 2 body))
 		)
 		(()
-			(nil ufne (matrix b8 4 4) () ((local 0 x) (local 1 y)))
+			(nil ofne (matrix b8 4 4) () ((local 0 x) (local 1 y)))
 			(nil call b8 () ((builtInFunction (pointer (function cdecl ((matrix b8 4 4)) false b8) generic) 'matrix.any') (local 3 nil)))
 			(nil return void () ((local 4 nil)))
 		)
@@ -7389,7 +7389,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7405,7 +7405,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7739,7 +7739,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7755,7 +7755,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #feq).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7771,7 +7771,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementGreaterOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufge.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fge).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7787,7 +7787,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementGreaterThan [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufgt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fgt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7803,7 +7803,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementLessOrEqual [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufle.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fle).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7819,7 +7819,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementLessThan [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #uflt.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #flt).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7835,7 +7835,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementNotEquality [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7851,7 +7851,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementNotEquality2 [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: (function basicBlocks second firstInstruction operation endsWith: #fne).
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -7898,7 +7898,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorEquality [
             (nil jump void () () (block 2 body))
         )
         (()
-            (nil ufeq (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil ofeq (vector b8 4) () ((local 0 x) (local 1 y)))
             (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.all') (local 3 nil)))
             (nil return void () ((local 4 nil)))
         )
@@ -7923,7 +7923,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorEquality2 [
             (nil jump void () () (block 2 body))
         )
         (()
-            (nil ufeq (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil ofeq (vector b8 4) () ((local 0 x) (local 1 y)))
             (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.all') (local 3 nil)))
             (nil return void () ((local 4 nil)))
         )
@@ -8197,7 +8197,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNotEquality [
             (nil jump void () () (block 2 body))
         )
         (()
-            (nil ufne (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil ofne (vector b8 4) () ((local 0 x) (local 1 y)))
             (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.any') (local 3 nil)))
             (nil return void () ((local 4 nil)))
         )
@@ -8222,7 +8222,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNotEquality2 [
             (nil jump void () () (block 2 body))
         )
         (()
-            (nil ufne (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil ofne (vector b8 4) () ((local 0 x) (local 1 y)))
             (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.any') (local 3 nil)))
             (nil return void () ((local 4 nil)))
         )

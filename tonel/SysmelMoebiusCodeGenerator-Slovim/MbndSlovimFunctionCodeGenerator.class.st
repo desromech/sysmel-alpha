@@ -1194,6 +1194,7 @@ MbndSlovimFunctionCodeGenerator >> generateIndex: index sizeBoundsCheck: sizeVal
 	
 	sizeValue := sizeValueBlock value.
 	(index isConstantValue and: [ sizeValue isConstantValue and: [index value < sizeValue value]]) ifTrue: [ ^ self ].
+
 	outOfBoundsRaiseFunction := self codeModuleGenerator indexOutOfBoundsRaiseFunction.
 	outOfBoundsRaiseFunction ifNil: [ ^ self ].
 	inBounds := slvmBuilder ilt: (slvmBuilder intCast: index target: sizeValue type) with: sizeValue.
@@ -2771,6 +2772,11 @@ MbndSlovimFunctionCodeGenerator >> visitIndexTypeExpansionCastNode: node [
 	source := self visitNode: node expression.
 	targetType := self translateType: node type.
 	self compilationTarget isGPU ifTrue: [ ^ source ].
+
+	(source isConstantValue and: [ source value isInteger ]) ifTrue: [
+		^ source copy type: targetType
+	].
+
 	^ slvmBuilder intCast: source target: targetType
 ]
 
