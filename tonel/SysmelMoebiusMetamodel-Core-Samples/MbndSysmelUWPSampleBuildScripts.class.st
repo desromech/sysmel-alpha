@@ -23,11 +23,41 @@ MbndSysmelUWPSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
 ]
 
 { #category : #'native samples' }
+MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeGame [
+	<example>
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeGame.sysmel'
+		]
+
+]
+
+{ #category : #'native samples' }
+MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeNorphic [
+	<example>
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeNorphic.sysmel'
+		]
+
+]
+
+{ #category : #'native samples' }
 MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeRendering2D [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
+		]
+
+]
+
+{ #category : #'native samples' }
+MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeRendering3D [
+	<example>
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeRendering3D.sysmel'
 		]
 
 ]
