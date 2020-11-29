@@ -12,4 +12,12 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
             #"Sysmel.Graphics.Format.PNG"
             #"Sysmel.Graphics.Format.JPEG"
         )
+} else: {
+    compileTime if: Compiler compilationTarget isWindowsStore then: {
+        Compiler
+            importIndirectModulesNamed: #(
+                #"Sysmel.Graphics.Driver.AbstractGPU"
+                #"Sysmel.Graphics.Driver.UWP"
+            )
+    }.
 }.
