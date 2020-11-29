@@ -33,7 +33,10 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
         }.
 
         let debugLayerEnabledVariable := LibC getenv("AGPU_DEBUG").
-        let debugLayerEnabled := debugLayerEnabledVariable isNotNil && (debugLayerEnabledVariable[0] ~= 'n' && debugLayerEnabledVariable[0] ~= '0').
+        let debugLayerEnabled mutable := debugLayerEnabledVariable isNotNil && (debugLayerEnabledVariable[0] ~= 'n' && debugLayerEnabledVariable[0] ~= '0').
+        compileTime if: Compiler compilationTarget isWindowsStore then: {
+            debugLayerEnabled := true
+        }.
 
         let deviceOpenInfo mutable := AGPU DeviceOpenInfo()
             debug_layer: debugLayerEnabled asBit;

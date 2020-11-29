@@ -367,11 +367,24 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         self broadcastEvent: convertedEvent
     }.
 
+    method mapAxisValue: (value: Int16) ::=> Float32 := {
+        let floatValue := (value castTo: Float32) / Int16 maxValue.
+        let Threshold := 0.2f.
+        floatValue >= Threshold ifTrue: {
+            return: (floatValue - Threshold) / (1.0f - Threshold)
+        }.
+        floatValue <= Threshold negated ifTrue: {
+            return: (floatValue + Threshold) / (1.0f - Threshold)
+        }.
+
+        0.0f
+    }.
+
     method processGameControllerAxisMotion: (event: SDL_ControllerAxisEvent const ref) ::=> Void := {
         let convertedEvent mutable := GameControllerAxisMotionEvent()
             which: event which;
             axis: (event axis castTo: GameControllerAxis);
-            value: event value;
+            value: (self mapAxisValue: event value);
             yourself.
 
         self broadcastEvent: convertedEvent

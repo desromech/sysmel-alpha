@@ -35,7 +35,7 @@ DiskFileSystem definition: {
                     let elementFullPath := findPath -- elementName.
                     iterationBlock(self makeFileReferenceWithPath: elementFullPath asArraySlice)
                 }.
-            } until: (Win32 FindNextFileA(findHandle, findState address) = 0).        
+            } until: (Win32 FindNextFileA(findHandle, findState address) = 0).
         } finally: {
             Win32 FindClose(findHandle)
         }.
@@ -44,7 +44,14 @@ DiskFileSystem definition: {
     method workingDirectory ::=> FileReference
         := self makeFileReferenceWithPath: ".".
 
+compileTime if: Compiler compilationTarget isWindows then: {
     method resourcesDirectory ::=> FileReference
         := self makeFileReferenceWithPath: "resources".
+} else: {
+    method resourcesDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: "Assets".
 }.
+
+}.
+
 }. ## End of namespace Stdn.

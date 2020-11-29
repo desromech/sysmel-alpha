@@ -1,0 +1,85 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+
+function sysmel_uwp_getExtent externC(windowHandle: Void pointer, outWidth: UInt32 pointer, outHeight: UInt32 pointer) => Boolean8.
+
+class UWPWindow superclass: Window; definition: {
+    public field handle type: Void pointer.
+    protected field renderingDevice type: RenderingDevicePtr.
+    protected field activeSwapChain type: SwapChainPtr.
+    public field extent type: UInt32x2.
+
+    override method extent => UInt32x2 := {
+        handle ifNotNil: {
+            let width mutable type: UInt32.
+            let height mutable type: UInt32.
+            sysmel_uwp_getExtent(handle, width address, height address) ifTrue: {
+                extent := UInt32x2(width, height)
+            }.
+        }.
+
+        extent
+    }.
+
+    override method close => Void := {
+        renderingDevice ifNotNil: {
+            renderingDevice _ waitForIdle
+        }.
+
+        ## Destroy the active swap chain.
+        activeSwapChain ifNotNil: {
+            activeSwapChain _ destroy.
+        }.
+    }.
+
+    override method renderingDevice => RenderingDevice sharedPointer := {
+        renderingDevice ifNil: {
+            renderingDevice := RenderingDriverRegistry defaultDriver _ getMainDevice
+        }.
+
+        renderingDevice
+    }.
+
+    override method renderingDevice: (theRenderingDevice: RenderingDevice sharedPointer) ::=> Void := {
+        renderingDevice := theRenderingDevice
+    }.
+
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+        handle ifNil: {
+            return: SwapChainPtr nil
+        }.
+
+        let adaptedCreationInfo mutable := swapChainCreationInfo.
+        adaptedCreationInfo extent = UInt32x2 zeros ifTrue: {
+            adaptedCreationInfo extent: self extent.
+        }.
+
+        adaptedCreationInfo
+            windowSystemName: "winrt" asMutableString;
+            window: handle.
+
+        ## Supply the old swap chain, and make sure it is not on active use anymore.
+        activeSwapChain ifNotNil: {
+            adaptedCreationInfo oldSwapChain: activeSwapChain.
+            renderingDevice _ waitForIdle.
+        }.
+
+        let newActiveSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
+        activeSwapChain ifNotNil: {
+            activeSwapChain _ destroy
+        }.
+        activeSwapChain := newActiveSwapChain
+    }.
+
+    override method createScene2DRenderer => WindowScene2DRendererPtr := {
+        (WindowSwapChain2DSceneRenderer for: (self asSharedPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
+    }.
+
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

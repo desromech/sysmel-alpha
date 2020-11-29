@@ -23,7 +23,16 @@ struct SysmelMainArgs
 
 extern "C" int sysmel_main(SysmelMainArgs args);
 
-struct SysmelUWPApp : implements<SysmelUWPApp, IFrameworkViewSource, IFrameworkView>
+static bool shouldRunDummyApp = true;
+
+extern "C" void sysmel_uwp_disableDummyApp()
+{
+    shouldRunDummyApp = false;
+}
+/**
+ * I am a dummy application. I am used when the sysmel program does not install its own version of an application.
+ */
+struct SysmelUWPDummyApp : implements<SysmelUWPDummyApp, IFrameworkViewSource, IFrameworkView>
 {
     IFrameworkView CreateView()
     {
@@ -48,19 +57,29 @@ struct SysmelUWPApp : implements<SysmelUWPApp, IFrameworkViewSource, IFrameworkV
 
     void Run()
     {
-        SysmelMainArgs args = {};
-        sysmel_main(args);
     }
 };
+
+static void runSysmelApplication()
+{
+    init_apartment();
+
+    SysmelMainArgs args = {};
+    sysmel_main(args);
+
+    // We always need to run app to avoid an error message.
+    if(shouldRunDummyApp)
+        CoreApplication::Run(make<SysmelUWPDummyApp>());
+}
 
 extern "C" void sysmel_connectOutputToWin32DebugStream();
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
     sysmel_connectOutputToWin32DebugStream();
-    CoreApplication::Run(make<SysmelUWPApp>());
+    runSysmelApplication();
 }
 
 int __stdcall wmain(int, wchar_t*)
 {
-    CoreApplication::Run(make<SysmelUWPApp>());
+    runSysmelApplication();
 }

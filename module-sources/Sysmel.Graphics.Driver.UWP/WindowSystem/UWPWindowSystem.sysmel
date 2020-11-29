@@ -1,0 +1,244 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+class SysmelUWPWindowSystemCallbacks.
+function sysmel_uwp_runMainLoop externC(callbacks: SysmelUWPWindowSystemCallbacks pointer) => Int32.
+function sysmel_uwp_activateCoreWindow externC() => Void.
+function sysmel_uwp_pumpEvents externC() => Void.
+function sysmel_uwp_waitForEvents externC() => Void.
+
+class SysmelUWPWindowSystemCallbacks definition: {
+    public field windowSystem type: UWPWindowSystem pointer.
+
+    virtual method onInitialize => Void := {
+        Stdn stdout << "onInitialize"; nl.
+    }.
+
+    virtual method onLoad => Void := {
+        Stdn stdout << "onLoad"; nl.
+    }.
+
+    virtual method onRun => Void := {
+        windowSystem _ onRun
+    }.
+
+    virtual method onSetWindow: (windowHandle: Void pointer) ::=> Void := {
+        windowSystem _ onSetWindow: windowHandle.
+    }.
+
+    virtual method onUnitialize => Void := {
+        Stdn stdout << "onUnitialize"; nl.
+    }.
+
+    virtual method onActivated => Void := {
+        sysmel_uwp_activateCoreWindow().
+    }.
+
+    virtual method onSuspending => Void := {
+        Stdn stdout << "onSuspending"; nl.
+    }.
+
+    virtual method onResuming => Void := {
+        Stdn stdout << "onResuming"; nl.
+    }.
+
+    virtual method onGamepadAdded: (gamepadIndex: UInt32) ::=> Void := {
+        windowSystem _ onGamepadAdded: gamepadIndex
+    }.
+
+    virtual method onGamepadRemoved: (gamepadIndex: UInt32) ::=> Void := {
+        windowSystem _ onGamepadRemoved: gamepadIndex
+    }.
+
+    virtual method onGamepad: (gamepadIndex: UInt32) buttonPressed: (button: GameControllerButton) ::=> Void := {
+        windowSystem _ onGamepad: gamepadIndex buttonPressed: button
+    }.
+
+    virtual method onGamepad: (gamepadIndex: UInt32) buttonReleased: (button: GameControllerButton) ::=> Void := {
+        windowSystem _ onGamepad: gamepadIndex buttonReleased: button
+    }.
+
+    virtual method onGamepad: (gamepadIndex: UInt32) axis: (axis: GameControllerAxis) motion: (value: Float32) ::=> Void := {
+        windowSystem _ onGamepad: gamepadIndex axis: axis motion: value
+    }.
+
+    virtual method onPointerPressedAtX: (x: Float32) y: (y: Float32) ::=> Void := {
+        windowSystem _ onPointerPressed: Float32x2(x, y)
+    }.
+
+    virtual method onPointerReleasedAtX: (x: Float32) y: (y: Float32) ::=> Void := {
+        windowSystem _ onPointerReleased: Float32x2(x, y)
+    }.
+
+    virtual method onPointerMovedAtX: (x: Float32) y: (y: Float32) ::=> Void := {
+        windowSystem _ onPointerMoved: Float32x2(x, y)
+    }.
+}.
+
+class UWPWindowSystem superclass: WindowSystem; definition: {
+    compileTime constant MaxGameControllerCount := 8.
+
+    private field activeWindow type: UWPWindow sharedPointer.
+    private field lastMousePosition type: Int32x2.
+    private field lastKeyModifiers type: KeyModifiers.
+    private field buttonState type: MouseButtonMask.
+
+    override method isQuitting => Boolean8
+        := activeWindow isNil.
+
+    method nextWaitEventTimeout => Int32
+        := 32.
+
+    method currentMousePosition => Int32x2
+        := lastMousePosition.
+
+    method currentKeyModifiers => KeyModifiers
+        := lastKeyModifiers.
+
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window sharedPointer := {
+        activeWindow ifNotNil: {
+            return: Window sharedPointer nil
+        }.
+
+        activeWindow := UWPWindow sharedNew.
+        activeWindow _ extent: (creationInfo extent castTo: UInt32x2).
+        activeWindow upCastFor: Window.
+    }.
+
+    override method runMainLoop => Int32 := {
+        let callbacks mutable := SysmelUWPWindowSystemCallbacks()
+            windowSystem: self address;
+            yourself.
+        sysmel_uwp_runMainLoop(callbacks address).
+    }.
+
+    method onRun => Void := {
+        ## Here we run the actual main loop.
+        super runMainLoop
+    }.
+
+    override method pollAndPumpEvents => Void := {
+        sysmel_uwp_pumpEvents().
+    }.
+
+    override method waitForNextEventOrTimeout => Void := {
+        sysmel_uwp_waitForEvents().
+    }.
+
+    override method broadcastEvent: (event: Event ref) ::=> Void := {
+        super broadcastEvent: event.
+        activeWindow ifNotNil: {
+            activeWindow _ deliverEvent: event
+        }.
+    }.
+
+    method onSetWindow: (windowHandle: Void pointer) ::=> Void := {
+        activeWindow ifNotNil: {
+            activeWindow _
+                handle: windowHandle
+        }
+    }.
+
+    method onGamepadAdded: (gamepadIndex: UInt32) ::=> Void := {
+        let convertedEvent mutable := GameControllerDeviceAddedEvent()
+            which: (gamepadIndex castTo: Int32);
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method onGamepadRemoved: (gamepadIndex: UInt32) ::=> Void := {
+        let convertedEvent mutable := GameControllerDeviceRemovedEvent()
+            which: (gamepadIndex castTo: Int32);
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method onGamepad: (gamepadIndex: UInt32) buttonPressed: (button: GameControllerButton) ::=> Void := {
+        let convertedEvent mutable := GameControllerButtonPressedEvent()
+            which: (gamepadIndex castTo: Int32);
+            button: button;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method onGamepad: (gamepadIndex: UInt32) buttonReleased: (button: GameControllerButton) ::=> Void := {
+        let convertedEvent mutable := GameControllerButtonReleasedEvent()
+            which: (gamepadIndex castTo: Int32);
+            button: button;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method onGamepad: (gamepadIndex: UInt32) axis: (axis: GameControllerAxis) motion: (value: Float32) ::=> Void := {
+        Stdn stdout << "onGamepad: " << gamepadIndex << " axis: " << axis value  << " motion:" << value; nl.
+        let convertedEvent mutable := GameControllerAxisMotionEvent()
+            which: (gamepadIndex castTo: Int32);
+            axis: axis;
+            value: value;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method onPointerPressed: (newPosition: Float32x2) ::=> Void := {
+        lastMousePosition := newPosition castTo: Int32x2.
+        buttonState := MouseButtonMask Left.
+
+        activeWindow ifNotNil: {
+            let convertedEvent mutable := MouseButtonPressedEvent()
+                position: lastMousePosition;
+                button: MouseButton Left;
+                yourself.
+            activeWindow _ deliverEvent: convertedEvent
+        }
+    }.
+
+    method onPointerReleased: (newPosition: Float32x2) ::=> Void := {
+        lastMousePosition := newPosition castTo: Int32x2.
+        buttonState := MouseButtonMask None.
+
+        activeWindow ifNotNil: {
+            let convertedEvent mutable := MouseButtonReleasedEvent()
+                position: lastMousePosition;
+                button: MouseButton Left;
+                yourself.
+            activeWindow _ deliverEvent: convertedEvent
+        }
+    }.
+
+    method onPointerMoved: (newPosition: Float32x2) ::=> Void := {
+        let newMousePosition := newPosition castTo: Int32x2.
+        let delta := newMousePosition - lastMousePosition.
+        lastMousePosition := newMousePosition.
+
+        activeWindow ifNotNil: {
+            let convertedEvent mutable := MouseMoveEvent()
+                position: newMousePosition;
+                buttonState: buttonState;
+                delta: delta;
+                yourself.
+            activeWindow _ deliverEvent: convertedEvent
+        }
+    }.
+}.
+
+class UWPWindowSystemFactory superclass: WindowsSystemFactory; definition: {
+    const override method isHeadfull => Boolean8 := true.
+
+    meta definition: {
+        global Singleton mutable type: UWPWindowSystemFactory.
+    }.
+
+    override method createWindowSystem => WindowSystem sharedPointer := {
+        UWPWindowSystem sharedNew upCastFor: WindowSystem.
+    }.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

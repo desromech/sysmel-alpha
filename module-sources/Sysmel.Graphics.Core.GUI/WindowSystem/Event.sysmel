@@ -52,7 +52,6 @@ class KeyboardEvent superclass: Event; definition: {
     public field symbol type: KeySymbol.
     public field modifiers type: KeyModifiers.
     public field isRepeat type: Boolean8.
-
 }.
 
 #**
@@ -327,7 +326,7 @@ class GameControllerDeviceRemappedEvent superclass: GameControllerEvent; definit
  *#
 class GameControllerAxisMotionEvent superclass: GameControllerEvent; definition: {
     public field axis type: GameControllerAxis.
-    public field value type: Int16.
+    public field value type: Float32.
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onGameControllerAxisMotionEvent: self.
