@@ -1,4 +1,4 @@
-Compiler addLinkerArguments: #("-pthreads").
+Compiler addLinkerArguments: #("-pthread").
 
 namespace Unix definition: {
     compileTime constant pthread_t := UIntPointer.
