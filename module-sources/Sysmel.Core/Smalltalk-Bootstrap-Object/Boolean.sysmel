@@ -23,7 +23,7 @@ Compiler compilationTarget managedObjectModel
 Boolean definition: {
     meta definition: {
         method new
-	       := self error: 'You may not create any more Booleans - this is two-valued logic'
+	       := self error: "You may not create any more Booleans - this is two-valued logic"
     }.
 
     method isLiteral

@@ -3,7 +3,7 @@ namespace Smalltalk definition: {
 gcclass SpAbstractNorphicAdapter superclass: SpAbstractAdapter; definition: {
     meta definition: {
         method adaptingName
-            := (self name withoutPrefix: 'SpNorphic') asSymbol.
+            := (self name withoutPrefix: "SpNorphic") asSymbol.
     }
 }.
 

@@ -82,7 +82,7 @@ Number extend: {
 
     method to: stop by: step do: aBlock := {
         let nextValue mutable type: ProtoObject := self.
-        step = 0 ifTrue: {self error: 'step must be non-zero'}.
+        step = 0 ifTrue: {self error: "step must be non-zero"}.
         step < 0 ifTrue: {
             while: nextValue >= stop do: {
                 aBlock value: nextValue.

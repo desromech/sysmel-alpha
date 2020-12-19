@@ -225,12 +225,12 @@ SequenceableCollection definition: {
 	}.
 
 	method first: n := {
-		n > self size ifTrue: {self error: 'Invalid copy size'}.
+		n > self size ifTrue: {self error: "Invalid copy size"}.
 		self copyWithSize: (n castTo: UIntPointer)
 	}.
 
 	method allButLast: n := {
-		n > self size ifTrue: {self error: 'Invalid copy size'}.
+		n > self size ifTrue: {self error: "Invalid copy size"}.
 		self copyWithSize: ((self size castTo: UIntPointer) - n castTo: UIntPointer)
 	}.
 
