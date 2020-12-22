@@ -352,7 +352,7 @@ GenericBox >> insertPoint: aPoint [
 GenericBox >> intersectionWith: other [
 	^ self class basicNew
 		min: (min max: other min);
-		max: (max min: other min);
+		max: (max min: other max);
 		yourself
 ]
 
