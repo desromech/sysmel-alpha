@@ -38,6 +38,21 @@ GenericPlane class >> typeOfGenericSlotNamed: slotName [
 	^ super typeOfGenericSlotNamed: slotName
 ]
 
+{ #category : #comparing }
+GenericPlane >> = other [
+	^ normal = other normal and: [ distance = other distance ]
+]
+
+{ #category : #comparing }
+GenericPlane >> closeTo: other [
+	^ (normal closeTo: other normal) and: [ distance closeTo: other distance ]
+]
+
+{ #category : #comparing }
+GenericPlane >> closeTo: other precision: precision [
+	^ (normal closeTo: other normal precision: precision) and: [ distance closeTo: other distance precision: precision ]
+]
+
 { #category : #accessing }
 GenericPlane >> distance [
 	^ distance
@@ -48,10 +63,25 @@ GenericPlane >> distance: anObject [
 	distance := anObject implicitCastTo: self class scalarType
 ]
 
+{ #category : #comparing }
+GenericPlane >> hash [
+	^ normal hash hashMultiply + distance hash
+]
+
 { #category : #initialization }
 GenericPlane >> initialize [
 	normal := self class vector3Type zeros.
 	self distance: 0
+]
+
+{ #category : #'as yet unclassified' }
+GenericPlane >> intersectionWithRay: ray [
+	| den t |
+	den := normal dot: ray direction.
+	den = 0 ifTrue: [ ^ nil ].
+	t := ((distance - (normal dot: ray origin)) / den).
+	(t < ray tmin or: [t > ray tmax]) ifTrue: [ ^ nil ].
+	^ t
 ]
 
 { #category : #'as yet unclassified' }
@@ -62,6 +92,11 @@ GenericPlane >> isBehind: point [
 { #category : #'as yet unclassified' }
 GenericPlane >> isInFront: point [
 	^ (self pointDistance: point) > 0
+]
+
+{ #category : #arithmetic }
+GenericPlane >> negated [
+	^ self class normal: normal negated distance: distance negated
 ]
 
 { #category : #accessing }
@@ -77,4 +112,12 @@ GenericPlane >> normal: anObject [
 { #category : #'as yet unclassified' }
 GenericPlane >> pointDistance: point [
 	^ (normal dot: point) - distance
+]
+
+{ #category : #printing }
+GenericPlane >> printOn: aStream [
+	aStream nextPut: $(; nextPutAll: self class name;
+		nextPutAll: ' normal: '; print: normal;
+		nextPutAll: ' distance: '; print: distance;
+		nextPut: $)
 ]
