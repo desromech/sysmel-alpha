@@ -115,6 +115,14 @@ GenericPlane >> normal: anObject [
 ]
 
 { #category : #'as yet unclassified' }
+GenericPlane >> normalized [
+	| normalLength |
+	normalLength := normal length.
+	normalLength = 0 ifTrue: [ ^ self ].
+	^ self class normal: normal / normalLength distance: distance / normalLength
+]
+
+{ #category : #'as yet unclassified' }
 GenericPlane >> pointDistance: point [
 	^ (normal dot: point) - distance
 ]
@@ -125,4 +133,13 @@ GenericPlane >> printOn: aStream [
 		nextPutAll: ' normal: '; print: normal;
 		nextPutAll: ' distance: '; print: distance;
 		nextPut: $)
+]
+
+{ #category : #'as yet unclassified' }
+GenericPlane >> transformedWithAffineMatrix: matrix [
+	| planeEquation transformedPlaneEquation transformedPlane |
+	planeEquation := self class vector4Type xyz: normal w: distance.
+	transformedPlaneEquation := planeEquation * matrix.
+	transformedPlane := self class normal: transformedPlaneEquation xyz distance: transformedPlaneEquation w.
+	^ transformedPlane normalized
 ]
