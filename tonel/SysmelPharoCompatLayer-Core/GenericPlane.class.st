@@ -22,6 +22,11 @@ GenericPlane class >> normal: normal distance: distance [
 ]
 
 { #category : #constructing }
+GenericPlane class >> normal: normal point: point [
+	^ self normal: normal distance: (normal dot: point)
+]
+
+{ #category : #constructing }
 GenericPlane class >> point: firstPoint point: secondPoint point: thirdPoint [
 	| u v n d |
 	u := secondPoint - firstPoint.
