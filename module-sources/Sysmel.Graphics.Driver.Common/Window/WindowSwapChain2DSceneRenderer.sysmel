@@ -55,7 +55,9 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
         }.
 
         let currentExtent := window _ extent.
-        (swapChain2DSceneRenderer isNil || swapChain2DSceneRenderer _ extent ~= currentExtent) ifTrue: {
+        (swapChain2DSceneRenderer isNil ||
+        swapChain2DSceneRenderer _ isOutOfDate ||
+        swapChain2DSceneRenderer _ extent ~= currentExtent) ifTrue: {
 
             let renderingDevice := window _ renderingDevice.
             let swapChainCreationInfo mutable := SwapChainCreationInfo()

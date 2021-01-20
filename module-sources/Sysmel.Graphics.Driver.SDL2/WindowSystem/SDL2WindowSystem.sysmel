@@ -30,7 +30,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     private field aliveWindowCount type: UInt32.
     private field isQuitRequested type: Boolean8.
     private field windowIDDictionary type: Stdn Collections Dictionary(UInt32, SDL2Window sharedPointer).
-    private field lastMousePosition type: Int32x2.
+    private field lastMousePosition type: Float32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
     private field gameControllers type: (SDL_GameController pointer array: MaxGameControllerCount).
@@ -56,7 +56,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     method nextWaitEventTimeout => Int32
         := 32.
 
-    method currentMousePosition => Int32x2
+    method currentMousePosition => Float32x2
         := lastMousePosition.
 
     method currentKeyModifiers => KeyModifiers
@@ -272,10 +272,10 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let convertedEvent mutable := MouseMoveEvent newValue
             mouseId: event which;
-            position: Int32x2(event x, event y);
+            position: Float32x2(event x, event y);
             modifiers: self currentKeyModifiers;
             buttonState: (event state castTo: MouseButtonMask);
-            delta: Int32x2(event xrel, event yrel);
+            delta: Float32x2(event xrel, event yrel);
             yourself.
 
         lastMousePosition := convertedEvent position.
@@ -289,7 +289,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let convertedEvent mutable := MouseButtonPressedEvent newValue
             mouseId: event which;
-            position: Int32x2(event x, event y);
+            position: Float32x2(event x, event y);
             modifiers: self currentKeyModifiers;
             button: (event button castTo: MouseButton);
             yourself.
@@ -305,7 +305,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let convertedEvent mutable := MouseButtonReleasedEvent newValue
             mouseId: event which;
-            position: Int32x2(event x, event y);
+            position: Float32x2(event x, event y);
             modifiers: self currentKeyModifiers;
             button: (event button castTo: MouseButton);
             yourself.
@@ -323,7 +323,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             mouseId: event which;
             position: self currentMousePosition;
             modifiers: self currentKeyModifiers;
-            scrollDelta: Int32x2(event x, event y);
+            scrollDelta: Float32x2(event x, event y);
             isFlipped: event direction == SDL_MOUSEWHEEL_FLIPPED;
             yourself.
 

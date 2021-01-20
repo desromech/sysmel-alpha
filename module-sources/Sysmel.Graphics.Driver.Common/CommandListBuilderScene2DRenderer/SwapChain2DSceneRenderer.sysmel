@@ -21,6 +21,7 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     protected field perFrameSceneRenderers type: Stdn Collections Vector(StateTracker2DSceneRendererPtr).
 
     protected field currentClearColor type: Float32x4.
+    protected field isOutOfDate type: Boolean8.
 
     meta definition: {
         method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer sharedPointer := {
@@ -85,6 +86,9 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     const method swapChain => SwapChainPtr const ref
         := swapChain.
 
+    const method isOutOfDate => Boolean8
+        := isOutOfDate.
+
     override method newSceneBuilder => Scene2D BuilderPtr
         := device _ createScene2DBuilder.
 
@@ -93,6 +97,8 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     }.
 
     override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+        isOutOfDate ifTrue: {return: void}.
+
         let backBuffer := swapChain _ getCurrentBackBuffer.
         let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
 
@@ -134,7 +140,15 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     }.
 
     override method present => Void := {
-        swapChain _ swapBuffers
+        swapChain _ swapBuffers selectCase: #{
+        SwapChainPresentationError OutOfDate : {
+            isOutOfDate := true
+        }.
+        SwapChainPresentationError Suboptimal : {
+            isOutOfDate := true
+        }.
+        SwapChainPresentationError Ok : {}.
+        }
     }.
 }.
 

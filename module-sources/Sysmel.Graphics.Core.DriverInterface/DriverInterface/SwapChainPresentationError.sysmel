@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture usage modes.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum SwapChainPresentationError valueType: UInt8; values: #{
+    Ok: 0.
+    Error:.
+    Suboptimal:.
+    OutOfDate:.
+    DeviceLost:.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

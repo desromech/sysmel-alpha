@@ -188,6 +188,7 @@ class Sample definition: {
 	field commandList type: CommandListPtr.
 
 	field colorBufferTextureHandle type: Texture2DPtr.
+	field mainFrameBufferExtent type: UInt32x2.
 	field mainFrameBuffer type: FramebufferPtr.
 	field mainRenderPass type: RenderPassPtr.
 
@@ -239,8 +240,8 @@ class Sample definition: {
 			useGraphicShaderBindings: cameraStateBinding;
 
 			beginRenderPass: mainRenderPass on: mainFrameBuffer contentOnBundle: false;
-			setViewport: (RectangleI32 min: Int32x2 zeros max: Int32x2(640, 480));
-			setScissor: (RectangleI32 min: Int32x2 zeros max: Int32x2(640, 480)).
+			setViewport: (RectangleI32 min: Int32x2 zeros max: (mainFrameBufferExtent castTo: Int32x2));
+			setScissor: (RectangleI32 min: Int32x2 zeros max: (mainFrameBufferExtent castTo: Int32x2)).
 
 		commandList _ useGraphicShaderBindings: planeObjectStateBinding.
 		planeMesh _ drawWith: commandList _.
@@ -264,7 +265,7 @@ class Sample definition: {
 
 		let scene3DResult :=
 			builder blendingMode: BlendingMode Copy node: ((
-				builder texture: colorBufferTextureHandle rectangle: (RectangleF32 extent: Float32x2(640, 480))
+				builder texture: colorBufferTextureHandle rectangle: (RectangleF32 extent: (mainFrameBufferExtent castTo: Float32x2))
 			) upCastFor: Node2D).
 
 		let scene2D mutable := scene3DResult upCastFor: Node2D.
@@ -285,6 +286,8 @@ class Sample definition: {
 	}.
 
 	method render ::=> Void := {
+		(self setMainFramebufferWithExtent: mainWindow _ extent) ifFalse: {return: void}.
+
 		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
 			mainWindowRenderer _
 				clearColor: Float32x4 zeros;
@@ -320,6 +323,55 @@ class Sample definition: {
 		cameraPosition := cameraPosition + cameraOrientation * Float32x3(0.0f, 0.0f, event scrollDelta y * -0.1f).
     }.
 
+	method setMainFramebufferWithExtent: (newExtent: UInt32x2) ::=> Boolean8 := {
+		mainFrameBuffer isNotNil && mainFrameBufferExtent = newExtent ifTrue: {
+			return: true
+		}.
+
+		mainFrameBuffer ifNotNil: {
+			renderingDevice _ waitForIdle.
+		}.
+
+		let colorBuffer := renderingDevice _ createTexture: (TextureDescription()
+			type: TextureType Texture2D;
+			width: newExtent x;
+			height: newExtent y;
+			depth: 1;
+			layers: 1;
+			miplevels: 1;
+			format: PixelFormat B8G8R8A8_UNormSRGB;
+			usageModes: TextureUsageMode Sampled | TextureUsageMode ColorAttachment;
+			mainUsageMode: TextureUsageMode Sampled;
+			heapType: MemoryHeapType DeviceLocal;
+			sampleCount: 1;
+			yourself).
+		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+
+		colorBufferTextureHandle := mainWindowRenderer _ newSceneBuilder _
+			createTextureHandleFor: (colorBuffer upCastFor: Stdn SharedObject) view: (colorBufferTextureView upCastFor: Stdn SharedObject).
+
+		let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
+			type: TextureType Texture2D;
+			width: newExtent x;
+			height: newExtent y;
+			depth: 1;
+			layers: 1;
+			miplevels: 1;
+			format: PixelFormat D32_Float;
+			usageModes: TextureUsageMode DepthAttachment;
+			mainUsageMode: TextureUsageMode DepthAttachment;
+			heapType: MemoryHeapType DeviceLocal;
+			sampleCount: 1;
+			yourself).
+		let depthBufferTextureView := depthBuffer _ getOrCreateFullView.
+
+		let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
+		mainFrameBuffer := renderingDevice _ createFramebuffer: newExtent colorViews: colorAttachments depthStencilView: depthBufferTextureView.
+		mainFrameBufferExtent := newExtent.
+
+		true
+	}.
+
 	method run => Int32 := {
 		let windowSystem mutable := createDefaultWindowSystem().
 	    windowSystem ifNil: {
@@ -346,43 +398,7 @@ class Sample definition: {
 	    }.
 
 		## Create the main framebuffer.
-		{
-			let colorBuffer := renderingDevice _ createTexture: (TextureDescription()
-				type: TextureType Texture2D;
-				width: 640;
-				height: 480;
-				depth: 1;
-				layers: 1;
-				miplevels: 1;
-				format: PixelFormat B8G8R8A8_UNormSRGB;
-				usageModes: TextureUsageMode Sampled | TextureUsageMode ColorAttachment;
-				mainUsageMode: TextureUsageMode Sampled;
-				heapType: MemoryHeapType DeviceLocal;
-				sampleCount: 1;
-				yourself).
-			let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
-
-			colorBufferTextureHandle := mainWindowRenderer _ newSceneBuilder _
-				createTextureHandleFor: (colorBuffer upCastFor: Stdn SharedObject) view: (colorBufferTextureView upCastFor: Stdn SharedObject).
-
-			let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
-				type: TextureType Texture2D;
-				width: 640;
-				height: 480;
-				depth: 1;
-				layers: 1;
-				miplevels: 1;
-				format: PixelFormat D32_Float;
-				usageModes: TextureUsageMode DepthAttachment;
-				mainUsageMode: TextureUsageMode DepthAttachment;
-				heapType: MemoryHeapType DeviceLocal;
-				sampleCount: 1;
-				yourself).
-			let depthBufferTextureView := depthBuffer _ getOrCreateFullView.
-
-			let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
-			mainFrameBuffer := renderingDevice _ createFramebuffer: UInt32x2(640, 480) colorViews: colorAttachments depthStencilView: depthBufferTextureView.
-		}.
+		self setMainFramebufferWithExtent: mainWindow _ extent.
 
 		## Create the main render pass
 		{

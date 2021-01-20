@@ -28,7 +28,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
         rendererHandle := theRenderer.
     }.
 
-    override method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> Void := {
+    override method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> SwapChainPresentationError := {
         self validateTexture.
 
         ## Copy the pixels.
@@ -37,7 +37,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
             let pitch mutable type: Int32.
 
             SDL_LockTexture(textureHandle, nil, pixels address reinterpretCastTo: Void pointer pointer, pitch address) = 0 ifFalse: {
-                return: false.
+                return: SwapChainPresentationError Error.
             }.
 
             let destBlitter := Blitter newValue
@@ -58,6 +58,8 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
 
         ## Present the rendering output.
         SDL_RenderPresent(rendererHandle).
+
+        SwapChainPresentationError Ok.
     }.
 
     override method finalize => Void := {

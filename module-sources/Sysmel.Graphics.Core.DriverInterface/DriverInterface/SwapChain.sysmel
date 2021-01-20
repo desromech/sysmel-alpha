@@ -10,8 +10,8 @@ class SwapChain superclass: RenderingDriverObjectHandle; definition: {
     abstract method depthStencilFormat => PixelFormat.
 
     abstract method destroy => Void.
-    
-    abstract method swapBuffers => Void.
+
+    abstract method swapBuffers => SwapChainPresentationError.
     abstract method getCurrentBackBuffer => FramebufferPtr.
     abstract method getCurrentBackBufferIndex => UIntPointer.
     abstract method getFramebufferCount => UIntPointer.

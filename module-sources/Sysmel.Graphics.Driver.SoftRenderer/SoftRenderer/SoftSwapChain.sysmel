@@ -74,16 +74,15 @@ class SoftSwapChain superclass: SwapChain; definition: {
         creationInfo depthStencilFormat
     }.
 
-    override method swapBuffers => Void := {
+    override method swapBuffers => SwapChainPresentationError := {
         let newFrontBuffer := currentBackBufferIndex.
         currentBackBufferIndex := (currentBackBufferIndex + 1) % framebuffers size.
 
         self presentColorbuffer: colorBuffers[newFrontBuffer].
     }.
 
-    virtual method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> Void := {
-
-    }.
+    virtual method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> SwapChainPresentationError
+        := SwapChainPresentationError Ok.
 
     override method getCurrentBackBuffer => FramebufferPtr := {
         framebuffers[currentBackBufferIndex]

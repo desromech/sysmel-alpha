@@ -21,9 +21,16 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
         handle reset
     }.
 
-    override method swapBuffers => Void := {
-        handle _ swapBuffers
+    override method swapBuffers => SwapChainPresentationError := {
+        let errorCode := handle _ swapBuffers selectCase: #{
+        AGPU Error Ok : SwapChainPresentationError Ok.
+        AGPU Error Suboptimal : SwapChainPresentationError Suboptimal.
+        AGPU Error OutOfDate : SwapChainPresentationError OutOfDate.
+        _ : SwapChainPresentationError Error.
+        }
     }.
+
+    abstract method swapBuffers => SwapChainPresentationError.
 
     override method getCurrentBackBuffer => FramebufferPtr := {
         let backBufferHandle := handle _ getCurrentBackBuffer.

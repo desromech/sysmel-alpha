@@ -85,7 +85,7 @@ class TextInputEvent superclass: Event; definition: {
  *#
 class MouseEvent superclass: Event; definition: {
     public field mouseId type: UInt32.
-    public field position type: Int32x2.
+    public field position type: Float32x2.
     public field modifiers type: KeyModifiers.
 }.
 
@@ -110,7 +110,7 @@ class MouseLeaveEvent superclass: MouseEvent; definition: {
  *#
 class MouseMoveEvent superclass: MouseEvent; definition: {
     public field buttonState type: MouseButtonMask.
-    public field delta type: Int32x2.
+    public field delta type: Float32x2.
 
     const inline method isLeftButtonPressed => Boolean8
         := buttonState anyMask: MouseButtonMask Left.
@@ -158,7 +158,7 @@ class MouseButtonEvent superclass: MouseEvent; definition: {
  * I am a mouse wheel event.
  *#
 class MouseWheelEvent superclass: MouseEvent; definition: {
-    public field scrollDelta type: Int32x2.
+    public field scrollDelta type: Float32x2.
     public field isFlipped type: Boolean8.
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void

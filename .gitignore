@@ -1,5 +1,4 @@
 artifacts
-build-*
 *.image
 *.changes
 *.sources

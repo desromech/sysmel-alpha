@@ -24,6 +24,7 @@ loadFileOnce: "ShaderStageType.sysmel".
 loadFileOnce: "StencilOperation.sysmel".
 loadFileOnce: "SwapChainFlags.sysmel".
 loadFileOnce: "SwapChainCreationInfo.sysmel".
+loadFileOnce: "SwapChainPresentationError.sysmel".
 loadFileOnce: "TextureAddressMode.sysmel".
 loadFileOnce: "TextureAspect.sysmel".
 loadFileOnce: "TextureDescription.sysmel".
