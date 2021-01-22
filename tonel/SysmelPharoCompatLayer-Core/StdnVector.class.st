@@ -41,7 +41,7 @@ StdnVector class >> isAbstract [
 { #category : #'instance creation' }
 StdnVector class >> new: initialSize [
 	self assert: self isAbstract not.
-	^ self basicNew initializeWithCapacity: 10; yourself
+	^ self basicNew initializeWithCapacity: initialSize; yourself
 ]
 
 { #category : #'instance creation' }
@@ -96,6 +96,11 @@ StdnVector >> capacity [
 { #category : #enumerating }
 StdnVector >> do: aBlock [
 	^ storage do: aBlock
+]
+
+{ #category : #enumerating }
+StdnVector >> doWithIndex: aBlock [
+	^ storage doWithIndex: aBlock
 ]
 
 { #category : #accessing }
