@@ -1,0 +1,5 @@
+namespace Win32 definition: {
+
+function GetModuleFileNameW apicall externC(hModule: HMODULE, lpFilename: Char16 pointer, nSize: DWORD) => DWORD.
+
+}. ## End of namespace Win32

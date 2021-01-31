@@ -52,6 +52,9 @@ compileTime constant STD_INPUT_HANDLE := -10 castTo: DWORD.
 compileTime constant STD_OUTPUT_HANDLE := -11 castTo: DWORD.
 compileTime constant STD_ERROR_HANDLE := -12 castTo: DWORD.
 
+compileTime constant ENABLE_VIRTUAL_TERMINAL_INPUT := 16r0200.
+compileTime constant ENABLE_VIRTUAL_TERMINAL_PROCESSING := 16r0004.
+
 compileTime constant MaxPath := 260.
 
 struct OVERLAPPED definition: {
@@ -140,6 +143,10 @@ function ReadFile apicall externC(hFile: HANDLE, lpBuffer: Void const pointer,
     lpOverlapped: OVERLAPPED pointer) => BOOL.
 
 function SetConsoleCP apicall externC(wCodePageID: UINT) => BOOL.
+function SetConsoleOutputCP apicall externC(wCodePageID: UINT) => BOOL.
+function SetConsoleMode apicall externC(hConsoleHandle: HANDLE, mode: DWORD) => BOOL.
+function GetConsoleMode apicall externC(hConsoleHandle: HANDLE, lpMode: DWORD pointer) => BOOL.
+
 function SetFilePointerEx apicall externC(hFile: HANDLE, liDistanceToMove: LARGE_INTEGER, lpNewFilePointer: LARGE_INTEGER pointer, dwMoveMethod: DWORD) => BOOL.
 function SetStdHandle apicall externC(nStdHandle: DWORD, hHandle: HANDLE) => BOOL.
 

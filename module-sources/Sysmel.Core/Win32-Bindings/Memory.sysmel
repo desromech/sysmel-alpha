@@ -38,4 +38,7 @@ function VirtualAlloc apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, f
 function VirtualProtect apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, flNewProtect: DWORD, lpflOldProtect: DWORD pointer) => VOID pointer.
 function VirtualFree apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, dwFreeType: DWORD) => BOOL.
 
+function LocalAlloc apicall externC(flags: UINT, uBytes: SIZE_T) => HLOCAL.
+function LocalFree apicall externC(hMem: HLOCAL) => HLOCAL.
+
 }. ## End of namespace Win32

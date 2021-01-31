@@ -179,14 +179,55 @@ namespace Collections definition: {
                 Stdn memcpy(data_, utf8EncodedData elements, utf8EncodedData size).
             }
         } else: {
-
+            (Stdn Collections UTF8CodePointsIterator for: utf8EncodedData) do: {:codePoint :: Void |
+                self addCodePoint: codePoint
+            }
         }
     }.
 
     method setUTF16: (utf16EncodedData: Char16 const arraySlice) ::=> Void := {
+        compileTime if: ValueType instanceSize = 2 then: {
+            data_ ~~ utf16EncodedData elements ifTrue: {
+                self setSizeNoCopy: utf16EncodedData size.
+                Stdn memcpy(data_, utf16EncodedData elements, utf16EncodedData size).
+            }
+        } else: {
+            (Stdn Collections UTF16CodePointsIterator for: utf16EncodedData) do: {:codePoint :: Void |
+                self addCodePoint: codePoint
+            }
+        }
     }.
 
     method setUTF32: (utf32EncodedData: Char32 const arraySlice) ::=> Void := {
+        compileTime if: ValueType instanceSize = 4 then: {
+            data_ ~~ utf32EncodedData elements ifTrue: {
+                self setSizeNoCopy: utf32EncodedData size.
+                Stdn memcpy(data_, utf32EncodedData elements, utf32EncodedData size).
+            }
+        } else: {
+            utf32EncodedData do: {:codePoint :: Void |
+                self addCodePoint: codePoint
+            }
+        }
+    }.
+
+    inline method addCodePoint: (codePoint: Char32) ::=> Void := {
+        ## UTF8
+        compileTime if: ValueType instanceSize = 1 then: {
+            (UTF8CodePointEncoder for: codePoint) do: {:codeUnit :: Void |
+                self add: codeUnit
+            }.
+        }.
+
+        ## UTF16
+        compileTime if: ValueType instanceSize = 2 then: {
+            self add: (codePoint castTo: Char16)
+        }.
+
+        ## UTF32
+        compileTime if: ValueType instanceSize = 4 then: {
+            self add: codePoint
+        }.
     }.
 
     inline method add: (element: ValueType) ::=> Void

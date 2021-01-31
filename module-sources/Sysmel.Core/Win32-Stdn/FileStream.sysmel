@@ -11,14 +11,42 @@ definition: {
     public field handle type: HANDLE.
     public field isConsole type: Boolean8.
     public field isOwner type: Boolean8.
+    public field openMode type: FileOpenMode.
     private field eofDetected_ private type: Boolean8.
 
-    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) ::=> SelfType
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) openMode: (openMode: FileOpenMode) ::=> SelfType
         := SelfType basicNewValue
             handle: handle;
             isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
             isOwner: isOwner;
+            openMode: openMode;
+            setupConsoleMode;
             yourself.
+
+    method setupConsoleMode => Void := {
+        isConsole ifFalse: { return: void }.
+
+        ## Use the UTF-8 codepage.
+        (openMode anyMask: FileOpenMode Read) ifTrue: {
+            Win32 SetConsoleCP(65001).
+        } ifFalse: {
+            Win32 SetConsoleOutputCP(65001).
+        }.
+
+        ## Enable the VT ANSI escape sequences.
+        let currentMode mutable type: DWORD.
+        Win32 GetConsoleMode(handle, currentMode address) ~= 0 ifTrue: {
+            (openMode anyMask: FileOpenMode Read) ifTrue: {
+                Win32 SetConsoleMode(handle, currentMode | Win32 ENABLE_VIRTUAL_TERMINAL_INPUT).
+            } ifFalse: {
+                Win32 SetConsoleMode(handle, currentMode | Win32 ENABLE_VIRTUAL_TERMINAL_PROCESSING).
+            }.
+        }.
+    }.
+
+    override method initialize => Void := {
+        self setupConsoleMode
+    }.
 
     override method finalize => Void
         := self close.
@@ -68,11 +96,13 @@ definition: {
             flagsAndAttributes := FILE_ATTRIBUTE_READONLY
         }.
 
-        handle := CreateFileA(path, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nil, creationDisposition, flagsAndAttributes, nil).
+        let pathUTF16 := Stdn WString fromUTF8: (path until: Stdn cstrlen(path)).
+        handle := CreateFileW(pathUTF16 asCString, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nil, creationDisposition, flagsAndAttributes, nil).
         handle = Win32 INVALID_HANDLE_VALUE ifTrue: {return: false}.
 
         isConsole := GetFileType(handle) = FILE_TYPE_CHAR.
         isOwner := true.
+        openMode := mode.
 
         ## If we are appending, move the cursor until the end.
         (mode anyMask: FileOpenMode Append) ifTrue: {
@@ -159,12 +189,13 @@ definition: {
 }.
 
 class FileStream definition: {
-    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) openMode: (openMode: FileOpenMode) ::=> SelfType := {
         <notInCompileTime>
         SelfType basicNewValue
             handle: handle;
             isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
             isOwner: isOwner;
+            openMode: openMode;
             initialize;
             bufferingMode: mode;
             yourself.
@@ -172,22 +203,26 @@ class FileStream definition: {
 }.
 
 class AtomicFileStream definition: {
-    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) openMode: (openMode: FileOpenMode) ::=> SelfType := {
         <notInCompileTime>
         SelfType basicNewValue
             handle: handle;
             isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
             isOwner: isOwner;
+            openMode: openMode;
             initialize;
             bufferingMode: mode;
             yourself.
     }
 }.
 
-global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
-global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
-    bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block).
-global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
+global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block openMode: FileOpenMode Read.
+global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block)
+         openMode: FileOpenMode Write.
+global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None openMode: FileOpenMode Write.
 
 }. ## End of namespace IO
 

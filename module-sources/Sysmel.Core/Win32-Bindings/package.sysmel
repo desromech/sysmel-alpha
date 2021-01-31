@@ -3,6 +3,7 @@ loadFileOnce: "Error.sysmel".
 loadFileOnce: "Handle.sysmel".
 loadFileOnce: "IO.sysmel".
 loadFileOnce: "Memory.sysmel".
+loadFileOnce: "Module.sysmel".
 loadFileOnce: "ThreadAndProcess.sysmel".
 loadFileOnce: "Time.sysmel".
 loadFileOnce: "CommandLineArguments.sysmel".

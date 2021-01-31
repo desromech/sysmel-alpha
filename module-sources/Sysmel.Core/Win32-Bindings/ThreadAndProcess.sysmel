@@ -108,4 +108,6 @@ function _beginthreadex cdecl externC(lpThreadAttributes: SECURITY_ATTRIBUTES po
     lpParameter: Void pointer, dwCreationFlags: DWORD, lpThreadId: DWORD pointer) => HANDLE.
 function _endthreadex cdecl externC(retval: UInt32) => Void.
 
+function CommandLineToArgvW apicall externC(lpCmdLine: Char16 const pointer, pNumArgs: Int32 pointer) => Char16 pointer pointer.
+
 }. ## End of namespace Win32

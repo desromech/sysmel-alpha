@@ -13,8 +13,8 @@ class TextStreamWriter definition: {
             yourself.
 
     method nextPut: (character: Char32) ::=> Boolean8 := {
-        let buffer mutable type: UInt8 := character castTo: UInt8.
-        (stream _ write: buffer address size: 1) == 1
+        let encoder mutable := Stdn Collections UTF8CodePointEncoder for: character.
+        (stream _ write: encoder encodedData address size: encoder encodedDataSize) == encoder encodedDataSize
     }.
 
     method nextPut: (character: Int32) ::=> Boolean8

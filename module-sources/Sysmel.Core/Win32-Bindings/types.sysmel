@@ -30,6 +30,7 @@ compileTime constant LRESULT := LONG_PTR.
 compileTime constant HANDLE := Void pointer.
 compileTime constant HINSTANCE := HANDLE.
 compileTime constant HMODULE := HANDLE.
+compileTime constant HLOCAL := HANDLE.
 
 compileTime constant SIZE_T := ULONG_PTR.
 compileTime constant SSIZE_T := LONG_PTR.
