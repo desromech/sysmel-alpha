@@ -904,16 +904,16 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	
 	"Truncate"
 	{int64Type . uint64Type .
-	int32Type . uint32Type .
-	int16Type . uint16Type} do: [ :each |
-		each addExplicitConversionToAll: {int8Type . uint8Type} rule: MbndTruncateTypeConversionRule.
+	char32Type . int32Type . uint32Type .
+	char16Type . int16Type . uint16Type} do: [ :each |
+		each addExplicitConversionToAll: {char8Type . int8Type . uint8Type} rule: MbndTruncateTypeConversionRule.
 	].
 	{int64Type . uint64Type .
-	int32Type . uint32Type} do: [ :each |
-		each addExplicitConversionToAll: {int16Type . uint16Type} rule: MbndTruncateTypeConversionRule.
+	char32Type . int32Type . uint32Type} do: [ :each |
+		each addExplicitConversionToAll: {char16Type . int16Type . uint16Type} rule: MbndTruncateTypeConversionRule.
 	].
 	{int64Type . uint64Type} do: [ :each |
-		each addExplicitConversionToAll: {int32Type . uint32Type} rule: MbndTruncateTypeConversionRule.
+		each addExplicitConversionToAll: {char32Type . int32Type . uint32Type} rule: MbndTruncateTypeConversionRule.
 	].
 	
 	"Sign extension"
@@ -930,18 +930,20 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 		rule: MbndSignExtensionTypeConversionRule.
 	
 	"Zero extension"
-	{uint8Type . uint16Type . uint32Type} do: [:each | each 
+	{char8Type . uint8Type . char16Type . uint16Type . char32Type . uint32Type} do: [:each | each 
 		addConversionToAll: {int64Type . uint64Type}
 			rule: MbndZeroExtensionTypeConversionRule
 	].
-	{uint8Type . uint16Type} do: [:each |
-		each addConversionToAll: {int32Type . uint32Type . int64Type . uint64Type}
+	{char8Type . uint8Type . char16Type . uint16Type} do: [:each |
+		each addConversionToAll: {char32Type . int32Type . uint32Type}
 			rule: MbndZeroExtensionTypeConversionRule.
 	].
-	uint8Type addConversionToAll:
-		{int16Type . uint16Type . int32Type . uint32Type . int64Type . uint64Type}
+	{char8Type . uint8Type} do: [:each | each addConversionToAll:
+		{char16Type . int16Type . uint16Type}
 		rule: MbndZeroExtensionTypeConversionRule.
-		
+	].
+
+
 	"Int -> FP"
 	{
 	char8Type . char16Type . char32Type .

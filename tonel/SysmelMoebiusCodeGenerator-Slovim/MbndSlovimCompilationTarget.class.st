@@ -506,6 +506,7 @@ MbndSlovimCompilationTarget >> pointerSize [
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> selectDefaultExceptionModel [
+	slvmCompilationTarget selectDefaultExceptionModel.
 	(self isLinux or: [ self isOSX ]) ifTrue: [ ^ self ].
 	self setNoExceptionModel
 ]

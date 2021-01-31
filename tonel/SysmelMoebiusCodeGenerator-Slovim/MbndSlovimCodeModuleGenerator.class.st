@@ -563,7 +563,10 @@ MbndSlovimCodeModuleGenerator >> exceptionContextEndFunction [
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> exceptionHandlingCodeGeneratorClass [
 	self hasExceptions ifFalse: [ ^ MbndSlovimFunctionNullExceptionHandlingCodeGenerator ].
-	self compilationTarget hasNoExceptionModel ifTrue: [ ^ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator ].
+	self compilationTarget hasNoExceptionModel ifTrue: [
+		self compilationTarget exceptionContextType ifNil: [ ^ MbndSlovimFunctionNullExceptionHandlingCodeGenerator ].
+		^ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator
+	].
 	^ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator
 ]
 
@@ -1013,7 +1016,8 @@ MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
 
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateIdentityHash [
-	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
+
+	^ (identityHashRandomGenerator nextInteger: 1 << 32 + 1) - 1
 ]
 
 { #category : #'code generation' }
