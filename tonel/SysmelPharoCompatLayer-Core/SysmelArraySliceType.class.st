@@ -68,6 +68,13 @@ SysmelArraySliceType >> at: index put: anElement [
 	^ elements at: index put: (anElement implicitCastTo: self class elementType)
 ]
 
+{ #category : #enumerating }
+SysmelArraySliceType >> do: aBlock [
+	1 to: self size do: [ :i |
+		aBlock value: (self at: i)
+	]
+]
+
 { #category : #accessing }
 SysmelArraySliceType >> elements [
 	^ elements
