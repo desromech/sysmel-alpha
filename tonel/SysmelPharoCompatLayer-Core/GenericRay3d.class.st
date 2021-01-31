@@ -53,6 +53,15 @@ GenericRay3d class >> typeOfGenericSlotNamed: slotName [
 	^ super typeOfGenericSlotNamed: slotName
 ]
 
+{ #category : #comparing }
+GenericRay3d >> = other [
+	^ origin = other origin and: [
+	direction = other direction and: [
+	inverseDirection = other inverseDirection and: [
+	tmin = other tmin and: [
+	tmax = other tmax ]]]]
+]
+
 { #category : #accessing }
 GenericRay3d >> direction [
 	^ direction
@@ -61,6 +70,15 @@ GenericRay3d >> direction [
 { #category : #accessing }
 GenericRay3d >> direction: anObject [
 	direction := anObject implicitCastTo: self class vector3Type
+]
+
+{ #category : #comparing }
+GenericRay3d >> hash [
+	^ origin hash bitXor: (
+	direction hash bitXor: (
+	inverseDirection hash bitXor: (
+	tmin hash bitXor: (
+	tmax hash tmax ))))
 ]
 
 { #category : #initialization }

@@ -20,6 +20,11 @@ GenericSphere class >> typeOfGenericSlotNamed: slotName [
 	^ super typeOfGenericSlotNamed: slotName
 ]
 
+{ #category : #comparing }
+GenericSphere >> = other [
+	^ center = other center and: [ radius = other radius ]
+]
+
 { #category : #accessing }
 GenericSphere >> center [
 	^ center
@@ -28,6 +33,11 @@ GenericSphere >> center [
 { #category : #accessing }
 GenericSphere >> center: anObject [
 	center := anObject implicitCastTo: self class vector3Type
+]
+
+{ #category : #comparing }
+GenericSphere >> hash [
+	^ center hash bitXor: radius hash
 ]
 
 { #category : #accessing }

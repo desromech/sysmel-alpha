@@ -20,6 +20,11 @@ GenericCircle class >> typeOfGenericSlotNamed: slotName [
 	^ super typeOfGenericSlotNamed: slotName
 ]
 
+{ #category : #comparing }
+GenericCircle >> = other [
+	^ center = other center and: [ radius = other radius ]
+]
+
 { #category : #accessing }
 GenericCircle >> center [
 	^ center
@@ -28,6 +33,11 @@ GenericCircle >> center [
 { #category : #accessing }
 GenericCircle >> center: anObject [
 	center := anObject implicitCastTo: self class vector2Type
+]
+
+{ #category : #comparing }
+GenericCircle >> hash [
+	^ center hash bitXor: radius hash
 ]
 
 { #category : #accessing }

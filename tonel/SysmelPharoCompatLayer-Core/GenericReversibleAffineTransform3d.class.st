@@ -47,6 +47,14 @@ GenericReversibleAffineTransform3d class >> typeOfGenericSlotNamed: slotName [
 	^ super typeOfGenericSlotNamed: slotName
 ]
 
+{ #category : #comparing }
+GenericReversibleAffineTransform3d >> = other [
+	^ matrix = other matrix and: [
+	translation = other translation and: [
+	inverseMatrix = other inverseMatrix and: [
+	inverseTranslation = other inverseTranslation ]]]
+]
+
 { #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> applyMatrix: extraMatrix inverseMatrix: extraMatrixInverse [
 	| coercedExtraMatrix coercedExtraMatrixInverse |
@@ -71,6 +79,13 @@ GenericReversibleAffineTransform3d >> asReversibleAffineTransform3dF32 [
 { #category : #converting }
 GenericReversibleAffineTransform3d >> asReversibleAffineTransform3dF64 [
 	^ ReversibleAffineTransform3dF64 basicNew matrix: matrix asFloat64x3x3 inverseMatrix: inverseMatrix asFloat64x3x3 translation: translation asFloat64x3
+]
+
+{ #category : #comparing }
+GenericReversibleAffineTransform3d >> hash [
+	^ matrix hash bitXor: (
+	translation hash bitXor: (
+	inverseMatrix hash bitXor: inverseTranslation hash))
 ]
 
 { #category : #initialization }
