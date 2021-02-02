@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
-$PharoImage_URL = "http://files.pharo.org/get-files/80/pharo64.zip"
-$PharoVM_URL = "http://files.pharo.org/get-files/80/pharo64-win-headless-latest.zip"
+$PharoImage_URL = "http://files.pharo.org/get-files/90/pharo64.zip"
+$PharoVM_URL = "http://files.pharo.org/get-files/90/pharo64-win-headless-latest.zip"
 
 function downloadAndExtractZip {
     $URL = $args[0]
