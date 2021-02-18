@@ -97,6 +97,7 @@ TMbndAbstractCompilationTarget >> extensionForEmbeddedShaderCopy [
 { #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> extensionForModuleOutputMode: outputMode [
 	outputMode = #llvm_assembly ifTrue: [ ^ '.ll' ].
+	outputMode = #llvm_bitcode ifTrue: [ ^ '.bc' ].
 	outputMode = #assembly ifTrue: [ ^ '.s' ].
 	outputMode = #executable ifTrue: [
 		self isWindows ifTrue: [ ^ '.exe' ].

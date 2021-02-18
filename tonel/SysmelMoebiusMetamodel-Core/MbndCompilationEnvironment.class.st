@@ -767,6 +767,11 @@ MbndCompilationEnvironment >> llvmAssembly [
 	self outputMode: #llvm_assembly
 ]
 
+{ #category : #'module output format' }
+MbndCompilationEnvironment >> llvmBitcode [
+	self outputMode: #llvm_bitcode
+]
+
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> loadPackage: packageName [
 	<compileTime>

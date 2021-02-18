@@ -751,6 +751,12 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 		]
 	].
 
+	writeMode == #llvm_bitcode ifTrue: [
+		^ MbndProfiler component: #llvmBitcodeToFile with: [
+			lowLevelModule writeIRObjectToFileNamed: outputFileName
+		]
+	].
+
 	writeMode == #object ifTrue: [
 		^ lowLevelModule writeObjectToFileNamed: outputFileName
 	].

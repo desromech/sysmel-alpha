@@ -143,6 +143,11 @@ MbndWBTSysmelModuleTarget >> initialize [
 ]
 
 { #category : #accessing }
+MbndWBTSysmelModuleTarget >> irFileExtension [
+	^ self useBinaryBitcode ifTrue: [ '.bc' ] ifFalse: [ '.ll' ]
+]
+
+{ #category : #accessing }
 MbndWBTSysmelModuleTarget >> isNamedSysmelModule [
 	^ isNamedSysmelModule ifNil: [ isNamedSysmelModule := false ]
 ]
@@ -169,9 +174,14 @@ MbndWBTSysmelModuleTarget >> isSysmelModuleTarget [
 
 { #category : #'as yet unclassified' }
 MbndWBTSysmelModuleTarget >> makeCompilationEnvironment [
-	^ (MbndCompilationEnvironment withSettings: self platform sysmelSettings copy)
-		objectPerModule;
-		llvmAssembly
+	| result |
+	result := (MbndCompilationEnvironment withSettings: self platform sysmelSettings copy)
+		objectPerModule.
+		
+	self useBinaryBitcode
+		ifTrue: [ result llvmBitcode ]
+		ifFalse: [ result llvmAssembly ].
+	^ result
 ]
 
 { #category : #'as yet unclassified' }
@@ -217,7 +227,7 @@ MbndWBTSysmelModuleTarget >> parseDepsCacheFile [
 
 { #category : #accessing }
 MbndWBTSysmelModuleTarget >> relativeFileReference [
-	^ relativeFileReference ifNil: [relativeFileReference := (self sysmelModuleName , '.ll') asFileReference]
+	^ relativeFileReference ifNil: [relativeFileReference := (self sysmelModuleName , self irFileExtension) asFileReference]
 ]
 
 { #category : #accessing }
@@ -239,6 +249,11 @@ MbndWBTSysmelModuleTarget >> sysmelModuleName: anObject [
 { #category : #accessing }
 MbndWBTSysmelModuleTarget >> targetOutputFileReferences [
 	^ { self objectFileReference . self importModuleFileReference . self depsCacheFileReference}
+]
+
+{ #category : #accessing }
+MbndWBTSysmelModuleTarget >> useBinaryBitcode [
+	^ LLVMC isAvailable
 ]
 
 { #category : #accessing }
