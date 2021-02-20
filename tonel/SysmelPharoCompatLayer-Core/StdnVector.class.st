@@ -72,6 +72,11 @@ StdnVector >> addAll: aCollection [
 
 ]
 
+{ #category : #converting }
+StdnVector >> asArray [
+	^ storage asArray
+]
+
 { #category : #accessing }
 StdnVector >> asByteArray [
 	^ self rawData
@@ -191,6 +196,27 @@ StdnVector >> remove: anElement [
 StdnVector >> removeAll [
 	storage removeAll.
 	rawData := nil.
+]
+
+{ #category : #adding }
+StdnVector >> removeLast [
+	rawData := nil.
+	^ storage removeLast
+]
+
+{ #category : #'as yet unclassified' }
+StdnVector >> resizeTo: newSize [
+	newSize >= self size ifTrue: [ 
+		| value |
+		value := self class elementType new.
+		self size + 1 to: newSize  do: [ :i |
+			self add: value
+		]
+	] ifFalse: [
+		newSize + 1 to: self size do: [ :i |
+			self removeLast.
+		]
+	]
 ]
 
 { #category : #adding }

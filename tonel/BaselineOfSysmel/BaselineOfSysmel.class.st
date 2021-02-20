@@ -64,7 +64,7 @@ BaselineOfSysmel >> baseline: spec [
 
 		spec
 			package: #'SysmelGPUBlocks-Core' with: [
-				spec requires: #(#'SysmelMoebiusCodeGenerator-Slovim' #'SysmelLanguage-Pharo')
+				spec requires: #(#'SysmelMoebiusCodeGenerator-Slovim' #'SysmelLanguage-Pharo' #'SysmelPharoCompatLayer-Core')
 			].
 		spec
 			package: #'SysmelGPUBlocks-Core-Tests' with: [

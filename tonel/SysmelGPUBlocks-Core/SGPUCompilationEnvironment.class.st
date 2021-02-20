@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'compiledBlockClosures',
 		'compiledShaderStages',
-		'mbndToSlvmTypeMapCache',
 		'compiledGenerators',
 		'compilationEnvironment'
 	],
@@ -73,13 +72,13 @@ SGPUCompilationEnvironment >> compileBlockClosure: blockClosure withTypeExpressi
 
 { #category : #'as yet unclassified' }
 SGPUCompilationEnvironment >> constructArrayOfType: typeExpression with: initialData [
-	| type size slvmType cpuDataArray |
+	| type size cpuDataArray pharoCompatType |
 	type := self evaluateTypeExpression: typeExpression.
 	size := initialData size.
-	slvmType := self slvmTypeForMbndType: type.
-	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+	pharoCompatType := type asPharoCompatLayerType.
+	cpuDataArray := (StdnVector for: pharoCompatType) new: size.
 	1 to: size do: [ :i |
-		cpuDataArray uncheckedAt: i put: (initialData at: i)
+		cpuDataArray add: (initialData at: i)
 	].
 
 	^ SGPUManagedDataArray basicNew
@@ -97,11 +96,12 @@ SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withInterval:
 
 { #category : #'as yet unclassified' }
 SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: size [
-	| type slvmType cpuDataArray |
+	| type pharoCompatType cpuDataArray |
 	type := typeExpression isMbndType ifTrue: [ typeExpression ]
 		ifFalse: [self evaluateTypeExpression: typeExpression].
-	slvmType := self slvmTypeForMbndType: type.
-	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+	pharoCompatType := type asPharoCompatLayerType.
+	cpuDataArray := (StdnVector for: pharoCompatType) new: size.
+	cpuDataArray resizeTo: size.
 
 	^ SGPUManagedDataArray basicNew
 		compilationEnvironment: self;
@@ -110,13 +110,14 @@ SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: siz
 
 { #category : #'as yet unclassified' }
 SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: size withGenerator: generator [
-	| type slvmType cpuDataArray |
+	| type pharoCompatType cpuDataArray |
 	self assert: size >= 0.
 	size = 0 ifTrue: [ ^ self constructArrayOfType: typeExpression with: size ].
 	type := typeExpression isMbndType ifTrue: [ typeExpression ]
 		ifFalse: [self evaluateTypeExpression: typeExpression].
-	slvmType := self slvmTypeForMbndType: type.
-	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+	pharoCompatType := type asPharoCompatLayerType.
+	cpuDataArray := (StdnVector for: pharoCompatType) new: size.
+	cpuDataArray resizeTo: size.
 
 	^ SGPUManagedDataArray basicNew
 		compilationEnvironment: self;
@@ -171,7 +172,6 @@ SGPUCompilationEnvironment >> initialize [
 	compiledBlockClosures := WeakKeyDictionary new.
 	compiledShaderStages := WeakKeyDictionary new.
 	compiledGenerators := WeakValueDictionary new.
-	mbndToSlvmTypeMapCache := WeakKeyDictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -199,6 +199,7 @@ SGPUCompilationEnvironment >> parseBlockClosure: blockClosure withTypeExpression
 	blockAstNode := blockClosure sourceNode.
 	sourceCode := blockAstNode source asMoebiusBandCollectionWithContext.
 	convertedAST := MbndRBAstConverter new
+		strictPharoMode: false;
 		convertAST: blockAstNode parsedFromSourceCollection: sourceCode withBuilder: (MbndAstBuilder forModule: compilationEnvironment).
 	self assert: convertedAST isMbndAstNode.
 	self assert: convertedAST isBlockClosureNode.
@@ -295,16 +296,6 @@ SGPUCompilationEnvironment >> shaderStageCodeFor: concreteMethod [
 			entryPointMetadata: shaderEntryPoint;
 			yourself
 	]
-]
-
-{ #category : #'as yet unclassified' }
-SGPUCompilationEnvironment >> slvmTypeForMbndType: mbndType [
-	^ mbndToSlvmTypeMapCache at: mbndType ifAbsentPut: [
-		compilationEnvironment compilationTarget newCodeModuleGenerator
-			generateCodeModuleFor: compilationEnvironment validCurrentModule programEntities: #();
-			translateType: mbndType
-	].
-
 ]
 
 { #category : #compiling }
