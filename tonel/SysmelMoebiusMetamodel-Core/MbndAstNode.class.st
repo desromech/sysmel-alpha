@@ -1010,6 +1010,7 @@ MbndAstNode >> markStorageCreationNodeForCopyEllision: storageCreationNode [
 { #category : #serialization }
 MbndAstNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	type := encodedFields at: #type.
+	position := graphDecoder moduleLocation.
 ]
 
 { #category : #composition }
