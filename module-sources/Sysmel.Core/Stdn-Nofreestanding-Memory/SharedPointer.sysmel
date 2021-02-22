@@ -271,7 +271,7 @@ template WeakPointer(PT: Type)
         := counter_ ~= other __private counter_ .
     const inline method hash ::=> Hash
         := counter_ hash.
-        
+
     inline method reset => Void := {
         let c := counter_.
         counter_ := nil.
@@ -391,6 +391,17 @@ class SharedObject superclass: Object; definition: {
 
     macro method asWeakPointer := ``(`,self asSharedObjectWeakPointer downCastFor: `,SelfType).
     macro method asSharedPointer := ``(`,self asSharedObjectPointer downCastFor: `,SelfType).
+
+    (inline method := (other: SelfType const ref)) => SelfType ref := {
+        ## internalSelfWeakPointer should not be modified.
+        self
+    }.
+
+    (inline method := (other: SelfType tempRef)) => SelfType ref := {
+        ## internalSelfWeakPointer should not be modified.
+        self
+    }.
+
 }.
 
 _NativeType meta macro method sharedPointer := ``(Stdn SharedPointer(`,self)).

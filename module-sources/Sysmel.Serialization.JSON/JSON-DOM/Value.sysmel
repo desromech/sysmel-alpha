@@ -376,7 +376,7 @@ Object definition: {
     const method getUInt32: (key: Stdn String const ref) ::=> UInt32
         := valueToUInt32(self at: key).
 
-    const method getUInt32: (key: Stdn String const ref) default: (defaultValue: UInt32) ::=> UIntPointer := {
+    const method getUInt32: (key: Stdn String const ref) default: (defaultValue: UInt32) ::=> UInt32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
             return: valueToUInt32(value)
         }.
@@ -387,7 +387,7 @@ Object definition: {
     const method getInt32: (key: Stdn String const ref) ::=> Int32
         := valueToInt32(self at: key).
 
-    const method getInt32: (key: Stdn String const ref) default: (defaultValue: Int32) ::=> IntPointer := {
+    const method getInt32: (key: Stdn String const ref) default: (defaultValue: Int32) ::=> Int32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
             return: valueToInt32(value)
         }.
