@@ -2,6 +2,9 @@ namespace Win32 definition: {
 
 compileTime constant INFINITE := 16rFFFFFFFF.
 
+function QueryPerformanceCounter apicall externC(performanceCount: LARGE_INTEGER pointer) => BOOL.
+function QueryPerformanceFrequency apicall externC(performanceCount: LARGE_INTEGER pointer) => BOOL.
+
 function QueryUnbiasedInterruptTime apicall externC(UnbiasedTime: ULONGLONG pointer) => BOOL.
 function QueryProcessCycleTime apicall externC(ProcessHandle: HANDLE, CycleTime: ULONG64 pointer) => BOOL.
 function QueryThreadCycleTime apicall externC(ThreadHandle: HANDLE, CycleTime: ULONG64 pointer) => BOOL.

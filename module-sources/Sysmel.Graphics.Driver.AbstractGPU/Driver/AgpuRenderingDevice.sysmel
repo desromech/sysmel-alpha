@@ -502,7 +502,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             depth_stencil_format: (swapChainCreationInfo depthStencilFormat castTo: AGPU TextureFormat);
             width: swapChainCreationInfo extent x;
             height: swapChainCreationInfo extent y;
-            buffer_count: (swapChainCreationInfo bufferCount castTo: UInt32);
+            layers: swapChainCreationInfo layerCount;
+            buffer_count: swapChainCreationInfo bufferCount;
             flags: (swapChainCreationInfo flags castTo: AGPU SwapChainFlags);
             x: swapChainCreationInfo position x;
             y: swapChainCreationInfo position y;

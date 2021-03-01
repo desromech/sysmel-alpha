@@ -11,6 +11,7 @@ class SDL2WindowSystem.
 class SDL2Window superclass: Window; definition: {
     public field handle type: SDL_Window pointer.
     public field windowSystem type: SDL2WindowSystem pointer.
+    public field isFullscreen type: Boolean8.
     protected field currentCursor type: Cursor sharedPointer.
     protected field renderingDevice type: RenderingDevicePtr.
     protected field activeSwapChain type: SwapChainPtr.
@@ -154,6 +155,22 @@ class SDL2Window superclass: Window; definition: {
     override method releaseMouseCapture => Void := {
         SDL_CaptureMouse(false)
     }.
+
+    override method fullscreen => Boolean8
+        := isFullscreen.
+
+    override method fullscreen: (newValue: Boolean8) ::=> Void := {
+        newValue ifTrue: {
+            SDL_SetWindowFullscreen(handle, SDL_WINDOW_FULLSCREEN_DESKTOP).
+        } ifFalse: {
+            SDL_SetWindowFullscreen(handle, 0).
+        }.
+
+        isFullscreen := newValue
+    }.
+
+    override method toggleFullscreen => Void
+        := self fullscreen: self fullscreen not.
 
     override method setCursor: (cursor: Cursor sharedPointer const ref) ::=> Void := {
         currentCursor == cursor ifTrue: {

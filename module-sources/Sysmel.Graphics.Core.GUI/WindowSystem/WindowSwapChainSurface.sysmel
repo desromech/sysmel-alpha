@@ -44,6 +44,7 @@ class WindowSwapChainSurface superclass: Surface; definition: {
             let swapChainCreationInfo mutable := SwapChainCreationInfo()
                 colorBufferFormat: PixelFormat B8G8R8A8_UNormSRGB;
                 extent: currentExtent;
+                layerCount: 1; ## Non-stereo
                 bufferCount: 2; ## Use at least double buffering.
                 yourself.
 

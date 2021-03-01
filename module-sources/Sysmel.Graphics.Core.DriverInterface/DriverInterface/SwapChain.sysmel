@@ -11,10 +11,14 @@ class SwapChain superclass: RenderingDriverObjectHandle; definition: {
 
     abstract method destroy => Void.
 
+    abstract method getExtent => UInt32x2.
+    abstract method getLayerCount => UInt32.
+
     abstract method swapBuffers => SwapChainPresentationError.
     abstract method getCurrentBackBuffer => FramebufferPtr.
-    abstract method getCurrentBackBufferIndex => UIntPointer.
-    abstract method getFramebufferCount => UIntPointer.
+    abstract method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr.
+    abstract method getCurrentBackBufferIndex => UInt32.
+    abstract method getFramebufferCount => UInt32.
     abstract method setOverlayPosition: (position: Int32x2) ::=> Void.
 }.
 

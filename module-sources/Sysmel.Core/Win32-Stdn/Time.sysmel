@@ -1,14 +1,29 @@
 namespace Stdn definition: {
 namespace Chrono definition: {
-    function microsecondClockValue() => Time := 0.
+
+    let currentPerformanceCountFrequencyReaded mutable type: Stdn OnceFlag.
+    let currentPerformanceCountFrequency mutable type: Int64.
+
+    function getPerformanceCounterFrequency() => Int64 := {
+        currentPerformanceCountFrequencyReaded do: {
+            let frequency mutable type: Win32 LARGE_INTEGER.
+            Win32 QueryPerformanceFrequency(frequency address).
+            currentPerformanceCountFrequency := frequency QuadPart
+        }.
+
+        currentPerformanceCountFrequency
+    }.
 
     function monotonicClockValue() => Time := {
-        let unbiasedTime mutable type: Win32 ULONGLONG.
-        Win32 QueryUnbiasedInterruptTime(unbiasedTime address) = 0 ifTrue: {return: 0}.
+        let performanceCount mutable type: Win32 LARGE_INTEGER.
 
-        ## One tick per 100 nanoseconds
-        unbiasedTime / 10 castTo: Time
+        Win32 QueryPerformanceCounter(performanceCount address).
+
+        performanceCount QuadPart * TicksPerSecond / getPerformanceCounterFrequency().
     }.
+
+    function microsecondClockValue() => Time
+        := monotonicClockValue().
 
     function processClockValue() => Time
         := monotonicClockValue().

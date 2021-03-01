@@ -12,7 +12,7 @@ class SoftSwapChain superclass: SwapChain; definition: {
     protected field creationInfo type: SwapChainCreationInfo.
     protected field colorBuffers type: Stdn Collections Vector(SoftTextureViewPtr).
     protected field framebuffers type: Stdn Collections Vector(FramebufferPtr).
-    protected field currentBackBufferIndex type: UIntPointer.
+    protected field currentBackBufferIndex type: UInt32.
 
     method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) on: (device: SoftRenderingDevice ref) ::=> Boolean8 := {
         creationInfo := swapChainCreationInfo.
@@ -74,9 +74,15 @@ class SoftSwapChain superclass: SwapChain; definition: {
         creationInfo depthStencilFormat
     }.
 
+    override method getExtent => UInt32x2
+        := creationInfo extent.
+
+    override method getLayerCount => UInt32
+        := 1.
+
     override method swapBuffers => SwapChainPresentationError := {
         let newFrontBuffer := currentBackBufferIndex.
-        currentBackBufferIndex := (currentBackBufferIndex + 1) % framebuffers size.
+        currentBackBufferIndex := (currentBackBufferIndex + 1u) % framebuffers size castTo: UInt32.
 
         self presentColorbuffer: colorBuffers[newFrontBuffer].
     }.
@@ -88,13 +94,19 @@ class SoftSwapChain superclass: SwapChain; definition: {
         framebuffers[currentBackBufferIndex]
     }.
 
-    override method getCurrentBackBufferIndex => UIntPointer := {
+    override method getCurrentBackBufferIndex => UInt32 := {
         currentBackBufferIndex
     }.
 
-    override method getFramebufferCount => UIntPointer := {
-        framebuffers size
+    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr := {
+        layerIndex selectCase: #{
+        0 : {self getCurrentBackBuffer}.
+        _ : {FramebufferPtr nil}.
+        }
     }.
+
+    override method getFramebufferCount => UInt32
+        := framebuffers size castTo: UInt32.
 
     override method setOverlayPosition: (position: Int32x2) ::=> Void := {
         ## Not implemented.

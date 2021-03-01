@@ -3,7 +3,7 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * Texture description.
+ * Swap chain creation info.
  *#
 struct SwapChainCreationInfo definition: {
     public field display type: Void pointer.
@@ -13,7 +13,8 @@ struct SwapChainCreationInfo definition: {
     public field colorBufferFormat type: PixelFormat.
     public field depthStencilFormat type: PixelFormat.
     public field extent type: UInt32x2.
-    public field bufferCount type: UIntPointer.
+    public field bufferCount type: UInt32.
+    public field layerCount type: UInt32.
     public field sampleCount type: UInt32.
     public field sampleQuality type: UInt32.
     public field flags type: SwapChainFlags.

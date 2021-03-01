@@ -72,6 +72,26 @@ class Window superclass: SharedObject; definition: {
     virtual method setCursor: (cursor: Cursor sharedPointer const ref) ::=> Void := {
 
     }.
+
+    #**
+     * This method gets the fullscreen state of the window.
+     *#
+    virtual method fullscreen => Boolean8
+        := false.
+
+    #**
+     * This method sets the fullscreen state of the window.
+     *#
+    virtual method fullscreen: (newValue: Boolean8) ::=> Void := {
+
+    }.
+
+    #**
+     * This method toggles the fullscreen state of the window.
+     *#
+    virtual method toggleFullscreen => Void := {
+
+    }.
 }.
 
 compileTime constant WindowRef := Window sharedPointer.

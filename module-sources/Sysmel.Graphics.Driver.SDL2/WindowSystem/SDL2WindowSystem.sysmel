@@ -88,6 +88,10 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             flags := flags | SDL_WINDOW_RESIZABLE
         }.
 
+        creationInfo fullscreen ifTrue: {
+            flags := flags | SDL_WINDOW_FULLSCREEN_DESKTOP
+        }.
+
         let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, flags).
         windowHandle ifNil: {
             return: Window sharedPointer nil.
@@ -98,6 +102,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         result _
             handle: windowHandle;
             windowSystem: self address;
+            isFullscreen: creationInfo fullscreen;
             yourself.
 
 

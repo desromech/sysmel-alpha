@@ -17,6 +17,12 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
     override method depthStencilFormat => PixelFormat
         := creationInfo depthStencilFormat.
 
+    override method getExtent => UInt32x2
+        := UInt32x2(handle _ getWidth, handle _ getHeight).
+
+    override method getLayerCount => UInt32
+        := handle _ getLayerCount.
+
     override method destroy => Void := {
         handle reset
     }.
@@ -30,10 +36,8 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
         }
     }.
 
-    abstract method swapBuffers => SwapChainPresentationError.
-
-    override method getCurrentBackBuffer => FramebufferPtr := {
-        let backBufferHandle := handle _ getCurrentBackBuffer.
+    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr := {
+        let backBufferHandle := handle _ getCurrentBackBufferForLayer: layerIndex.
         backBufferHandle ifNil: {
             return: FramebufferPtr nil
         }.
@@ -43,10 +47,13 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
         result upCastFor: Framebuffer
     }.
 
-    override method getCurrentBackBufferIndex => UIntPointer
+    override method getCurrentBackBuffer => FramebufferPtr
+        := self getCurrentBackBufferForLayer: 0.
+
+    override method getCurrentBackBufferIndex => UInt32
         := handle _ getCurrentBackBufferIndex.
 
-    override method getFramebufferCount => UIntPointer
+    override method getFramebufferCount => UInt32
         := handle _ getFramebufferCount.
 
     override method setOverlayPosition: (position: Int32x2) ::=> Void := {

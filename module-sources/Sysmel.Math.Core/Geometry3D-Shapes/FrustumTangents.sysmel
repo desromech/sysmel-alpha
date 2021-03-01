@@ -1,0 +1,73 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+#**
+ * I group a specific set of frustum tangents that are computed in a way that
+ * they are independent of specific near and far distance. I am typically
+ * used for computing non symmetric frustums and projection matrices for
+ * stereoscopic rendering (3D display and VR headsets).
+ *#
+sealed template GenericFrustumTangents(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+
+    public field left type: Scalar.
+    public field right type: Scalar.
+    public field top type: Scalar.
+    public field bottom type: Scalar.
+
+    method setForPerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar) ::=> Void := {
+        let fovyRad := fovy degreesToRadians * 0.5f.
+        top := fovyRad tan.
+        bottom := top negated.
+
+        right := top * aspect.
+        left := right negated.
+    }.
+
+    method setForStereoLeftEyeFovY: (fovy: Scalar) aspect: (aspect: Scalar) ipd: (ipd: Scalar) displayDistance: (displayDistance: Scalar) ::=> Void := {
+        let fovyRad := fovy degreesToRadians * 0.5f.
+        let halfIpd := ipd * 0.5f / displayDistance.
+
+        top := fovyRad tan.
+        bottom := top negated.
+
+        left := (top * aspect - halfIpd) negated.
+        right := (top * aspect + halfIpd).
+    }.
+
+    method setForStereoRightEyeFovY: (fovy: Scalar) aspect: (aspect: Scalar) ipd: (ipd: Scalar) displayDistance: (displayDistance: Scalar) ::=> Void := {
+        let fovyRad := fovy degreesToRadians * 0.5f.
+        let halfIpd := ipd * 0.5f / displayDistance.
+
+        top := fovyRad tan.
+        bottom := top negated.
+
+        left := (top * aspect + halfIpd) negated.
+        right := top * aspect - halfIpd.
+    }.
+
+    const method makeFrustumWithNearDistance: (nearDistance: Float32) farDistance: (farDistance: Float32) ::=> Frustum
+        := Frustum()
+            makeFrustumLeft: left*nearDistance right: right*nearDistance bottom: bottom*nearDistance top: top*nearDistance near: nearDistance far: farDistance;
+            yourself.
+
+    const method makeProjectionMatrixWithNearDistance: (nearDistance: Float32) farDistance: (farDistance: Float32) invertedY: (invertedY: Boolean8) ::=> Matrix4x4
+        := Matrix4x4 frustumLeft: left * nearDistance right: right * nearDistance
+                bottom: bottom * nearDistance top: top * nearDistance
+                near: nearDistance far: farDistance
+                invertedY: invertedY.
+
+    const method makeReverseDepthProjectionMatrixWithNearDistance: (nearDistance: Float32) farDistance: (farDistance: Float32) invertedY: (invertedY: Boolean8) ::=> Matrix4x4
+        := Matrix4x4 reverseDepthFrustumLeft: left * nearDistance right: right * nearDistance
+                bottom: bottom * nearDistance top: top * nearDistance
+                near: nearDistance far: farDistance
+                invertedY: invertedY.
+}.
+
+compileTime constant FrustumTangentsF32 := GenericFrustumTangents(Float32).
+compileTime constant FrustumTangentsF64 := GenericFrustumTangents(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn
