@@ -55,7 +55,6 @@ function jpegFillInputBuffer(cinfo: j_decompress_ptr) => Int32 := {
 function jpegSkipInputData(cinfo: j_decompress_ptr, byteCount: CTypes Long) => Void := {
     let source := cinfo _ src.
     byteCount < 0 ifTrue: {return: void}.
-    Stdn stdout << "jpegSkipInputData  " << byteCount; nl.
 
     let remainingByteCount mutable := byteCount castTo: UIntPointer.
     while: remainingByteCount > source _ bytes_in_buffer do: {

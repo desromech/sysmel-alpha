@@ -17,6 +17,12 @@ class Form definition: {
             result _ initializeWithExtent: theExtent pixelFormat: thePixelFormat.
             result
         }.
+
+        method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) pitch: (thePitch: UInt32 )::=> Form sharedPointer := {
+            let result := Form sharedNew.
+            result _ initializeWithExtent: theExtent pixelFormat: thePixelFormat pitch: thePitch.
+            result
+        }.
     }.
 
     inline method width => UInt32
@@ -46,6 +52,30 @@ class Form definition: {
             applyFullClippingBounds;
             initializeCachedState;
             yourself.
+
+    inline method makeVerticallyFlippedBlitter => Blitter
+        := Blitter basicNewValue
+            extent: extent;
+            pixelFormat: pixelFormat;
+            pitch: (pitch castTo: Int32) negated;
+            pixels: pixels getPointer + (pitch * (extent y - 1));
+            applyFullClippingBounds;
+            initializeCachedState;
+            yourself.
+
+    method asFormWithFormat: (newFormat: PixelFormat) ::=> FormPtr := {
+        let convertedForm := Form extent: extent pixelFormat: newFormat.
+        convertedForm _ makeBlitter
+            copyPixelsFrom: self makeBlitter into: Int32x2 zeros.
+        convertedForm
+    }.
+
+    method asVerticallyFlippedFormWithFormat: (newFormat: PixelFormat) ::=> FormPtr := {
+        let convertedForm := Form extent: extent pixelFormat: newFormat.
+        convertedForm _ makeVerticallyFlippedBlitter
+            copyPixelsFrom: self makeBlitter into: Int32x2 zeros.
+        convertedForm
+    }.
 
     method asTextureData => TextureDataPtr := {
         let result := TextureData sharedNew.

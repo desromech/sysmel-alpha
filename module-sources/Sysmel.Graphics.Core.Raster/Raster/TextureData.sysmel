@@ -2,9 +2,41 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+compileTime if: Compiler compilationTarget isDesktopPC then: {
+    Compiler addNativeLibraryDependency: #SysmelTextureCompressor.
+
+    function sysmel_textureCompressor_compressTextureSlice externC(
+        width: UInt32 , height: UInt32,
+        sourceFormat: PixelFormat, sourcePitch: Int32, sourcePixels: UInt8 const pointer,
+        destFormat: PixelFormat, destPitch: Int32, destPixels: UInt8 pointer) => Boolean8.
+    function sysmel_textureCompressor_decompressTextureSlice externC(
+        width: UInt32 , height: UInt32,
+        sourceFormat: PixelFormat, sourcePitch: Int32, sourcePixels: UInt8 const pointer,
+        destFormat: PixelFormat, destPitch: Int32, destPixels: UInt8 pointer) => Boolean8.
+}.
+
 enum TextureDataFlags bitMask valueType: UInt32; values: #{
     None: 0.
     OptimalTargetSpecificTiling: 1. ## For some embedded devices where the tiling layout is well known.
+}.
+
+class TextureFileHeader definition: {
+    compileTime constant MagicNumber := "STEX".
+    compileTime constant VersionMajor := 0.
+    compileTime constant VersionMinor := 1.
+
+    public field magic type: (Char8 array: 4).
+    public field versionMajor type: UInt16.
+    public field versionMinor type: UInt16.
+
+    method isValid => Boolean8
+        := magic = MagicNumber && versionMajor = VersionMajor && versionMinor = VersionMinor.
+
+    method setValid => Void := {
+        Stdn memcpy(magic address, MagicNumber, 4).
+        versionMajor := VersionMajor.
+        versionMinor := VersionMinor.
+    }.
 }.
 
 class TextureDataHeader definition: {
@@ -28,6 +60,35 @@ class TextureDataHeader definition: {
 class TextureData superclass: TextureDataHeader; definition: {
     public field pixels type: UInt8 uniquePointer.
     public field levelsData type: Stdn Collections Vector(TextureLevelData).
+
+    method asFormForLevel: (levelIndex: UIntPointer) ::=> FormPtr := {
+        format isCompressed ifTrue: {
+            return: (self asNonColorTextureDataExpandedForConversions _ asFormForLevel: levelIndex)
+        }.
+
+        let levelData ref := levelsData[levelIndex].
+
+        let form := Form extent: levelData extent xy pixelFormat: format.
+        let levelPixels := pixels getPointer + levelData dataOffset.
+        let sourcePitch := levelData pitch.
+        let destPitch := form _ pitch.
+        sourcePitch = destPitch && levelData slicePitch = form _ height * destPitch ifTrue: {
+            Stdn memcpy(form _ pixels getPointer, levelPixels, levelData slicePitch)
+        } ifFalse: {
+            let source mutable := levelPixels.
+            let dest mutable := form _ pixels getPointer.
+            0 until: form _ height do: {:y :: Void |
+                Stdn memcpy(dest, source, destPitch).
+                dest := dest + destPitch.
+                source := source + sourcePitch.
+            }
+        }.
+
+        form
+    }.
+
+    method asForm => FormPtr
+        := self asFormForLevel: 0.
 
     method computeLinearPackedTextureLevelMetadata => Void := {
         levelsData
@@ -77,8 +138,106 @@ class TextureData superclass: TextureDataHeader; definition: {
         linearDataSize := currentDataOffset
     }.
 
-    inline const method convertIntoPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat)
-        with: (pixelConversionBlock: ((UInt8 pointer -- UInt8 const pointer) => Void) nativeStackBlockClosure) ::=> TextureData sharedPointer := {
+    inline const method convertIntoCompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
+        compileTime if: Compiler compilationTarget isDesktopPC then: {
+            let result := TextureData sharedNew.
+            result _
+                type: type;
+                format: newFormat;
+                srgbFormat: newSRGBFormat;
+
+                width: width;
+                height: height;
+                depth: depth;
+                miplevels: miplevels;
+                layers: layers;
+                flags: flags;
+                mainViewComponents: mainViewComponents;
+                computeLinearPackedTextureLevelMetadata.
+            Stdn assert: newFormat isCompressed.
+            Stdn assert: format isCompressed not.
+            Stdn assert: levelsData size = result _ levelsData size.
+            let sourcePixelSize := format bytesPerPixel.
+            let destPixelSize := newFormat bytesPerPixel.
+
+            result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+
+            0 until: levelsData size do: {:i :: Void |
+                let sourceLevel ref := levelsData[i].
+                let destLevel ref := result _ levelsData[i].
+
+                let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
+                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                0 until: sourceLevel extent z do: {:z :: Void |
+                    sysmel_textureCompressor_compressTextureSlice(
+                        sourceLevel extent x, sourceLevel extent y,
+                        format, sourceLevel pitch castTo: Int32, sourceSlice,
+                        newFormat, destLevel pitch castTo: Int32, destSlice) ifFalse: {
+                        return: TextureData sharedPointer nil
+                    }.
+
+                    sourceSlice := sourceSlice + sourceLevel slicePitch.
+                    destSlice := destSlice + destLevel slicePitch.
+                }.
+            }.
+
+            result
+        } else: {
+            return: TextureData sharedPointer nil
+        }
+    }.
+
+    inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
+        compileTime if: Compiler compilationTarget isDesktopPC then: {
+            let result := TextureData sharedNew.
+            result _
+                type: type;
+                format: newFormat;
+                srgbFormat: newSRGBFormat;
+
+                width: width;
+                height: height;
+                depth: depth;
+                miplevels: miplevels;
+                layers: layers;
+                flags: flags;
+                mainViewComponents: mainViewComponents;
+                computeLinearPackedTextureLevelMetadata.
+            Stdn assert: newFormat isCompressed not.
+            Stdn assert: format isCompressed.
+            Stdn assert: levelsData size = result _ levelsData size.
+            let sourcePixelSize := format bytesPerPixel.
+            let destPixelSize := newFormat bytesPerPixel.
+
+            result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+
+            0 until: levelsData size do: {:i :: Void |
+                let sourceLevel ref := levelsData[i].
+                let destLevel ref := result _ levelsData[i].
+
+                let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
+                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                0 until: sourceLevel extent z do: {:z :: Void |
+                    sysmel_textureCompressor_decompressTextureSlice(
+                        sourceLevel extent x, sourceLevel extent y,
+                        format, sourceLevel pitch castTo: Int32, sourceSlice,
+                        newFormat, destLevel pitch castTo: Int32, destSlice) ifFalse: {
+                        return: TextureData sharedPointer nil
+                    }.
+
+                    sourceSlice := sourceSlice + sourceLevel slicePitch.
+                    destSlice := destSlice + destLevel slicePitch.
+                }.
+            }.
+
+            result
+        } else: {
+            return: TextureData sharedPointer nil
+        }
+    }.
+
+    inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat)
+        with: (pixelConversionBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData sharedPointer := {
         let result := TextureData sharedNew.
         result _
             type: type;
@@ -129,8 +288,73 @@ class TextureData superclass: TextureDataHeader; definition: {
         result
     }.
 
+    inline const method swizzleComponentsWith: (swizzleBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData sharedPointer := {
+        let result := TextureData sharedNew.
+        result _
+            type: type;
+            format: format;
+            srgbFormat: srgbFormat;
+
+            width: width;
+            height: height;
+            depth: depth;
+            miplevels: miplevels;
+            layers: layers;
+            flags: flags;
+            mainViewComponents: mainViewComponents;
+            computeLinearPackedTextureLevelMetadata.
+        Stdn assert: levelsData size = result _ levelsData size.
+        let pixelSize := format bytesPerPixel.
+
+        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+        let pixelCount := result _ linearDataSize / pixelSize.
+        let sourcePixels mutable := pixels getPointer.
+        let destPixels mutable := result _ pixels getPointer.
+
+        0 until: pixelCount do: {:i :: Void |
+            swizzleBlock(destPixels, sourcePixels).
+            destPixels := destPixels + pixelSize.
+            sourcePixels := sourcePixels + pixelSize.
+        }.
+
+        result
+    }.
+
+    const method convertFromPixelFormat: (sourceFormat: PixelFormat) intoFormat: (destFormat: PixelFormat)
+        resultFormat: (resultFormat: PixelFormat) srgbFormat: (resultSrgbFormat: PixelFormat) ::=> TextureData sharedPointer := {
+
+        sourceFormat isCompressed not && destFormat isCompressed ifTrue: {
+            return: (self convertIntoCompressedPixelFormat: resultFormat srgbFormat: resultSrgbFormat)
+        }.
+
+        sourceFormat isCompressed && destFormat isCompressed not ifTrue: {
+            return: (self convertIntoUncompressedPixelFormat: resultFormat srgbFormat: resultSrgbFormat)
+        }.
+
+        sourceFormat isCompressed not && destFormat isCompressed not ifTrue: {
+            return: (self convertIntoUncompressedPixelFormat: resultFormat srgbFormat: resultSrgbFormat
+                with: { :(UInt8 pointer)destPixel :(UInt8 const pointer) sourcePixel :: Void |
+                    destFormat store: (sourceFormat fetchFromMemory: sourcePixel) intoMemory: destPixel
+            })
+        }.
+
+        TextureData sharedPointer nil
+    }.
+
+    const method asTextureDataExpandedForConversions => TextureData sharedPointer
+        := self convertFromPixelFormat: srgbFormat intoFormat: srgbFormat asExpandedWorkingFormat
+            resultFormat: srgbFormat asExpandedWorkingFormat asLinearFormat srgbFormat: srgbFormat asExpandedWorkingFormat.
+
+    const method asNonColorTextureDataExpandedForConversions => TextureData sharedPointer
+        := self convertFromPixelFormat: format intoFormat: format asExpandedWorkingFormat
+            resultFormat: format asExpandedWorkingFormat srgbFormat: format asExpandedWorkingFormat asSRGBFormat.
+
+    const method asNormalMapTextureDataExpandedForConversions => TextureData sharedPointer
+        := self convertFromPixelFormat: format intoFormat: PixelFormat R8G8B8A8_UNorm
+            resultFormat: PixelFormat R8G8B8A8_UNorm srgbFormat: PixelFormat R8G8B8A8_UNormSRGB.
+
     const method expand24To32BitsWithFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
-        self convertIntoPixelFormat: newFormat srgbFormat: newSRGBFormat
+        self convertIntoUncompressedPixelFormat: newFormat srgbFormat: newSRGBFormat
             with: { :(UInt8 pointer)destPixel :(UInt8 const pointer) sourcePixel :: Void |
                 destPixel[0] := sourcePixel[0].
                 destPixel[1] := sourcePixel[1].
@@ -416,6 +640,20 @@ class TextureData superclass: TextureDataHeader; definition: {
 
     method generateNormalMiplevels => TextureData sharedPointer
         := self generateNormalMiplevelsDownTo: 1.
+
+    const method swizzleComponentsForRXGBNormalMap => TextureData sharedPointer := {
+        let result := self swizzleComponentsWith: {:(UInt8 pointer)destPixel :(UInt8 const pointer)sourcePixel :: Void |
+            let source := (sourcePixel reinterpretCastTo: UInt8x4 const pointer) _.
+            (destPixel reinterpretCastTo: UInt8x4 pointer) _ := UInt8x4(0, source g, 0, source r)
+        }.
+        result _ mainViewComponents: (ComponentsSwizzle()
+            r: ComponentSwizzle A;
+            g: ComponentSwizzle G;
+            b: ComponentSwizzle Zero;
+            a: ComponentSwizzle Zero;
+            yourself).
+        result
+    }
 
 }.
 

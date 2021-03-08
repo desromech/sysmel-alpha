@@ -19,6 +19,13 @@ struct TGAHeader packed definition: {
     public field imageDescriptor type: UInt8.
 }.
 
+PixelFormat extend: {
+    method asValidFormatForTGA => PixelFormat := {
+        self isInSRGB
+                ifTrue: B8G8R8A8_UNormSRGB
+                ifFalse: B8G8R8A8_UNorm
+    }.
+}.
 
 class TGAImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
@@ -27,19 +34,21 @@ class TGAImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/x-targa" || mimeType = "image/x-tga".
 
-    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const method putConvertedForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         let header mutable type: TGAHeader.
         header
             imageType: 2; ## True color image.
             width: (form width castTo: UInt16);
             height: (form height castTo: UInt16);
-            bitsPerPixel: (form pixelFormat bytesPerPixel*8 castTo: UInt8);
-            imageDescriptor: 16r20.
+            bitsPerPixel: (form pixelFormat bytesPerPixel*8 castTo: UInt8).
 
-        ## FIXME: Convert the pixels into a packed and flipped format that is supported by TGA file!.
         outputStream
             write: header address size: TGAHeader instanceSize;
             write: form pixels getPointer size: form height * form pitch.
+    }.
+
+    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        self putConvertedForm: (form asVerticallyFlippedFormWithFormat: form pixelFormat asValidFormatForTGA) _ onStream: outputStream.
     }.
 }.
 

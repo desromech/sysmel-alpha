@@ -343,6 +343,9 @@ enum PixelFormat valueType: UInt32; values: #{
         Stdn abort().
     }.
 
+    inline method isUnknown => Boolean8
+        := self == Unknown.
+
     inline method isInSRGB => Boolean8 := {
         self selectCase: #{
         (
@@ -449,6 +452,27 @@ enum PixelFormat valueType: UInt32; values: #{
             Float32x4(1.0f, 1.0f, 1.0f, memory _ / 255.0f)
         }.
 
+        R8G8B8_UNorm : {
+            Float32x4(memory[0], memory[1], memory[2], 255) / 255.0f
+        }.
+
+        R8G8B8_UNormSRGB : {
+            Stdn Math Color decodeSRGBUnorm8(UInt8x4(memory[0], memory[1], memory[2], 255))
+        }.
+
+        R8G8B8_SNorm : {
+            let smemory := memory reinterpretCastTo: Int8 pointer.
+            Float32x4(smemory[0], smemory[1], smemory[2], 127) / 127.0f
+        }.
+
+        B8G8R8_UNorm : {
+            Float32x4(memory[2], memory[1], memory[0], 255) / 255.0f
+        }.
+
+        B8G8R8_UNormSRGB : {
+            Stdn Math Color decodeSRGBUnorm8(UInt8x4(memory[2], memory[1], memory[0], 255))
+        }.
+
         (R8G8B8A8_Typeless, R8G8B8A8_UNorm) asValueInSetPattern : {
             ((memory reinterpretCastTo: UInt8x4 pointer) _ castTo: Float32x4)/ 255.0f
         }.
@@ -494,6 +518,18 @@ enum PixelFormat valueType: UInt32; values: #{
             (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f)
         }.
 
+        R8G8B8A8_SNorm : {
+            (memory reinterpretCastTo: Int8x4 pointer) _ := (pixel clampMin: -1.0f max: 1.0f) * 127.0f castTo: Int8x4
+        }.
+
+        R8G8B8A8_UInt : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := (pixel clampMin: 0.0f max: 255.0f) castTo: UInt8x4
+        }.
+
+        R8G8B8A8_SInt : {
+            (memory reinterpretCastTo: Int8x4 pointer) _ := (pixel clampMin: -128.0f max: 127.0f) castTo: Int8x4
+        }.
+
         (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm) asValueInSetPattern : {
             (memory reinterpretCastTo: UInt8x4 pointer) _ := (pixel bgra clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4
         }.
@@ -501,6 +537,65 @@ enum PixelFormat valueType: UInt32; values: #{
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
             (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel bgra clampMin: 0.0f max: 1.0f)
         }.
+
+        R8G8B8_UNorm : {
+            let encodedPixel := (pixel clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4.
+            memory[0] := encodedPixel r. memory[1] := encodedPixel g. memory[2] := encodedPixel b.
+        }.
+
+        R8G8B8_UNormSRGB : {
+            let encodedPixel := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
+            memory[0] := encodedPixel r. memory[1] := encodedPixel g. memory[2] := encodedPixel b.
+        }.
+
+        R8G8B8_SNorm : {
+            let encodedPixel := (pixel clampMin: -1.0f max: 1.0f) * 127.0f castTo: Int8x4.
+            let smemory := memory reinterpretCastTo: Int8 pointer.
+            smemory[0] := encodedPixel r. smemory[1] := encodedPixel g. smemory[2] := encodedPixel b.
+        }.
+
+        B8G8R8_UNorm : {
+            let encodedPixel := (pixel clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4.
+            memory[0] := encodedPixel b. memory[1] := encodedPixel g. memory[2] := encodedPixel r.
+        }.
+
+        B8G8R8_UNormSRGB : {
+            let encodedPixel := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
+            memory[0] := encodedPixel b. memory[1] := encodedPixel g. memory[2] := encodedPixel r.
+        }.
+
+        (R8G8_Typeless, R8G8_UNorm) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x2 pointer) _ := (pixel rg clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x2
+        }.
+
+        R8G8_SNorm : {
+            (memory reinterpretCastTo: Int8x2 pointer) _ := (pixel rg clampMin: -1.0f max: 1.0f) * 127.0f castTo: Int8x2
+        }.
+
+        R8G8_UInt : {
+            (memory reinterpretCastTo: UInt8x2 pointer) _ := (pixel rg clampMin: 0.0f max: 255.0f) castTo: UInt8x2
+        }.
+
+        R8G8_SInt : {
+            (memory reinterpretCastTo: Int8x2 pointer) _ := (pixel rg clampMin: -128.0f max: 127.0f) castTo: Int8x2
+        }.
+
+        (R8_Typeless, R8_UNorm) asValueInSetPattern : {
+            memory _ := (pixel r clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8
+        }.
+
+        R8_SNorm : {
+            (memory reinterpretCastTo: Int8 pointer) _ := (pixel r clampMin: -1.0f max: 1.0f) * 127.0f castTo: Int8
+        }.
+
+        R8_UInt : {
+            memory  _ := (pixel r clampMin: 0.0f max: 255.0f) castTo: UInt8
+        }.
+
+        R8_SInt : {
+            (memory reinterpretCastTo: Int8 pointer) _ := (pixel r clampMin: -128.0f max: 127.0f) castTo: Int8
+        }.
+
         _ : {}
         }
     }.
@@ -521,6 +616,9 @@ enum PixelFormat valueType: UInt32; values: #{
             destination _ := self fetchFromMemory: memory
         }
     }.
+
+    inline method isCompressed => Boolean8
+        := self compressedBlockSize ~= 0.
 
     inline method compressedBlockSize => UInt32 := {
         self selectCase: #{
@@ -544,6 +642,49 @@ enum PixelFormat valueType: UInt32; values: #{
 
         _ : UInt32x2 zeros.
         }.
+    }.
+
+    inline method asDefaultTargetTextureFormatForPC => SelfType := {
+        self selectCase: #{
+        R8G8B8A8_UNorm : BC3_UNorm.
+        R8G8B8A8_UNormSRGB : BC3_UNormSRGB.
+
+        R8G8B8_UNorm : BC1_UNorm.
+        R8G8B8_UNormSRGB : BC1_UNormSRGB.
+
+        B8G8R8_UNorm : BC1_UNorm.
+        B8G8R8_UNormSRGB : BC1_UNormSRGB.
+
+        _ : self .
+        }
+    }.
+
+    inline method asExpandedWorkingFormat => SelfType := {
+        self selectCase: #{
+        R8G8B8_UNorm : R8G8B8A8_UNorm.
+        R8G8B8_UNormSRGB : R8G8B8A8_UNormSRGB.
+        R8G8B8_SNorm : R8G8B8A8_SNorm.
+
+        B8G8R8_UNorm : B8G8R8A8_UNorm.
+        B8G8R8_UNormSRGB : B8G8R8A8_UNormSRGB.
+
+        BC1_Typeless : R8G8B8A8_UNorm.
+        BC1_UNorm : R8G8B8A8_UNorm.
+        BC1_UNormSRGB : R8G8B8A8_UNormSRGB.
+        BC2_Typeless : R8G8B8A8_UNorm.
+        BC2_UNorm : R8G8B8A8_UNorm.
+        BC2_UNormSRGB : R8G8B8A8_UNormSRGB.
+        BC3_Typeless : R8G8B8A8_UNorm.
+        BC3_UNorm : R8G8B8A8_UNorm.
+        BC3_UNormSRGB : R8G8B8A8_UNormSRGB.
+        BC4_Typeless : R8_UNorm.
+        BC4_UNorm : R8_UNorm.
+        BC4_SNorm : R8_SNorm.
+        BC5_Typeless : R8G8_UNorm.
+        BC5_UNorm : R8G8_UNorm.
+        BC5_SNorm : R8G8_SNorm.
+        _ : self .
+        }
     }.
 
     inline method asLinearFormat => SelfType := {

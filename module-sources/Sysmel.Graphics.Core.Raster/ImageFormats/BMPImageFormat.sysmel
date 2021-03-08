@@ -4,6 +4,40 @@ namespace ImageFormats definition: {
 
 useNamespace: Stdn Graphics Core.
 
+struct BitmapFileHeader packed definition: {
+    public field signature type: (UInt8 array: 2).
+    public field fileSize type: UInt32.
+    public field reserved type: UInt32.
+    public field dataOffset type: UInt32.
+
+    method setValid => Void := {
+        signature[0] := 'B'.
+        signature[1] := 'M'.
+    }
+}.
+
+struct BitmapInfoHeader definition: {
+    public field size type: UInt32.
+    public field width type: UInt32.
+    public field height type: UInt32.
+    public field planes type: UInt16.
+    public field bitsPerPixel type: UInt16.
+    public field compression type: UInt32.
+    public field imageSize type: UInt32.
+    public field xPixelsPerMeter type: UInt32.
+    public field yPixelsPerMeter type: UInt32.
+    public field colorsUsed type: UInt32.
+    public field importantColors type: UInt32.
+}.
+
+PixelFormat extend: {
+    method asValidFormatForBMP => PixelFormat := {
+        self isInSRGB
+            ifTrue: B8G8R8A8_UNormSRGB
+            ifFalse: B8G8R8A8_UNorm
+    }.
+}.
+
 class BMPImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := extension = "bmp".
@@ -12,7 +46,27 @@ class BMPImageReadWriter superclass: ImageReadWriter; definition: {
         := mimeType = "image/bmp" || mimeType = "image/x-bmp".
 
     const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
-        Stdn stdout << "Todo: implemente this part"; nl
+        self putConvertedForm: (form asVerticallyFlippedFormWithFormat: form pixelFormat asValidFormatForBMP) _ onStream: outputStream.
+    }.
+
+    const method putConvertedForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        let pixelDataSize := form height * form pitch.
+        let fileHeader mutable := BitmapFileHeader()
+            setValid;
+            dataOffset: BitmapFileHeader instanceSize + BitmapInfoHeader instanceSize;
+            fileSize: BitmapFileHeader instanceSize + BitmapInfoHeader instanceSize + pixelDataSize;
+            yourself.
+        let infoHeader mutable := BitmapInfoHeader()
+            size: BitmapInfoHeader instanceSize;
+            width: form extent x;
+            height: form extent x;
+            planes: 1;
+            bitsPerPixel: (form pixelFormat bytesPerPixel*8 castTo: UInt16);
+            yourself.
+        outputStream
+            write: fileHeader address size: BitmapFileHeader instanceSize;
+            write: infoHeader address size: BitmapInfoHeader instanceSize;
+            write: form pixels getPointer size: pixelDataSize.
     }.
 }.
 

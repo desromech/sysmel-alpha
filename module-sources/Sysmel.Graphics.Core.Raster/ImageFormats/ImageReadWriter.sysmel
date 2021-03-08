@@ -40,7 +40,7 @@ class ImageReadWriter superclass: Object; definition: {
     }.
 
     const virtual method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
-        ## TODO: implement this.
+        self putForm: textureData asForm _ onStream: outputStream
     }.
 
     const virtual method readFormFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr
