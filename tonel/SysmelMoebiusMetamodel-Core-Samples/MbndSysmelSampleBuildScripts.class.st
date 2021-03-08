@@ -112,6 +112,17 @@ MbndSysmelSampleBuildScripts class >> newNativeBuildEnvironment [
 		yourself
 ]
 
+{ #category : #'native samples' }
+MbndSysmelSampleBuildScripts class >> textureTool [
+	<example>
+	| prog |
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			prog := packageScript programWithSource: 'tools/sysmelTextureTool.sysmel'
+		].
+	^ prog asFileReference asAbsolute canonicalize
+]
+
 { #category : #'see class side' }
 MbndSysmelSampleBuildScripts >> seeClassSide [
 ]

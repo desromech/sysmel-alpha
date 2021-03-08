@@ -45,7 +45,10 @@ MbndWBTSysmelModuleTarget >> asWBTVarSubstitution [
 
 { #category : #'as yet unclassified' }
 MbndWBTSysmelModuleTarget >> buildTargetDependencies [
-	^ buildTargetDependencies ifNil: [ buildTargetDependencies := self computeBuildTargetDependencies ]
+	^ buildTargetDependencies ifNil: [
+		self computeBuildTargetDependencies.
+		buildTargetDependencies
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -63,7 +66,7 @@ MbndWBTSysmelModuleTarget >> computeBuildTargetDependencies [
 		addIndirectLinkLibraries: linkLibraries;
 		addIndirectLinkerArguments: linkerArguments;
 		addIndirectResources: installedResources.
-	^ sources , implicitFileDependencies , importedModules , installedResources
+	^ buildTargetDependencies := sources , implicitFileDependencies , importedModules , installedResources
 		
 ]
 
