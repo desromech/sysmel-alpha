@@ -1,129 +1,27 @@
 Compiler importModulesNamed: #(
-    #"Sysmel.Graphics.Core.Raster"
-    #"Sysmel.Graphics.Format.PNG"
-    #"Sysmel.Graphics.Format.JPEG"
+    #"Sysmel.Tools.TextureConverter"
 ).
 
-function printHelp() => Void := {
-    Stdn stdout
-        << "sysmelTextureTool <options> -i <inputFile> -o <outputFile>"; nl.
-}.
-
-useNamespace: Stdn Graphics Core.
+useNamespace: Sysmel Tools TextureConverter.
 
 Stdn MainEntryPoint: {:args :: Int32 |
-    let inputFile mutable type: Stdn String.
-    let outputFile mutable type: Stdn String.
-    let isNormalMap mutable := false.
-    let isNonColor mutable := false.
-    let generateMipmaps mutable := true.
-    let targetFormat mutable := PixelFormat Unknown.
-
-    for: (let i mutable type: UIntPointer := 1) while: (i < args size) do: {
-        let arg := args[i] until: Stdn cstrlen(args[i]).
-        arg selectCase: #{
-            "-h" : {
-                printHelp().
-                return: 0
-            }.
-
-            "-no-mipmap" : {
-                generateMipmaps := false.
-            }.
-
-            "-normal" : {
-                isNonColor := true.
-                isNormalMap := true.
-            }.
-
-            "-non-color" : {
-                isNonColor := true.
-            }.
-
-            "-i" : {
-                inputFile := args[i := i + 1].
-            }.
-
-            "-o" : {
-                outputFile := args[i := i + 1].
-            }.
-            _ : {
-                printHelp().
-                return: 1
-            }.
-        }.
-
-    } continueWith: (i := i + 1).
-
-    ## Make sure at least an input and output file is provided.
-    inputFile isEmpty || outputFile isEmpty ifTrue: {
-        printHelp().
-        return: 1.
+    let parameters mutable type: Parameters.
+    args size <= 1 ifTrue: {
+        parameters printHelpOnto: Stdn stdout.
+        return: 0
     }.
 
-    ## Load the input file texture source.
-    let inputTextureData := TextureData readFromFileNamed: inputFile.
-    inputTextureData ifNil: {
-        Stdn stderr << "Failed to load input texture/image from file named: " << inputFile; nl.
-        return: 1.
+    (parameters parseFromCommandLine: (args[1] address until: args size - 1)) ifFalse: {
+        parameters printHelpOnto: Stdn stderr.
+        return: 1
     }.
 
-    ## Convert the input texture into something more convenient to operate on.
-    let convertedTextureData mutable := isNonColor
-        ifTrue: {
-            isNormalMap
-                ifTrue: {inputTextureData _ asNormalMapTextureDataExpandedForConversions}
-                ifFalse: {inputTextureData _ asNonColorTextureDataExpandedForConversions}
-        }
-        ifFalse: {inputTextureData _ asTextureDataExpandedForConversions}.
-    convertedTextureData ifNil: {convertedTextureData := inputTextureData}.
-
-    ## Generate mipmaps.
-    generateMipmaps ifTrue: {
-        let withMipmaps mutable := convertedTextureData.
-        isNonColor ifTrue: {
-            isNormalMap ifTrue: {
-                withMipmaps := convertedTextureData _ generateNormalMiplevels.
-                void
-            } ifFalse: {
-                withMipmaps := convertedTextureData _ generateMiplevels.
-                void
-            }
-        } ifFalse: {
-            withMipmaps := convertedTextureData _ generateColorMiplevels.
-            void
-        }.
-
-        withMipmaps ifNotNil: {convertedTextureData := withMipmaps}
+    parameters inputFileName isEmpty || parameters outputFileName isEmpty ifTrue: {
+        parameters printHelpOnto: Stdn stderr.
+        return: 1
     }.
 
-    ## Convert the processed texture into the target format for storage.
-    let encodedTextureData mutable := convertedTextureData.
-    isNonColor ifTrue: {
-        isNormalMap ifTrue: {
-            targetFormat isUnknown ifTrue: {
-                encodedTextureData := convertedTextureData _ swizzleComponentsForRXGBNormalMap.
-                targetFormat := PixelFormat BC3_UNorm
-            }.
-        } ifFalse: {
-            targetFormat isUnknown ifTrue: {
-                targetFormat := inputTextureData _ format asDefaultTargetTextureFormatForPC
-            }.
-        }.
-
-        encodedTextureData := encodedTextureData _ convertFromPixelFormat: encodedTextureData _ format intoFormat: targetFormat
-            resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
-        void
-    } ifFalse: {
-        targetFormat isUnknown ifTrue: {
-            targetFormat := inputTextureData _ srgbFormat asDefaultTargetTextureFormatForPC
-        }.
-
-        encodedTextureData := encodedTextureData _ convertFromPixelFormat: encodedTextureData _ srgbFormat intoFormat: targetFormat
-            resultFormat: targetFormat asLinearFormat srgbFormat: targetFormat.
-        void
-    }.
-
-    ## Write the texture into the output texture data.
-    (encodedTextureData _ writeToFileNamed: outputFile) not asBit
+    (Converter()
+        parameters: parameters;
+        convertTextureFromFileNamed: parameters inputFileName into: parameters outputFileName) not asBit
 }.

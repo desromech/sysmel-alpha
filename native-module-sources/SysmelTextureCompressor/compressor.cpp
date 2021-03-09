@@ -57,23 +57,36 @@ bool sysmel_textureCompressor_compressTextureSlice(
     case PixelFormat::BC1_Typeless:
     case PixelFormat::BC1_UNorm:
     case PixelFormat::BC1_UNormSRGB:
-        tx_compress_dxtn(getPixelFormatComponents(sourceFormat), width, height,
-                  sourcePixels, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+        sysmel_txc_tx_compress_bcn(getPixelFormatComponents(sourceFormat), width, height,
+                  sourcePixels, 1,
                   destPixels, destPitch);
         return true;
     case PixelFormat::BC2_Typeless:
     case PixelFormat::BC2_UNorm:
     case PixelFormat::BC2_UNormSRGB:
-        tx_compress_dxtn(getPixelFormatComponents(sourceFormat), width, height,
-                  sourcePixels, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+        sysmel_txc_tx_compress_bcn(getPixelFormatComponents(sourceFormat), width, height,
+                  sourcePixels, 2,
                   destPixels, destPitch);
         return true;
 
     case PixelFormat::BC3_Typeless:
     case PixelFormat::BC3_UNorm:
     case PixelFormat::BC3_UNormSRGB:
-        tx_compress_dxtn(getPixelFormatComponents(sourceFormat), width, height,
-                  sourcePixels, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+        sysmel_txc_tx_compress_bcn(getPixelFormatComponents(sourceFormat), width, height,
+                  sourcePixels, 3,
+                  destPixels, destPitch);
+        return true;
+
+    case PixelFormat::BC4_Typeless:
+    case PixelFormat::BC4_UNorm:
+        sysmel_txc_tx_compress_bcn(getPixelFormatComponents(sourceFormat), width, height,
+                  sourcePixels, 4,
+                  destPixels, destPitch);
+        return true;
+    case PixelFormat::BC5_Typeless:
+    case PixelFormat::BC5_UNorm:
+        sysmel_txc_tx_compress_bcn(getPixelFormatComponents(sourceFormat), width, height,
+                  sourcePixels, 5,
                   destPixels, destPitch);
         return true;
     default:
@@ -122,17 +135,17 @@ bool sysmel_textureCompressor_decompressTextureSlice(
     case PixelFormat::BC1_Typeless:
     case PixelFormat::BC1_UNorm:
     case PixelFormat::BC1_UNormSRGB:
-        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, fetch_2d_texel_rgba_dxt1);
+        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, sysmel_txc_fetch_2d_texel_rgba_bc1);
         return true;
     case PixelFormat::BC2_Typeless:
     case PixelFormat::BC2_UNorm:
     case PixelFormat::BC2_UNormSRGB:
-        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, fetch_2d_texel_rgba_dxt3);
+        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, sysmel_txc_fetch_2d_texel_rgba_bc2);
         return true;
     case PixelFormat::BC3_Typeless:
     case PixelFormat::BC3_UNorm:
     case PixelFormat::BC3_UNormSRGB:
-        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, fetch_2d_texel_rgba_dxt5);
+        decompressDxtnTextureSliceWith(width, height, sourcePitch, sourcePixels, destFormat, destPitch, destPixels, sysmel_txc_fetch_2d_texel_rgba_bc3);
         return true;
     default:
         return false;

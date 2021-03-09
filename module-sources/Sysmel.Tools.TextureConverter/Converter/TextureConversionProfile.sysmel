@@ -1,0 +1,20 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace TextureConverter definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a texture converter.
+ *#
+class TextureConversionProfile superclass: Stdn SharedObject; definition: {
+    abstract method name => Char8 const arraySlice.
+    abstract method description => Char8 const arraySlice.
+    abstract method convertTextureData: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataPtr.
+}.
+
+compileTime constant TextureConversionProfilePtr := TextureConversionProfile sharedPointer.
+
+} ## End of namespace Tools
+} ## End of namespace TextureConverter
+} ## End of namespace Sysmel

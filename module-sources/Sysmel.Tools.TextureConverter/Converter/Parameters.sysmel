@@ -1,0 +1,89 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace TextureConverter definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * Generic parameters used by the texture conversion tool.
+ *#
+struct Parameters definition: {
+    public field usageType type: TextureUsageType.
+    public field inferUsageFromName type: Boolean8.
+    public field generateMipmaps type: Boolean8.
+    public field targetFormat type: PixelFormat.
+    public field targetProfileName type: Stdn String.
+    public field inputFileName type: Stdn String.
+    public field outputFileName type: Stdn String.
+
+    method initialize => Void := {
+        generateMipmaps := true.
+    }.
+
+    method printHelpOnto: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        out << "Sysmel.Tools.TextureConverter <options>"; nl.
+        out << "-h[elp] Print this message"; nl.
+        out << "-no-mipmap Do not generate mipmaps"; nl.
+        out << "-color Process the texture as a color texture by typically using the sRGB color space."; nl.
+        out << "-non-color Process the texture as non-color data."; nl.
+        out << "-normal Process the texture as a tangent space normal map."; nl.
+        out << "-target-profile The target platform profile to use."; nl.
+        out << "-i The input file name."; nl.
+        out << "-o The output file name."; nl.
+
+        out nl.
+        out << "Target profiles:"; nl.
+        let profiles := TextureConversionProfileRegistry uniqueInstance getProfiles.
+        profiles do: {:each :: Void |
+            out << each _ name << ": " << each _ description; nl
+        }.
+    }.
+
+    method parseFromCommandLine: (args: Char8 const pointer arraySlice) ::=> Boolean8 := {
+        for: (let i mutable type: UIntPointer := 0) while: (i < args size) do: {
+            let arg := args[i] until: Stdn cstrlen(args[i]).
+            arg selectCase: #{
+                "-h" : {
+                    self printHelpOnto: Stdn stdout.
+                    return: false
+                }.
+                "-help" : {
+                    self printHelpOnto: Stdn stdout.
+                    return: false
+                }.
+
+                "-no-mipmap" : {
+                    generateMipmaps := false.
+                }.
+
+                "-color" : {
+                    usageType := TextureUsageType Color
+                }.
+
+                "-normal" : {
+                    usageType := TextureUsageType NormalMap
+                }.
+
+                "-non-color" : {
+                    usageType := TextureUsageType NonColorData
+                }.
+                "-target-profile" : {
+                    targetProfileName := args[i := i + 1].
+                }.
+                "-i" : {
+                    inputFileName := args[i := i + 1].
+                }.
+
+                "-o" : {
+                    outputFileName := args[i := i + 1].
+                }.
+                _ : {return: false}
+            }.
+        } continueWith: (i := i + 1).
+        true
+    }.
+}.
+
+} ## End of namespace Tools
+} ## End of namespace TextureConverter
+} ## End of namespace Sysmel

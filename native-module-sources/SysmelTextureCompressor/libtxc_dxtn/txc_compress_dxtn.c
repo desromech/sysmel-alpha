@@ -35,7 +35,7 @@
 #define ALPHACUT 127
 
 static void fancybasecolorsearch( GLubyte *blkaddr, GLubyte srccolors[4][4][4], GLubyte *bestcolor[2],
-                           GLint numxpixels, GLint numypixels, GLint type, GLboolean haveAlpha)
+                           GLint numxpixels, GLint numypixels, int bcn, GLboolean haveAlpha)
 {
    /* use same luminance-weighted distance metric to determine encoding as for finding the base colors */
 
@@ -227,7 +227,7 @@ static void fancybasecolorsearch( GLubyte *blkaddr, GLubyte srccolors[4][4][4], 
 
 
 static void storedxtencodedblock( GLubyte *blkaddr, GLubyte srccolors[4][4][4], GLubyte *bestcolor[2],
-                           GLint numxpixels, GLint numypixels, GLuint type, GLboolean haveAlpha)
+                           GLint numxpixels, GLint numypixels, int bcn, GLboolean haveAlpha)
 {
    /* use same luminance-weighted distance metric to determine encoding as for finding the base colors */
 
@@ -294,7 +294,7 @@ static void storedxtencodedblock( GLubyte *blkaddr, GLubyte srccolors[4][4][4], 
    for (j = 0; j < numypixels; j++) {
       for (i = 0; i < numxpixels; i++) {
          pixerrorbest = 0xffffffff;
-         if ((type == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) && (srccolors[j][i][3] <= ALPHACUT)) {
+         if ((bcn == 1) && (srccolors[j][i][3] <= ALPHACUT)) {
             enc = 3;
             pixerrorbest = 0; /* don't calculate error */
          }
@@ -345,7 +345,7 @@ static void storedxtencodedblock( GLubyte *blkaddr, GLubyte srccolors[4][4][4], 
 }
 
 static void encodedxtcolorblockfaster( GLubyte *blkaddr, GLubyte srccolors[4][4][4],
-                         GLint numxpixels, GLint numypixels, GLuint type )
+                         GLint numxpixels, GLint numypixels, int bcn )
 {
 /* simplistic approach. We need two base colors, simply use the "highest" and the "lowest" color
    present in the picture as base colors */
@@ -368,7 +368,7 @@ static void encodedxtcolorblockfaster( GLubyte *blkaddr, GLubyte srccolors[4][4]
    for (j = 0; j < numypixels; j++) {
       for (i = 0; i < numxpixels; i++) {
          /* don't use this as a base color if the pixel will get black/transparent anyway */
-         if ((type != GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) || (srccolors[j][i][3] <= ALPHACUT)) {
+         if ((bcn != 1) || (srccolors[j][i][3] <= ALPHACUT)) {
             testcv = srccolors[j][i][0] * srccolors[j][i][0] * REDWEIGHT +
                      srccolors[j][i][1] * srccolors[j][i][1] * GREENWEIGHT +
                      srccolors[j][i][2] * srccolors[j][i][2] * BLUEWEIGHT;
@@ -394,9 +394,9 @@ static void encodedxtcolorblockfaster( GLubyte *blkaddr, GLubyte srccolors[4][4]
    bestcolor[1] = basecolors[1];
 
    /* try to find better base colors */
-   fancybasecolorsearch(blkaddr, srccolors, bestcolor, numxpixels, numypixels, type, haveAlpha);
+   fancybasecolorsearch(blkaddr, srccolors, bestcolor, numxpixels, numypixels, bcn, haveAlpha);
    /* find the best encoding for these colors, and store the result */
-   storedxtencodedblock(blkaddr, srccolors, bestcolor, numxpixels, numypixels, type, haveAlpha);
+   storedxtencodedblock(blkaddr, srccolors, bestcolor, numxpixels, numypixels, bcn, haveAlpha);
 }
 
 static void writedxt5encodedalphablock( GLubyte *blkaddr, GLubyte alphabase1, GLubyte alphabase2,
@@ -413,7 +413,7 @@ static void writedxt5encodedalphablock( GLubyte *blkaddr, GLubyte alphabase1, GL
 }
 
 static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
-                            GLint numxpixels, GLint numypixels)
+                            GLint numxpixels, GLint numypixels, int alphaComponentIndex)
 {
    GLubyte alphabase[2], alphause[2];
    GLshort alphatest[2];
@@ -428,15 +428,15 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
    alphabase[0] = 0xff; alphabase[1] = 0x0;
    for (j = 0; j < numypixels; j++) {
       for (i = 0; i < numxpixels; i++) {
-         if (srccolors[j][i][3] == 0)
+         if (srccolors[j][i][alphaComponentIndex] == 0)
             alphaabsmin = GL_TRUE;
-         else if (srccolors[j][i][3] == 255)
+         else if (srccolors[j][i][alphaComponentIndex] == 255)
             alphaabsmax = GL_TRUE;
          else {
-            if (srccolors[j][i][3] > alphabase[1])
-               alphabase[1] = srccolors[j][i][3];
-            if (srccolors[j][i][3] < alphabase[0])
-               alphabase[0] = srccolors[j][i][3];
+            if (srccolors[j][i][alphaComponentIndex] > alphabase[1])
+               alphabase[1] = srccolors[j][i][alphaComponentIndex];
+            if (srccolors[j][i][alphaComponentIndex] < alphabase[0])
+               alphabase[0] = srccolors[j][i][alphaComponentIndex];
          }
       }
    }
@@ -447,7 +447,7 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
       /* || (alphabase[0] == alphabase[1] && !alphaabsmin && !alphaabsmax) */
       /* could also thest for alpha0 == alpha1 (and not min/max), but probably not common, so don't bother */
 
-      *blkaddr++ = srccolors[0][0][3];
+      *blkaddr++ = srccolors[0][0][alphaComponentIndex];
       blkaddr++;
       *blkaddr++ = 0;
       *blkaddr++ = 0;
@@ -478,37 +478,37 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
       for (i = 0; i < numxpixels; i++) {
          /* maybe it's overkill to have the most complicated calculation just for the error
             calculation which we only need to figure out if encoding1 or encoding2 is better... */
-         if (srccolors[j][i][3] > acutValues[0]) {
+         if (srccolors[j][i][alphaComponentIndex] > acutValues[0]) {
             alphaenc1[4*j + i] = 0;
-            alphadist = srccolors[j][i][3] - alphause[1];
+            alphadist = srccolors[j][i][alphaComponentIndex] - alphause[1];
          }
-         else if (srccolors[j][i][3] > acutValues[1]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[1]) {
             alphaenc1[4*j + i] = 2;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 6 + alphause[0] * 1) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 6 + alphause[0] * 1) / 7;
          }
-         else if (srccolors[j][i][3] > acutValues[2]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[2]) {
             alphaenc1[4*j + i] = 3;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 5 + alphause[0] * 2) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 5 + alphause[0] * 2) / 7;
          }
-         else if (srccolors[j][i][3] > acutValues[3]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[3]) {
             alphaenc1[4*j + i] = 4;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 4 + alphause[0] * 3) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 4 + alphause[0] * 3) / 7;
          }
-         else if (srccolors[j][i][3] > acutValues[4]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[4]) {
             alphaenc1[4*j + i] = 5;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 3 + alphause[0] * 4) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 3 + alphause[0] * 4) / 7;
          }
-         else if (srccolors[j][i][3] > acutValues[5]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[5]) {
             alphaenc1[4*j + i] = 6;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 2 + alphause[0] * 5) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 2 + alphause[0] * 5) / 7;
          }
-         else if (srccolors[j][i][3] > acutValues[6]) {
+         else if (srccolors[j][i][alphaComponentIndex] > acutValues[6]) {
             alphaenc1[4*j + i] = 7;
-            alphadist = srccolors[j][i][3] - (alphause[1] * 1 + alphause[0] * 6) / 7;
+            alphadist = srccolors[j][i][alphaComponentIndex] - (alphause[1] * 1 + alphause[0] * 6) / 7;
          }
          else {
             alphaenc1[4*j + i] = 1;
-            alphadist = srccolors[j][i][3] - alphause[0];
+            alphadist = srccolors[j][i][alphaComponentIndex] - alphause[0];
          }
          alphablockerror1 += alphadist * alphadist;
       }
@@ -543,37 +543,37 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
          for (i = 0; i < numxpixels; i++) {
              /* maybe it's overkill to have the most complicated calculation just for the error
                calculation which we only need to figure out if encoding1 or encoding2 is better... */
-            if (srccolors[j][i][3] == 0) {
+            if (srccolors[j][i][alphaComponentIndex] == 0) {
                alphaenc2[4*j + i] = 6;
                alphadist = 0;
             }
-            else if (srccolors[j][i][3] == 255) {
+            else if (srccolors[j][i][alphaComponentIndex] == 255) {
                alphaenc2[4*j + i] = 7;
                alphadist = 0;
             }
-            else if (srccolors[j][i][3] <= acutValues[0]) {
+            else if (srccolors[j][i][alphaComponentIndex] <= acutValues[0]) {
                alphaenc2[4*j + i] = 0;
-               alphadist = srccolors[j][i][3] - alphabase[0];
+               alphadist = srccolors[j][i][alphaComponentIndex] - alphabase[0];
             }
-            else if (srccolors[j][i][3] <= acutValues[1]) {
+            else if (srccolors[j][i][alphaComponentIndex] <= acutValues[1]) {
                alphaenc2[4*j + i] = 2;
-               alphadist = srccolors[j][i][3] - (alphabase[0] * 4 + alphabase[1] * 1) / 5;
+               alphadist = srccolors[j][i][alphaComponentIndex] - (alphabase[0] * 4 + alphabase[1] * 1) / 5;
             }
-            else if (srccolors[j][i][3] <= acutValues[2]) {
+            else if (srccolors[j][i][alphaComponentIndex] <= acutValues[2]) {
                alphaenc2[4*j + i] = 3;
-               alphadist = srccolors[j][i][3] - (alphabase[0] * 3 + alphabase[1] * 2) / 5;
+               alphadist = srccolors[j][i][alphaComponentIndex] - (alphabase[0] * 3 + alphabase[1] * 2) / 5;
             }
-            else if (srccolors[j][i][3] <= acutValues[3]) {
+            else if (srccolors[j][i][alphaComponentIndex] <= acutValues[3]) {
                alphaenc2[4*j + i] = 4;
-               alphadist = srccolors[j][i][3] - (alphabase[0] * 2 + alphabase[1] * 3) / 5;
+               alphadist = srccolors[j][i][alphaComponentIndex] - (alphabase[0] * 2 + alphabase[1] * 3) / 5;
             }
-            else if (srccolors[j][i][3] <= acutValues[4]) {
+            else if (srccolors[j][i][alphaComponentIndex] <= acutValues[4]) {
                alphaenc2[4*j + i] = 5;
-               alphadist = srccolors[j][i][3] - (alphabase[0] * 1 + alphabase[1] * 4) / 5;
+               alphadist = srccolors[j][i][alphaComponentIndex] - (alphabase[0] * 1 + alphabase[1] * 4) / 5;
             }
             else {
                alphaenc2[4*j + i] = 1;
-               alphadist = srccolors[j][i][3] - alphabase[1];
+               alphadist = srccolors[j][i][alphaComponentIndex] - alphabase[1];
             }
             alphablockerror2 += alphadist * alphadist;
          }
@@ -592,10 +592,10 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
          /* if we have large range it's likely there are values close to 0/255, try to map them to 0/255 */
          for (j = 0; j < numypixels; j++) {
             for (i = 0; i < numxpixels; i++) {
-               if ((srccolors[j][i][3] > alphatest[1]) && (srccolors[j][i][3] < (255 -(alphabase[1] - alphabase[0]) / 28)))
-                  alphatest[1] = srccolors[j][i][3];
-               if ((srccolors[j][i][3] < alphatest[0]) && (srccolors[j][i][3] > (alphabase[1] - alphabase[0]) / 28))
-                  alphatest[0] = srccolors[j][i][3];
+               if ((srccolors[j][i][alphaComponentIndex] > alphatest[1]) && (srccolors[j][i][alphaComponentIndex] < (255 -(alphabase[1] - alphabase[0]) / 28)))
+                  alphatest[1] = srccolors[j][i][alphaComponentIndex];
+               if ((srccolors[j][i][alphaComponentIndex] < alphatest[0]) && (srccolors[j][i][alphaComponentIndex] > (alphabase[1] - alphabase[0]) / 28))
+                  alphatest[0] = srccolors[j][i][alphaComponentIndex];
             }
          }
           /* shouldn't happen too often, don't really care about those degenerated cases */
@@ -618,40 +618,40 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
          */
          for (j = 0; j < numypixels; j++) {
             for (i = 0; i < numxpixels; i++) {
-               if (srccolors[j][i][3] <= alphatest[0] / 2) {
+               if (srccolors[j][i][alphaComponentIndex] <= alphatest[0] / 2) {
                }
-               else if (srccolors[j][i][3] > ((255 + alphatest[1]) / 2)) {
+               else if (srccolors[j][i][alphaComponentIndex] > ((255 + alphatest[1]) / 2)) {
                }
-               else if (srccolors[j][i][3] <= acutValues[0]) {
-                  blockerrlin1 += (srccolors[j][i][3] - alphatest[0]);
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[0]) {
+                  blockerrlin1 += (srccolors[j][i][alphaComponentIndex] - alphatest[0]);
                   nralphainrangelow += 1;
                }
-               else if (srccolors[j][i][3] <= acutValues[1]) {
-                  blockerrlin1 += (srccolors[j][i][3] - (alphatest[0] * 4 + alphatest[1] * 1) / 5);
-                  blockerrlin2 += (srccolors[j][i][3] - (alphatest[0] * 4 + alphatest[1] * 1) / 5);
-                  nralphainrangelow += 1;
-                  nralphainrangehigh += 1;
-               }
-               else if (srccolors[j][i][3] <= acutValues[2]) {
-                  blockerrlin1 += (srccolors[j][i][3] - (alphatest[0] * 3 + alphatest[1] * 2) / 5);
-                  blockerrlin2 += (srccolors[j][i][3] - (alphatest[0] * 3 + alphatest[1] * 2) / 5);
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[1]) {
+                  blockerrlin1 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 4 + alphatest[1] * 1) / 5);
+                  blockerrlin2 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 4 + alphatest[1] * 1) / 5);
                   nralphainrangelow += 1;
                   nralphainrangehigh += 1;
                }
-               else if (srccolors[j][i][3] <= acutValues[3]) {
-                  blockerrlin1 += (srccolors[j][i][3] - (alphatest[0] * 2 + alphatest[1] * 3) / 5);
-                  blockerrlin2 += (srccolors[j][i][3] - (alphatest[0] * 2 + alphatest[1] * 3) / 5);
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[2]) {
+                  blockerrlin1 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 3 + alphatest[1] * 2) / 5);
+                  blockerrlin2 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 3 + alphatest[1] * 2) / 5);
                   nralphainrangelow += 1;
                   nralphainrangehigh += 1;
                }
-               else if (srccolors[j][i][3] <= acutValues[4]) {
-                  blockerrlin1 += (srccolors[j][i][3] - (alphatest[0] * 1 + alphatest[1] * 4) / 5);
-                  blockerrlin2 += (srccolors[j][i][3] - (alphatest[0] * 1 + alphatest[1] * 4) / 5);
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[3]) {
+                  blockerrlin1 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 2 + alphatest[1] * 3) / 5);
+                  blockerrlin2 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 2 + alphatest[1] * 3) / 5);
+                  nralphainrangelow += 1;
+                  nralphainrangehigh += 1;
+               }
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[4]) {
+                  blockerrlin1 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 1 + alphatest[1] * 4) / 5);
+                  blockerrlin2 += (srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 1 + alphatest[1] * 4) / 5);
                   nralphainrangelow += 1;
                   nralphainrangehigh += 1;
                   }
                else {
-                  blockerrlin2 += (srccolors[j][i][3] - alphatest[1]);
+                  blockerrlin2 += (srccolors[j][i][alphaComponentIndex] - alphatest[1]);
                   nralphainrangehigh += 1;
                }
             }
@@ -682,37 +682,37 @@ static void encodedxt5alpha(GLubyte *blkaddr, GLubyte srccolors[4][4][4],
             for (i = 0; i < numxpixels; i++) {
                 /* maybe it's overkill to have the most complicated calculation just for the error
                   calculation which we only need to figure out if encoding1 or encoding2 is better... */
-               if (srccolors[j][i][3] <= alphatest[0] / 2) {
+               if (srccolors[j][i][alphaComponentIndex] <= alphatest[0] / 2) {
                   alphaenc3[4*j + i] = 6;
-                  alphadist = srccolors[j][i][3];
+                  alphadist = srccolors[j][i][alphaComponentIndex];
                }
-               else if (srccolors[j][i][3] > ((255 + alphatest[1]) / 2)) {
+               else if (srccolors[j][i][alphaComponentIndex] > ((255 + alphatest[1]) / 2)) {
                   alphaenc3[4*j + i] = 7;
-                  alphadist = 255 - srccolors[j][i][3];
+                  alphadist = 255 - srccolors[j][i][alphaComponentIndex];
                }
-               else if (srccolors[j][i][3] <= acutValues[0]) {
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[0]) {
                   alphaenc3[4*j + i] = 0;
-                  alphadist = srccolors[j][i][3] - alphatest[0];
+                  alphadist = srccolors[j][i][alphaComponentIndex] - alphatest[0];
                }
-               else if (srccolors[j][i][3] <= acutValues[1]) {
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[1]) {
                  alphaenc3[4*j + i] = 2;
-                 alphadist = srccolors[j][i][3] - (alphatest[0] * 4 + alphatest[1] * 1) / 5;
+                 alphadist = srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 4 + alphatest[1] * 1) / 5;
                }
-               else if (srccolors[j][i][3] <= acutValues[2]) {
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[2]) {
                   alphaenc3[4*j + i] = 3;
-                  alphadist = srccolors[j][i][3] - (alphatest[0] * 3 + alphatest[1] * 2) / 5;
+                  alphadist = srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 3 + alphatest[1] * 2) / 5;
                }
-               else if (srccolors[j][i][3] <= acutValues[3]) {
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[3]) {
                   alphaenc3[4*j + i] = 4;
-                  alphadist = srccolors[j][i][3] - (alphatest[0] * 2 + alphatest[1] * 3) / 5;
+                  alphadist = srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 2 + alphatest[1] * 3) / 5;
                }
-               else if (srccolors[j][i][3] <= acutValues[4]) {
+               else if (srccolors[j][i][alphaComponentIndex] <= acutValues[4]) {
                   alphaenc3[4*j + i] = 5;
-                  alphadist = srccolors[j][i][3] - (alphatest[0] * 1 + alphatest[1] * 4) / 5;
+                  alphadist = srccolors[j][i][alphaComponentIndex] - (alphatest[0] * 1 + alphatest[1] * 4) / 5;
                }
                else {
                   alphaenc3[4*j + i] = 1;
-                  alphadist = srccolors[j][i][3] - alphatest[1];
+                  alphadist = srccolors[j][i][alphaComponentIndex] - alphatest[1];
                }
                alphablockerror3 += alphadist * alphadist;
             }
@@ -750,8 +750,8 @@ static void extractsrccolors( GLubyte srcpixels[4][4][4], const GLchan *srcaddr,
 }
 
 
-void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *srcPixData,
-                     GLenum destFormat, GLubyte *dest, GLint dstRowStride)
+void sysmel_txc_tx_compress_bcn(GLint srccomps, GLint width, GLint height, const GLubyte *srcPixData,
+                     int bcn, GLubyte *dest, GLint dstRowStride)
 {
       GLubyte *blkaddr = dest;
       GLubyte srcpixels[4][4][4];
@@ -760,9 +760,8 @@ void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *
       GLint i, j;
       GLint dstRowDiff;
 
-   switch (destFormat) {
-   case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-   case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+   switch (bcn) {
+   case 1:
       /* hmm we used to get called without dstRowStride... */
       dstRowDiff = dstRowStride >= (width * 2) ? dstRowStride - (((width + 3) & ~3) * 2) : 0;
 /*      fprintf(stderr, "dxt1 tex width %d tex height %d dstRowStride %d\n",
@@ -775,14 +774,14 @@ void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *
             if (width > i + 3) numxpixels = 4;
             else numxpixels = width - i;
             extractsrccolors(srcpixels, srcaddr, width, numxpixels, numypixels, srccomps);
-            encodedxtcolorblockfaster(blkaddr, srcpixels, numxpixels, numypixels, destFormat);
+            encodedxtcolorblockfaster(blkaddr, srcpixels, numxpixels, numypixels, bcn);
             srcaddr += srccomps * numxpixels;
             blkaddr += 8;
          }
          blkaddr += dstRowDiff;
       }
       break;
-   case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+   case 2:
       dstRowDiff = dstRowStride >= (width * 4) ? dstRowStride - (((width + 3) & ~3) * 4) : 0;
 /*      fprintf(stderr, "dxt3 tex width %d tex height %d dstRowStride %d\n",
               width, height, dstRowStride); */
@@ -802,14 +801,14 @@ void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *
             *blkaddr++ = (srcpixels[2][2][3] >> 4) | (srcpixels[2][3][3] & 0xf0);
             *blkaddr++ = (srcpixels[3][0][3] >> 4) | (srcpixels[3][1][3] & 0xf0);
             *blkaddr++ = (srcpixels[3][2][3] >> 4) | (srcpixels[3][3][3] & 0xf0);
-            encodedxtcolorblockfaster(blkaddr, srcpixels, numxpixels, numypixels, destFormat);
+            encodedxtcolorblockfaster(blkaddr, srcpixels, numxpixels, numypixels, bcn);
             srcaddr += srccomps * numxpixels;
             blkaddr += 8;
          }
          blkaddr += dstRowDiff;
       }
       break;
-   case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+   case 3:
       dstRowDiff = dstRowStride >= (width * 4) ? dstRowStride - (((width + 3) & ~3) * 4) : 0;
 /*      fprintf(stderr, "dxt5 tex width %d tex height %d dstRowStride %d\n",
               width, height, dstRowStride); */
@@ -821,8 +820,47 @@ void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *
             if (width > i + 3) numxpixels = 4;
             else numxpixels = width - i;
             extractsrccolors(srcpixels, srcaddr, width, numxpixels, numypixels, srccomps);
-            encodedxt5alpha(blkaddr, srcpixels, numxpixels, numypixels);
-            encodedxtcolorblockfaster(blkaddr + 8, srcpixels, numxpixels, numypixels, destFormat);
+            encodedxt5alpha(blkaddr, srcpixels, numxpixels, numypixels, 3);
+            encodedxtcolorblockfaster(blkaddr + 8, srcpixels, numxpixels, numypixels, bcn);
+            srcaddr += srccomps * numxpixels;
+            blkaddr += 16;
+         }
+         blkaddr += dstRowDiff;
+      }
+      break;
+   case 4:
+      dstRowDiff = dstRowStride >= (width * 2) ? dstRowStride - (((width + 3) & ~3) * 4) : 0;
+/*      fprintf(stderr, "dxt5 tex width %d tex height %d dstRowStride %d\n",
+              width, height, dstRowStride); */
+      for (j = 0; j < height; j += 4) {
+         if (height > j + 3) numypixels = 4;
+         else numypixels = height - j;
+         srcaddr = srcPixData + j * width * srccomps;
+         for (i = 0; i < width; i += 4) {
+            if (width > i + 3) numxpixels = 4;
+            else numxpixels = width - i;
+            extractsrccolors(srcpixels, srcaddr, width, numxpixels, numypixels, srccomps);
+            encodedxt5alpha(blkaddr, srcpixels, numxpixels, numypixels, 0);
+            srcaddr += srccomps * numxpixels;
+            blkaddr += 8;
+         }
+         blkaddr += dstRowDiff;
+      }
+      break;
+   case 5:
+      dstRowDiff = dstRowStride >= (width * 4) ? dstRowStride - (((width + 3) & ~3) * 4) : 0;
+/*      fprintf(stderr, "dxt5 tex width %d tex height %d dstRowStride %d\n",
+              width, height, dstRowStride); */
+      for (j = 0; j < height; j += 4) {
+         if (height > j + 3) numypixels = 4;
+         else numypixels = height - j;
+         srcaddr = srcPixData + j * width * srccomps;
+         for (i = 0; i < width; i += 4) {
+            if (width > i + 3) numxpixels = 4;
+            else numxpixels = width - i;
+            extractsrccolors(srcpixels, srcaddr, width, numxpixels, numypixels, srccomps);
+            encodedxt5alpha(blkaddr, srcpixels, numxpixels, numypixels, 0);
+            encodedxt5alpha(blkaddr + 8, srcpixels, numxpixels, numypixels, 1);
             srcaddr += srccomps * numxpixels;
             blkaddr += 16;
          }
@@ -830,9 +868,7 @@ void tx_compress_dxtn(GLint srccomps, GLint width, GLint height, const GLubyte *
       }
       break;
    default:
-      fprintf(stderr, "libdxtn: Bad dstFormat %d in tx_compress_dxtn\n", destFormat);
+      fprintf(stderr, "libdxtn: Bad BC%d format in tx_compress_dxtn\n", bcn);
       return;
    }
 }
-
-

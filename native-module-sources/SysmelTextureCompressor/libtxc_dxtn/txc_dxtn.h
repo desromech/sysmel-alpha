@@ -21,14 +21,16 @@
  * AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+/**
+ * Modifications by Ronie Salgado:
+ * - Remove dependency on glext, use the bc index as an identification for the format itself.
+ */
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include <GL/glext.h>
 
 typedef GLubyte GLchan;
 #define UBYTE_TO_CHAN(b)  (b)
@@ -42,17 +44,15 @@ typedef GLubyte GLchan;
 extern "C" {
 #endif
 
-void fetch_2d_texel_rgb_dxt1(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc1(GLint srcRowStride, const GLubyte *pixdata,
 			     GLint i, GLint j, GLvoid *texel);
-void fetch_2d_texel_rgba_dxt1(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc2(GLint srcRowStride, const GLubyte *pixdata,
 			     GLint i, GLint j, GLvoid *texel);
-void fetch_2d_texel_rgba_dxt3(GLint srcRowStride, const GLubyte *pixdata,
-			     GLint i, GLint j, GLvoid *texel);
-void fetch_2d_texel_rgba_dxt5(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc3(GLint srcRowStride, const GLubyte *pixdata,
 			     GLint i, GLint j, GLvoid *texel);
 
-void tx_compress_dxtn(GLint srccomps, GLint width, GLint height,
-		      const GLubyte *srcPixData, GLenum destformat,
+void sysmel_txc_tx_compress_bcn(GLint srccomps, GLint width, GLint height,
+		      const GLubyte *srcPixData, int bcn,
 		      GLubyte *dest, GLint dstRowStride);
 
 #ifdef __cplusplus

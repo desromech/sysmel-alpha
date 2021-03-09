@@ -1,0 +1,73 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace TextureConverter definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a texture converter.
+ *#
+class BasicTextureConversionProfile superclass: TextureConversionProfile; definition: {
+    override method name => Char8 const arraySlice
+        := "basic".
+
+    override method description => Char8 const arraySlice
+        := "Basic texture conversion with mipmap generation without compression.".
+
+    virtual method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ srgbFormat intoFormat: parameters targetFormat
+            resultFormat: parameters targetFormat asLinearFormat srgbFormat: parameters targetFormat.
+    }.
+
+    virtual method encodeNonColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: parameters targetFormat
+            resultFormat: parameters targetFormat srgbFormat: parameters targetFormat asSRGBFormat.
+    }.
+
+    virtual method encodeNormalMapTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: parameters targetFormat
+            resultFormat: parameters targetFormat srgbFormat: parameters targetFormat asSRGBFormat.
+    }.
+
+    override method convertTextureData: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataPtr := {
+        ## Convert the input texture into something more convenient to operate on.
+        let convertedTextureData mutable := parameters usageType selectCase: #{
+            TextureUsageType Color : {inputTextureData _ asTextureDataExpandedForConversions}.
+            TextureUsageType NonColorData : {inputTextureData _ asNonColorTextureDataExpandedForConversions}.
+            TextureUsageType NormalMap : {inputTextureData _ asNormalMapTextureDataExpandedForConversions}.
+        }.
+        convertedTextureData ifNil: {convertedTextureData := inputTextureData}.
+
+        ## Generate mipmaps.
+        parameters generateMipmaps ifTrue: {
+            let withMipmaps mutable := parameters usageType selectCase: #{
+                TextureUsageType Color : {convertedTextureData _ generateColorMiplevels}.
+                TextureUsageType NonColorData : {convertedTextureData _ generateMiplevels}.
+                TextureUsageType NormalMap : {convertedTextureData _ generateNormalMiplevels}.
+            }.
+
+            withMipmaps ifNotNil: {
+                convertedTextureData := withMipmaps
+            }
+        }.
+
+        ## Convert the processed texture into the target format for storage.
+        parameters usageType selectCase: #{
+            TextureUsageType Color : {self encodeColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ srgbFormat}.
+            TextureUsageType NonColorData : {self encodeNonColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ format}.
+            TextureUsageType NormalMap : {self encodeNormalMapTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ format}.
+        }.
+    }.
+}.
+
+global basicTextureConversionProfileRegistration mutable type: TextureConversionProfileRegisterer(BasicTextureConversionProfile).
+
+} ## End of namespace Tools
+} ## End of namespace TextureConverter
+} ## End of namespace Sysmel

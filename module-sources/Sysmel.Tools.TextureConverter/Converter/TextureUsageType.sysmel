@@ -1,0 +1,16 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace TextureConverter definition: {
+
+#**
+ * Texture usage type.
+ *#
+enum TextureUsageType valueType: UInt8; values: #{
+    Color: 0.
+    NonColorData:.
+    NormalMap:.
+}.
+
+} ## End of namespace Tools
+} ## End of namespace TextureConverter
+} ## End of namespace Sysmel

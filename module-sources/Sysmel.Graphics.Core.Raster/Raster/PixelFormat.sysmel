@@ -623,11 +623,11 @@ enum PixelFormat valueType: UInt32; values: #{
     inline method compressedBlockSize => UInt32 := {
         self selectCase: #{
         (BC1_Typeless, BC1_UNorm, BC1_UNormSRGB,
-         BC4_Typeless, BC4_UNorm, BC4_SNorm,
-         BC5_Typeless, BC5_UNorm, BC5_SNorm) asValueInSetPattern : 8u.
+         BC4_Typeless, BC4_UNorm, BC4_SNorm) asValueInSetPattern : 8u.
 
         (BC2_Typeless, BC2_UNorm, BC2_UNormSRGB,
-        BC3_Typeless, BC3_UNorm, BC3_UNormSRGB) asValueInSetPattern : 16u.
+        BC3_Typeless, BC3_UNorm, BC3_UNormSRGB,
+        BC5_Typeless, BC5_UNorm, BC5_SNorm) asValueInSetPattern : 16u.
         _ : 0u.
         }
     }.
@@ -642,21 +642,6 @@ enum PixelFormat valueType: UInt32; values: #{
 
         _ : UInt32x2 zeros.
         }.
-    }.
-
-    inline method asDefaultTargetTextureFormatForPC => SelfType := {
-        self selectCase: #{
-        R8G8B8A8_UNorm : BC3_UNorm.
-        R8G8B8A8_UNormSRGB : BC3_UNormSRGB.
-
-        R8G8B8_UNorm : BC1_UNorm.
-        R8G8B8_UNormSRGB : BC1_UNormSRGB.
-
-        B8G8R8_UNorm : BC1_UNorm.
-        B8G8R8_UNormSRGB : BC1_UNormSRGB.
-
-        _ : self .
-        }
     }.
 
     inline method asExpandedWorkingFormat => SelfType := {

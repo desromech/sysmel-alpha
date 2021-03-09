@@ -1,0 +1,70 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace TextureConverter definition: {
+
+useNamespace: Stdn Graphics Core.
+
+PixelFormat extend: {
+    inline method asTargetTextureFormatForPC => SelfType := {
+        self selectCase: #{
+        R8G8B8A8_UNorm : BC3_UNorm.
+        R8G8B8A8_UNormSRGB : BC3_UNormSRGB.
+
+        R8G8B8_UNorm : BC1_UNorm.
+        R8G8B8_UNormSRGB : BC1_UNormSRGB.
+
+        B8G8R8_UNorm : BC1_UNorm.
+        B8G8R8_UNormSRGB : BC1_UNormSRGB.
+
+        R8_UNorm : BC4_UNorm.
+        R8_SNorm : BC4_SNorm.
+        R8G8_UNorm : BC5_UNorm.
+        R8G8_SNorm : BC5_SNorm.
+        _ : self .
+        }
+    }.
+}.
+
+#**
+ * I am a texture converter.
+ *#
+class PCTextureConversionProfile superclass: BasicTextureConversionProfile; definition: {
+    override method name => Char8 const arraySlice
+        := "pc".
+
+    override method description => Char8 const arraySlice
+        := "Desktop PC with D3D11 Block Code compressed textures.".
+
+    override method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        let targetFormat := parameters targetFormat isUnknown
+            ifTrue: {inputFormat asTargetTextureFormatForPC}
+            ifFalse: {parameters targetFormat}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ srgbFormat intoFormat: targetFormat
+            resultFormat: targetFormat asLinearFormat srgbFormat: targetFormat.
+    }.
+
+    override method encodeNonColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        let targetFormat := parameters targetFormat isUnknown
+            ifTrue: {inputFormat asTargetTextureFormatForPC}
+            ifFalse: {parameters targetFormat}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+            resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
+    }.
+
+    override method encodeNormalMapTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+        let targetFormat := parameters targetFormat isUnknown
+            ifTrue: {PixelFormat BC5_UNorm}
+            ifFalse: {parameters targetFormat}.
+
+        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+            resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
+    }.
+}.
+
+global pcTextureConversionProfileRegistration mutable type: TextureConversionProfileRegisterer(PCTextureConversionProfile).
+
+} ## End of namespace Tools
+} ## End of namespace TextureConverter
+} ## End of namespace Sysmel

@@ -1,0 +1,9 @@
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Graphics.Core.Raster"
+        #"Sysmel.Graphics.Format.PNG"
+        #"Sysmel.Graphics.Format.JPEG"
+    );
+    loadPackages: #(
+        Converter
+    )

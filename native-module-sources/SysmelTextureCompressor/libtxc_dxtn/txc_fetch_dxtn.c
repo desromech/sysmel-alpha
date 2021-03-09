@@ -93,20 +93,7 @@ static void dxt135_decode_imageblock ( const GLubyte *img_block_src,
    }
 }
 
-
-void fetch_2d_texel_rgb_dxt1(GLint srcRowStride, const GLubyte *pixdata,
-                         GLint i, GLint j, GLvoid *texel)
-{
-   /* Extract the (i,j) pixel from pixdata and return it
-    * in texel[RCOMP], texel[GCOMP], texel[BCOMP], texel[ACOMP].
-    */
-
-   const GLubyte *blksrc = (pixdata + ((srcRowStride + 3) / 4 * (j / 4) + (i / 4)) * 8);
-   dxt135_decode_imageblock(blksrc, (i&3), (j&3), 0, texel);
-}
-
-
-void fetch_2d_texel_rgba_dxt1(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc1(GLint srcRowStride, const GLubyte *pixdata,
                          GLint i, GLint j, GLvoid *texel)
 {
    /* Extract the (i,j) pixel from pixdata and return it
@@ -117,7 +104,7 @@ void fetch_2d_texel_rgba_dxt1(GLint srcRowStride, const GLubyte *pixdata,
    dxt135_decode_imageblock(blksrc, (i&3), (j&3), 1, texel);
 }
 
-void fetch_2d_texel_rgba_dxt3(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc2(GLint srcRowStride, const GLubyte *pixdata,
                          GLint i, GLint j, GLvoid *texel) {
 
    /* Extract the (i,j) pixel from pixdata and return it
@@ -148,7 +135,7 @@ void fetch_2d_texel_rgba_dxt3(GLint srcRowStride, const GLubyte *pixdata,
 
 }
 
-void fetch_2d_texel_rgba_dxt5(GLint srcRowStride, const GLubyte *pixdata,
+void sysmel_txc_fetch_2d_texel_rgba_bc3(GLint srcRowStride, const GLubyte *pixdata,
                          GLint i, GLint j, GLvoid *texel) {
 
    /* Extract the (i,j) pixel from pixdata and return it
