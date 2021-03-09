@@ -6,4 +6,5 @@ Compiler
     );
     loadPackages: #(
         Converter
+        Profiles
     )

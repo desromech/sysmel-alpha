@@ -33,6 +33,34 @@ sealed template GenericFrustum(ST: Type)
 
     Stdn Utility NotEqualsMethodMixin.
 
+    inline method makeFrustumFromStandardProjectionMatrix: (matrix: Matrix4x4) ::=> Void := {
+        let inverseMatrix := matrix inverse.
+
+        let point mutable := inverseMatrix * (Vector4 x: -1 y: -1 z: 0 w: 1).
+        leftBottomNear := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: 1 y: -1 z: 0 w: 1).
+        rightBottomNear := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: -1 y: 1 z: 0 w: 1).
+        leftTopNear := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: 1 y: 1 z: 0 w: 1).
+        rightTopNear := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: -1 y: -1 z: 1 w: 1).
+        leftBottomFar := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: 1 y: -1 z: 1 w: 1).
+        rightBottomFar := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: -1 y: 1 z: 1 w: 1).
+        leftTopFar := point xyz / point w.
+
+        point := inverseMatrix * (Vector4 x: 1 y: 1 z: 1 w: 1).
+        rightTopFar := point xyz / point w.
+    }.
+
     inline method makeFrustumLeft: (left: Scalar) right: (right: Scalar) bottom: (bottom: Scalar) top: (top: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
         leftBottomNear := Vector3 x: left y: bottom z: near negated.
         rightBottomNear := Vector3 x: right y: bottom z: near negated.

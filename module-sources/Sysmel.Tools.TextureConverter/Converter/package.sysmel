@@ -2,8 +2,4 @@ loadFileOnce: "TextureUsageType.sysmel".
 loadFileOnce: "Parameters.sysmel".
 loadFileOnce: "TextureConversionProfile.sysmel".
 loadFileOnce: "TextureConversionProfileRegistry.sysmel".
-
-loadFileOnce: "BasicTextureConversionProfile.sysmel".
-loadFileOnce: "PCTextureConversionProfile.sysmel".
-loadFileOnce: "LowSpecPCTextureConversionProfile.sysmel".
 loadFileOnce: "Converter.sysmel".

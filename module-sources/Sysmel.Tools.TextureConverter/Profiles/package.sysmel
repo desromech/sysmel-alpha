@@ -1,0 +1,3 @@
+loadFileOnce: "BasicTextureConversionProfile.sysmel".
+loadFileOnce: "PCTextureConversionProfile.sysmel".
+loadFileOnce: "LowSpecPCTextureConversionProfile.sysmel".
