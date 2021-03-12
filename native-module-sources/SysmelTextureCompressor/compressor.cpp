@@ -1,6 +1,7 @@
 #include "compressor.hpp"
 #include "libtxc_dxtn/txc_dxtn.h"
 #include "rg_etc1.h"
+#include "stdio.h"
 
 namespace SysmelTextureCompressor
 {
@@ -50,7 +51,7 @@ static void compressEtc1(int sourcePixelSize, int width, int height, int sourceP
     rg_etc1::pack_etc1_block_init();
 
     rg_etc1::etc1_pack_params packParams;
-    packParams.m_quality = rg_etc1::cMediumQuality;
+    packParams.m_quality = rg_etc1::cHighQuality;
 
     uint8_t readedBlock[4][4][4];
     uint8_t colorPackBlock[4][4][4];
@@ -106,7 +107,7 @@ static void compressEtc1(int sourcePixelSize, int width, int height, int sourceP
             }
 
             // Encode the ETC1 color data.
-            rg_etc1::pack_etc1_block(destPixel, reinterpret_cast<const unsigned int*> (readedBlock), packParams);
+            rg_etc1::pack_etc1_block(destPixel, reinterpret_cast<const unsigned int*> (colorPackBlock), packParams);
 
             // Advance to the next block.
             sourcePixel += sourcePixelSize*4;
