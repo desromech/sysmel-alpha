@@ -14,6 +14,12 @@ class BasicTextureConversionProfile superclass: TextureConversionProfile; defini
     override method description => Char8 const arraySlice
         := "Basic texture conversion with mipmap generation without compression.".
 
+    virtual method minMipLevelExtentFor: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
+        := UInt32x3 ones.
+
+    virtual method maxMipLevelExtentFor: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
+        := UInt32x3 infinityOrMaxValue.
+
     virtual method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
         parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
 
@@ -54,8 +60,14 @@ class BasicTextureConversionProfile superclass: TextureConversionProfile; defini
 
             withMipmaps ifNotNil: {
                 convertedTextureData := withMipmaps
-            }
+            }.
+
+            let minMipLevelExtent := parameters minMipLevelExtent max: (self minMipLevelExtentFor: inputTextureData withParameters: parameters).
+            let maxMipLevelExtent := parameters maxMipLevelExtent min: (self maxMipLevelExtentFor: inputTextureData withParameters: parameters).
+            convertedTextureData := convertedTextureData _ clipMiplevelsToMinExtent: minMipLevelExtent maxExtent: maxMipLevelExtent
         }.
+
+        convertedTextureData _ flags: convertedTextureData _ flags | TextureDataFlags HasGeneratedMipmaps.
 
         ## Convert the processed texture into the target format for storage.
         parameters usageType selectCase: #{

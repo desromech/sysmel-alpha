@@ -18,6 +18,7 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
 enum TextureDataFlags bitMask valueType: UInt32; values: #{
     None: 0.
     OptimalTargetSpecificTiling: 1. ## For some embedded devices where the tiling layout is well known.
+    HasGeneratedMipmaps: 2. ## Mipmaps are already generated.
 }.
 
 class TextureFileHeader definition: {
@@ -55,6 +56,9 @@ class TextureDataHeader definition: {
 
     const inline method hasOptimalTargetSpecificTiling => Boolean8
         := flags anyMask: TextureDataFlags OptimalTargetSpecificTiling.
+
+    const inline method hasGeneratedMipmaps => Boolean8
+        := (flags anyMask: TextureDataFlags HasGeneratedMipmaps) || miplevels > 1.
 
     const inline method isTexture1D => Boolean8
         := type = TextureType Texture1D.
@@ -153,8 +157,73 @@ class TextureData superclass: TextureDataHeader; definition: {
         linearDataSize := currentDataOffset
     }.
 
+    inline method allocatePixelStorage => Void := {
+        linearDataSize > 0 ifTrue: {
+            pixels reset: (Stdn zmalloc(linearDataSize) reinterpretCastTo: UInt8 pointer).
+        }.
+    }.
+
+    inline const method clipMiplevelsToMin: (minLevel: UInt32) max: (maxLevel: UInt32) ::=> TextureData sharedPointer := {
+        let clipRangeMin := minLevel min: miplevels - 1u.
+        let clipRangeMax := maxLevel min: miplevels.
+
+        let minMipLevel ref := levelsData[clipRangeMin].
+        let result := TextureData sharedNew.
+        result _
+            type: type;
+            format: format;
+            srgbFormat: srgbFormat;
+
+            width: minMipLevel extent x;
+            height: minMipLevel extent y;
+            depth: minMipLevel extent z;
+            miplevels: clipRangeMax - clipRangeMin;
+            layers: layers;
+            flags: flags;
+            mainViewComponents: mainViewComponents;
+            computeLinearPackedTextureLevelMetadata;
+            allocatePixelStorage.
+
+        0 until: layers do: {:i :: Void |
+            clipRangeMin until: clipRangeMax do: {:j :: Void |
+                let sourceLevel ref := levelsData[i*miplevels + j].
+                let destLevel ref := result _ levelsData[i*result _ miplevels + j - clipRangeMin].
+                Stdn assert: sourceLevel dataSize = destLevel dataSize.
+                Stdn memcpy(result _ pixels getPointer + destLevel dataOffset, pixels getPointer + sourceLevel dataOffset, sourceLevel dataSize)
+            }
+        }.
+
+        result
+    }.
+
+    inline const method clipMiplevelsToMinExtent: (minExtent: UInt32x3) maxExtent: (maxExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        let minLevel mutable type: UInt32 := 0.
+        let maxLevel mutable type: UInt32 := miplevels.
+
+        let currentExtent mutable := UInt32x3(width, height, depth).
+        0u until: miplevels do: {:i :: Void |
+            (currentExtent %>= maxExtent) isAnySet ifTrue: {
+                minLevel := i.
+            }.
+
+            (currentExtent %>= minExtent) isAllSet ifTrue: {
+                maxLevel := i + 1u.
+            }.
+
+            currentExtent := currentExtent / 2u max: UInt32x3 ones.
+        }.
+
+        self clipMiplevelsToMin: minLevel max: maxLevel
+    }.
+
+    inline const method clipMiplevelsToMaxExtent: (maxExtent: UInt32x3) ::=> TextureData sharedPointer
+        := self clipMiplevelsToMinExtent: UInt32x3 ones maxExtent: maxExtent.
+
     inline const method convertIntoCompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
         compileTime if: Compiler compilationTarget isDesktopPC then: {
+            Stdn assert: newFormat isCompressed.
+            Stdn assert: format isCompressed not.
+
             let result := TextureData sharedNew.
             result _
                 type: type;
@@ -168,14 +237,11 @@ class TextureData superclass: TextureDataHeader; definition: {
                 layers: layers;
                 flags: flags;
                 mainViewComponents: mainViewComponents;
-                computeLinearPackedTextureLevelMetadata.
-            Stdn assert: newFormat isCompressed.
-            Stdn assert: format isCompressed not.
+                computeLinearPackedTextureLevelMetadata;
+                allocatePixelStorage.
             Stdn assert: levelsData size = result _ levelsData size.
             let sourcePixelSize := format bytesPerPixel.
             let destPixelSize := newFormat bytesPerPixel.
-
-            result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
 
             0 until: levelsData size do: {:i :: Void |
                 let sourceLevel ref := levelsData[i].
@@ -204,6 +270,8 @@ class TextureData superclass: TextureDataHeader; definition: {
 
     inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
         compileTime if: Compiler compilationTarget isDesktopPC then: {
+            Stdn assert: newFormat isCompressed not.
+            Stdn assert: format isCompressed.
             let result := TextureData sharedNew.
             result _
                 type: type;
@@ -217,14 +285,11 @@ class TextureData superclass: TextureDataHeader; definition: {
                 layers: layers;
                 flags: flags;
                 mainViewComponents: mainViewComponents;
-                computeLinearPackedTextureLevelMetadata.
-            Stdn assert: newFormat isCompressed not.
-            Stdn assert: format isCompressed.
+                computeLinearPackedTextureLevelMetadata;
+                allocatePixelStorage.
             Stdn assert: levelsData size = result _ levelsData size.
             let sourcePixelSize := format bytesPerPixel.
             let destPixelSize := newFormat bytesPerPixel.
-
-            result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
 
             0 until: levelsData size do: {:i :: Void |
                 let sourceLevel ref := levelsData[i].
@@ -266,12 +331,11 @@ class TextureData superclass: TextureDataHeader; definition: {
             layers: layers;
             flags: flags;
             mainViewComponents: mainViewComponents;
-            computeLinearPackedTextureLevelMetadata.
+            computeLinearPackedTextureLevelMetadata;
+            allocatePixelStorage.
         Stdn assert: levelsData size = result _ levelsData size.
         let sourcePixelSize := format bytesPerPixel.
         let destPixelSize := newFormat bytesPerPixel.
-
-        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
 
         0 until: levelsData size do: {:i :: Void |
             let sourceLevel ref := levelsData[i].
@@ -317,11 +381,10 @@ class TextureData superclass: TextureDataHeader; definition: {
             layers: layers;
             flags: flags;
             mainViewComponents: mainViewComponents;
-            computeLinearPackedTextureLevelMetadata.
+            computeLinearPackedTextureLevelMetadata;
+            allocatePixelStorage.
         Stdn assert: levelsData size = result _ levelsData size.
         let pixelSize := format bytesPerPixel.
-
-        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
 
         0 until: levelsData size do: {:i :: Void |
             let sourceLevel ref := levelsData[i].
@@ -360,11 +423,11 @@ class TextureData superclass: TextureDataHeader; definition: {
             layers: layers;
             flags: flags;
             mainViewComponents: mainViewComponents;
-            computeLinearPackedTextureLevelMetadata.
+            computeLinearPackedTextureLevelMetadata;
+            allocatePixelStorage.
         Stdn assert: levelsData size = result _ levelsData size.
         let pixelSize := format bytesPerPixel.
 
-        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
         let pixelCount := result _ linearDataSize / pixelSize.
         let sourcePixels mutable := pixels getPointer.
         let destPixels mutable := result _ pixels getPointer.

@@ -15,9 +15,13 @@ struct Parameters definition: {
     public field targetProfileName type: Stdn String.
     public field inputFileName type: Stdn String.
     public field outputFileName type: Stdn String.
+    public field minMipLevelExtent type: UInt32x3.
+    public field maxMipLevelExtent type: UInt32x3.
 
     method initialize => Void := {
         generateMipmaps := true.
+        minMipLevelExtent := UInt32x3 ones.
+        maxMipLevelExtent := UInt32x3 infinityOrMaxValue.
     }.
 
     method printHelpOnto: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
@@ -28,6 +32,12 @@ struct Parameters definition: {
         out << "-non-color Process the texture as non-color data."; nl.
         out << "-normal Process the texture as a tangent space normal map."; nl.
         out << "-target-profile The target platform profile to use."; nl.
+        out << "-min-mip-width The minimum width for a mip map."; nl.
+        out << "-min-mip-height The minimum height for a mip map."; nl.
+        out << "-min-mip-depth The minimum depth for a mip map."; nl.
+        out << "-max-mip-width The maximum width for a mip map."; nl.
+        out << "-max-mip-height The maximum height for a mip map."; nl.
+        out << "-max-mip-depth The maximum depth for a mip map."; nl.
         out << "-i The input file name."; nl.
         out << "-o The output file name."; nl.
 
@@ -69,6 +79,26 @@ struct Parameters definition: {
                 }.
                 "-target-profile" : {
                     targetProfileName := args[i := i + 1].
+                }.
+
+                "-min-mip-width" : {
+                    minMipLevelExtent x: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                }.
+                "-min-mip-height" : {
+                    minMipLevelExtent y: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                }.
+                "-min-mip-depth" : {
+                    minMipLevelExtent z: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                }.
+
+                "-max-mip-width" : {
+                    maxMipLevelExtent x: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                }.
+                "-max-mip-height" : {
+                    maxMipLevelExtent y: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                }.
+                "-max-mip-depth" : {
+                    maxMipLevelExtent z: (LibC atoi(args[i := i + 1]) castTo: UInt32)
                 }.
                 "-i" : {
                     inputFileName := args[i := i + 1].
