@@ -7,7 +7,7 @@ macro method ArrayedCollectionMacrosMixin := ``{
         let index := __astBuilder gensym: #index.
         ``{
             let `,collection ref := `,self.
-            0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+            0 until: `,collection size do: {:(UIntPointer)`,index :: Void |
                 `,aBlock __macroInlineBlock: `,collection[`,index]
             }
         }

@@ -13,7 +13,7 @@
 
 typedef struct SysmelChar8ConstArraySlice_s
 {
-    const char *elements;
+    const char **elements;
     size_t size;
 } SysmelChar8ConstArraySlice;
 
@@ -93,6 +93,6 @@ SYSMEL_EPAL_EXPORT void sysmel_epal_sleepFor(sysmel_epal_ticks_t time);
 SYSMEL_EPAL_EXPORT void sysmel_epal_sleepUntil(sysmel_epal_ticks_t time);
 
 /* Sysmel main program entry point. */
-SYSMEL_EPAL_EXPORT int sysmel_main(SysmelChar8ConstArraySlice argList);
+SYSMEL_EPAL_EXPORT int sysmel_main(SysmelChar8ConstArraySlice *argList);
 
 #endif /* SYSMEL_EPAL_H */

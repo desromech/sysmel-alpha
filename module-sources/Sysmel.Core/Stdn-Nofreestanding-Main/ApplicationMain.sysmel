@@ -2,7 +2,7 @@ namespace Stdn definition: {
 
 macro method MainEntryPoint: aBlock := {
     ``{
-    function sysmel_main externC(__main_entry_point_raw_args: Char8 const pointer arraySlice) => Int32 := {
+    function sysmel_main externC(__main_entry_point_raw_args: Char8 const pointer arraySlice const ref) => Int32 := {
         `,aBlock __macroInlineBlock: __main_entry_point_raw_args
     }.
 

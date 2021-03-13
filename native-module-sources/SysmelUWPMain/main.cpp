@@ -17,11 +17,11 @@ using namespace Windows::UI::Composition;
 
 struct SysmelMainArgs
 {
-    size_t count;
     const char **elements;
+    size_t size;
 };
 
-extern "C" int sysmel_main(SysmelMainArgs args);
+extern "C" int sysmel_main(const SysmelMainArgs &args);
 
 static bool shouldRunDummyApp = true;
 
