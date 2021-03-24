@@ -1,14 +1,46 @@
 namespace Stdn definition: {
 namespace Serialization definition: {
-namespace JSON definition: {
+namespace DOM definition: {
 
 struct List.
 struct Object.
 compileTime constant ListPtr := List sharedPointer.
 compileTime constant ObjectPtr := Object sharedPointer.
+compileTime constant ByteArray := Stdn Collections Vector(UInt8).
 
-compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Stdn String | List sharedPointer | Object sharedPointer.
+compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Stdn String | ByteArray | List sharedPointer | Object sharedPointer.
 Value.
+
+
+function encodeByteArrayAsString(byteArray: ByteArray const ref) ::=> Stdn String := {
+    Stdn String textStreamContents: {:out :: Void |
+        byteArray do: {:byte :: Void |
+            out nextPutHexDigit: byte >> 4; nextPutHexDigit: byte & 16rf
+        }
+    }
+}.
+
+function decodeByteArrayFromString(string: Stdn String const ref) ::=> ByteArray := {
+    Stdn assert: (string size % 2) == 0.
+    let result mutable := ByteArray().
+    result reserve: string size / 2.
+
+    0 until: string size by: 2 do: {:(UIntPointer)i :: Void |
+        let high := string[i].
+        let low := string[i + 1].
+        result add: ((Stdn parseHexDigit(high) << 4) | Stdn parseHexDigit(low) castTo: UInt8)
+    }.
+
+    result
+}.
+
+function valueToByteArray(value: Value const ref) ::=> ByteArray := {
+    value selectCase: #{
+    (let x type: ByteArray) : x.
+    (let x type: Stdn String) : (decodeByteArrayFromString(x)).
+    }
+}.
+
 
 function valueToUIntPointer(value: Value const ref) ::=> UIntPointer := {
     value selectCase: #{
@@ -223,6 +255,9 @@ List definition: {
     macro method do: aBlock := ``(`,self elements do: `,aBlock).
     macro method doWithIndex: aBlock := ``(`,self elements doWithIndex: `,aBlock).
 
+    macro method add: value := ``(`,self elements add: `,value).
+    macro method reserve: capacity := ``(`,self elements reserve: `,capacity).
+
     const method getUIntPointer: (index: UIntPointer) ::=> UIntPointer
         := valueToUIntPointer(self[index]).
 
@@ -320,6 +355,7 @@ Object definition: {
     macro method keysAndValuesDo: aBlock := ``(`,self elements keysAndValuesDo: `,aBlock).
 
     macro method at: key := ``(`,self elements at: `,key).
+    macro method at: key put: value := ``(`,self elements at: `,key put: `,value).
     macro method at: key ifPresent: presentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock).
     macro method at: key ifPresent: presentBlock ifAbsent: absentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock ifAbsent: `,absentBlock).
 
@@ -506,6 +542,6 @@ Object definition: {
     }.
 }.
 
-}. ## End of namespace JSON
+}. ## End of namespace DOM
 }. ## End of namespace Serialization
 }. ## End of namespace Stdn

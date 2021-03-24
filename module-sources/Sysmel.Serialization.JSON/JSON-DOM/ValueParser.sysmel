@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 
+useNamespace: Stdn Serialization DOM.
+
 compileTime constant ValueParser := Parser(Value).
 
 class ValueParserCallback superclass: ValueParser Callback; definition: {

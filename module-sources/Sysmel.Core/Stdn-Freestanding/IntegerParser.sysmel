@@ -12,25 +12,23 @@ function parseInt64(string: Char8 const pointer, stringSize: UIntPointer) => Int
     }
 }.
 
+function parseHexDigit(digit: Char8) => Int32 := {
+    digit selectCase: #{
+    ('0' to: '9') : (digit - '0').
+    ('a' to: 'f') : (digit - 'a' + 10).
+    ('A' to: 'F') : (digit - 'A' + 10).
+    _ : -1.
+    }.
+}.
+
 function parseHexUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UInt64 := {
     let result mutable type: UInt64 := 0.
     0 until: stringSize do: {:(UIntPointer)i :: Void |
         let c := string[i].
 
-        let newResult := c selectCase: #{
-        ('0' to: '9') : {
-             result * 16u + (c - '0' castTo: UInt64).
-        }.
-        ('a' to: 'f') : {
-             result * 16u + (c - 'a' + 10 castTo: UInt64).
-        }.
-        ('A' to: 'F') : {
-             result * 16u + (c - 'A' + 10 castTo: UInt64).
-        }.
-        _ : {
-            return: result
-        }.
-        }.
+        let digit := parseHexDigit(c).
+        digit < 0 ifTrue: {return: result}.
+        let newResult := result * 16u + (digit castTo: UInt64).
 
         ## Integer overflow protection.
         newResult >= result ifTrue: {

@@ -1,0 +1,66 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+useNamespace: Stdn Serialization DOM.
+
+Writer definition: {
+
+    method putValue: (value: Value const ref) ::=> Void := {
+        value selectCase: #{
+        (let _ type: _UndefinedType) : (self putNull).
+        (let x type: Boolean8) : (self putBoolean: x).
+        (let x type: Int64) : (self putInteger: x).
+        (let x type: UInt64) : (self putInteger: x).
+        (let x type: Float64) : (self putFloat: x).
+        (let x type: Stdn String) : (self putString: x).
+        (let x type: ByteArray) : (self putString: DOM encodeByteArrayAsString(x)).
+        (let list type: ListPtr) : {
+            self beginList.
+            let isFirst mutable := true.
+            list _ do: {:el :: Void |
+                isFirst ifTrue: {
+                    isFirst := false
+                } ifFalse: {
+                    self putElementSeparator
+                }.
+                self putValue: el.
+            }.
+            self endList.
+        }.
+        (let object type: ObjectPtr) : {
+            self beginObject.
+            let isFirst mutable := true.
+            object _ keysAndValuesDo: {:(Stdn String const ref)k :(Value const ref)v :: Void |
+                isFirst ifTrue: {
+                    isFirst := false
+                } ifFalse: {
+                    self putElementSeparator
+                }.
+                self putKey: k.
+                self putValue: v.
+            }.
+            self endObject.
+        }.
+        }.
+    }.
+
+    meta definition: {
+        static method writeValue: (value: Value const ref) onStream: (out: Stdn IO Stream ref) ::=> Void := {
+            let outTextStreamWriter mutable := Stdn IO TextStreamWriter for: out address.
+            Writer()
+                textStreamWriter: outTextStreamWriter address;
+                putValue: value
+        }.
+
+        static method writeValue: (value: Value const ref) onTextStream: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+            Writer()
+                textStreamWriter: out address;
+                putValue: value
+        }.
+    }.
+}.
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

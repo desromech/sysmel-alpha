@@ -1,0 +1,77 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+class Writer definition: {
+    public field textStreamWriter type: Stdn IO TextStreamWriter pointer.
+
+    method beginObject => Void := {
+        textStreamWriter _ << '{'.
+    }.
+
+    method endObject => Void := {
+        textStreamWriter _ << '}'.
+    }.
+
+    method putElementSeparator => Void := {
+        textStreamWriter _ << ','.
+    }.
+
+    method beginList => Void := {
+        textStreamWriter _ << '['.
+    }.
+
+    method endList => Void := {
+        textStreamWriter _ << ']'.
+    }.
+
+    method putKey: (key: Stdn String const ref) ::=> Void := {
+        self putString: key.
+        textStreamWriter _ << ':'.
+    }.
+
+    method putString: (value: Stdn String const ref) ::=> Void := {
+        textStreamWriter _ << '"'.
+        value do: {:c :: Void |
+            c selectCase: #{
+            '"' : {textStreamWriter _ << "\\\""}.
+            '\\' : {textStreamWriter _ << "\\\\"}.
+            '\b' : {textStreamWriter _ << "\\b"}.
+            '\f' : {textStreamWriter _ << "\\f"}.
+            '\n' : {textStreamWriter _ << "\\n"}.
+            '\r' : {textStreamWriter _ << "\\r"}.
+            '\t' : {textStreamWriter _ << "\\t"}.
+            _ : {textStreamWriter _ << c}.
+            }
+        }.
+
+        textStreamWriter _ << '"'.
+    }.
+
+    method putBoolean: (value: Boolean8) ::=> Void := {
+        value
+            ifTrue: {textStreamWriter _ << "true"}
+            ifFalse: {textStreamWriter _ << "false"}
+    }.
+
+    method putNull => Void := {
+        textStreamWriter _ << "null"
+    }.
+
+    method putInteger: (value: UInt64) ::=> Void := {
+        textStreamWriter _ << value
+    }.
+
+    method putInteger: (value: Int64) ::=> Void := {
+        textStreamWriter _ << value
+    }.
+
+    method putFloat: (value: Float64) ::=> Void := {
+        textStreamWriter _ << value
+    }.
+
+}.
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn
