@@ -1,11 +1,13 @@
 loadFileOnce: "Collection.sysmel".
 loadFileOnce: "HashedCollection.sysmel".
 loadFileOnce: "DictionaryCollection.sysmel".
+loadFileOnce: "SetCollection.sysmel".
 loadFileOnce: "SequenceableCollection.sysmel".
 loadFileOnce: "ArrayedCollection.sysmel".
 
 loadFileOnce: "Vector.sysmel".
 loadFileOnce: "Dictionary.sysmel".
+loadFileOnce: "Set.sysmel".
 loadFileOnce: "SortedDictionary.sysmel".
 loadFileOnce: "LinkedList.sysmel".
 loadFileOnce: "String.sysmel".

@@ -1,0 +1,34 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+namespace Tests definition: {
+
+class SetTestCase superclass: Stdn Testing TestCase; definition: {
+    test: testEmptySet with: {
+        let set mutable := Set(Int32)().
+        self assert: set size equals: 0.
+        self assert: set isEmpty.
+        self deny: set isNotEmpty.
+    }.
+
+    test: testSingleElementSet with: {
+        let set mutable := Set(Int32)().
+        set add: 1.
+
+        self assert: set size equals: 1.
+        self deny: set isEmpty.
+        self assert: set isNotEmpty.
+        self assert: (set includes: 1).
+        self deny: (set includes: 2).
+
+        set add: 1.
+        self assert: set size equals: 1.
+        self deny: set isEmpty.
+        self assert: set isNotEmpty.
+        self assert: (set includes: 1).
+        self deny: (set includes: 2).
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Stdn

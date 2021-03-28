@@ -1,0 +1,81 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace MessagePack definition: {
+
+useNamespace: Stdn Serialization DOM.
+
+compileTime constant ValueDecoder := Decoder(Value).
+
+class ValueDecoderCallback superclass: ValueDecoder Callback; definition: {
+
+    public field decoder type: ValueDecoder pointer.
+
+    override method onInteger: (value: Int64) ::=> DOM Value
+        := value.
+
+    override method onUnsignedInteger64: (value: UInt64) ::=> DOM Value
+        := value.
+
+    override method onNil ::=> DOM Value
+        := nil.
+
+    override method onBoolean: (value: Boolean8) ::=> DOM Value
+        := value.
+
+    override method onFloat: (value: Float64) ::=> DOM Value
+        := value.
+
+    override method onArray: (elementCount: UInt32) ::=> DOM Value := {
+        let result mutable := DOM List sharedNew.
+        result _ reserve: elementCount.
+        0 until: elementCount do: {:(UIntPointer) i :: Void |
+            result _ add: (decoder _ decodeNextElement)
+        }.
+
+        result
+    }.
+
+    override method onMap: (elementCount: UInt32) ::=> DOM Value := {
+        let result mutable := DOM Object sharedNew.
+        result _ reserve: elementCount.
+        0 until: elementCount do: {:(UIntPointer) i :: Void |
+            let key := decoder _ decodeNextElement.
+            let value := decoder _ decodeNextElement.
+            result _ at: (key get: Stdn String ) put: value
+        }.
+
+        result
+    }.
+
+    override method onString: (dataSize: UInt32) ::=> DOM Value := {
+        let result mutable := Stdn String().
+        result resizeTo: dataSize.
+        decoder _ readBytes: dataSize into: result data.
+        result
+    }.
+
+    override method onBinary: (dataSize: UInt32) ::=> DOM Value := {
+        let result mutable := Stdn ByteVector().
+        result resizeTo: dataSize.
+        decoder _ readBytes: dataSize into: result data.
+        result
+    }.
+}.
+
+ValueDecoder definition: {
+    meta definition: {
+        method decodeStream: (stream: Stdn IO Stream pointer) ::=> Value := {
+            let callback mutable type: ValueDecoderCallback.
+            let decoder mutable type: ValueDecoder.
+            callback decoder: decoder address.
+            decoder
+                callback: callback address;
+                beginDecodingStream: stream;
+                decodeNextElement
+        }.
+    }.
+}.
+
+}. ## End of namespace MessagePack
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

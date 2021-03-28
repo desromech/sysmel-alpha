@@ -47,7 +47,7 @@ template Decoder(RT: Type)
 
     method beginDecodingStream: (stream: Stdn IO Stream pointer) ::=> Void := {
         reader := Stdn IO BinaryDataStreamReader for: stream.
-        reader activeEndianness: Stdn IO BinaryDataStreamEndianness Little.
+        reader activeEndianness: Stdn IO BinaryDataStreamEndianness Big.
     }.
 
     method readBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8

@@ -1,0 +1,105 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace BinaryEncoding definition: {
+
+function encodeBase64Digit(value: UInt8) ::=> Char8 := {
+    value selectCase: #{
+    (0 to: 25) : ('A' + value castTo: Char8).
+    (26 to: 51) : ('a' + value - 26 castTo: Char8).
+    (52 to: 61) : ('0' + value - 52 castTo: Char8).
+    62 : ('+' castTo: Char8).
+    63 : ('/' castTo: Char8).
+    }.
+}.
+
+function encodeBase64String(byteArray: Stdn ByteVector const ref) ::=> Stdn String := {
+    let inputSize := byteArray size.
+    let outputSize := (inputSize + 2) / 3 * 4.
+
+    let result mutable := Stdn String ()
+        reserve: outputSize;
+        yourself.
+
+    0 until: inputSize by: 3 do: {:(UIntPointer)sourceIndex :: Void |
+        sourceIndex + 2 < inputSize ifTrue: {
+            let value := (byteArray[sourceIndex] << 16) | (byteArray[sourceIndex + 1] << 8) | byteArray[sourceIndex + 2] castTo: UInt32.
+            result
+                add: encodeBase64Digit((value >> 18u) & 16r3fu castTo: UInt8);
+                add: encodeBase64Digit((value >> 12u) & 16r3fu castTo: UInt8);
+                add: encodeBase64Digit((value >> 6u) & 16r3fu castTo: UInt8);
+                add: encodeBase64Digit(value & 16r3f castTo: UInt8)
+        } ifFalse: {
+            sourceIndex + 1 < inputSize ifTrue: {
+                let value := (byteArray[sourceIndex] << 16) | (byteArray[sourceIndex + 1] << 8) castTo: UInt32.
+                result
+                    add: encodeBase64Digit((value >> 18u) & 16r3fu castTo: UInt8);
+                    add: encodeBase64Digit((value >> 12u) & 16r3fu castTo: UInt8);
+                    add: encodeBase64Digit((value >> 6u) & 16r3fu castTo: UInt8);
+                    add: '='
+            } ifFalse: {
+                let value := byteArray[sourceIndex] << 16 castTo: UInt32.
+                result
+                    add: encodeBase64Digit((value >> 18u) & 16r3fu castTo: UInt8);
+                    add: encodeBase64Digit((value >> 12u) & 16r3fu castTo: UInt8);
+                    ## Pad 1
+                    add: '=';
+                    add: '='
+
+            }
+        }
+    }.
+
+    result
+}.
+
+function decodeBase64Digit(character: Char8) ::=> UInt8 := {
+    character selectCase: #{
+    ('A' to: 'Z') : (character - 'A' castTo: UInt8).
+    ('a' to: 'z') : (character - 'a' + 26 castTo: UInt8).
+    ('0' to: '9') : (character - '0' + 52 castTo: UInt8).
+    '+' : (62 castTo: UInt8).
+    '/' : (63 castTo: UInt8).
+    '=' : (0 castTo: UInt8).
+    }.
+}.
+
+function decodeBase64String(string: Stdn String const ref) ::=> Stdn ByteVector := {
+    let inputSize := string size.
+    let outputSize := (inputSize + 3) / 4 * 3.
+
+    let result mutable := Stdn ByteVector()
+        reserve: outputSize;
+        yourself.
+
+    0 until: inputSize by: 4 do: {:(UIntPointer)i :: Void |
+        let quadCharacters mutable := (Char8 array: 4)(
+            'A', 'A', '=', '='
+        ).
+
+        ## Read the padded or truncated data.
+        0 until: 4 do: {:(UIntPointer)j :: Void |
+            i + j < inputSize ifTrue: {
+                quadCharacters[j] := string[i + j]
+            }
+        }.
+
+        let decodedValue := (decodeBase64Digit(quadCharacters[0]) << 18u)
+            | (decodeBase64Digit(quadCharacters[1]) << 12u)
+            | (decodeBase64Digit(quadCharacters[2]) << 6u)
+            | decodeBase64Digit(quadCharacters[3]) castTo: UInt32.
+
+        result add: ((decodedValue >> 16u) & 16rff castTo: UInt8).
+        quadCharacters[2] = '=' ifFalse: {
+            result add: ((decodedValue >> 8u) & 16rffu castTo: UInt8).
+            quadCharacters[3] = '=' ifFalse: {
+                result add: (decodedValue & 16rffu castTo: UInt8).
+            }
+        }.
+    }.
+
+    result
+}.
+
+}. ## End of namespace DOM
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

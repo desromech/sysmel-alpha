@@ -12,7 +12,10 @@ enum BinaryDataStreamEndianness valueType: Int32; values: #{
     Little: 1.
 
     ## Big endian encoding.
-    Big: 2
+    Big: 2.
+
+    ## The opposite endianness to this architecture.
+    Opposite: (if: Compiler compilationTarget isLittleEndian then: Big else: Little).
 }.
 
 function swapUInt16(value: UInt16) => UInt16
@@ -24,6 +27,16 @@ function swapUInt32(value: UInt32) => UInt32
        ((value & 16r00ff0000u) >> 8u) |
        ((value & 16r0000ff00u) << 8u) |
        ((value & 16r000000ffu) << 24u).
+
+function swapUInt64(value: UInt64) => UInt64
+   := ((value & 16rff00000000000000u) >> 56u) |
+      ((value & 16r00ff000000000000u) >> 40u) |
+      ((value & 16r0000ff0000000000u) >> 24u) |
+      ((value & 16r000000ff00000000u) >> 8u) |
+      ((value & 16r00000000ff000000u) << 8u) |
+      ((value & 16r0000000000ff0000u) << 24u) |
+      ((value & 16r000000000000ff00u) << 40u) |
+      ((value & 16r00000000000000ffu) << 56u).
 
 }. ## End of namespace IO
 }. ## End of namespace Stdn

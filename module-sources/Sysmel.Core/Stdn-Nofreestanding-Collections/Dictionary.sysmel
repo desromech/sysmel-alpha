@@ -162,8 +162,14 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         }
     }.
 
-    method increaseCapacity => Void := {
-        let newCapacity := storage_ size * 2u max: 16u.
+    method reserve: (extraCapacity: UIntPointer) ::=> Void := {
+        self increaseCapacityTo: ((size_ + extraCapacity) * 130u / 100u max: 16u)
+    }.
+
+    method increaseCapacity => Void
+        := self increaseCapacityTo: (storage_ size * 2u max: 16u).
+
+    method increaseCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
         ## Create the new storage
         let newStorage mutable type: StorageType.
         newStorage resizeTo: newCapacity.

@@ -14,7 +14,7 @@ Writer definition: {
         (let x type: UInt64) : (self putInteger: x).
         (let x type: Float64) : (self putFloat: x).
         (let x type: Stdn String) : (self putString: x).
-        (let x type: ByteArray) : (self putString: DOM encodeByteArrayAsString(x)).
+        (let x type: Stdn ByteVector) : (self putString: Stdn Serialization BinaryEncoding encodeBase64String(x)).
         (let list type: ListPtr) : {
             self beginList.
             let isFirst mutable := true.

@@ -13,7 +13,7 @@ class Encoder definition: {
 
     method beginEncodingIntoStream: (stream: Stdn IO Stream pointer) ::=> Void := {
         writer := Stdn IO BinaryDataStreamWriter for: stream.
-        writer activeEndianness: Stdn IO BinaryDataStreamEndianness Little.
+        writer activeEndianness: Stdn IO BinaryDataStreamEndianness Big.
     }.
 
     method writeBytes: (count: UIntPointer) from: (buffer: Void const pointer) ::=> Boolean8

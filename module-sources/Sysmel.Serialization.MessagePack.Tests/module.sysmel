@@ -1,0 +1,4 @@
+Compiler
+    importModuleNamed: #"Sysmel.Testing";
+    importModuleNamed: #"Sysmel.Serialization.MessagePack";
+    loadPackages: #().

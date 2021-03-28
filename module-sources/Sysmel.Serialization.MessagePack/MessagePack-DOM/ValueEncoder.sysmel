@@ -1,0 +1,60 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace MessagePack definition: {
+
+useNamespace: Stdn Serialization DOM.
+
+Encoder extend: {
+    method encodeString: (value: Stdn String const ref) ::=> Void := {
+        self encodeStringSize: (value size castTo: UInt32).
+        value isNotEmpty ifTrue: {
+            self writeBytes: value size from: value data
+        }.
+    }.
+
+    method encodeByteVector: (value: Stdn ByteVector const ref) ::=> Void := {
+        self encodeByteArraySize: (value size castTo: UInt32).
+        value isNotEmpty ifTrue: {
+            self writeBytes: value size from: value data
+        }.
+    }.
+
+    method encodeValue: (value: Value const ref) ::=> Void := {
+        value selectCase: #{
+        (let _ type: _UndefinedType) : (self encodeNil).
+        (let x type: Boolean8) : (self encodeBoolean: x).
+        (let x type: Int64) : (self encodeInteger: x).
+        (let x type: UInt64) : (self encodeInteger: x).
+        (let x type: Float64) : (self encodeFloat: x).
+        (let x type: Stdn String) : (self encodeString: x).
+        (let x type: Stdn ByteVector) : (self encodeByteVector: x).
+        (let list type: ListPtr) : {
+            self encodeArraySize: (list _ size castTo: UInt32).
+            list _ do: {:each :: Void |
+                self encodeValue: each
+            }
+        }.
+        (let object type: ObjectPtr) : {
+            self encodeMapSize: (object _ size castTo: UInt32).
+            object _ keysAndValuesDo: {:(Stdn String const ref)key :(DOM Value const ref)value :: Void |
+                self encodeString: key.
+                self encodeValue: value
+            }
+        }.
+        }.
+    }.
+
+    meta definition: {
+        static method encodeValue: (value: Value const ref) onStream: (out: Stdn IO Stream ref) ::=> Void := {
+            let outTextStreamWriter mutable := Stdn IO TextStreamWriter for: out address.
+            Encoder()
+                beginEncodingIntoStream: out address;
+                encodeValue: value
+        }.
+    }.
+
+}.
+
+}. ## End of namespace MessagePack
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

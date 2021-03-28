@@ -1,0 +1,98 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace BinaryEncoding definition: {
+namespace Tests definition: {
+
+class Base16Test superclass: Stdn Testing TestCase; definition: {
+    test: testEmpty with: {
+        let binaryData mutable := Stdn ByteVector().
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString isEmpty.
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector1 with: {
+        let binaryData mutable := Stdn ByteVector()
+            add: 0;
+            yourself.
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString asArraySlice equals: "00".
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector2 with: {
+        let binaryData mutable := Stdn ByteVector()
+            add: 0;
+            add: 1;
+            yourself.
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString asArraySlice equals: "0001".
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector3 with: {
+        let binaryData mutable := Stdn ByteVector()
+            add: 0;
+            add: 1;
+            add: 2;
+            yourself.
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString asArraySlice equals: "000102".
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector4 with: {
+        let binaryData mutable := Stdn ByteVector()
+            add: 0;
+            add: 1;
+            add: 2;
+            add: 3;
+            yourself.
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString asArraySlice equals: "00010203".
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector5 with: {
+        let binaryData mutable := Stdn ByteVector()
+            add: 0;
+            add: 1;
+            add: 2;
+            add: 3;
+            add: 4;
+            yourself.
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString asArraySlice equals: "0001020304".
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+
+    test: testByteVector256 with: {
+        let binaryData mutable := Stdn ByteVector().
+        0 until: 256 do: {:i :: Void |
+            binaryData add: (i castTo: UInt8).
+        }.
+
+        let encodedString := encodeBase16String(binaryData).
+        self assert: encodedString size equals: 512.
+
+        let decodedData := decodeBase16String(encodedString).
+        self assert: decodedData equals: binaryData.
+    }.
+}.
+
+} ## End of namespace Tests
+}. ## End of namespace BinaryEncoding
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

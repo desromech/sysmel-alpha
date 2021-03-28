@@ -327,4 +327,7 @@ template Vector(ET: Stdn Concepts Copyable)
 }.
 
 }. ## End of namespace Collections
+
+compileTime constant ByteVector := Stdn Collections Vector(UInt8).
+
 }. ## End of namespace Stdn

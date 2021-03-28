@@ -1,0 +1,2 @@
+loadFileOnce: "GCObjectDecoder.sysmel".
+loadFileOnce: "GCObjectEncoder.sysmel".

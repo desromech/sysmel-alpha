@@ -1,0 +1,29 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace BinaryEncoding definition: {
+
+function encodeBase16String(byteArray: Stdn ByteVector const ref) ::=> Stdn String := {
+    Stdn String textStreamContents: {:out :: Void |
+        byteArray do: {:byte :: Void |
+            out nextPutHexDigit: byte >> 4; nextPutHexDigit: byte & 16rf
+        }
+    }
+}.
+
+function decodeBase16String(string: Stdn String const ref) ::=> Stdn ByteVector := {
+    Stdn assert: (string size % 2) == 0.
+    let result mutable := Stdn ByteVector().
+    result reserve: string size / 2.
+
+    0 until: string size by: 2 do: {:(UIntPointer)i :: Void |
+        let high := string[i].
+        let low := string[i + 1].
+        result add: ((Stdn parseHexDigit(high) << 4) | Stdn parseHexDigit(low) castTo: UInt8)
+    }.
+
+    result
+}.
+
+}. ## End of namespace DOM
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn
