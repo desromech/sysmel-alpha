@@ -3197,7 +3197,7 @@ MbndAstSemanticAnalyzer >> visitVariantBoxCreateNode: node [
 	| result expectedValueType |
 	result := node copy
 		variantType: (self evaluateTypeExpression: node variantType);
-		boxedValue: (self visitNode: node boxedValue);
+		boxedValue: (self analyzeNodeIfNeeded: node boxedValue);
 		yourself.
 
 	result variantType isVariantUnionType ifFalse: [ 
