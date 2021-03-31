@@ -1,7 +1,7 @@
 #include "compressor.hpp"
 #include "libtxc_dxtn/txc_dxtn.h"
 #include "rg_etc1.h"
-#include "stdio.h"
+#include <string.h>
 
 namespace SysmelTextureCompressor
 {

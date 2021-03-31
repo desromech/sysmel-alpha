@@ -24,15 +24,26 @@
 /**
  * Modifications by Ronie Salgado:
  * - Remove dependency on glext, use the bc index as an identification for the format itself.
+ * - Remove dependency on the OpenGL headers
  */
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#endif
-#include <GL/gl.h>
+
+#include <stdint.h>
+
+typedef uint8_t GLubyte;
+typedef uint16_t GLushort;
+typedef int16_t GLshort;
+typedef uint32_t GLuint;
+typedef int32_t GLint;
+
+typedef uint8_t GLboolean;
+typedef void GLvoid;
+
+#define GL_FALSE 0
+#define GL_TRUE 1
 
 typedef GLubyte GLchan;
+
+
 #define UBYTE_TO_CHAN(b)  (b)
 #define CHAN_MAX 255
 #define RCOMP 0
