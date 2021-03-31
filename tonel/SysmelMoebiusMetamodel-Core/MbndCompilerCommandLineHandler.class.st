@@ -19,10 +19,27 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| buildEnvironment sysmelSources programName |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
+	[
+		self doActivate
+	] on: Error do: [ :err |
+		| errorString |
+		errorString := err asString.
+		Smalltalk platform isWindows ifTrue: [ 
+			Stdio stderr nextPutAll: errorString withUnixLineEndings; crlf.
+		] ifFalse: [ 
+			Stdio stderr nextPutAll: errorString withUnixLineEndings; lf.
+		].
+		^ self exitFailure
+	].
+	^ self exitSuccess
+]
+
+{ #category : #activation }
+MbndCompilerCommandLineHandler >> doActivate [
+	| buildEnvironment sysmelSources programName |
 	buildEnvironment := WBTBuildEnvironment forCurrentPlatformWithClang.
 
 	(self hasOption: 'debug') ifTrue: [ buildEnvironment setDebugBuildMode ].
@@ -44,5 +61,4 @@ MbndCompilerCommandLineHandler >> activate [
 			prog sources: sysmelSources
 		]
 	].
-	self exitSuccess.
 ]
