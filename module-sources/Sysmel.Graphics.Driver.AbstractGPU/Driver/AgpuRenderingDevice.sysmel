@@ -508,6 +508,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             x: swapChainCreationInfo position x;
             y: swapChainCreationInfo position y;
             old_swap_chain: oldSwapChain;
+            presentation_mode: (swapChainCreationInfo presentationMode castTo: AGPU SwapChainPresentationMode);
+            fallback_presentation_mode: (swapChainCreationInfo fallbackPresentationMode castTo: AGPU SwapChainPresentationMode);
             yourself.
 
         let swapChainHandle := handle _ createSwapChain: agpuCommandQueue _ handle swapChainInfo: convertedCreationInfo address.

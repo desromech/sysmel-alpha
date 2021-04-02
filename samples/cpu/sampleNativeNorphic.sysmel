@@ -12,7 +12,6 @@ Stdn MainEntryPoint: {:args :: Int32 |
     windowSystem ifNil: {
         return: 0
     }.
-    windowSystem _ targetFrameRate: 20.
 
     ## Create the main window.
     let mainWindow := SystemWindowNorph createFor: windowSystem title: "Test Norphic" asMutableString extent: Int32x2(640, 480).

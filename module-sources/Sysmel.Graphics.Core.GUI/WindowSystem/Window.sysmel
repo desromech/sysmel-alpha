@@ -9,6 +9,11 @@ useNamespace: Stdn Graphics Core.
  *#
 class Window superclass: SharedObject; definition: {
     public field eventHandler type: EventHandler sharedPointer.
+    public field animated type: Boolean8.
+    public field vsyncDisabled type: Boolean8.
+
+    virtual method windowSystem => WindowSystemRef
+        := WindowSystemRef nil.
 
     #**
      * This method closes the window.

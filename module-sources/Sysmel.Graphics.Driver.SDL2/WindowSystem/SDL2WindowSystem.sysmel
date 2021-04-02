@@ -101,13 +101,25 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         let result := SDL2Window sharedNew.
         result _
             handle: windowHandle;
-            windowSystem: self address;
+            setWindowSystem: self address;
+            animated: creationInfo animated;
+            vsyncDisabled: creationInfo vsyncDisabled;
             isFullscreen: creationInfo fullscreen;
             yourself.
 
 
         windowIDDictionary at: SDL_GetWindowID(windowHandle) put: result.
         result upCastFor: Window.
+    }.
+
+    override method hasAnimatedWindow => Boolean8 := {
+        windowIDDictionary valuesDo: {:(SDL2Window sharedPointer const ref)each :: Void |
+            each _ animated ifTrue: {
+                return: true
+            }
+        }.
+
+        false
     }.
 
     override method pollAndPumpEvents => Void := {

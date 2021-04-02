@@ -13,7 +13,12 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
     protected field textureExtent type: UInt32x2.
 
     meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain sharedPointer := {
-        let renderer := SDL_CreateRenderer(window handle, -1, SDL_RENDERER_PRESENTVSYNC).
+        let flags mutable type: UInt32 := SDL_RENDERER_PRESENTVSYNC.
+        window vsyncDisabled ifTrue: {
+            flags := 0
+        }.
+
+        let renderer := SDL_CreateRenderer(window handle, -1, flags).
         renderer ifNil: {
             return: SDL2SoftwareRendererSwapChain sharedPointer nil
         }.

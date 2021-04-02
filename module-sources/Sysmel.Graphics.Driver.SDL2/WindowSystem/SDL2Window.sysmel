@@ -10,7 +10,7 @@ class SDL2WindowSystem.
 
 class SDL2Window superclass: Window; definition: {
     public field handle type: SDL_Window pointer.
-    public field windowSystem type: SDL2WindowSystem pointer.
+    field windowSystem type: SDL2WindowSystem pointer.
     public field isFullscreen type: Boolean8.
     protected field currentCursor type: Cursor sharedPointer.
     protected field renderingDevice type: RenderingDevicePtr.
@@ -26,6 +26,13 @@ class SDL2Window superclass: Window; definition: {
             self close.
         }.
     }.
+
+    method setWindowSystem: (owner: SDL2WindowSystem pointer) ::=> Void := {
+        windowSystem := owner
+    }.
+
+    override method windowSystem => WindowSystemRef
+        := windowSystem _ asSharedPointer upCastFor: WindowSystem.
 
     override method extent => UInt32x2 := {
         let w mutable type: Int32.
@@ -90,6 +97,22 @@ class SDL2Window superclass: Window; definition: {
             }.
 
             return: (result upCastFor: SwapChain).
+        }.
+
+        adaptedCreationInfo presentationMode = SwapChainPresentationMode Default ifTrue: {
+            vsyncDisabled ifTrue: {
+                adaptedCreationInfo presentationMode: SwapChainPresentationMode Mailbox
+            } ifFalse: {
+                adaptedCreationInfo presentationMode: SwapChainPresentationMode Fifo
+            }
+        }.
+
+        adaptedCreationInfo fallbackPresentationMode = SwapChainPresentationMode Default ifTrue: {
+            vsyncDisabled ifTrue: {
+                adaptedCreationInfo fallbackPresentationMode: SwapChainPresentationMode Immediate
+            } ifFalse: {
+                adaptedCreationInfo fallbackPresentationMode: SwapChainPresentationMode Fifo
+            }
         }.
 
         ## Get the native window handle.

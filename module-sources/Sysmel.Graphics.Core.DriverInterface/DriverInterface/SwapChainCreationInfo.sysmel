@@ -20,6 +20,8 @@ struct SwapChainCreationInfo definition: {
     public field flags type: SwapChainFlags.
     public field position type: Int32x2.
     public field oldSwapChain type: SwapChainPtr.
+    public field presentationMode type: SwapChainPresentationMode.
+    public field fallbackPresentationMode type: SwapChainPresentationMode.
 }.
 
 }. ## End of namespace Core

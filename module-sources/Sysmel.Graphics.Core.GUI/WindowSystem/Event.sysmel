@@ -20,10 +20,6 @@ class Event definition: {
 class TickEvent superclass: Event; definition: {
     public field ticks type: Stdn Chrono Time.
     public field delta type: Stdn Chrono Time.
-    public field deterministicTicks type: Stdn Chrono Time.
-    public field deterministicDelta type: Stdn Chrono Time.
-    public field deterministicRemainingDelta type: Stdn Chrono Time.
-    public field deterministicFrameCount type: UInt32.
     public field mainLoopFrameCount type: UInt32.
 
     inline method seconds => Float64
@@ -31,15 +27,6 @@ class TickEvent superclass: Event; definition: {
 
     inline method deltaSeconds => Float64
         := Stdn Chrono ticksToFloatSeconds(delta).
-
-    inline method deterministicSeconds => Float64
-        := Stdn Chrono ticksToFloatSeconds(deterministicTicks).
-
-    inline method deterministicDeltaSeconds => Float64
-        := Stdn Chrono ticksToFloatSeconds(deterministicDelta).
-
-    inline method deterministicRemainingDeltaSeconds => Float64
-        := Stdn Chrono ticksToFloatSeconds(deterministicRemainingDelta).
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onTickEvent: self.

@@ -3,13 +3,15 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * Swap chain flags
+ * Swap chain presentation mode.
  * The values of these constants are the same as the ones that exposed in agpu.
  *#
-enum SwapChainFlags bitMask valueType: UInt32; values: #{
-    None: 0.
-    OverlayWindow: 1.
-	ApplyScaleFactorForHiDPI: 2.
+enum SwapChainPresentationMode valueType: UInt8; values: #{
+ 	Default: 0.
+ 	Immediate: 1.
+ 	Mailbox: 2.
+ 	Fifo: 3.
+    FifoRelaxed: 4.
 }.
 
 }. ## End of namespace Core

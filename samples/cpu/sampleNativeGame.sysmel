@@ -19,6 +19,9 @@ let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
 let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
 let lastFrameRenderingTime mutable type: Float32.
 let lastFrameUpdateTime mutable type: Float32.
+let lastFrameTime mutable type: Float32.
+let accumulatedUpdateTime mutable type: Float32.
+let updateStepTime type: Float32 := 1.0f / 60.0f.
 
 global playbackDevice mutable type: Stdn Sound PlaybackDevicePtr.
 
@@ -351,10 +354,12 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
 	method buildProfilingData: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
 		let updateTime := lastFrameUpdateTime * 1000.0f.
-		let frameTime := lastFrameRenderingTime * 1000.0f.
+		let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
 		let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+			out << "Frame time " << (lastFrameTime * 1000.0f) << "ms"; nl.
+			out << "FPS " << (1.0f / lastFrameTime); nl.
 			out << "Update time " << updateTime << "ms"; nl.
-			out << "Rendering time " << frameTime << " ms"
+			out << "CPU Rendering time " << frameRenderingCommandListTime << " ms"
 		}.
 
 		(builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
@@ -396,10 +401,13 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 	}.
 
 	override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+
 		lastFrameUpdateTime := (Stdn Chrono profileTimeToRun: {
-			let updateDelta := event deterministicDeltaSeconds castTo: Float32.
-			0 until: event deterministicFrameCount do: {
-				update(updateDelta).
+			lastFrameTime := event deltaSeconds castTo: Float32.
+			accumulatedUpdateTime := accumulatedUpdateTime + (lastFrameTime min: 5.0f).
+			while: accumulatedUpdateTime >= updateStepTime do: {
+				update(updateStepTime).
+				accumulatedUpdateTime := accumulatedUpdateTime - updateStepTime
 			}.
 		}) castTo: Float32.
 
@@ -483,19 +491,29 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 }.
 
 Stdn MainEntryPoint: {:args :: Int32 |
+	let vsyncDisabled mutable := false.
+	args do: {:arg :: Void |
+		(arg until: Stdn cstrlen(arg)) selectCase: #{
+		"-no-vsync" : {
+			vsyncDisabled := true
+		}.
+		_ : {}.
+		}
+	}.
+
 	## Create the window system.
 	let windowSystem := createDefaultWindowSystem().
 	windowSystem ifNil: {
 		return: 0.
 	}.
 
-	windowSystem _ targetFrameRate: 60.
-
 	## Create the main window.
     mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
 	 	title: "Sample Native Game" asMutableString;
 		extent: Int32x2(640, 480);
 		resizable: true;
+		animated: true;
+		vsyncDisabled: vsyncDisabled;
 		yourself).
     mainWindow ifNil: {
         return: 0.

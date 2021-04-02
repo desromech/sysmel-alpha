@@ -173,6 +173,7 @@ class MeshBuilder definition: {
 }.
 
 class Sample definition: {
+	public field vsyncDisabled type: Boolean8.
 	field renderingDevice type: RenderingDevicePtr.
 	field mainWindow type: Window sharedPointer.
 	field mainWindowRenderer type: WindowScene2DRendererPtr.
@@ -180,6 +181,7 @@ class Sample definition: {
 
 	field shaderSignature type: ShaderSignaturePtr.
 
+	field frameTime type: Float32.
 	field currentTime type: Float32.
 	field lastFrameRenderingTime type: Float32.
 
@@ -271,11 +273,12 @@ class Sample definition: {
 		let scene2D mutable := scene3DResult upCastFor: Node2D.
 
 		{
-			let frameTime := lastFrameRenderingTime * 1000.0f.
+			let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
 			let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+				out << "Frame time " << (frameTime * 1000.0) << " ms"; nl.
+				out << "FPS " << 1.0f / frameTime; nl.
 				out << "Current time " << currentTime; nl.
-				out << "Rendering 3D time " << (rendering3DTime * 1000.0f) << " ms"; nl.
-				out << "Rendering time " << frameTime << " ms"; nl.
+				out << "Rendering time " << frameRenderingCommandListTime << " ms".
 			}.
 
 			let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
@@ -297,7 +300,8 @@ class Sample definition: {
     }.
 
 	method onTickEvent: (event: TickEvent ref) ::=> Void := {
-        currentTime := event seconds castTo: Float32.
+		frameTime := event deltaSeconds castTo: Float32.
+        currentTime := currentTime + (frameTime min: 0.1).
 
 		cameraOrientation := (Float32x3x3 yRotation: cameraAngle y) * (Float32x3x3 xRotation: cameraAngle x).
 		viewMatrix := (Float32x4x4 mat3: cameraOrientation transpose)*(Float32x4x4 translation: cameraPosition negated).
@@ -377,13 +381,14 @@ class Sample definition: {
 	    windowSystem ifNil: {
 	        return: 0
 	    }.
-	    windowSystem _ targetFrameRate: 60.
 
 	    ## Create the main window.
 	    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
 			resizable: true;
 			extent: Int32x2(640, 480);
-			title: "Test Window" asMutableString;
+			title: "Sample Native Rendering 3D" asMutableString;
+			animated: true;
+			vsyncDisabled: vsyncDisabled;
 			yourself).
 	    mainWindow ifNil: {
 	        return: 0.
@@ -662,5 +667,15 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 }.
 
 Stdn MainEntryPoint: {:args :: Int32 |
-	Sample() run.
+	let sample mutable := Sample().
+	args do: {:arg :: Void |
+		(arg until: Stdn cstrlen(arg)) selectCase: #{
+		"-no-vsync" : {
+			sample vsyncDisabled: true
+		}.
+		_ : {}.
+		}
+	}.
+
+	sample run.
 }.

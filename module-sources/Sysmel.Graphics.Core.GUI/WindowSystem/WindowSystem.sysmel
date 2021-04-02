@@ -9,8 +9,6 @@ class WindowCreationInfo.
  * I represent an interface into a window system window.
  *#
 class WindowSystem superclass: SharedObject; definition: {
-    public field targetFrameRate type: Stdn Chrono Time.
-
     protected field globalEventHandlers type: Stdn Collections Vector(EventHandlerPtr).
 
     meta definition: {
@@ -105,11 +103,12 @@ class WindowSystem superclass: SharedObject; definition: {
         return: 0
     }.
 
+    virtual method hasAnimatedWindow => Boolean8
+        := false.
+
     virtual method sleepUntilNextFrame => Void := {
-        targetFrameRate > 0 ifTrue: {
-            let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
-            let targetNextFrameTime := mainLoopFrameStartTicks + ticksPerFrame.
-            Stdn Chrono sleepUntil(targetNextFrameTime)
+        self hasAnimatedWindow ifTrue: {
+            self waitForVSync
         } ifFalse: {
             self waitForNextEventOrTimeout.
         }.
@@ -119,34 +118,16 @@ class WindowSystem superclass: SharedObject; definition: {
      * A single iteration of the main loop.
      *#
     virtual method mainLoopIteration => Void := {
-        let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
-
         mainLoopFrameStartTicks := Stdn Chrono now().
         self pollAndPumpEvents.
 
         let deltaTicks mutable := mainLoopFrameStartTicks - mainLoopOldTicks.
-
-        ## In case the system goes to sleep, or we are really slow, only advance a single frame the simulation.
-        deltaTicks >= ticksPerFrame*10 ifTrue: {
-            deltaTicks := ticksPerFrame
-        }.
-
-        ## Accumulate the delta.
-        mainLoopAccumulatedTicks := mainLoopAccumulatedTicks + deltaTicks.
-
-        let deterministicFrameCount := mainLoopAccumulatedTicks / ticksPerFrame max: 0.
-        mainLoopAccumulatedTicks := mainLoopAccumulatedTicks - deterministicFrameCount*ticksPerFrame.
-        mainLoopDeterministicsTicks := mainLoopDeterministicsTicks + deterministicFrameCount * ticksPerFrame.
 
         ## Send the tick events
         {
             let event mutable type: TickEvent.
             event
                 ticks: mainLoopFrameStartTicks - mainLoopStartTicks;
-                deterministicTicks: mainLoopDeterministicsTicks;
-                deterministicDelta: ticksPerFrame;
-                deterministicRemainingDelta: mainLoopAccumulatedTicks;
-                deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
                 mainLoopFrameCount: mainLoopFrameCount;
                 delta: deltaTicks.
             self broadcastEvent: event.
@@ -160,6 +141,13 @@ class WindowSystem superclass: SharedObject; definition: {
      * Poll for events non-blockingly and then pump the events into the actual windows.
      *#
     virtual method pollAndPumpEvents => Void := {
+
+    }.
+
+    #**
+     * Wait for vsync.
+     *#
+    virtual method waitForVSync => Void := {
 
     }.
 
