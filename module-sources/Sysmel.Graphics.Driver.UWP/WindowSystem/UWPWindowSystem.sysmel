@@ -102,7 +102,10 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
         }.
 
         activeWindow := UWPWindow sharedNew.
-        activeWindow _ extent: (creationInfo extent castTo: UInt32x2).
+        activeWindow _
+            extent: (creationInfo extent castTo: UInt32x2);
+            animated: creationInfo animated;
+            vsyncDisabled: creationInfo vsyncDisabled.
         activeWindow upCastFor: Window.
     }.
 
@@ -121,6 +124,9 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     override method pollAndPumpEvents => Void := {
         sysmel_uwp_pumpEvents().
     }.
+
+    override method hasAnimatedWindow => Boolean8
+        := activeWindow isNotNil && activeWindow _ animated.
 
     override method waitForNextEventOrTimeout => Void := {
         sysmel_uwp_waitForEvents().

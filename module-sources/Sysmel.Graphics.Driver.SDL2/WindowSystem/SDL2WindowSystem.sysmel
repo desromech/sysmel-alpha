@@ -113,13 +113,14 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     }.
 
     override method hasAnimatedWindow => Boolean8 := {
+        let result mutable := false.
         windowIDDictionary valuesDo: {:(SDL2Window sharedPointer const ref)each :: Void |
             each _ animated ifTrue: {
-                return: true
+                result := true
             }
         }.
 
-        false
+        result
     }.
 
     override method pollAndPumpEvents => Void := {

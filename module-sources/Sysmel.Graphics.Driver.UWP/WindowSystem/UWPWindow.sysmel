@@ -61,6 +61,22 @@ class UWPWindow superclass: Window; definition: {
             windowSystemName: "winrt" asMutableString;
             window: handle.
 
+        adaptedCreationInfo presentationMode = SwapChainPresentationMode Default ifTrue: {
+            vsyncDisabled ifTrue: {
+                adaptedCreationInfo presentationMode: SwapChainPresentationMode Mailbox
+            } ifFalse: {
+                adaptedCreationInfo presentationMode: SwapChainPresentationMode Fifo
+            }
+        }.
+
+        adaptedCreationInfo fallbackPresentationMode = SwapChainPresentationMode Default ifTrue: {
+            vsyncDisabled ifTrue: {
+                adaptedCreationInfo fallbackPresentationMode: SwapChainPresentationMode Immediate
+            } ifFalse: {
+                adaptedCreationInfo fallbackPresentationMode: SwapChainPresentationMode Fifo
+            }
+        }.
+
         ## Supply the old swap chain, and make sure it is not on active use anymore.
         activeSwapChain ifNotNil: {
             adaptedCreationInfo oldSwapChain: activeSwapChain.
