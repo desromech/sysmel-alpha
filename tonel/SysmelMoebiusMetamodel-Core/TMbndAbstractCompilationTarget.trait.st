@@ -227,6 +227,16 @@ TMbndAbstractCompilationTarget >> gpuDepthTexture2DArrayType [
 ]
 
 { #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTexture2DMSArrayType [
+	^ self getBasicTypeNamed: #GPUDepthTexture2DMSArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTexture2DMSType [
+	^ self getBasicTypeNamed: #GPUDepthTexture2DMS
+]
+
+{ #category : #'gpu convenience type accessors' }
 TMbndAbstractCompilationTarget >> gpuDepthTexture2DType [
 	^ self getBasicTypeNamed: #GPUDepthTexture2D
 ]
@@ -259,6 +269,16 @@ TMbndAbstractCompilationTarget >> gpuTexture1DType [
 { #category : #'gpu convenience type accessors' }
 TMbndAbstractCompilationTarget >> gpuTexture2DArrayType [
 	^ self getBasicTypeNamed: #GPUTexture2DArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture2DMSArrayType [
+	^ self getBasicTypeNamed: #GPUTexture2DMSArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture2DMSType [
+	^ self getBasicTypeNamed: #GPUTexture2DMS
 ]
 
 { #category : #'gpu convenience type accessors' }

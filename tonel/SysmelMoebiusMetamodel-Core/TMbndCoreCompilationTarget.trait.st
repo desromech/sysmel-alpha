@@ -1240,6 +1240,8 @@ TMbndCoreCompilationTarget >> initializeGpuTypes [
 		addGpuTextureTypeNamed: #GPUTexture1DArray sampled: true dimensions: 1 layered: true depth: false multisampling: false;
 		addGpuTextureTypeNamed: #GPUTexture2D sampled: true dimensions: 2 layered: false depth: false multisampling: false;
 		addGpuTextureTypeNamed: #GPUTexture2DArray sampled: true dimensions: 2 layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture2DMS sampled: true dimensions: 2 layered: false depth: false multisampling: true;
+		addGpuTextureTypeNamed: #GPUTexture2DMSArray sampled: true dimensions: 2 layered: true depth: false multisampling: true;
 		addGpuTextureTypeNamed: #GPUTextureCube sampled: true dimensions: #cube layered: false depth: false multisampling: false;
 		addGpuTextureTypeNamed: #GPUTextureCubeArray sampled: true dimensions: #cube layered: true depth: false multisampling: false;
 		addGpuTextureTypeNamed: #GPUTexture3D sampled: true dimensions: 3 layered: false depth: false multisampling: false;
@@ -1247,8 +1249,22 @@ TMbndCoreCompilationTarget >> initializeGpuTypes [
 		
 		addGpuTextureTypeNamed: #GPUDepthTexture2D sampled: true dimensions: 2 layered: false depth: true multisampling: false;
 		addGpuTextureTypeNamed: #GPUDepthTexture2DArray sampled: true dimensions: 2 layered: true depth: true multisampling: false;
+		addGpuTextureTypeNamed: #GPUDepthTexture2DMS sampled: true dimensions: 2 layered: false depth: true multisampling: true;
+		addGpuTextureTypeNamed: #GPUDepthTexture2DMSArray sampled: true dimensions: 2 layered: true depth: true multisampling: true;
 		addGpuTextureTypeNamed: #GPUDepthTextureCube sampled: true dimensions: #cube layered: false depth: true multisampling: false;
 		addGpuTextureTypeNamed: #GPUDepthTextureCubeArray sampled: true dimensions: #cube layered: true depth: true multisampling: false.
+		
+	
+		"addGpuTextureTypeNamed: #GPUImage1D sampled: false dimensions: 1 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage1DArray sampled: false dimensions: 1 layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage2D sampled: false dimensions: 2 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage2DArray sampled: false dimensions: 2 layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage2DMS sampled: false dimensions: 2 layered: false depth: false multisampling: true;
+		addGpuTextureTypeNamed: #GPUImage2DMSArray sampled: false dimensions: 2 layered: true depth: false multisampling: true;
+		addGpuTextureTypeNamed: #GPUImageCube sampled: false dimensions: #cube layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImageCubeArray sampled: false dimensions: #cube layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage3D sampled: false dimensions: 3 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUImage3DArray sampled: false dimensions: 3 layered: false depth: false multisampling: false"
 ]
 
 { #category : #initialization }

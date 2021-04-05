@@ -1421,6 +1421,8 @@ MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
 		(gpuTexture1DArrayType texture1DArray)
 		(gpuTexture2DType texture2D)
 		(gpuTexture2DArrayType texture2DArray)
+		(gpuTexture2DMSType texture2DMS)
+		(gpuTexture2DMSArrayType texture2DMSArray)
 		(gpuTexture3DType texture3D)
 		(gpuTexture3DArrayType texture3DArray)
 		(gpuTextureCubeType textureCube)
@@ -1428,6 +1430,8 @@ MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
 
 		(gpuDepthTexture2DType depthTexture2D)
 		(gpuDepthTexture2DArrayType depthTexture2DArray)
+		(gpuDepthTexture2DMSType depthTexture2DMS)
+		(gpuDepthTexture2DMSArrayType depthTexture2DMSArray)
 		(gpuDepthTextureCubeType depthTextureCube)
 		(gpuDepthTextureCubeArrayType depthTextureCubeArray)
 	)

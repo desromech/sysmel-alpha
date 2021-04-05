@@ -36,13 +36,29 @@ MbndTextureType >> addTextureIntrinsics [
 				self halt.
 		].
 	
+	multisampling ifTrue: [
+		self
+			addBuiltIn: #fetchTexel:sample: intrinsicNamed: 'texture.image.fetch' argumentTypes: {self imageCoordinateType . self compilationTarget int32Type} returnType: self texelType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #fetchTexel:sample: intrinsicNamed: 'texture.image.fetch' argumentTypes: {self unsignedImageCoordinateType . self compilationTarget uint32Type} returnType: self texelType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			]
+	].
+
 	sampled ifFalse: [ 
 		
 		self
-			addBuiltIn: #loadAt: intrinsicNamed: 'texture.image.read' argumentTypes: {self imageCoordinateType}returnType: self compilationTarget voidType evaluatedWith: [:receiver :arguments :evaluator :node |
+			addBuiltIn: #loadAt: intrinsicNamed: 'texture.image.read' argumentTypes: {self imageCoordinateType}returnType: self texelType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #loadAt: intrinsicNamed: 'texture.image.read' argumentTypes: {self unsignedImageCoordinateType} returnType: self texelType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			];
 			addBuiltIn: #at:store: intrinsicNamed: 'texture.image.read' argumentTypes: {self imageCoordinateType . self texelType } returnType: self compilationTarget voidType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #at:store: intrinsicNamed: 'texture.image.read' argumentTypes: {self unsignedImageCoordinateType . self texelType } returnType: self compilationTarget voidType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			]
 	].
@@ -139,4 +155,9 @@ MbndTextureType >> samplingCoordinateType [
 { #category : #'as yet unclassified' }
 MbndTextureType >> texelType [
 	^ self compilationTarget float32Type primitiveVectorWithElements: 4
+]
+
+{ #category : #'as yet unclassified' }
+MbndTextureType >> unsignedImageCoordinateType [
+	^ self compilationTarget uint32Type primitiveVectorWithElements: self dimensionCount + layered asBit
 ]
