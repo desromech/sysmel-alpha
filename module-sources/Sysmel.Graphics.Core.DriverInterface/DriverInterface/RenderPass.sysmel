@@ -10,6 +10,9 @@ class RenderPass superclass: RenderingDriverObjectHandle; definition: {
 
     const abstract method colorAttachmentFormats => PixelFormat const arraySlice.
     const abstract method depthStencilFormat => PixelFormat.
+
+    const abstract method sampleCount => UInt32.
+    const abstract method sampleQuality => UInt32.
 }.
 
 compileTime constant RenderPassPtr := RenderPass sharedPointer.

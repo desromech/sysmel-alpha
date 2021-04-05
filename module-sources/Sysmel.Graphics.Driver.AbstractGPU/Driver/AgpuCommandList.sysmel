@@ -162,13 +162,28 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
+        let agpuSourceFramebuffer := source getPointer castTo: AgpuFramebuffer pointer.
+        let agpuDestFramebuffer := destination getPointer castTo: AgpuFramebuffer pointer.
+        agpuSourceFramebuffer isNil || agpuDestFramebuffer isNil ifTrue: {
+            return: void
+        }.
 
+        handle _ resolveFramebuffer: agpuDestFramebuffer _ handle sourceFramebuffer: agpuSourceFramebuffer _ handle
     }.
 
     override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
         into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
-        aspect: (aspect: TextureAspect) ::=> Void := {
+        levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32) aspect: (aspect: TextureAspect) ::=> Void := {
+        let agpuSourceTexture := source getPointer castTo: AgpuTexture pointer.
+        let agpuDestTexture := destination getPointer castTo: AgpuTexture pointer.
+        agpuSourceTexture isNil || agpuSourceTexture isNil ifTrue: {
+            return: void
+        }.
 
+        handle _ resolveTexture: agpuSourceTexture _ handle sourceLevel: sourceLevel sourceLayer: sourceLayer
+            destTexture: agpuDestTexture _ handle destLevel: destinationLevel destLayer: destinationLayer
+            levelCount: levelCount layerCount: layerCount
+            aspect: (aspect castTo: AGPU TextureAspect)
     }.
 
     override method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void := {

@@ -278,6 +278,7 @@ class SoftCommandList superclass: CommandList; definition: {
 
     override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
         into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32)
         aspect: (aspect: TextureAspect) ::=> Void := {
 
     }.

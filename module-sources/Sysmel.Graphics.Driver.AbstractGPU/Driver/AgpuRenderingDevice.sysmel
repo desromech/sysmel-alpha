@@ -420,7 +420,12 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
         let convertedColorAttachments mutable type: Stdn Collections Vector(AGPU RenderpassColorAttachmentDescription).
         convertedColorAttachments reserve: colorAttachments size.
+        let sampleCount mutable type: UInt32 := 1.
+        let sampleQuality mutable type: UInt32 := 0.
         colorAttachments do: {:each :: Void |
+            sampleCount := each sampleCount.
+            sampleQuality := each sampleQuality.
+
             convertedColorAttachments add: (AGPU RenderpassColorAttachmentDescription()
                 format: (each format castTo: AGPU TextureFormat);
                 sample_count: each sampleCount;
@@ -438,6 +443,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let convertedDepthStencilAttachment mutable type: AGPU RenderpassDepthStencilDescription.
         depthAttachment ifNotNil: {
+            sampleCount := depthAttachment _ sampleCount.
+            sampleQuality := depthAttachment _ sampleQuality.
+
             convertedDepthStencilAttachment
                 format: (depthAttachment _ format castTo: AGPU TextureFormat);
                 sample_count: depthAttachment _ sampleCount;
@@ -462,7 +470,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         let result := AgpuRenderPass sharedNew.
         result _
             handle: renderPassHandle;
-            theDepthStencilFormat: (depthAttachment ifNil: {PixelFormat Unknown} ifNotNil: {depthAttachment _ format}).
+            theDepthStencilFormat: (depthAttachment ifNil: {PixelFormat Unknown} ifNotNil: {depthAttachment _ format});
+            theSampleCount: sampleCount;
+            theSampleQuality: sampleQuality.
         result _ colorAttachmentFormats reserve: colorAttachments size.
         colorAttachments do: {:each :: Void |
             result _ colorAttachmentFormats add: each format

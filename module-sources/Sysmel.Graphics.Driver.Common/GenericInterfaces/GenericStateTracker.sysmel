@@ -405,7 +405,14 @@ class GenericStateTracker superclass: StateTracker; definition: {
         }.
 
         ## Set the depth stencil attachment format.
-        graphicsPipelineStateDescription depthStencilFormat: renderPass _ depthStencilFormat.
+        graphicsPipelineStateDescription
+            depthStencilFormat: renderPass _ depthStencilFormat.
+
+
+        ## Set the multi sampling state.
+        graphicsPipelineStateDescription
+            sampleCount: renderPass _ sampleCount;
+            sampleQuality: renderPass _ sampleQuality.
 
         self invalidateGraphicsPipelineState.
     }.
@@ -420,9 +427,11 @@ class GenericStateTracker superclass: StateTracker; definition: {
 
     override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
         into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32)
         aspect: (aspect: TextureAspect) ::=> Void := {
         commandList _ resolveTexture: source level: sourceLevel layer: sourceLayer
             into: destination level: destinationLevel layer: destinationLayer
+            levelCount: levelCount layerCount: layerCount
             aspect: aspect
     }.
 

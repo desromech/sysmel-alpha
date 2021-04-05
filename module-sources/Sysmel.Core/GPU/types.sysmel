@@ -5,6 +5,8 @@ compileTime constant Texture1D := GPUTexture1D.
 compileTime constant Texture1DArray := GPUTexture1DArray.
 compileTime constant Texture2D := GPUTexture2D.
 compileTime constant Texture2DArray := GPUTexture2DArray.
+compileTime constant Texture2DMS := GPUTexture2DMS.
+compileTime constant Texture2DMSArray := GPUTexture2DMSArray.
 compileTime constant Texture3D := GPUTexture3D.
 compileTime constant Texture3DArray := GPUTexture3DArray.
 compileTime constant TextureCube := GPUTextureCube.
@@ -12,6 +14,8 @@ compileTime constant TextureCubeArray := GPUTextureCubeArray.
 
 compileTime constant DepthTexture2D := GPUDepthTexture2D.
 compileTime constant DepthTexture2DArray := GPUDepthTexture2DArray.
+compileTime constant DepthTexture2DMS := GPUDepthTexture2DMS.
+compileTime constant DepthTexture2DMSArray := GPUDepthTexture2DMSArray.
 compileTime constant DepthTextureCube := GPUDepthTextureCube.
 compileTime constant DepthTextureCubeArray := GPUDepthTextureCubeArray.
 

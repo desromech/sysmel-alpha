@@ -59,6 +59,9 @@ class SoftRenderPassExecutionContext definition: {
  *#
 class SoftRenderPass superclass: RenderPass; definition: {
     protected field colorAttachmentFormats type: Stdn Collections Vector(PixelFormat).
+    protected field sampleCount type: UInt32.
+    protected field sampleQuality type: UInt32.
+
     public field colorAttachments type: Stdn Collections Vector(RenderPassColorAttachmentDescription).
     public field depthStencilAttachment type: RenderPassDepthStencilAttachmentDescription.
     public field hasDepthStencilAttachment type: Boolean8.
@@ -84,10 +87,33 @@ class SoftRenderPass superclass: RenderPass; definition: {
         hasDepthStencilAttachment ifTrue: depthStencilAttachment format ifFalse: PixelFormat Unknown.
     }.
 
+    const override method sampleCount => UInt32
+        := sampleCount.
+
+    const override method sampleQuality => UInt32
+        := sampleQuality.
+
     method extractColorAttachmentFormats => Void := {
         colorAttachmentFormats reserve: colorAttachments size.
         colorAttachments do: {:each :: Void |
             colorAttachmentFormats add: each format.
+        }.
+    }.
+
+    method extractSampleCountAndQuality => Void := {
+        sampleCount := 1u.
+        sampleQuality := 0u.
+
+        hasDepthStencilAttachment ifTrue: {
+            sampleCount := depthStencilAttachment sampleCount.
+            sampleQuality := depthStencilAttachment sampleQuality.
+            return: void
+        }.
+
+        colorAttachments isNotEmpty ifTrue: {
+            sampleCount := colorAttachments[0] sampleCount.
+            sampleQuality := colorAttachments[0] sampleQuality.
+            return: void
         }.
     }.
 }.

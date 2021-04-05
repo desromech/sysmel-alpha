@@ -192,7 +192,9 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
                 hasDepthStencilAttachment: true;
                 depthStencilAttachment: depthStencilAttachment _.
         }.
-        result _ extractColorAttachmentFormats.
+        result _
+            extractColorAttachmentFormats;
+            extractSampleCountAndQuality.
 
         result upCastFor: RenderPass
     }.

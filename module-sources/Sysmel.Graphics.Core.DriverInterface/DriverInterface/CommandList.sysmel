@@ -39,6 +39,7 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void.
     abstract method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
         into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32)
         aspect: (aspect: TextureAspect) ::=> Void.
     abstract method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void.
     abstract method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
@@ -53,7 +54,7 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void.
 
     virtual method dumpToFileNamed: (fileName: Char8 const pointer) ::=> Void := {}.
-    
+
     virtual method resetFor: (allocator: CommandListAllocatorPtr const ref) ::=> Void
         := self resetFor: allocator initialPipelineState: PipelineStatePtr nil.
 }.

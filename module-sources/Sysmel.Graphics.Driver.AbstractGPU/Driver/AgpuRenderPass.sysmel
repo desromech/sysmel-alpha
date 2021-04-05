@@ -11,6 +11,8 @@ sealed class AgpuRenderPass superclass: RenderPass; definition: {
     public field handle type: AGPU RenderpassRef.
     public field colorAttachmentFormats type: Stdn Collections Vector(PixelFormat).
     public field theDepthStencilFormat type: PixelFormat.
+    public field theSampleCount type: UInt32.
+    public field theSampleQuality type: UInt32.
 
     override method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void := {
         let convertedColor mutable := AGPU Color4f()
@@ -30,6 +32,12 @@ sealed class AgpuRenderPass superclass: RenderPass; definition: {
 
     const override method depthStencilFormat => PixelFormat
         := theDepthStencilFormat.
+
+    const override method sampleCount => UInt32
+        := theSampleCount.
+
+    const override method sampleQuality => UInt32
+        := theSampleQuality.
 }.
 
 compileTime constant AgpuRenderPassPtr := AgpuRenderPass sharedPointer.
