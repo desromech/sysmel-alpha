@@ -16,6 +16,7 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
     compileTime if: Compiler compilationTarget isWindowsStore then: {
         Compiler
             importIndirectModulesNamed: #(
+                #"Sysmel.Graphics.FreeType2"
                 #"Sysmel.Graphics.Driver.AbstractGPU"
                 #"Sysmel.Graphics.Driver.UWP"
             )

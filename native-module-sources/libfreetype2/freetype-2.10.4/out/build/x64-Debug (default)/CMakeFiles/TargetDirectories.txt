@@ -1,0 +1,8 @@
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/package.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/freetype.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/package_source.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/install/local.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/install.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/edit_cache.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/rebuild_cache.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/libfreetype2/freetype-2.10.4/out/build/x64-Debug (default)/CMakeFiles/list_install_components.dir

@@ -1,0 +1,10 @@
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/zlib.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/zlibstatic.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/example.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/list_install_components.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/minigzip.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/rebuild_cache.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/test.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/install.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/edit_cache.dir
+C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/build/x64-Debug (default)/CMakeFiles/install/local.dir

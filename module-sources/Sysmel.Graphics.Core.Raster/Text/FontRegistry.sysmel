@@ -62,11 +62,12 @@ class FontRegistry definition: {
         defaultSans ifNil: {
             defaultSans := self loadFontNamed: "DejaVuSans" asMutableString
                 with: {:(Font ref) font :: Void |
+                let dejaVuParentFolder := FileSystem resourcesDirectory / "fonts/dejavu/ttf".
                 font
-                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans.ttf" asMutableString);
-                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Bold.ttf" asMutableString);
-                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans.ttf") fullName asMutableString);
+                    boldFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-Bold.ttf") fullName asMutableString);
+                    italicFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-Oblique.ttf") fullName asMutableString);
+                    italicBoldFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-BoldOblique.ttf") fullName asMutableString).
             }
         }.
 

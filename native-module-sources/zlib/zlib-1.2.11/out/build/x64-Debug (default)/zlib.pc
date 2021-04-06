@@ -1,0 +1,13 @@
+prefix=C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/install/x64-Debug (default)
+exec_prefix=C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/install/x64-Debug (default)
+libdir=C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/install/x64-Debug (default)/lib
+sharedlibdir=C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/install/x64-Debug (default)/lib
+includedir=C:/projects/woden-sysmel/pharo-local/iceberg/ronsaldo/sysmel/native-module-sources/zlib/zlib-1.2.11/out/install/x64-Debug (default)/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.11
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

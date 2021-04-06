@@ -12,6 +12,10 @@ struct RenderPassColorAttachmentDescription definition: {
     public field beginAction type: RenderPassAttachmentAction.
     public field endAction type: RenderPassAttachmentAction.
     public field clearValue type: Float32x4.
+
+    method initialize => Void := {
+        sampleCount := 1.
+    }.
 }.
 
 }. ## End of namespace Core

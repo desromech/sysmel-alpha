@@ -14,6 +14,10 @@ struct RenderPassDepthStencilAttachmentDescription definition: {
     public field stencilBeginAction type: RenderPassAttachmentAction.
     public field stencilEndAction type: RenderPassAttachmentAction.
     public field clearValue type: DepthStencilValue.
+
+    method initialize => Void := {
+        sampleCount := 1.
+    }.
 }.
 
 }. ## End of namespace Core
