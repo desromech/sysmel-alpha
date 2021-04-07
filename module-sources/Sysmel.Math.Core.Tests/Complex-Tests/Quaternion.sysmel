@@ -11,6 +11,16 @@ sealed template GenericQuaternionTest(ST: Type)
     compileTime constant Vector4 := Quaternion Vector4.
     compileTime constant Matrix3x3 := Quaternion Matrix3x3.
 
+    macro method assert: expression closeToOrNegatedCloseTo: expectedValue := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") or its negated version is not close to the expected value (" -- expectedValue originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+
+        ``( (`,expression closeTo: `,expectedValue) || (`,expression negated closeTo: `,expectedValue) ifFalse: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
     test: testEquals with: {
         let a := Quaternion x: 1 y: 2 z: 4 w: 5.
         let b := Quaternion x: 3 y: 4 z: 5 w: 6.
@@ -132,6 +142,22 @@ sealed template GenericQuaternionTest(ST: Type)
         self assert: (Quaternion zRotation: 1) asMatrix3x3 closeTo: (Matrix3x3 zRotation: 1).
         self assert: (Quaternion xyzRotation: Vector3(1, 2, 3)) asMatrix3x3 closeTo: (Matrix3x3 xyzRotation: Vector3(1, 2, 3)).
         self assert: (Quaternion zyxRotation: Vector3(1, 2, 3)) asMatrix3x3 closeTo: (Matrix3x3 zyxRotation: Vector3(1, 2, 3)).
+    }.
+
+    test: testFromMatrix with: {
+        self assert: Matrix3x3 identity asQuaternion closeTo: Quaternion identity.
+        self assert: (Matrix3x3 xRotation: 1) asQuaternion closeToOrNegatedCloseTo: (Quaternion xRotation: 1).
+        self assert: (Matrix3x3 yRotation: 1) asQuaternion closeToOrNegatedCloseTo: (Quaternion yRotation: 1).
+        self assert: (Matrix3x3 zRotation: 1) asQuaternion closeToOrNegatedCloseTo: (Quaternion zRotation: 1).
+        self assert: (Matrix3x3 xyzRotation: Vector3(1, 2, 3)) asQuaternion closeToOrNegatedCloseTo: (Quaternion xyzRotation: Vector3(1, 2, 3)).
+        self assert: (Matrix3x3 zyxRotation: Vector3(1, 2, 3)) asQuaternion closeToOrNegatedCloseTo: (Quaternion zyxRotation: Vector3(1, 2, 3)).
+
+        self assert: Matrix3x3 lookAtBack asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtBack.
+        self assert: Matrix3x3 lookAtBottom asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtBottom.
+        self assert: Matrix3x3 lookAtFront asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtFront.
+        self assert: Matrix3x3 lookAtLeft asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtLeft.
+        self assert: Matrix3x3 lookAtRight asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtRight.
+        self assert: Matrix3x3 lookAtTop asQuaternion closeToOrNegatedCloseTo: Quaternion lookAtTop.
     }.
 }.
 

@@ -1,1 +1,2 @@
-loadFileOnce: "ReversibleAffineTransform.sysmel".
+loadFileOnce: "DecomposedTransform3d.sysmel".
+loadFileOnce: "ReversibleAffineTransform3d.sysmel".

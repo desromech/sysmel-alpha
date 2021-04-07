@@ -1,0 +1,113 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+
+#**
+ * I am a decomposed transform of the form M = TRS X.
+ * By construction I am an invertible and interpolable transform.
+ *#
+sealed template GenericDecomposedTransform3d(ST: Type)
+    := class superclass: GenericLinearAlgebra(ST); definition: {
+    public field scale type: Vector3.
+    public field rotation type: Quaternion.
+    public field translation type: Vector3.
+
+    meta definition: {
+        const inline method identity => InstanceType
+            := InstanceType() setIdentity; yourself.
+    }.
+
+    method initialize => Void := {
+        self setIdentity
+    }.
+
+    method setIdentity => Void := {
+        rotation := Quaternion identity.
+        scale := Vector3 ones.
+        translation := Vector3 zeros.
+    }.
+
+    const inline method matrix => Matrix3x3
+        := rotation asMatrix3x3 * (Matrix3x3 scale: scale).
+
+    const inline method matrix4 => Matrix4x4
+        := Matrix4x4 mat3: self matrix translation: translation.
+
+    method matrix: (matrix: Matrix3x3 const ref) ::=> Void := {
+        ## See the following for decomposing algorithm: https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati
+        scale := Vector3 x: matrix firstColumn length
+            y: matrix secondColumn length
+            z: matrix thirdColumn length.
+        let rotationMatrix := Matrix3x3(
+            matrix firstColumn / scale x,
+            matrix secondColumn / scale y,
+            matrix thirdColumn / scale z
+        ).
+
+        rotation := rotationMatrix asQuaternion
+    }.
+
+    method orthonormal: (matrix: Matrix3x3 const ref) ::=> Void := {
+        scale := Vector3 ones.
+        rotation := matrix asQuaternion
+    }.
+
+    const inline method inverseMatrix => Matrix3x3
+        := rotation asMatrix3x3 * (Matrix3x3 scale: scale).
+
+    const inline method inverseMatrix4 => Matrix4x4 := {
+        let imat := self inverseMatrix.
+        Matrix4x4 mat3: imat translation: imat * self inverseTranslation.
+    }.
+
+    const inline method inverseTranslation => Vector3
+        := translation negated.
+
+    const inline method inverseScale => Vector3
+        := 1.0 / scale.
+
+    const inline method inverseRotation => Quaternion
+        := rotation conjugated.
+
+    const inline method asReversibleAffineTransform3d => ReversibleAffineTransform3d
+        := ReversibleAffineTransform3d()
+            matrix: self matrix inverseMatrix: self inverseMatrix translation: self translation;
+            yourself.
+
+    const inline method isIdentity => Boolean8
+        := scale = Vector3 ones && rotation = Quaternion identity && translation = Vector3 zeros.
+
+    inline method lookAtBack => Void
+        := self rotation: Quaternion lookAtBack.
+
+    inline method lookAtBottom => Void
+        := self rotation: Quaternion lookAtBottom.
+
+    inline method lookAtFront => Void
+        := self rotation: Quaternion lookAtFront.
+
+    inline method lookAtLeft => Void
+        := self rotation: Quaternion lookAtLeft.
+
+    inline method lookAtRight => Void
+        := self rotation: Quaternion lookAtRight.
+
+    inline method lookAtTop => Void
+        := self rotation: Quaternion lookAtTop.
+
+    macro method asDecomposedTransform3d := self.
+
+    const inline method interpolateTo: (other: SelfType const ref) at: (alpha: Scalar) ::=> SelfType
+        := SelfType()
+            scale: (scale interpolateTo: other scale at: alpha);
+            rotation: (rotation interpolateNormalizedTo: rotation at: alpha);
+            translation: (translation interpolateTo: translation at: alpha);
+            yourself.
+}.
+
+compileTime constant DecomposedTransform3dF32 := GenericDecomposedTransform3d(Float32).
+compileTime constant DecomposedTransform3dF64 := GenericDecomposedTransform3d(Float64).
+
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

@@ -235,6 +235,14 @@ sealed template GenericReversibleAffineTransform3d(ST: Type)
             matrix: matrix * transform matrix inverseMatrix: transform inverseMatrix * inverseMatrix
                 translation: self translation + matrix * transform translation;
             yourself.
+
+    macro method asReversibleAffineTransform3d := self.
+
+    const inline method asDecomposedTransform3d => DecomposedTransform3d
+        := DecomposedTransform3d()
+            matrix: self matrix;
+            translation: self translation;
+            yourself
 }.
 
 compileTime constant ReversibleAffineTransform3dF32 := GenericReversibleAffineTransform3d(Float32).

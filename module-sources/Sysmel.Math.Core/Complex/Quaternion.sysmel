@@ -7,6 +7,7 @@ sealed template GenericQuaternion(ST: Type)
     compileTime constant Vector3 := ST primitiveVectorWithElements: 3.
     compileTime constant Vector4 := ST primitiveVectorWithElements: 4.
     compileTime constant Matrix3x3 := ST primitiveMatrixWithRows: 3 columns: 3.
+    compileTime constant Quaternion := SelfType.
 
     public field xyzw type: Vector4.
 
@@ -71,6 +72,14 @@ sealed template GenericQuaternion(ST: Type)
             <gpu>
             InstanceType()
                 xyzw: v4;
+                yourself
+        }.
+
+        static inline method xyz: (v3: Vector3) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType()
+                xyzw: Vector4(v3, 0);
                 yourself
         }.
 
@@ -155,6 +164,35 @@ sealed template GenericQuaternion(ST: Type)
             InstanceType xyzw: Vector4(axis*s, c)
         }.
 
+        static inline method lookAtBack => InstanceType := {
+            <gpu>
+            InstanceType yRotation: Scalar pi
+        }.
+
+        static inline method lookAtBottom => InstanceType := {
+            <gpu>
+            InstanceType xRotation: Scalar halfPi negated
+        }.
+
+        static inline method lookAtFront => InstanceType := {
+            <gpu>
+            InstanceType identity
+        }.
+
+        static inline method lookAtLeft => InstanceType := {
+            <gpu>
+            InstanceType yRotation: Scalar halfPi
+        }.
+
+        static inline method lookAtRight => InstanceType := {
+            <gpu>
+            InstanceType yRotation: Scalar halfPi negated
+        }.
+
+        static inline method lookAtTop => InstanceType := {
+            <gpu>
+            InstanceType yRotation: Scalar halfPi
+        }.
     }.
 
     const inline method = (o: SelfType const ref) ::=> Boolean8 := {
@@ -297,6 +335,45 @@ sealed template GenericQuaternion(ST: Type)
         <gpu>
         self asMatrix3x3 castTo: Float64x3x3
     }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        Matrix3x3 extend: {
+            method asQuaternion => Quaternion := {
+                ## Matrix to quaternion conversion algorithm from: https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+                let diag := Vector3(self firstColumn x, self secondColumn y, self thirdColumn z).
+
+                let xyzw := (Vector4(
+                    1 + diag x - diag y - diag z,
+                    1 - diag x + diag y - diag z,
+                    1 - diag x - diag y + diag z,
+                    1 + diag x + diag y + diag z
+                    ) max: Vector4 zeros) sqrt / 2.
+
+                let signs := Vector4(
+                    self secondColumn z - self thirdColumn y,
+                    self thirdColumn x - self firstColumn z,
+                    self firstColumn y - self secondColumn x,
+                    1) sign.
+
+                Quaternion xyzw: xyzw * signs
+            }
+        }.
+    }.
+
+    const method normalized => SelfType
+        := SelfType xyzw: (xyzw normalized).
+
+    const method interpolateTo: (other: SelfType const ref) at: (alpha: Scalar) ::=> SelfType
+        := SelfType xyzw: (xyzw interpolateTo: other xyzw at: alpha).
+
+    const method interpolateNormalizedTo: (other: SelfType const ref) at: (alpha: Scalar) ::=> SelfType
+        := (self interpolateTo: other at: alpha) normalized.
+
+    const method rotateVector: (vector: Vector3) ::=> Vector3
+        := (self * SelfType(vector) * self conjugated) xyz.
+
+    const method inverseRotateVector: (vector: Vector3) ::=> Vector3
+        := (self conjugated * SelfType(vector) * self) xyz.
 }.
 
 compileTime constant QuaternionF32 := GenericQuaternion(Float32).
