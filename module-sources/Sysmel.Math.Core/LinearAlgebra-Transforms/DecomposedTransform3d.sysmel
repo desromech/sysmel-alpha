@@ -53,7 +53,7 @@ sealed template GenericDecomposedTransform3d(ST: Type)
     }.
 
     const inline method inverseMatrix => Matrix3x3
-        := rotation asMatrix3x3 * (Matrix3x3 scale: scale).
+        := (Matrix3x3 scale: 1 / scale) * rotation conjugated asMatrix3x3.
 
     const inline method inverseMatrix4 => Matrix4x4 := {
         let imat := self inverseMatrix.
