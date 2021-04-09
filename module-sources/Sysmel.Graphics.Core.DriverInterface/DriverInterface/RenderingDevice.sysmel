@@ -30,6 +30,12 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
 
     abstract method createVertexLayout => VertexLayoutPtr.
 
+    virtual method platformName => Char8 const pointer
+        := "Unknown".
+
+    virtual method name => Char8 const pointer
+        := "Unknown".
+
     virtual method createColorTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
         let texture := self createTexture: textureData colorTextureDescription.
         texture ifNotNil: {

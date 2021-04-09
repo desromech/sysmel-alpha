@@ -9,6 +9,7 @@ useNamespace: Stdn Graphics Core.
  *#
 sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     public field handle type: AGPU DeviceRef.
+    public field platformHandle type: AGPU Platform pointer.
 
     private field defaultCommandQueue type: CommandQueuePtr.
     private field defaultShaderSignatureCache type: ShaderSignatureCachePtr.
@@ -23,8 +24,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     private field minUniformBufferOffsetAlignment type: UIntPointer.
     private field minStorageBufferOffsetAlignment type: UIntPointer.
 
-    method initializeWithHandle: (theHandle: AGPU DeviceRef const ref) ::=> Void := {
+    method initializeWithHandle: (theHandle: AGPU DeviceRef const ref) platformHandle: (thePlatformHandle: AGPU Platform pointer) ::=> Void := {
         handle := theHandle.
+        platformHandle := thePlatformHandle.
 
         nonCoherentAtomSize := (handle _ getLimitValue: AGPU Limit NonCoherentAtomSize) castTo: UIntPointer.
         minMemoryMapAlignment := (handle _ getLimitValue: AGPU Limit MinMemoryMapAlignment) castTo: UIntPointer.
@@ -45,6 +47,12 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         defaultPipelineStateCache := self createPipelineStateCache.
         defaultFontCache := self createFontCache.
     }.
+
+    override method platformName => Char8 const pointer
+        := platformHandle _ getName.
+
+    override method name => Char8 const pointer
+        := handle _ getName.
 
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr := {
         let builderHandle := handle _ createShaderSignatureBuilder.
