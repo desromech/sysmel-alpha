@@ -162,7 +162,7 @@ SysmelMoebiusASTBuilder >> visitAbstract: node [
 { #category : #visitor }
 SysmelMoebiusASTBuilder >> visitBinaryExpression: binaryExpression [
 	| left right selectorSymbol selector |
-	left := self convertNode: binaryExpression left.
+	left := binaryExpression left ifNotNil: [:leftNode | self convertNode: leftNode].
 	right := self convertNode: binaryExpression right.
 	selectorSymbol := binaryExpression operation value asSymbol.
 	(selectorSymbol beginsWith: #'::') ifTrue: [

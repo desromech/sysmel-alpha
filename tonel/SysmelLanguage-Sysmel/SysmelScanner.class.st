@@ -22,12 +22,12 @@ SysmelScanner class >> states [
 
 { #category : #generated }
 SysmelScanner >> emptySymbolTokenId [
-	^ 132
+	^ 133
 ]
 
 { #category : #generated }
 SysmelScanner >> errorTokenId [
-	^ 133
+	^ 134
 ]
 
 { #category : #generated }
@@ -62,10 +62,21 @@ SysmelScanner >> scan3 [
 			currentCharacter == $#
 				ifTrue: [ ^ self recordAndReportMatch: #(43) ].
 			currentCharacter == $* ] whileTrue.
-			(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+			(currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $+ and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or: [ '\^|~' includes: currentCharacter ] ] ] ] ])
 				ifTrue: [ ^ self scan3 ].
 			^ self scan4 ].
-	currentCharacter isSpecial or: [ currentCharacter == $^ ] ] whileTrue.
+	currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $+ and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or: [ '\^|~' includes: currentCharacter ] ] ] ] ] ]
+		whileTrue.
 	^ self scan4
 ]
 
@@ -168,7 +179,7 @@ SysmelScanner >> scanForToken [
 	self step.
 	currentCharacter == $!
 		ifTrue:
-			[ ^ self scanForTokenX17 ].
+			[ ^ self scanForTokenX16 ].
 	currentCharacter == $"
 		ifTrue: [ ^ self scan1 ].
 	^ self scanForTokenX22
@@ -181,135 +192,205 @@ SysmelScanner >> scanForTokenX1 [
 		ifTrue: [ ^ self scan2 ].
 	currentCharacter == $#
 		ifTrue:
-			[ ^ self scanForTokenX1X2 ].
-	currentCharacter == $(
-		ifTrue: [ ^ self recordAndReportMatch: #(32) ].
-	currentCharacter == $*
-		ifTrue: [ ^ self scan3 ].
-	currentCharacter == ${
-		ifTrue: [ ^ self recordAndReportMatch: #(27) ].
-	((currentCharacter between: $A and: $Z)
-		or: [ currentCharacter == $_ or: [ currentCharacter between: $a and: $z ] ])
-		ifTrue:
-			[ ^ self scanForTokenX1X1 ].
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
-		ifTrue: [ [ self recordMatch: #(52).
-			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
-	^ self reportLastMatch
+			[ ^ self scanForTokenX1X3 ].
+	^ self scanForTokenX1X4
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX10 [
-	self recordMatch: #(21 55).
+	self recordMatch: #(5 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX11 [
-	self recordMatch: #(5 55).
+	self recordMatch: #(6 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX12 [
-	self recordMatch: #(6 55).
+	self recordMatch: #(34 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX13 [
-	self recordMatch: #(34 55).
+	self recordMatch: #(7 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX14 [
-	self recordMatch: #(7 55).
+	self recordMatch: #(15 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX15 [
-	self recordMatch: #(15 55).
+	self recordMatch: #(20 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX16 [
-	self recordMatch: #(20 55).
+	self recordMatch: #(36 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX17 [
-	self recordMatch: #(36 55).
+	[ self recordMatch: #(55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
-		ifTrue: [ [ self recordMatch: #(55).
-			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+	currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue.
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX18 [
-	[ self recordMatch: #(42).
 	self step.
-	currentCharacter isSeparator
-		or: [ currentCharacter == Character pageUp ] ] whileTrue.
+	currentCharacter == $'
+		ifTrue: [ ^ self recordAndReportMatch: #(26) ].
+	currentCharacter == $,
+		ifTrue: [ ^ self recordAndReportMatch: #(30) ].
+	currentCharacter == $@
+		ifTrue: [ ^ self recordAndReportMatch: #(22) ].
+	currentCharacter == $`
+		ifTrue: [ ^ self recordAndReportMatch: #(23) ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX19 [
-	[ self recordMatch: #(55).
+	[ self recordMatch: #(42).
 	self step.
-	currentCharacter isSpecial or: [ currentCharacter == $^ ] ] whileTrue.
+	currentCharacter isSeparator
+		or: [ currentCharacter == Character pageUp ] ] whileTrue.
 	^ self reportLastMatch
 ]
 
@@ -328,11 +409,48 @@ SysmelScanner >> scanForTokenX1X1 [
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX1X2 [
+	[ self recordMatch: #(52).
+	self step.
+	currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue
+]
+
+{ #category : #generated }
+SysmelScanner >> scanForTokenX1X3 [
 	[ self recordMatch: #(43).
 	self step.
 	currentCharacter <= Character tab
 		or: [ (currentCharacter between: Character pageUp and: Character newPage)
 				or: [ currentCharacter >= (Character value: 14) ] ] ] whileTrue.
+	^ self reportLastMatch
+]
+
+{ #category : #generated }
+SysmelScanner >> scanForTokenX1X4 [
+	currentCharacter == $(
+		ifTrue: [ ^ self recordAndReportMatch: #(32) ].
+	currentCharacter == $*
+		ifTrue: [ ^ self scan3 ].
+	currentCharacter == ${
+		ifTrue: [ ^ self recordAndReportMatch: #(27) ].
+	((currentCharacter between: $A and: $Z)
+		or: [ currentCharacter == $_ or: [ currentCharacter between: $a and: $z ] ])
+		ifTrue:
+			[ ^ self scanForTokenX1X1 ].
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $+ and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
+		ifTrue:
+			[ self scanForTokenX1X2 ].
 	^ self reportLastMatch
 ]
 
@@ -343,10 +461,22 @@ SysmelScanner >> scanForTokenX2 [
 	currentCharacter == $:
 		ifTrue: [ self recordMatch: #(31).
 			self step.
-			(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+			(currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ])
 				ifTrue: [ [ self recordMatch: #(54).
 					self step.
-					currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
+					currentCharacter == $!
+						or: [ (currentCharacter between: $% and: $&)
+								or: [ (currentCharacter between: $* and: $-)
+										or: [ currentCharacter == $/
+												or: [ (currentCharacter between: $< and: $@)
+														or:
+															[ '\^|~' includes: currentCharacter ] ] ] ] ] ]
 						whileTrue ].
 			^ self reportLastMatch ].
 	currentCharacter == $=
@@ -358,16 +488,17 @@ SysmelScanner >> scanForTokenX2 [
 SysmelScanner >> scanForTokenX20 [
 	currentCharacter == $~
 		ifTrue:
-			[ ^ self scanForTokenX6 ].
+			[ ^ self scanForTokenX5 ].
 	(currentCharacter between: $0 and: $9)
 		ifTrue: [ ^ self scan7 ].
-	currentCharacter isSpecial
+	((currentCharacter between: $? and: $@)
+		or: [ currentCharacter == $\ ])
 		ifTrue:
-			[ ^ self scanForTokenX19 ].
+			[ ^ self scanForTokenX17 ].
 	(currentCharacter isSeparator
 		or: [ currentCharacter == Character pageUp ])
 		ifTrue:
-			[ ^ self scanForTokenX18 ].
+			[ ^ self scanForTokenX19 ].
 	currentCharacter isSafeForHTTP
 		ifTrue: [ [ self recordMatch: #(47).
 			self step.
@@ -389,28 +520,28 @@ SysmelScanner >> scanForTokenX21 [
 		ifTrue: [ ^ self recordAndReportMatch: #(35) ].
 	currentCharacter == $<
 		ifTrue:
-			[ ^ self scanForTokenX11 ].
+			[ ^ self scanForTokenX10 ].
 	currentCharacter == $=
 		ifTrue:
-			[ ^ self scanForTokenX10 ].
+			[ ^ self scanForTokenX9 ].
 	currentCharacter == $>
 		ifTrue:
-			[ ^ self scanForTokenX9 ].
+			[ ^ self scanForTokenX8 ].
 	currentCharacter == $[
 		ifTrue: [ ^ self recordAndReportMatch: #(40) ].
 	currentCharacter == $]
 		ifTrue: [ ^ self recordAndReportMatch: #(29) ].
 	currentCharacter == $^
 		ifTrue:
-			[ ^ self scanForTokenX8 ].
+			[ ^ self scanForTokenX7 ].
 	currentCharacter == $`
 		ifTrue:
-			[ ^ self scanForTokenX5 ].
+			[ ^ self scanForTokenX18 ].
 	currentCharacter == ${
 		ifTrue: [ ^ self recordAndReportMatch: #(24) ].
 	currentCharacter == $|
 		ifTrue:
-			[ ^ self scanForTokenX7 ].
+			[ ^ self scanForTokenX6 ].
 	currentCharacter == $}
 		ifTrue: [ ^ self recordAndReportMatch: #(25) ].
 	^ self scanForTokenX20
@@ -423,10 +554,10 @@ SysmelScanner >> scanForTokenX22 [
 			[ ^ self scanForTokenX1 ].
 	currentCharacter == $%
 		ifTrue:
-			[ ^ self scanForTokenX16 ].
+			[ ^ self scanForTokenX15 ].
 	currentCharacter == $&
 		ifTrue:
-			[ ^ self scanForTokenX15 ].
+			[ ^ self scanForTokenX14 ].
 	currentCharacter == $'
 		ifTrue: [ ^ self scan6 ].
 	currentCharacter == $(
@@ -435,13 +566,13 @@ SysmelScanner >> scanForTokenX22 [
 		ifTrue: [ ^ self recordAndReportMatch: #(38) ].
 	currentCharacter == $*
 		ifTrue:
-			[ ^ self scanForTokenX14 ].
+			[ ^ self scanForTokenX13 ].
 	currentCharacter == $+
 		ifTrue:
 			[ ^ self scanForTokenX4 ].
 	currentCharacter == $,
 		ifTrue:
-			[ ^ self scanForTokenX13 ].
+			[ ^ self scanForTokenX12 ].
 	currentCharacter == $-
 		ifTrue:
 			[ ^ self scanForTokenX3 ].
@@ -449,7 +580,7 @@ SysmelScanner >> scanForTokenX22 [
 		ifTrue: [ ^ self recordAndReportMatch: #(37) ].
 	currentCharacter == $/
 		ifTrue:
-			[ ^ self scanForTokenX12 ].
+			[ ^ self scanForTokenX11 ].
 	^ self scanForTokenX21
 ]
 
@@ -459,11 +590,22 @@ SysmelScanner >> scanForTokenX3 [
 	self step.
 	(currentCharacter between: $0 and: $9)
 		ifTrue: [ ^ self scan7 ].
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
@@ -473,73 +615,137 @@ SysmelScanner >> scanForTokenX4 [
 	self step.
 	(currentCharacter between: $0 and: $9)
 		ifTrue: [ ^ self scan7 ].
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX5 [
+	self recordMatch: #(41 55).
 	self step.
-	currentCharacter == $'
-		ifTrue: [ ^ self recordAndReportMatch: #(26) ].
-	currentCharacter == $,
-		ifTrue: [ ^ self recordAndReportMatch: #(30) ].
-	currentCharacter == $@
-		ifTrue: [ ^ self recordAndReportMatch: #(22) ].
-	currentCharacter == $`
-		ifTrue: [ ^ self recordAndReportMatch: #(23) ].
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
+		ifTrue: [ [ self recordMatch: #(55).
+			self step.
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX6 [
-	self recordMatch: #(41 55).
+	self recordMatch: #(12 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX7 [
-	self recordMatch: #(12 55).
+	self recordMatch: #(14 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX8 [
-	self recordMatch: #(14 55).
+	self recordMatch: #(2 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
 { #category : #generated }
 SysmelScanner >> scanForTokenX9 [
-	self recordMatch: #(2 55).
+	self recordMatch: #(21 55).
 	self step.
-	(currentCharacter isSpecial or: [ currentCharacter == $^ ])
+	(currentCharacter == $!
+		or: [ (currentCharacter between: $% and: $&)
+				or: [ (currentCharacter between: $* and: $-)
+						or: [ currentCharacter == $/
+								or: [ (currentCharacter between: $< and: $@)
+										or:
+											[ '\^|~' includes: currentCharacter ] ] ] ] ])
 		ifTrue: [ [ self recordMatch: #(55).
 			self step.
-			currentCharacter isSpecial or: [ currentCharacter == $^ ] ]
-				whileTrue ].
+			currentCharacter == $!
+				or: [ (currentCharacter between: $% and: $&)
+						or: [ (currentCharacter between: $* and: $-)
+								or: [ currentCharacter == $/
+										or: [ (currentCharacter between: $< and: $@)
+												or:
+													[ '\^|~' includes: currentCharacter ] ] ] ] ] ] whileTrue ].
 	^ self reportLastMatch
 ]
 
