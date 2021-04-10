@@ -13,6 +13,11 @@ GenericPlane class >> isAbstract [
 	^ self == GenericPlane
 ]
 
+{ #category : #serialization }
+GenericPlane class >> loadFromJson: jsonData [
+	^ self nx: (jsonData at: 1) ny: (jsonData at: 2) nz: (jsonData at: 3) distance: (jsonData at: 4) negated
+]
+
 { #category : #constructing }
 GenericPlane class >> normal: normal distance: distance [
 	^ self basicNew
@@ -24,6 +29,26 @@ GenericPlane class >> normal: normal distance: distance [
 { #category : #constructing }
 GenericPlane class >> normal: normal point: point [
 	^ self normal: normal distance: (normal dot: point)
+]
+
+{ #category : #constructing }
+GenericPlane class >> nx: nx distance: distance [
+	^ self normal: (Float32x3 x: nx) distance: distance
+]
+
+{ #category : #constructing }
+GenericPlane class >> nx: nx ny: ny nz: nz distance: distance [
+	^ self normal: (Float32x3 x: nx y: ny z: nz) distance: distance
+]
+
+{ #category : #constructing }
+GenericPlane class >> ny: ny distance: distance [
+	^ self normal: (Float32x3 y: ny) distance: distance
+]
+
+{ #category : #constructing }
+GenericPlane class >> nz: nz distance: distance [
+	^ self normal: (Float32x3 z: nz) distance: distance
 ]
 
 { #category : #constructing }
@@ -68,6 +93,11 @@ GenericPlane >> distance: anObject [
 	distance := anObject implicitCastTo: self class scalarType
 ]
 
+{ #category : #serialization }
+GenericPlane >> encodeForJSON [
+	^ { normal x . normal y . normal z . distance negated }
+]
+
 { #category : #comparing }
 GenericPlane >> hash [
 	^ normal hash hashMultiply + distance hash
@@ -77,6 +107,18 @@ GenericPlane >> hash [
 GenericPlane >> initialize [
 	normal := self class vector3Type zeros.
 	self distance: 0
+]
+
+{ #category : #'as yet unclassified' }
+GenericPlane >> intersectionWith: secondPlane with: thirdPlane [
+	| mat det |
+	mat := self class matrix3x3Type rows: {
+		normal . secondPlane normal . thirdPlane normal
+	}.
+	det := mat determinant.
+	(det closeTo: 0.0) ifTrue: [ ^ nil ].
+	
+	^ mat inverse * (self class vector3Type x: distance y: secondPlane distance z: thirdPlane distance)
 ]
 
 { #category : #'as yet unclassified' }
