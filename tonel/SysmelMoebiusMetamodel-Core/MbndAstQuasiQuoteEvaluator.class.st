@@ -117,6 +117,23 @@ MbndAstQuasiQuoteEvaluator >> visitNode: node [
 	^ result
 ]
 
+{ #category : #'visitor utilties' }
+MbndAstQuasiQuoteEvaluator >> visitNodesAndCollect: nodes [
+	| result |
+	(nodes anySatisfy: [ :each | each isSpliceNode ]) ifFalse: [ ^ super visitNodesAndCollect: nodes ].
+	
+	result := OrderedCollection new.
+	nodes do: [ :each |
+		each isSpliceNode ifTrue: [
+			result addAll: (self evaluateSpliceNode: each)
+		] ifFalse: [
+			result add: (self visitNode: each )
+		].
+	].
+
+	^ nodes asArray
+]
+
 { #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitQuasiQuoteNode: node [
 	^ node
@@ -133,6 +150,11 @@ MbndAstQuasiQuoteEvaluator >> visitQuasiUnquoteNode: node [
 { #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitQuoteNode: node [
 	^ node
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitSpliceNode: node [
+	self error: 'Splice evaluation is not allowed in this context.' at: node
 ]
 
 { #category : #visiting }

@@ -6270,6 +6270,63 @@ function returnValue externC() => TestEnum := TestEnum First';
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueToString [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	None: .
+	First: .
+	Second: .
+}.
+
+function toString externC(value: TestEnum) => Char8 const arraySlice := {
+	value selectCase: #{
+	`@(TestEnum valuesToStringCases)
+	}
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #toString.
+	self assert: function asFullSExpressionForTesting equals: #(
+function toString cdecl (struct 'special.Char8 const arraySlice')
+	arguments (
+		(value i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		((merge (block 8 casesOfMerge))
+			(nil switch void () ((local 0 value) (const i32 1) (const i32 0) (const i32 2)) (((block 4 casesOfCase) (block 5 casesOfCase) (block 6 casesOfCase)) (block 7 casesOfDefault)))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+			(nil unreachable void () ())
+		)
+		(()
+			(casesResult phi (struct 'special.Char8 const arraySlice') () ((constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 5) true #[70 105 114 115 116])) (const u64 5))) (constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 4) true #[78 111 110 101])) (const u64 4))) (constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 6) true #[83 101 99 111 110 100])) (const u64 6)))) ((block 4 casesOfCase) (block 5 casesOfCase) (block 6 casesOfCase)))
+			(nil return void () ((local 9 casesResult)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testExtraFieldAlignment [
 	| fetchAlignedField structureType |
 	self

@@ -211,6 +211,28 @@ MbndEnumType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encode
 	values := encodedFields at: #values.
 ]
 
+{ #category : #'as yet unclassified' }
+MbndEnumType >> stringToValuesCases [
+	<compileTime>
+	^ (values associations asArray sorted: [ :a :b | a key < b key ])
+		collect: [ :assoc |
+			| key value |
+			key := (assoc key asString
+					asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+					position: self definitionPosition;
+					yourself.
+			value := (assoc value
+					asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+					position: self definitionPosition;
+					yourself.
+			MbndAstAssociationNode new
+				position: self definitionPosition;
+				key: key;
+				value: value;
+				yourself
+		]
+]
+
 { #category : #accessing }
 MbndEnumType >> valueType [
 	<compileTime>
@@ -232,4 +254,26 @@ MbndEnumType >> values [
 { #category : #accessing }
 MbndEnumType >> values: anObject [
 	values := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndEnumType >> valuesToStringCases [
+	<compileTime>
+	^ (values associations asArray sorted: [ :a :b | a key < b key ])
+		collect: [ :assoc |
+			| key value |
+			value := (assoc key asString
+					asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+					position: self definitionPosition;
+					yourself.
+			key := (assoc value
+					asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+					position: self definitionPosition;
+					yourself.
+			MbndAstAssociationNode new
+				position: self definitionPosition;
+				key: key;
+				value: value;
+				yourself
+		]
 ]

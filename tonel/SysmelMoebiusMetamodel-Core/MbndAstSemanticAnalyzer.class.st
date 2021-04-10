@@ -318,6 +318,23 @@ MbndAstSemanticAnalyzer >> attemptImplicitCast: baseNode intoType: targetType [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> collectEvaluatingSplices: nodeList with: aBlock [
+	| result |
+	(nodeList anySatisfy: [ :each | each isSpliceNode ]) ifFalse: [ ^ nodeList collect: aBlock ].
+	result := OrderedCollection new.
+	nodeList do: [ :each |
+		each isSpliceNode ifTrue: [
+			(self evaluateSpliceNode: each) do: [ :splicedNode |
+				result add: (aBlock value: splicedNode)
+			]
+		] ifFalse: [ 
+			result add: (aBlock value: each)
+		]
+	].
+	^ result asArray
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstSemanticAnalyzer >> computeArithmethicCoercionTypeNodeFor: leftNode with: rightNode fallbackTo: fallbackType at: position [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -584,6 +601,26 @@ MbndAstSemanticAnalyzer >> evaluateEnum: enumType valueDefinition: valueDefiniti
 	].
 
 	self halt
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> evaluateSpliceNode: node [
+	| evaluatedNodeList |
+	evaluatedNodeList := (self evaluateCompileTimeExpression: node expression) unwrapMbndValue.
+	evaluatedNodeList isMbndAstNode ifTrue: [ 
+		evaluatedNodeList isSequenceNode ifTrue: [ 
+			evaluatedNodeList := evaluatedNodeList elements
+		].
+	].
+
+	evaluatedNodeList isCollection ifFalse: [ 
+		self error: 'Expected an iterable sequence for the result of a splice node expression.' at: node
+	].
+	(evaluatedNodeList allSatisfy: [ :each | each isMbndAstNode ]) ifFalse: [ 
+		self error: 'All of the members in a splice node operation must be a node.' at: node
+	].
+
+	^ evaluatedNodeList
 ]
 
 { #category : #'compile time evaluation' }
@@ -1015,7 +1052,7 @@ MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 			self error: 'A dictionary node with the list of the cases is expected for doing pattern matching.' at: node.
 		].
 
-		result cases: (result cases elements collect: [:el |
+		result cases: (self collectEvaluatingSplices: result cases elements with: [:el |
 			el isAssociationNode ifFalse: [ self error: 'An association node is expected for specifying a <pattern> : <action> pair.' at: el].
 			self visitNode: (MbndAstCasesOfCaseNode new
 				position: el;
