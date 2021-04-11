@@ -1,0 +1,8 @@
+Compiler
+    importModuleNamed: #"Sysmel.Testing";
+    importModuleNamed: #"Sysmel.Compiler.SysmelLanguage";
+    loadPackages: #(
+        Scanner
+        Parser
+        AST
+    ).

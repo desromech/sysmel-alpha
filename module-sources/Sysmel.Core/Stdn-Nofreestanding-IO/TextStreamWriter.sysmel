@@ -163,13 +163,30 @@ Char8 const pointer macro method printOnNativeTextStreamWriter: out := ``(`,out 
 Float32 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutSingleFloat: `,self).
 Float64 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutDouble: `,self).
 
+_EnumType macro fallback method printOnNativeTextStreamWriter: out := ``(`,out print: `,self value).
+_EnumType definition: {
+    meta definition: {
+        macro method makePrintable := ``(`,self definition: `,`'{
+            const method asString => Stdn ImmutableString := {
+                self selectCase: #{
+                `@(SelfType valuesToStringCases)
+                }.
+            }.
+
+            const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+                out << self asString
+            }.
+        })
+    }.
+}.
+
 _LiteralValueType macro method printOnNativeTextStreamWriter: out := ``(`,out print: `,self asConcreteValue).
 
 _PrimitiveVectorTypeTemplate extend: {
     let VectorType := SelfType.
     let VectorSize := SelfType elements.
 
-    method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
         out print: self x.
         compileTime if: VectorSize > 1 then: {
             out nextPut: ' '; print: self y.
@@ -182,6 +199,27 @@ _PrimitiveVectorTypeTemplate extend: {
         }.
     }.
 }.
+
+#*
+# Disable the printing of the matrix types. This seems to be putting too much strain on the compiler.
+_PrimitiveMatrixTypeTemplate extend: {
+    let MatrixType := SelfType.
+    let MatrixRows := SelfType rows.
+
+    const method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
+        out print: self firstRow.
+        compileTime if: MatrixRows > 1 then: {
+            out nextPut: ';'; nextPut: ' '; print: self secondRow.
+            compileTime if: MatrixRows > 2 then: {
+                out nextPut: ';'; nextPut: ' '; print: self thirdRow.
+                compileTime if: MatrixRows > 3 then: {
+                    out nextPut: ';'; nextPut: ' '; print: self fourthRow.
+                }
+            }
+        }.
+    }.
+}.
+*#
 
 }. ## End of namespace IO
 }. ## End of namespace Stdn

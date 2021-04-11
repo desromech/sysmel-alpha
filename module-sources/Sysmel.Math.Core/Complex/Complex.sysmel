@@ -216,6 +216,10 @@ sealed template GenericComplex(ST: Type)
         <gpu>
         self asMatrix2x2 castTo: Float64x2x2
     }.
+
+    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        out << xy
+    }.
 }.
 
 compileTime constant ComplexF32 := GenericComplex(Float32).

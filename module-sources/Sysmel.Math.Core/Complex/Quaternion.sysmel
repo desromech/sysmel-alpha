@@ -374,6 +374,10 @@ sealed template GenericQuaternion(ST: Type)
 
     const method inverseRotateVector: (vector: Vector3) ::=> Vector3
         := (self conjugated * SelfType(vector) * self) xyz.
+
+    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        out << xyzw
+    }.
 }.
 
 compileTime constant QuaternionF32 := GenericQuaternion(Float32).

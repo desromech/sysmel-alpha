@@ -4,14 +4,14 @@ Compiler
 	importModuleNamed: #"Sysmel.Core.Tests".
 
 compileTime if: Compiler hasGarbageCollectedRuntime then: {
-	Compiler importModulesNamed: #(
+	Compiler importIndirectModulesNamed: #(
 		#"Smalltalk.Runtime.Core.Tests"
 	).
 }.
 
 compileTime if: OnlyRuntimeCoreTests not then: {
 	Compiler
-		importModulesNamed: #(
+		importIndirectModulesNamed: #(
 			#"Sysmel.Serialization.Core.Tests"
 			#"Sysmel.Serialization.JSON.Tests"
 			#"Sysmel.Serialization.MessagePack.Tests"
@@ -20,15 +20,17 @@ compileTime if: OnlyRuntimeCoreTests not then: {
 			#"Norphic.Core.Tests"
 			#"Sysmel.Graphics.Core.Raster.Tests"
 		).
+
 	compileTime if: Compiler compilationTarget isDesktopPC then: {
 		Compiler
-			importModulesNamed: #(
+			importIndirectModulesNamed: #(
 				#"Sysmel.Networking.Core.Tests"
+				#"Sysmel.Compiler.SysmelLanguage.Tests"
 			).
 	}.
 
 	compileTime if: Compiler hasGarbageCollectedRuntime then: {
-	    Compiler importModulesNamed: #(
+	    Compiler importIndirectModulesNamed: #(
 			#"Smalltalk.GUI.Core.Tests"
 			#"Smalltalk.Interpreter.Tests"
 		).

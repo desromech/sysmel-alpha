@@ -1,0 +1,67 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+enum TokenType valueType: UInt8; values: #{
+    Error:.
+    ErrorUnexpected:.
+    ErrorIncompleteComment:.
+    ErrorIncompleteCharacter:.
+    ErrorIncompleteString:.
+    ErrorIncompleteSymbolString:.
+    ErrorCount:.
+
+    Float:. ## [+\-]?[0-9]+ \. [0-9]+ ([eE] [\+\-]? [0-9]+:.? ;
+    Integer:. ## [+\-]?[0-9]+ (r [0-9A-Za-z]+:.?;
+    Keyword:. ## ([_A-Za-z][_A-Za-z0-9]*\::.+;
+    Identifier:. ## [_A-Za-z][_A-Za-z0-9]* ;
+    String:. ## \"" ([^\\\""] | (\\.:. :.*\"";
+    Character:. ## \' ([^\\\'] | (\\.:. :.*\';
+    SymbolKeyword:. ## \#([_A-Za-z][_A-Za-z0-9]*\::.+ ;
+    SymbolIdentifier:. ## \#([_A-Za-z][_A-Za-z0-9]*:.+ ;
+    SymbolOperator:. ## \#[\+\-/\\\*~<>=@,%|&?!^]+ ;
+    SymbolString:. ## \# \"" ([^\\\""] | (\\.:. :.*\"";
+    LowPrecedenceBinaryOperator:. ## \:\: [\+\-/\\\*~<>=@,%|&?!^]+;
+    GenericBinaryOperator:. ## [\+\-/\\\*~<>=@,%|&?!^]+;
+
+    LogicalNot:. ## !
+    BitwiseNot:. ## ~
+    BitwiseOr:. ## |
+    Minus:. ## -
+
+    Colon:. ## :
+    ColonColon:. ## ::
+    Assignment:. ## :=
+
+    Dot:. ## .
+    Comma:. ## ,
+    Semicolon:. ## ;
+    LeftParent:. ## (:.:.
+    RightParent:. ## :.
+    LeftBracket:. ## [
+    RightBracket:. ## ]
+    LeftCurlyBracket:. ## {
+    RightCurlyBracket:. ## }
+
+    LiteralArrayLeftParent:. ## #(
+    ByteArrayLeftBracket:. ## #[
+    DictionaryLeftBracket:. ## #{
+
+    Quote:. ## `'
+    QuasiQuote:. ## ``
+    QuasiUnquote:. ## `,
+    Splice:. ## `@
+
+    EndOfSource:.
+}; definition: {
+    SelfType makePrintable.
+}.
+
+compileTime constant Token := GenericToken(TokenType).
+compileTime constant TokenList := Stdn Collections Vector(Token).
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

@@ -1,0 +1,18 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace Parsing definition: {
+
+struct SourceCode definition: {
+    public field content type: Stdn String.
+    public field name type: Stdn String.
+    public field uri type: Stdn String.
+
+    const inline method size => UIntPointer
+        := content size.
+}.
+
+compileTime constant SourceCodePtr := SourceCode sharedPointer.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

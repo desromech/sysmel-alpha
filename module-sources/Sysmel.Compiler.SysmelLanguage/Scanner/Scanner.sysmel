@@ -1,0 +1,503 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class Scanner definition: {
+
+    method isBinaryOperatorCharacter: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        ('+', '-', '/', '\\', '*', '~', '<', '>', '=', '@', ',',
+        '%', '|', '&', '?', '!', '^') asValueInSetPattern : true.
+        _ : false.
+        }.
+    }.
+
+    method isIdentifierStart: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        ('A' to: 'Z') : true.
+        ('a' to: 'z') : true.
+        '_' : true.
+        _ : false
+        }.
+    }.
+
+    method isIdentifierCharacter: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        ('A' to: 'Z') : true.
+        ('a' to: 'z') : true.
+        ('0' to: '9') : true.
+        '_' : true.
+        _ : false
+        }.
+    }.
+
+    method isSign: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        '+' : true.
+        '-' : true.
+        _ : false
+        }.
+    }.
+
+    method isDigit: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        ('0' to: '9') : true.
+        _ : false
+        }.
+    }.
+
+    method isRadix: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        'r' : true.
+        'R' : true.
+        _ : false
+        }.
+    }.
+
+    method isExponent: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        'e' : true.
+        'E' : true.
+        _ : false
+        }.
+    }.
+
+    method isAlphaNumeric: (character: Int32) ::=> Boolean8 := {
+        character selectCase: #{
+        ('A' to: 'Z') : true.
+        ('a' to: 'z') : true.
+        ('0' to: '9') : true.
+        _ : false
+        }.
+    }.
+
+    method tokenTypeForBinaryOperator: (operator: Stdn ImmutableString) ::=> TokenType := {
+        operator selectCase: #{
+        "-" : TokenType Minus.
+        "!" : TokenType LogicalNot.
+        "|" : TokenType BitwiseOr.
+        "~" : TokenType BitwiseNot.
+        "," : TokenType Comma.
+        _ : TokenType GenericBinaryOperator
+        }
+    }.
+
+    method skipLineCommentIn: (currentPosition: SourceCodeRange ref) ::=> Void := {
+        until: currentPosition isEmpty do: {
+            currentPosition next selectCase: #{
+            '\r' : {return: void}.
+            '\n' : {return: void}.
+            _ : {}.
+            }
+        }.
+    }.
+
+    method skipMultiLineCommentIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
+        until: currentPosition isEmpty do: {
+            currentPosition next selectCase: #{
+            '*': {
+                currentPosition peek = '#' ifTrue: {
+                    currentPosition advance.
+                    return: true
+                }.
+            }.
+            _ : {}.
+            }
+        }.
+
+        false
+    }.
+
+    method skipWhiteIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
+        until: currentPosition isEmpty do: {
+            let next := currentPosition peek.
+            next <= ' ' ifTrue: {
+                currentPosition advance
+            } ifFalse: {
+                next = '#' ifTrue: {
+                    (currentPosition peek: 1) selectCase: #{
+                    '#' : {
+                        self skipLineCommentIn: currentPosition
+                    }.
+                    '*' : {
+                        let memento := currentPosition.
+                        (self skipMultiLineCommentIn: currentPosition) ifFalse: {
+                            currentPosition := memento.
+                            return: false
+                        }
+                    }.
+                    _ : return: true
+                    }
+                } ifFalse: {
+                    return: true
+                }
+            }.
+        }.
+
+        true
+    }.
+
+    method skipKeywordOrIdentifierIn: (currentPosition: SourceCodeRange ref) ::=> TokenType := {
+        let scanningKeyword mutable := false.
+        let lastKeywordEndPosition mutable := currentPosition.
+
+        do:
+        {
+            currentPosition skipWhile: {:c :: Boolean8 |
+                self isIdentifierCharacter: c
+            }.
+
+            currentPosition peek = ':' && (currentPosition peek: 1) ~= '=' ifTrue: {
+                currentPosition advance.
+                scanningKeyword := true.
+                lastKeywordEndPosition := currentPosition.
+            } ifFalse: {
+                scanningKeyword ifTrue: {
+                    currentPosition := lastKeywordEndPosition.
+                    return: TokenType Keyword
+                }.
+            }.
+        } while: (scanningKeyword &&  (self isIdentifierStart: currentPosition peek)).
+
+        scanningKeyword
+            ifTrue: TokenType Keyword
+            ifFalse: TokenType Identifier
+    }.
+
+    method skipNumberIn: (currentPosition: SourceCodeRange ref) ::=> TokenType := {
+        ## Skip the sign;
+        (self isSign: currentPosition peek) ifTrue: {
+            currentPosition advance
+        }.
+
+        ## Skip the integer or radix part.
+        currentPosition skipWhile: {:c :: Boolean8 |
+            self isDigit: c
+        }.
+
+        let dotExponentOrRadix mutable := currentPosition peek.
+        (self isRadix: dotExponentOrRadix) ifTrue: {
+            currentPosition skipWhile: {:c :: Boolean8 |
+                self isAlphaNumeric: c
+            }.
+            return: TokenType Integer
+        }.
+
+        let isFloat mutable := false.
+
+        ## Fractional part.
+        dotExponentOrRadix = '.' && (self isDigit: (currentPosition peek: 1)) ifTrue: {
+            currentPosition advance.
+            isFloat := true.
+            currentPosition skipWhile: {:c :: Boolean8 |
+                self isDigit: c
+            }.
+
+            dotExponentOrRadix := currentPosition peek
+        }.
+
+        ## Float exponent.
+        (self isExponent: dotExponentOrRadix) && (
+            (self isDigit: (currentPosition peek: 1))
+            || ((self isSign: (currentPosition peek: 1)) && (self isDigit: (currentPosition peek: 2)))
+        ) ifTrue: {
+            currentPosition advance.
+            isFloat := true.
+
+            (self isSign: currentPosition peek) ifTrue: {
+                currentPosition advance
+            }.
+
+            currentPosition skipWhile: {:c :: Boolean8 |
+                self isDigit: c
+            }.
+        }.
+
+        isFloat
+            ifTrue: TokenType Float
+            ifFalse: TokenType Integer
+    }.
+
+    method skipStringLiteralIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
+        Stdn assert: currentPosition peek = '"'.
+        currentPosition advance.
+
+        while: (currentPosition peek ~= '"') do: {
+            currentPosition isEmpty ifTrue: {
+                return: false
+            }.
+
+            currentPosition next = '\\' ifTrue: {
+                currentPosition isEmpty ifTrue: {
+                    return: false
+                }.
+                currentPosition advance
+            }.
+        }.
+
+        currentPosition advance.
+        true
+    }.
+
+    method skipCharacterLiteralIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
+        Stdn assert: currentPosition peek = '\''.
+        currentPosition advance.
+
+        while: (currentPosition peek ~= '\'') do: {
+            currentPosition isEmpty ifTrue: {
+                return: false
+            }.
+
+            currentPosition next = '\\' ifTrue: {
+                currentPosition isEmpty ifTrue: {
+                    return: false
+                }.
+                currentPosition advance
+            }.
+        }.
+
+        currentPosition advance.
+        true
+    }.
+
+    method scanNextTokenIn: (currentPosition: SourceCodeRange ref) into: (result: TokenList ref) ::=> Void := {
+        (self skipWhiteIn: currentPosition) ifFalse: {
+            result add: (Token()
+                type: TokenType ErrorIncompleteComment;
+                position: currentPosition;
+                yourself).
+            currentPosition advanceToEnd.
+            return: void
+        }.
+
+        currentPosition isEmpty ifTrue: {
+            result add: (Token()
+                type: TokenType EndOfSource;
+                position: currentPosition;
+                yourself).
+            return: void
+        }.
+
+        let tokenStart := currentPosition.
+        let tokenFirst := currentPosition peek.
+
+        ## Special operators starting with a colon.
+        tokenFirst = ':' ifTrue: {
+            let tokenType mutable := TokenType Colon.
+            currentPosition advance.
+
+            currentPosition peek selectCase: #{
+            ':' : {
+                tokenType := TokenType ColonColon.
+                currentPosition advance.
+                (self isBinaryOperatorCharacter: currentPosition peek) ifTrue: {
+                    tokenType := TokenType LowPrecedenceBinaryOperator.
+                    currentPosition skipWhile: {:c :: Boolean8 |
+                        self isBinaryOperatorCharacter: c
+                    }
+                }
+            }.
+            '=' : {
+                tokenType := TokenType Assignment.
+                currentPosition advance.
+            }.
+            _ : {}
+            }.
+
+            result add: (Token()
+                type: tokenType;
+                position: (tokenStart until: currentPosition);
+                yourself).
+            return: void
+        }.
+
+        ## Symbols.
+        tokenFirst = '#' ifTrue: {
+            let symbolFirst := currentPosition peek: 1.
+            (self isIdentifierStart: symbolFirst) ifTrue: {
+                currentPosition advance.
+
+                let tokenType := (self skipKeywordOrIdentifierIn: currentPosition) selectCase: #{
+                TokenType Identifier : TokenType SymbolIdentifier.
+                TokenType Keyword : TokenType SymbolKeyword.
+                }.
+
+                result add: (Token()
+                    type: tokenType;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void.
+            }.
+
+            (self isBinaryOperatorCharacter: symbolFirst) ifTrue: {
+                currentPosition advance.
+                currentPosition skipWhile: {:c :: Boolean8 |
+                    self isBinaryOperatorCharacter: c
+                }.
+
+                result add: (Token()
+                    type: TokenType SymbolOperator;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void
+            }.
+
+            symbolFirst selectCase: #{
+            '""' : {
+                currentPosition advance.
+                let tokenType :=
+                    (self skipStringLiteralIn: currentPosition) ifTrue: TokenType SymbolString ifFalse: TokenType ErrorIncompleteSymbolString.
+                result add: (Token()
+                    type: tokenType;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void
+            }.
+            '(' : {
+                currentPosition advance: 2.
+                result add: (Token()
+                    type: TokenType LiteralArrayLeftParent;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void
+            }.
+            '[' : {
+                currentPosition advance: 2.
+                result add: (Token()
+                    type: TokenType ByteArrayLeftBracket;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void
+            }.
+            '{' : {
+                currentPosition advance: 2.
+                result add: (Token()
+                    type: TokenType DictionaryLeftBracket;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void
+            }.
+            _ : {}.
+            }.
+        }.
+
+        ## Numbers.
+        (self isDigit: tokenFirst) || ((self isSign: tokenFirst) && (self isDigit: (currentPosition peek: 1))) ifTrue: {
+            let tokenType := self skipNumberIn: currentPosition.
+            result add: (Token()
+                type: tokenType;
+                position: (tokenStart until: currentPosition);
+                yourself).
+            return: void.
+        }.
+
+        ## Identifiers and keywords
+        (self isIdentifierStart: tokenFirst) ifTrue: {
+            let tokenType := (self skipKeywordOrIdentifierIn: currentPosition).
+            result add: (Token()
+                type: tokenType;
+                position: (tokenStart until: currentPosition);
+                yourself).
+            return: void.
+        }.
+
+        ## String literal.
+        tokenFirst = '"' ifTrue: {
+            let tokenType :=
+                (self skipStringLiteralIn: currentPosition) ifTrue: TokenType String ifFalse: TokenType ErrorIncompleteString.
+            result add: (Token()
+                type: tokenType;
+                position: (tokenStart until: currentPosition);
+                yourself).
+            return: void.
+        }.
+
+        ## Character literal.
+        tokenFirst = '\'' ifTrue: {
+            let tokenType :=
+                (self skipCharacterLiteralIn: currentPosition) ifTrue: TokenType Character ifFalse: TokenType ErrorIncompleteCharacter.
+            result add: (Token()
+                type: tokenType;
+                position: (tokenStart until: currentPosition);
+                yourself).
+            return: void.
+        }.
+
+        ## Binary operators
+        (self isBinaryOperatorCharacter: tokenFirst) ifTrue: {
+            currentPosition skipWhile: {:c :: Boolean8 |
+                self isBinaryOperatorCharacter: c
+            }.
+
+            let tokenPosition := tokenStart until: currentPosition.
+            let tokenType := self tokenTypeForBinaryOperator: tokenPosition text.
+            result add: (Token()
+                type: tokenType;
+                position: tokenPosition;
+                yourself).
+            return: void.
+
+        }.
+
+        ## Macro operators.
+        tokenFirst = '`' ifTrue: {
+            let tokenType := (currentPosition peek: 1) selectCase: #{
+            '\'' : TokenType Quote.
+            '`' : TokenType QuasiQuote.
+            ',' : TokenType QuasiUnquote.
+            '@' : TokenType Splice.
+            _ : TokenType Error
+            }.
+
+            tokenType = TokenType Error ifFalse: {
+                currentPosition advance: 2.
+                result add: (Token()
+                    type: tokenType;
+                    position: (tokenStart until: currentPosition);
+                    yourself).
+                return: void.
+            }.
+        }.
+
+        let delimiterTokenType := tokenFirst selectCase: #{
+        '.' : TokenType Dot.
+        ';' : TokenType Semicolon.
+        '(' : TokenType LeftParent.
+        ')' : TokenType RightParent.
+        '[' : TokenType LeftBracket.
+        ']' : TokenType RightBracket.
+        '{' : TokenType LeftCurlyBracket.
+        '}' : TokenType RightCurlyBracket.
+        _ : TokenType Error.
+        }.
+        currentPosition advance: 1.
+
+        ## Attempt to merge with the last error.
+        delimiterTokenType = TokenType Error && result isNotEmpty && result last type = TokenType Error ifTrue: {
+            let lastErrorPosition ref := result last position.
+            lastErrorPosition endPosition: (currentPosition startPosition max: lastErrorPosition endPosition).
+            return: void.
+        }.
+
+        result add: (Token()
+            type: delimiterTokenType;
+            position: (tokenStart until: currentPosition);
+            yourself).
+    }.
+
+    method scan: (sourceCode: SourceCodePtr const ref) ::=> TokenList := {
+        let currentRange mutable := SourceCodeRange for: sourceCode.
+        let result mutable := TokenList().
+        do: {
+            self scanNextTokenIn: currentRange into: result.
+        } until: currentRange isEmpty.
+
+        result asMoveReference
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

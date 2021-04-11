@@ -1,0 +1,83 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace Parsing definition: {
+
+struct SourceCodeRange definition: {
+    public field sourceCode type: SourceCodePtr.
+    public field startPosition type: UIntPointer.
+    public field endPosition type: UIntPointer.
+
+    meta definition: {
+        static method for: (sourceCode: SourceCodePtr const ref) ::=> InstanceType := {
+            InstanceType()
+                sourceCode: sourceCode;
+                startPosition: 0;
+                endPosition: sourceCode _ size;
+                yourself.
+        }.
+    }.
+
+    const method text => Stdn ImmutableString := {
+        self isEmpty ifTrue: {
+            return: ""
+        }.
+
+        sourceCode _ content data from: startPosition until: endPosition
+    }.
+
+    const method isEmpty => Boolean8
+        := startPosition >= endPosition.
+
+    const method isNotEmpty => Boolean8
+        := self isEmpty not.
+
+    method advance ::=> Void
+        := self advance: 1.
+
+    method advance: (increment: UIntPointer) ::=> Void := {
+        startPosition := startPosition + increment
+    }.
+
+    method peek ::=> Int32
+        := self peek: 0.
+
+    method peek: (offset: UIntPointer) ::=> Int32 := {
+        startPosition + offset < endPosition ifTrue: {
+            return: sourceCode _ content[startPosition + offset]
+        } ifFalse: {
+            return: -1
+        }
+    }.
+
+    method next ::=> Int32 := {
+        startPosition < endPosition ifTrue: {
+            let result := sourceCode _ content[startPosition].
+            startPosition := startPosition + 1.
+            return: result
+        } ifFalse: {
+            return: -1
+        }
+    }.
+
+    const method until: (other: SelfType const ref) ::=> SelfType := {
+        SelfType()
+            sourceCode: other sourceCode;
+            startPosition: startPosition;
+            endPosition: (endPosition min: other startPosition);
+            yourself
+    }.
+
+    method advanceToEnd => Void := {
+        startPosition := endPosition
+    }.
+
+    method skipWhile: (predicate: (Char8 => Boolean8) nativeStackBlockClosure) ::=> Void := {
+        while: self isNotEmpty && predicate(self peek castTo: Char8) do: {
+            self advance
+        }.
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

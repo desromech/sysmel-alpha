@@ -1,0 +1,18 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace Parsing definition: {
+
+template GenericToken(TT: Stdn Concepts Copyable)
+    := struct definition: {
+    compileTime constant TokenType := TT.
+
+    public field type type: TokenType.
+    public field position type: SourceCodeRange.
+
+    const method text => Stdn ImmutableString
+        := position text.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel
