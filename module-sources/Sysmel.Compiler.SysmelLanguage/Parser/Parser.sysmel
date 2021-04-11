@@ -1,0 +1,291 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class Parser definition: {
+
+
+    method parseIntegerIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType Integer ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected an integer literal." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+
+        let result := ASTIntegerLiteralNode sharedNew.
+        result _
+            tokenRange: position;
+            stringValue: token text asMutableString.
+        result upCastFor: ASTNode
+    }.
+
+    method parseFloatIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType Float ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a float literal." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+
+        let result := ASTFloatLiteralNode sharedNew.
+        result _
+            tokenRange: position;
+            value: token text parseFloat64.
+        result upCastFor: ASTNode
+    }.
+
+    method parseString: (rawString: Char8 const arraySlice) escapeSequencesInto: (result: Stdn String ref) errorMessageInto: (errorMessage: Stdn String ref) ::=> Boolean8 := {
+        let end := rawString size - 1.
+        for: (let i mutable type: UIntPointer := 1) while: (i < end) do: {
+            let c := rawString[i].
+
+            c = '\\' ifTrue: {
+                i + 1 < end ifFalse: {
+                    errorMessage := "String literal has incomplete escape sequence.".
+                    return: false
+                }.
+                i := i + 1.
+                rawString[i] selectCase: #{
+                'n' : (result add: '\n').
+                'r' : (result add: '\r').
+                't' : (result add: '\t').
+                let x : (result add: x)
+                }.
+            } ifFalse: {
+                result add: c
+            }.
+        } continueWith: (i := i + 1).
+
+        true
+    }.
+
+    method parseStringIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType String ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a string literal." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+        let tokenContent := token text.
+        Stdn assert: tokenContent size >= 2.
+
+        let result := ASTStringLiteralNode sharedNew.
+        result _
+            tokenRange: position.
+
+        let errorMessage mutable type: Stdn String.
+        (self parseString: tokenContent escapeSequencesInto: result _ value errorMessageInto: errorMessage) ifFalse: {
+            return: (ASTParseErrorNode atToken: startPosition message: errorMessage).
+        }.
+
+        result upCastFor: ASTNode
+    }.
+
+    method parseCharacterIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType Character ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a character literal." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+        let tokenContent := token text.
+        Stdn assert: tokenContent size >= 2.
+
+        let parsedString mutable type: Stdn String.
+        let errorMessage mutable type: Stdn String.
+        (self parseString: tokenContent escapeSequencesInto: parsedString errorMessageInto: errorMessage) ifFalse: {
+            return: (ASTParseErrorNode atToken: startPosition message: errorMessage).
+        }.
+
+        let utf32String := Stdn LString fromUTF8: parsedString asArraySlice.
+        utf32String size ~= 1 ifTrue: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Invalid character literal with multiple code points." asMutableString).
+        }.
+
+        let result := ASTCharacterLiteralNode sharedNew.
+        result _
+            tokenRange: position;
+            value: utf32String first.
+
+        result upCastFor: ASTNode
+    }.
+
+    method parseIdentifierReference: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType Identifier ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected an identifier reference." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+
+        let result := ASTIdentifierReferenceNode sharedNew.
+        result _
+            tokenRange: position;
+            identifier: token text asMutableString.
+        result upCastFor: ASTNode
+    }.
+
+    method parseLiteralSymbolStringIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType SymbolString ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a literal symbol string ." asMutableString).
+        }.
+
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+        let tokenContent := token text.
+        Stdn assert: tokenContent size >= 3.
+
+        let result := ASTSymbolLiteralNode sharedNew.
+        result _
+            tokenRange: position.
+
+        let errorMessage mutable type: Stdn String.
+        (self parseString: (tokenContent elements from: 1 until: tokenContent size)
+            escapeSequencesInto: result _ value errorMessageInto: errorMessage) ifFalse: {
+            return: (ASTParseErrorNode atToken: startPosition message: errorMessage).
+        }.
+
+        result upCastFor: ASTNode
+    }.
+
+    method parseSimpleLiteralSymbolIn: (currentPosition: TokenizedSourceCodeRange ref) prefixSize: (prefixSize: UIntPointer)::=> ASTNodePtr := {
+        let startPosition := currentPosition.
+        let token := currentPosition next.
+        let position := startPosition until: currentPosition.
+        let tokenContent := token text.
+        Stdn assert: tokenContent size >= prefixSize.
+
+        let result := ASTSymbolLiteralNode sharedNew.
+        result _
+            value: (tokenContent elements from: prefixSize until: tokenContent size);
+            tokenRange: position.
+
+        result upCastFor: ASTNode
+    }.
+
+    method parseLiteralSymbolKeywordIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType SymbolKeyword ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a literal symbol keyword ." asMutableString).
+        }.
+
+        self parseSimpleLiteralSymbolIn: currentPosition prefixSize: 1
+    }.
+
+    method parseLiteralSymbolIdentifierIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType SymbolIdentifier ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a literal symbol identifier ." asMutableString).
+        }.
+
+        self parseSimpleLiteralSymbolIn: currentPosition prefixSize: 1
+    }.
+
+    method parseLiteralSymbolOperatorIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type = TokenType SymbolOperator ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a literal symbol binary operator ." asMutableString).
+        }.
+
+        self parseSimpleLiteralSymbolIn: currentPosition prefixSize: 1
+    }.
+
+    method parseLiteralIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type selectCase: #{
+        TokenType Integer : (self parseIntegerIn: currentPosition).
+        TokenType Float : (self parseFloatIn: currentPosition).
+        TokenType String : (self parseStringIn: currentPosition).
+        TokenType Character : (self parseCharacterIn: currentPosition).
+        TokenType SymbolKeyword : (self parseLiteralSymbolKeywordIn: currentPosition).
+        TokenType SymbolIdentifier : (self parseLiteralSymbolIdentifierIn: currentPosition).
+        TokenType SymbolOperator : (self parseLiteralSymbolOperatorIn: currentPosition).
+        TokenType SymbolString : (self parseLiteralSymbolStringIn: currentPosition).
+        _ : (ASTParseErrorNode atToken: currentPosition message: "Expected a literal." asMutableString).
+        }.
+    }.
+
+    method parseParentExpression: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        let startPosition := currentPosition.
+        currentPosition peek type = TokenType LeftParent ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected an integer literal." asMutableString).
+        }.
+        currentPosition advance.
+
+        ## Check for the empty tuple.
+        currentPosition peek type = TokenType RightParent ifTrue: {
+            currentPosition advance.
+            let node := ASTMakeTupleNode sharedNew.
+            node _
+                tokenRange: (startPosition until: currentPosition).
+            return: (node upCastFor: ASTNode)
+        }.
+
+        let expression := self parseExpressionIn: currentPosition.
+        expression _ isParseErrorNode ifTrue: {
+            return: expression
+        }.
+
+        currentPosition peek type = TokenType RightParent ifFalse: {
+            return: (ASTParseErrorNode atToken: currentPosition message: "Expected a right parenthesis." asMutableString).
+        }.
+        currentPosition advance.
+        expression
+    }.
+
+    method parsePrimaryExpressionIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        currentPosition peek type selectCase: #{
+        TokenType LeftParent : (self parseParentExpression: currentPosition).
+        TokenType Identifier : (self parseIdentifierReference: currentPosition).
+        _ : (self parseLiteralIn: currentPosition).
+        }.
+    }.
+
+    method parseExpressionIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr
+        := self parsePrimaryExpressionIn: currentPosition.
+
+    method parseExpressionListIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
+        let result := ASTExpressionListNode sharedNew.
+        let startPosition := currentPosition.
+
+        do: {
+            currentPosition peek type = TokenType Dot ifTrue: {
+                currentPosition advance
+            }.
+
+            let memento := currentPosition.
+            let expression := self parseExpressionIn: currentPosition.
+            expression _ isParseErrorNode ifTrue: {
+                currentPosition := memento
+            } ifFalse: {
+                result _ expressions add: expression
+            }.
+        } while: (currentPosition peek type = TokenType Dot).
+
+        result upCastFor: ASTNode
+    }.
+
+    method parse: (tokenizedSource: TokenizedSourceCodePtr const ref) ::=> ASTNodePtr := {
+        let currentPosition mutable := TokenizedSourceCodeRange for: tokenizedSource.
+        let result := self parseExpressionListIn: currentPosition.
+        currentPosition peek type isEndOfSource ifFalse: {
+            result _ isExpressionListNode ifTrue: {
+                let expressionList ref := result downCastFor: ASTExpressionListNode.
+                expressionList _ expressions isEmpty || expressionList _ expressions last _ isParseErrorNode not ifTrue: {
+                    expressionList _ expressions add: (ASTParseErrorNode atTokens: currentPosition message: "Expected end of sources." asMutableString)
+                }.
+            }.
+        }.
+
+        result
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

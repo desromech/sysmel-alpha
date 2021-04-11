@@ -3,15 +3,32 @@ namespace Compiler definition: {
 namespace Parsing definition: {
 
 struct SourceCode definition: {
+    compileTime constant ValueType := Char8.
+    compileTime constant PeekType := Int32.
+
     public field content type: Stdn String.
     public field name type: Stdn String.
     public field uri type: Stdn String.
 
-    const inline method size => UIntPointer
-        := content size.
+    macro method size := ``(`,self content size).
+    macro method data := ``(`,self content data).
+    macro method[index] := ``(`,self content[`,index]).
+
+    const inline method eofValue => PeekType
+        := -1.
+
+    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Stdn ImmutableString := {
+        content isEmpty ifTrue: {
+            return: ""
+        }.
+
+        content data from: startPosition until: endPosition
+    }.
 }.
 
 compileTime constant SourceCodePtr := SourceCode sharedPointer.
+compileTime constant SourceCodeRange := SourceCollectionRange(SourceCode).
+compileTime constant SourceCodeRangePtr := SourceCodeRange sharedPointer.
 
 }. ## End of namespace Compiler
 }. ## End of namespace Compiler

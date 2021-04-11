@@ -1,0 +1,29 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace Parsing definition: {
+
+template GenericTokenizedSourceCode(TT: Stdn Concepts Copyable)
+    := struct definition: {
+    compileTime constant TokenType := TT.
+    compileTime constant Token := GenericToken(TokenType).
+
+    compileTime constant ValueType := Token.
+    compileTime constant PeekType := Token.
+
+    public field sourceCode type: SourceCodePtr.
+    public field tokens type: Stdn Collections Vector(Token).
+
+    macro method size := ``(`,self tokens size).
+    macro method data := ``(`,self tokens data).
+    macro method[index] := ``(`,self tokens[`,index]).
+
+    const inline method eofValue => PeekType
+        := Token().
+
+    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Stdn ImmutableString
+        := "".
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

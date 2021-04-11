@@ -1,0 +1,37 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isBinaryMessageSendSequenceNode => Boolean8
+        := false.
+}.
+
+class ASTBinaryMessageSendSequenceNode superclass: ASTNode; definition: {
+    public field operands type: ASTNodePtrList.
+    public field selectors type: ASTNodePtrList.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitBinaryMessageSendSequenceNode: self.
+
+    override const method isBinaryMessageSendSequenceNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitBinaryMessageSendSequenceNode: (node: ASTBinaryMessageSendSequenceNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitBinaryMessageSendSequenceNode: (node: ASTBinaryMessageSendSequenceNode ref) ::=> ASTVisitorResult := {
+        self
+            visitNodeList: node operands;
+            visitNodeList: node selectors
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

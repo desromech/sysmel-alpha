@@ -1,0 +1,34 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isFloatLiteralNode => Boolean8
+        := false.
+}.
+
+class ASTFloatLiteralNode superclass: ASTNode; definition: {
+    public field value type: Float64.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitFloatLiteralNode: self.
+
+    override const method isFloatLiteralNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitFloatLiteralNode: (node: ASTFloatLiteralNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitFloatLiteralNode: (node: ASTFloatLiteralNode ref) ::=> ASTVisitorResult := {
+        ASTVisitorResult()
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

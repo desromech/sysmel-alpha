@@ -1,0 +1,97 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace Parsing definition: {
+
+template SourceCollectionRange(SC: Stdn Concepts Copyable)
+    := struct definition: {
+    compileTime constant SourceCollection := SC.
+    compileTime constant ValueType := SourceCollection ValueType.
+    compileTime constant PeekType := SourceCollection PeekType.
+    compileTime constant SourceCollectionPtr := SourceCollection sharedPointer.
+
+    public field sourceCollection type: SourceCollectionPtr.
+    public field startPosition type: UIntPointer.
+    public field endPosition type: UIntPointer.
+
+    meta definition: {
+        static method for: (sourceCollection: SourceCollectionPtr const ref) ::=> InstanceType := {
+            InstanceType()
+                sourceCollection: sourceCollection;
+                startPosition: 0;
+                endPosition: sourceCollection _ size;
+                yourself.
+        }.
+    }.
+
+    const method text => Stdn ImmutableString := {
+        self isEmpty ifTrue: {
+            return: ""
+        }.
+
+        sourceCollection _ textFrom: startPosition until: endPosition
+    }.
+
+    const method isEmpty => Boolean8
+        := startPosition >= endPosition.
+
+    const method isNotEmpty => Boolean8
+        := self isEmpty not.
+
+    method advance ::=> Void
+        := self advance: 1.
+
+    method advance: (increment: UIntPointer) ::=> Void := {
+        startPosition := startPosition + increment
+    }.
+
+    method peek ::=> PeekType
+        := self peek: 0.
+
+    method peek: (offset: UIntPointer) ::=> PeekType := {
+        startPosition + offset < endPosition ifTrue: {
+            return: sourceCollection _ [startPosition + offset]
+        } ifFalse: {
+            return: sourceCollection _ eofValue
+        }
+    }.
+
+    method next ::=> PeekType := {
+        startPosition < endPosition ifTrue: {
+            let result := sourceCollection _ [startPosition].
+            startPosition := startPosition + 1.
+            return: result
+        } ifFalse: {
+            return: sourceCollection _ eofValue
+        }
+    }.
+
+    const method until: (offset: UIntPointer) ::=> SelfType := {
+        SelfType()
+            sourceCollection: sourceCollection;
+            startPosition: startPosition;
+            endPosition: (startPosition + offset min: endPosition);
+            yourself
+    }.
+
+    const method until: (other: SelfType const ref) ::=> SelfType := {
+        SelfType()
+            sourceCollection: other sourceCollection;
+            startPosition: startPosition;
+            endPosition: (endPosition min: other startPosition);
+            yourself
+    }.
+
+    method advanceToEnd => Void := {
+        startPosition := endPosition
+    }.
+
+    method skipWhile: (predicate: (ValueType => Boolean8) nativeStackBlockClosure) ::=> Void := {
+        while: self isNotEmpty && predicate(self peek castTo: ValueType) do: {
+            self advance
+        }.
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

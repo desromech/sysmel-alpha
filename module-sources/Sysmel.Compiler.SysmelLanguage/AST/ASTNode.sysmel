@@ -1,0 +1,19 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class ASTNode superclass: Stdn SharedObject; definition: {
+    public field sourcePosition type: SourceCodeRange.
+    public field tokenRange type: TokenizedSourceCodeRange.
+
+    abstract method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult.
+}.
+
+compileTime constant ASTNodePtr := ASTNode sharedPointer.
+compileTime constant ASTNodePtrList := Stdn Collections Vector(ASTNodePtr).
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

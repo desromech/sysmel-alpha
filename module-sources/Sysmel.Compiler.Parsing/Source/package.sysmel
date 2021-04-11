@@ -1,3 +1,5 @@
+loadFileOnce: "SourceCollectionRange.sysmel".
 loadFileOnce: "SourceCode.sysmel".
-loadFileOnce: "SourceCodeRange.sysmel".
+
 loadFileOnce: "GenericToken.sysmel".
+loadFileOnce: "GenericTokenizedSourceCode.sysmel".

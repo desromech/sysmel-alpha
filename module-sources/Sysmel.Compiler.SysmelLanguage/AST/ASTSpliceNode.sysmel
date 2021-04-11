@@ -1,0 +1,35 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isSpliceNode => Boolean8
+        := false.
+}.
+
+class ASTSpliceNode superclass: ASTNode; definition: {
+    public field quoted type: ASTNodePtr.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitSpliceNode: self.
+
+    override const method isSpliceNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitSpliceNode: (node: ASTSpliceNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitSpliceNode: (node: ASTSpliceNode ref) ::=> ASTVisitorResult := {
+        self
+            visitNode: node quoted
+    }.
+}.
+
+}. ## End of namespace Compiler
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

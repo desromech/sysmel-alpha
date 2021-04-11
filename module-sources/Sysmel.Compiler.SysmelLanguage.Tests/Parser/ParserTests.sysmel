@@ -1,0 +1,207 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+namespace Tests definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class ParserTests superclass: Stdn Testing TestCase; definition: {
+    method parseString: (source: Stdn ImmutableString) ::=> ASTNodePtr := {
+        let sourceCode := SourceCode sharedNew.
+        sourceCode _
+            content: source asMutableString;
+            name: "unit test".
+
+        Parser() parse: (Scanner() scan: sourceCode)
+    }.
+
+    method parseSingleExpression: (source: Stdn ImmutableString) ::=> ASTNodePtr := {
+        let parseResult := self parseString: source.
+        self assert: parseResult _ isExpressionListNode.
+
+        let expresionList := (parseResult downCastFor: ASTExpressionListNode).
+        self assert: expresionList _ expressions size equals: 1.
+        return: expresionList _ expressions first
+    }.
+
+    test: testEmpty with: {
+        let node := self parseString: "".
+        self assert: node _ isExpressionListNode.
+        self assert: (node downCastFor: ASTExpressionListNode) _ expressions isEmpty.
+    }.
+
+    test: testLiteralInteger with: {
+        {
+            let literal := self parseSingleExpression: "0".
+            self assert: literal _ isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "0".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "-0".
+            self assert: literal _ isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-0".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "42".
+            self assert: literal _ isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "-42".
+            self assert: literal _ isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-42".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "(-42)".
+            self assert: literal _ isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-42".
+        }.
+    }.
+
+    test: testLiteralFloat with: {
+        {
+            let literal := self parseSingleExpression: "0.0".
+            self assert: literal _ isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 0.0.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "42.5".
+            self assert: literal _ isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "42.5e2".
+            self assert: literal _ isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5e2.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "-1.5e-6".
+            self assert: literal _ isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: -1.5e-6.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "42.5e2".
+            self assert: literal _ isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5e2.
+        }.
+    }.
+
+    test: testLiteralString with: {
+        {
+            let literal := self parseSingleExpression: "\"\"".
+            self assert: literal _ isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "\"hello\"".
+            self assert: literal _ isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "hello".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "\"Hello World\\r\\n\"".
+            self assert: literal _ isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "Hello World\r\n".
+        }.
+    }.
+
+    test: testLiteralCharacter with: {
+        {
+            let literal := self parseSingleExpression: "'a'".
+            self assert: literal _ isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: 'a'.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "'\\n'".
+            self assert: literal _ isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\n'.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "'\\r'".
+            self assert: literal _ isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\r'.
+        }.
+
+        {
+            let literal := self parseSingleExpression: "'\\t'".
+            self assert: literal _ isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\t'.
+        }.
+    }.
+
+    test: testLiteralSymbol with: {
+        {
+            let literal := self parseSingleExpression: "#a".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "a".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "#test:".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "test:".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "#<".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<".
+        }.
+    }.
+
+    test: testLiteralSymbolString with: {
+        {
+            let literal := self parseSingleExpression: "#\"\"".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "#\"hello\"".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "hello".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "#\"Hello World\\r\\n\"".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "Hello World\r\n".
+        }.
+
+        {
+            let literal := self parseSingleExpression: "#\"std::string\"".
+            self assert: literal _ isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "std::string".
+        }.
+    }.
+
+    test: testIdentifierReference with: {
+        {
+            let node := self parseSingleExpression: "hello".
+            self assert: node _ isIdentifierReferenceNode.
+            self assert: (node downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "hello".
+        }.
+
+        {
+            let node := self parseSingleExpression: "_helloWorld12345".
+            self assert: node _ isIdentifierReferenceNode.
+            self assert: (node downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "_helloWorld12345".
+        }.
+    }.
+}.
+
+} ## End of namespace Tests
+}. ## End of namespace SysmelLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel
