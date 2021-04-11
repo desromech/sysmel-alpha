@@ -6327,6 +6327,73 @@ function toString cdecl (struct 'special.Char8 const arraySlice')
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueToString2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+_EnumType definition: {
+	meta definition: {
+		macro method makePrintable := ``(`,self definition: `,`''{
+			method asString => Char8 const arraySlice := {
+				self selectCase: #{
+				`@(SelfType valuesToStringCases)
+				}
+			}
+		})
+	}
+}.
+
+enum TestEnum values: #{
+	None: .
+	First: .
+	Second: .
+}; definition: {
+	SelfType makePrintable
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule8TestEnum9.asStringENS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8TestEnum9.asStringENS0_E' cdecl (struct 'special.Char8 const arraySlice')
+	arguments (
+		(self i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		((merge (block 8 casesOfMerge))
+			(nil switch void () ((local 0 self) (const i32 1) (const i32 0) (const i32 2)) (((block 4 casesOfCase) (block 5 casesOfCase) (block 6 casesOfCase)) (block 7 casesOfDefault)))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil jump void () () (block 8 casesOfMerge))
+		)
+		(()
+			(nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+			(nil unreachable void () ())
+		)
+		(()
+			(casesResult phi (struct 'special.Char8 const arraySlice') () ((constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 5) true #[70 105 114 115 116])) (const u64 5))) (constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 4) true #[78 111 110 101])) (const u64 4))) (constStruct (struct 'special.Char8 const arraySlice') ((constPointer (pointer u8 generic) (constString (array i8 6) true #[83 101 99 111 110 100])) (const u64 6)))) ((block 4 casesOfCase) (block 5 casesOfCase) (block 6 casesOfCase)))
+			(nil return void () ((local 9 casesResult)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testExtraFieldAlignment [
 	| fetchAlignedField structureType |
 	self

@@ -8,6 +8,14 @@ Class {
 }
 
 { #category : #accessing }
+MbndSemanticError >> description [
+	sourcePosition asActualSourcePosition isEmptySourcePosition ifTrue: [ 
+		^ (environment formatPositionForErrorMessageInMacroExpansion: sourcePosition) , self messageText
+	].
+	^ super description
+]
+
+{ #category : #accessing }
 MbndSemanticError >> environment [
 	^ environment
 ]

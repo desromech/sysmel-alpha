@@ -37,6 +37,11 @@ MbndImportedModulePosition >> hash [
 	^ module identityHash
 ]
 
+{ #category : #testing }
+MbndImportedModulePosition >> isEmptySourcePosition [
+	^ true
+]
+
 { #category : #accessing }
 MbndImportedModulePosition >> line [
 	^ 0

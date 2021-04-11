@@ -77,6 +77,14 @@ MbndAbstractScope >> encodeGraphForMessagePackWith: graphEncoder [
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
+{ #category : #formatting }
+MbndAbstractScope >> formatPositionForErrorMessageInMacroExpansion: nodeSourcePosition [
+	parent ifNotNil: [ ^ parent formatPositionForErrorMessageInMacroExpansion: nodeSourcePosition ].
+	^ nodeSourcePosition sourceTextPosition
+		ifNil: [ '' ]
+		ifNotNil: [ :position | position printString , ': ' ]
+]
+
 { #category : #testing }
 MbndAbstractScope >> isCompilationEvaluationScope [
 	parent ifNotNil: [ ^ parent isCompilationEvaluationScope ].

@@ -42,6 +42,16 @@ MbndProgramEntityScope >> encodeFieldsForMessagePackWith: graphEncoder [
 	}
 ]
 
+{ #category : #formatting }
+MbndProgramEntityScope >> formatPositionForErrorMessageInMacroExpansion: sourcePosition [
+	programEntity definitionPosition asActualSourcePosition isEmptySourcePosition ifFalse: [ 
+		programEntity definitionPosition sourceTextPosition ifNotNil: [
+			^ programEntity definitionPosition sourceTextPosition printString , ': '
+		]
+	].
+	^ programEntity qualifiedName , ': '
+]
+
 { #category : #testing }
 MbndProgramEntityScope >> isProgramEntityScope [
 	^ true
