@@ -136,6 +136,29 @@ sealed class FileReference definition: {
     const method childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void
         := fileSystem _ directory: path asArraySlice childrenDo: iterationBlock.
 
+    const method utf8Contents => String uniquePointer := {
+        let readStream := self binaryUnbufferedReadStream.
+        readStream ifNil: {
+            return: String uniquePointer nil
+        }.
+
+        let fileSize := readStream _
+            seek: 0 mode: IO SeekMode End;
+            position.
+        fileSize < 0 ifTrue: {
+            return: String uniquePointer nil
+        }.
+        readStream _ seek: 0 mode: IO SeekMode Set.
+
+        let result mutable := String uniqueNew.
+        result _ resizeTo: (fileSize castTo: UIntPointer).
+        (readStream _ read: result _ data size: result _ size) = (result _ size castTo: IntPointer) ifFalse: {
+            return: String uniquePointer nil
+        }.
+
+        result asMoveReference
+    }.
+
     const method children => ChildrenType := {
         let result mutable := ChildrenType().
         self childrenDo: {:child :: Void |

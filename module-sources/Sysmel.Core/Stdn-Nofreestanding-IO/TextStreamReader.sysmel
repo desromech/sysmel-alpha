@@ -143,7 +143,28 @@ class TextStreamReader definition: {
         }.
 
         result
-    }
+    }.
+
+    method readUntilEnd => Stdn String := {
+        let result mutable := Stdn String().
+        characterBuffer < 0 ifFalse: {
+            result add: (self nextChar8 castTo: Char8).
+        }.
+
+        let readBufferSize type: UIntPointer := 4096.
+        let readBuffer mutable type: Char8 uniquePointer.
+        readBuffer reset: (Stdn malloc(readBufferSize) reinterpretCastTo: Char8 pointer).
+
+        let lastReadCount mutable type: IntPointer.
+        do: {
+            lastReadCount := stream _ read: readBuffer getPointer size: readBufferSize.
+            lastReadCount > 0 ifTrue: {
+                result addAll: (readBuffer getPointer until: (lastReadCount castTo: UIntPointer))
+            }
+        } until: lastReadCount <= 0.
+
+        result asMoveReference
+    }.
 }.
 
 }. ## End of namespace IO

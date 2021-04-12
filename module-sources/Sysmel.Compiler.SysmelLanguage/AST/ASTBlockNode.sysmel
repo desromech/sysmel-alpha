@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTBlockNode superclass: ASTNode; definition: {
-    public field blockClosureSignatureNode type: ASTNodePtr.
+    public field blockClosureSignature type: ASTNodePtr.
     public field pragmas type: ASTNodePtrList.
     public field expressionList type: ASTNodePtr.
 
@@ -28,7 +28,7 @@ ASTVisitor extend: {
 ASTSequentialVisitor extend: {
     override method visitBlockNode: (node: ASTBlockNode ref) ::=> ASTVisitorResult := {
         self
-            visitOptionalNode: node blockClosureSignatureNode;
+            visitOptionalNode: node blockClosureSignature;
             visitNodeList: node pragmas;
             visitNode: node expressionList.
     }.

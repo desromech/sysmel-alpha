@@ -22,6 +22,13 @@ template GenericTokenizedSourceCode(TT: Stdn Concepts Copyable)
 
     const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Stdn ImmutableString
         := "".
+
+    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        let sourceStartPosition := tokens[startPosition min: self size - 1] position startPosition.
+        let sourceEndPosition := tokens[endPosition min: self size - 1] position endPosition.
+        sourceCode _ printRangeFrom: sourceStartPosition until: sourceEndPosition on: out
+    }.
+
 }.
 
 }. ## End of namespace Compiler

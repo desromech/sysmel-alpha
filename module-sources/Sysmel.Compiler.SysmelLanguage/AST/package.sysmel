@@ -1,6 +1,7 @@
 loadFileOnce: "ASTNode.sysmel".
 loadFileOnce: "ASTVisitor.sysmel".
 loadFileOnce: "ASTSequentialVisitor.sysmel".
+loadFileOnce: "ASTParseErrorCheckerVisitor.sysmel".
 
 loadFileOnce: "ASTBinaryMessageSendSequenceNode.sysmel".
 loadFileOnce: "ASTBlockClosureArgumentNode.sysmel".

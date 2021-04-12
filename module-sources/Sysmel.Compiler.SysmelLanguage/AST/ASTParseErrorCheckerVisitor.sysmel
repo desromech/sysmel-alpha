@@ -1,0 +1,32 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SysmelLanguage definition: {
+
+class ASTParseErrorCheckerVisitor superclass: ASTSequentialVisitor; definition: {
+    compileTime constant CallbackType := (ASTParseErrorNode ref => Void) nativeStackBlockClosure.
+    public field callback type: CallbackType.
+    public field errorCount type: UIntPointer.
+
+    meta definition: {
+        static method verify: (node: ASTNode ref) callback: (callback: CallbackType) ::=> Boolean8 := {
+            let visitor mutable :=InstanceType()
+                    callback: callback;
+                    yourself.
+            visitor visitNode: node.
+            visitor errorCount = 0
+        }
+    }.
+
+    override method visitParseErrorNode: (node: ASTParseErrorNode ref) ::=> ASTVisitorResult := {
+        errorCount := errorCount + 1.
+        callback ifNotNil: {
+            callback(node)
+        }.
+
+        ASTVisitorResult()
+    }.
+}.
+
+}. ## End of namespace SysmelLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

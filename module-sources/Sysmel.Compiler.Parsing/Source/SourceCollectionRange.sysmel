@@ -37,6 +37,9 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
     const method isNotEmpty => Boolean8
         := self isEmpty not.
 
+    const method size => UIntPointer
+        := endPosition - startPosition.
+
     method advance ::=> Void
         := self advance: 1.
 
@@ -44,10 +47,10 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
         startPosition := startPosition + increment
     }.
 
-    method peek ::=> PeekType
+    const method peek ::=> PeekType
         := self peek: 0.
 
-    method peek: (offset: UIntPointer) ::=> PeekType := {
+    const method peek: (offset: UIntPointer) ::=> PeekType := {
         startPosition + offset < endPosition ifTrue: {
             return: sourceCollection _ [startPosition + offset]
         } ifFalse: {
@@ -75,7 +78,7 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
 
     const method until: (other: SelfType const ref) ::=> SelfType := {
         SelfType()
-            sourceCollection: other sourceCollection;
+            sourceCollection: sourceCollection;
             startPosition: startPosition;
             endPosition: (endPosition min: other startPosition);
             yourself
@@ -89,6 +92,16 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
         while: self isNotEmpty && predicate(self peek castTo: ValueType) do: {
             self advance
         }.
+    }.
+
+    const method first => PeekType
+        := self peek.
+
+    const method last => PeekType
+        := self peek: self size - 1.
+
+    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        sourceCollection _ printRangeFrom: startPosition until: endPosition on: out
     }.
 }.
 

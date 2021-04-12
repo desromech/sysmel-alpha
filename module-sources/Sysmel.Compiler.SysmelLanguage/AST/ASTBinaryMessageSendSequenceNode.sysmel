@@ -7,9 +7,15 @@ useNamespace: Sysmel Compiler Parsing.
 ASTNode extend: {
     virtual const method isBinaryMessageSendSequenceNode => Boolean8
         := false.
+
+    virtual const method isSingleMessageBinaryMessageSendSequenceNode => Boolean8
+        := false.
+
+
 }.
 
 class ASTBinaryMessageSendSequenceNode superclass: ASTNode; definition: {
+    public field isLowPrecedence type: Boolean8.
     public field operands type: ASTNodePtrList.
     public field selectors type: ASTNodePtrList.
 
@@ -18,6 +24,9 @@ class ASTBinaryMessageSendSequenceNode superclass: ASTNode; definition: {
 
     override const method isBinaryMessageSendSequenceNode => Boolean8
         := true.
+
+    override const method isSingleMessageBinaryMessageSendSequenceNode => Boolean8
+        := isLowPrecedence not && operands size = 2.
 }.
 
 ASTVisitor extend: {

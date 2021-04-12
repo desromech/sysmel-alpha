@@ -19,6 +19,8 @@ class ASTMessageSendNode superclass: ASTNode; definition: {
 
     override const method isMessageSendNode => Boolean8
         := true.
+
+    macro method addArgument: argument := ``(`,self arguments add: `,argument).
 }.
 
 ASTVisitor extend: {

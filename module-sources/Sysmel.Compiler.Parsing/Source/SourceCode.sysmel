@@ -6,9 +6,42 @@ struct SourceCode definition: {
     compileTime constant ValueType := Char8.
     compileTime constant PeekType := Int32.
 
-    public field content type: Stdn String.
+    field content type: Stdn String.
+    field lineStartTable type: Stdn Collections Vector(UIntPointer).
     public field name type: Stdn String.
     public field uri type: Stdn String.
+
+    const method content => Stdn String const ref
+        := content.
+
+    method content: (value: Stdn String const ref) ::=> Void := {
+        content := value.
+        self buildLineStartTable.
+    }.
+
+    method buildLineStartTable => Void := {
+        let currentPosition mutable type: UIntPointer := 0.
+        lineStartTable add: currentPosition.
+
+        while: currentPosition < content size do: {
+            let c := content[currentPosition].
+            currentPosition := currentPosition + 1.
+
+            c selectCase: #{
+            '\r' : {
+                (currentPosition < content size && content[currentPosition] = '\n') ifTrue: {
+                    currentPosition := currentPosition + 1
+                }.
+
+                lineStartTable add: currentPosition
+            }.
+            '\n' : {
+                lineStartTable add: currentPosition
+            }.
+            _ : {}.
+            }.
+        }.
+    }.
 
     macro method size := ``(`,self content size).
     macro method data := ``(`,self content data).
@@ -23,6 +56,43 @@ struct SourceCode definition: {
         }.
 
         content data from: startPosition until: endPosition
+    }.
+
+    const method sourcePositionIntoLine: (sourcePosition: UIntPointer) ::=> UIntPointer := {
+        let bestLineSoFar mutable type: UIntPointer := 0.
+        let endRange mutable := lineStartTable size.
+
+        while: bestLineSoFar + 1 < endRange do: {
+            let m := bestLineSoFar + (endRange - bestLineSoFar) / 2.
+            lineStartTable[m] <= sourcePosition ifTrue: {
+                bestLineSoFar := m
+            } ifFalse: {
+                endRange := m
+            }
+        }.
+
+        bestLineSoFar + 1
+    }.
+
+    const method sourcePositionIntoLineAndColumn: (sourcePosition: UIntPointer) ::=> UInt32x2 := {
+        let lineNumber := self sourcePositionIntoLine: sourcePosition.
+        let lineStartIndex := lineStartTable[lineNumber - 1].
+
+        let column mutable type: UInt32 := 0.
+        lineStartIndex until: sourcePosition do: {:i :: Void |
+            column := column + 1.
+            content[i] = '\t' ifTrue: {
+                column := column alignedTo: 4u
+            }.
+        }.
+
+        UInt32x2(lineNumber castTo: UInt32, column + 1u)
+    }.
+
+    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        let lineAndColumn := self sourcePositionIntoLineAndColumn: startPosition.
+
+        out << name << ':' << lineAndColumn x << ":" << lineAndColumn y
     }.
 }.
 

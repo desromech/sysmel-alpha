@@ -76,10 +76,13 @@ class Scanner definition: {
     method tokenTypeForBinaryOperator: (operator: Stdn ImmutableString) ::=> TokenType := {
         operator selectCase: #{
         "-" : TokenType Minus.
+        "+" : TokenType Plus.
         "!" : TokenType LogicalNot.
         "|" : TokenType BitwiseOr.
         "~" : TokenType BitwiseNot.
         "," : TokenType Comma.
+        "<" : TokenType LessThan.
+        ">" : TokenType GreaterThan.
         _ : TokenType GenericBinaryOperator
         }
     }.
@@ -345,7 +348,7 @@ class Scanner definition: {
             }.
 
             symbolFirst selectCase: #{
-            '""' : {
+            '"' : {
                 currentPosition advance.
                 let tokenType :=
                     (self skipStringLiteralIn: currentPosition) ifTrue: TokenType SymbolString ifFalse: TokenType ErrorIncompleteSymbolString.
@@ -490,6 +493,8 @@ class Scanner definition: {
     method scan: (sourceCode: SourceCodePtr const ref) ::=> TokenizedSourceCodePtr := {
         let currentPosition mutable := SourceCodeRange for: sourceCode.
         let result mutable := TokenizedSourceCode sharedNew.
+        result _ sourceCode: sourceCode.
+
         do: {
             self scanNextTokenIn: currentPosition into: result _ tokens.
         } until: currentPosition isEmpty.

@@ -253,8 +253,11 @@ class ScannerTests superclass: Stdn Testing TestCase; definition: {
         self assert: (self scanSingleToken: "::=>") equals: TokenType LowPrecedenceBinaryOperator.
         self assert: (self scanSingleToken: "=>") equals: TokenType GenericBinaryOperator.
         self assert: (self scanSingleToken: "|") equals: TokenType BitwiseOr.
+        self assert: (self scanSingleToken: "+") equals: TokenType Plus.
         self assert: (self scanSingleToken: "-") equals: TokenType Minus.
         self assert: (self scanSingleToken: "!") equals: TokenType LogicalNot.
+        self assert: (self scanSingleToken: "<") equals: TokenType LessThan.
+        self assert: (self scanSingleToken: ">") equals: TokenType GreaterThan.
     }.
 }.
 

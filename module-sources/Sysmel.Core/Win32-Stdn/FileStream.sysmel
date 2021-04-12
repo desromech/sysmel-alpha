@@ -226,6 +226,7 @@ global stderrFile mutable constructionPriority: Compiler compilationTarget runti
 
 }. ## End of namespace IO
 
+global stdin mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamReader for: IO stdinFile address.
 global stdout mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stdoutFile address.
 global stderr mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stderrFile address.
 }. ## End of namespace Stdn

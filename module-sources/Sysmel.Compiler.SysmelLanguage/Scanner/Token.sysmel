@@ -29,6 +29,9 @@ enum TokenType valueType: UInt8; values: #{
     BitwiseNot:. ## ~
     BitwiseOr:. ## |
     Minus:. ## -
+    Plus:. ## +
+    LessThan:. ## <
+    GreaterThan:. ## >
 
     Colon:. ## :
     ColonColon:. ## ::
@@ -63,6 +66,13 @@ enum TokenType valueType: UInt8; values: #{
     method isError => Boolean8
         := self selectCase: #{
         (Error, ErrorUnexpected, ErrorIncompleteComment, ErrorIncompleteCharacter, ErrorIncompleteString, ErrorIncompleteSymbolString) asValueInSetPattern
+            : true.
+        _ : false.
+        }.
+
+    method isBinaryOperator => Boolean8
+        := self selectCase: #{
+        (GenericBinaryOperator, LogicalNot, BitwiseNot, BitwiseOr, Minus, Plus, LessThan, GreaterThan) asValueInSetPattern
             : true.
         _ : false.
         }.
