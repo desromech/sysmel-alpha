@@ -545,7 +545,7 @@ MbndAstBuilder >> do: action continueWith: continueAction while: condition [
 		position: defaultPosition;
 		action: action;
 		continueAction: continueAction;
-		condition: condition;
+		condition: condition lexicallyScoped;
 		yourself
 ]
 
@@ -553,11 +553,7 @@ MbndAstBuilder >> do: action continueWith: continueAction while: condition [
 MbndAstBuilder >> do: action while: condition [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstDoWhileLoopNode new
-		position: defaultPosition;
-		action: action;
-		condition: condition;
-		yourself
+	^ self do: action continueWith: nil while: condition
 ]
 
 { #category : #'builder methods' }
@@ -1579,7 +1575,7 @@ MbndAstBuilder >> while: condition do: action continueWith: continueAction [
 	<returnType: #_ASTNodeType>
 	^ MbndAstWhileLoopNode new
 		position: defaultPosition;
-		condition: condition;
+		condition: condition lexicallyScoped;
 		action: action;
 		continueAction: continueAction;
 		yourself

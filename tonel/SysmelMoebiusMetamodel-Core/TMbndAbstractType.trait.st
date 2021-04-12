@@ -227,12 +227,13 @@ TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer 
 				^ staticMethod analyzeExpandedMessageSendNode: node with: analyzer
 			].
 		
-			(receiverValue class lookupSelector: selector) ifNotNil: [ :method |
-				(method hasPragmaNamed: #compileTime) ifTrue: [
-					arguments := node arguments collect: [ :arg | (analyzer evaluateCompileTimeExpression: arg) unwrapMbndValue ].
-					result := receiverValue perform: selector withArguments: arguments.
+			(receiverValue mbndLookupCompileTimeExposedMethod: selector) ifNotNil: [ :receiverAndMethod |
+				| actualReceiver method |
+				actualReceiver := receiverAndMethod first.
+				method := receiverAndMethod second.
+				arguments := node arguments collect: [ :arg | (analyzer evaluateCompileTimeExpression: arg) unwrapMbndValue ].
+				result := actualReceiver perform: selector withArguments: arguments.
 				^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
-				]
 			]
 		].
 	].

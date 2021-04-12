@@ -5415,15 +5415,56 @@ MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	function := ssaModule globalNamed: #countTwice.
 	self assert: function isFunction.
 	self deny: function isEmpty.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (jump))
-		(tryScope (store store jump))
-		(whileHeader (load ilt branch))
-		(whileBody (jump))
-		(whileContinue (load add store jump))
-		(whileMerge (load return))
-		(tryScope (load add store jump))
+	self assert: function asFullSExpressionForTesting equals: #(
+function countTwice cdecl i32
+	arguments (
+		(destCount i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer i32 function) () ())
+			(nil alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil store void () ((const i32 0) (local 1 nil)))
+			(nil store void () ((const i32 0) (local 2 nil)))
+			(nil jump void () () (block 4 whileHeader))
+		)
+		((continue (block 6 whileContinue) merge (block 7 whileMerge))
+			(nil jump void () () (block 8 tryScope))
+		)
+		(()
+			(nil jump void () () (block 9 tryScope))
+		)
+		(()
+			(nil load i32 () ((local 1 nil)))
+			(nil add i32 () ((local 10 nil) (const i32 1)))
+			(nil store void () ((local 11 nil) (local 1 nil)))
+			(nil jump void () () (block 4 whileHeader))
+		)
+		(()
+			(nil load i32 () ((local 2 nil)))
+			(nil return void () ((local 14 nil)))
+		)
+		(()
+			(nil load i32 () ((local 1 nil)))
+			(nil ilt b8 () ((local 16 nil) (local 0 destCount)))
+			(nil branch void () ((local 17 nil)) ((block 5 whileBody) (block 7 whileMerge)))
+		)
+		(()
+			(nil load i32 () ((local 2 nil)))
+			(nil add i32 () ((local 19 nil) (const i32 2)))
+			(nil store void () ((local 20 nil) (local 2 nil)))
+			(nil jump void () () (block 6 whileContinue))
+		)
+	)
+
 	).
 ]
 

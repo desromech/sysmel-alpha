@@ -113,6 +113,15 @@ MbndSysmelSampleBuildScripts class >> newNativeBuildEnvironment [
 ]
 
 { #category : #'native samples' }
+MbndSysmelSampleBuildScripts class >> sysmelParserTool [
+	<example>
+	self newNativeBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript programWithSource: 'tools/sysmelParser.sysmel'
+		].
+]
+
+{ #category : #'native samples' }
 MbndSysmelSampleBuildScripts class >> textureTool [
 	<example>
 	| prog |

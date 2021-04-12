@@ -144,6 +144,13 @@ MbndDecoratedType >> lookupOverloadedFinalSelector: selector [
 	^ baseType lookupOverloadedFinalSelector: selector
 ]
 
+{ #category : #'as yet unclassified' }
+MbndDecoratedType >> mbndLookupCompileTimeExposedMethod: selector [
+	(super mbndLookupCompileTimeExposedMethod: selector) ifNotNil: [ :found | ^ found ].
+	baseType ifNil: [ ^ nil ].
+	^ baseType mbndLookupCompileTimeExposedMethod: selector
+]
+
 { #category : #testing }
 MbndDecoratedType >> pointerRank [
 	^ baseType pointerRank

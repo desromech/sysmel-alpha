@@ -249,7 +249,8 @@ MbndAstTransformVisitorTest >> testDoWhileLoopNode [
 	node := builder do: action while: condition.
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
-	self assert: transformedNode condition equals: node condition.
+	self assert: transformedNode condition isLexicalScopeNode.
+	self assert: transformedNode condition expression equals: node condition expression.
 	self assert: transformedNode action equals: node action.
 ]
 
@@ -1257,7 +1258,8 @@ MbndAstTransformVisitorTest >> testWhileLoopNode [
 	node := builder while: condition do: action continueWith: continueAction.
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
-	self assert: transformedNode condition equals: node condition.
+	self assert: transformedNode condition isExceptionScopeNode.
+	self assert: transformedNode condition expression equals: node condition expression.
 	self assert: transformedNode action equals: node action.
 	self assert: transformedNode continueAction equals: node continueAction.
 ]

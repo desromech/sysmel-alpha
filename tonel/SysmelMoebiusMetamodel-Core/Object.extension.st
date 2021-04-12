@@ -75,6 +75,15 @@ Object >> mbndLiteralTypeWithTarget: compilationTarget [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> mbndLookupCompileTimeExposedMethod: selector [
+	| method |
+	method := self class lookupSelector: selector.
+	method ifNil: [ ^ nil ].
+	(method hasPragmaNamed: #compileTime) ifFalse: [ ^ nil ].
+	^ { self . method }
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> unwrapMbndValue [
 	^ self
 ]

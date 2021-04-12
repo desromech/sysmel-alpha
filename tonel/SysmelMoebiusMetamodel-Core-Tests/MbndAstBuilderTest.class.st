@@ -220,7 +220,8 @@ MbndAstBuilderTest >> testDoWhileLoopNode [
 	node := builder do: action while: condition.
 	
 	self assert: node isDoWhileLoopNode.
-	self assert: node condition equals: condition.
+	self assert: node condition isLexicalScopeNode.
+	self assert: node condition expression equals: condition.
 	self assert: node action equals: action.
 ]
 
@@ -1312,7 +1313,8 @@ MbndAstBuilderTest >> testWhileLoopNode [
 	node := builder while: condition do: action continueWith: continueAction.
 	
 	self assert: node isWhileLoopNode.
-	self assert: node condition equals: condition.
+	self assert: node condition isExceptionScopeNode.
+	self assert: node condition expression equals: condition.
 	self assert: node action equals: action.
 	self assert: node continueAction equals: continueAction.
 	
