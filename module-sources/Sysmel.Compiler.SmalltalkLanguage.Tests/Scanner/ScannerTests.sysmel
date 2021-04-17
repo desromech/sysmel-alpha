@@ -1,0 +1,260 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+namespace Tests definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class ScannerTests superclass: Stdn Testing TestCase; definition: {
+    method scanSource: (source: Stdn ImmutableString) ::=> TokenizedSourceCodePtr := {
+        let sourceCode := SourceCode sharedNew.
+        sourceCode _
+            content: source asMutableString;
+            name: "unit test".
+
+        Scanner() scan: sourceCode
+    }.
+
+    method scanSingleToken: (source: Stdn ImmutableString) ::=> TokenType := {
+        let result mutable := self scanSource: source.
+        self assert: result _ tokens isNotEmpty.
+
+        ## FIXME: Implicit return fails in this context because it is loading the reference value after the cleanup.
+        return: result _ tokens first type
+    }.
+
+    method scanSingleTokenText: (source: Stdn ImmutableString) ::=> Stdn String := {
+        let result mutable := self scanSource: source.
+        self assert: result _ tokens isNotEmpty.
+        result _ tokens first text asMutableString
+    }.
+
+    test: testEndOfSource with: {
+        self assert: (self scanSingleToken: "") equals: TokenType EndOfSource.
+        self assert: (self scanSingleToken: "\" ") equals: TokenType ErrorIncompleteComment.
+        self assert: (self scanSingleToken: "\"\"") equals: TokenType EndOfSource.
+        self assert: (self scanSingleToken: "\"\"\"") equals: TokenType ErrorIncompleteComment.
+        self assert: (self scanSingleToken: "\"\"\"\"") equals: TokenType EndOfSource.
+    }.
+
+    test: testIdentifiers with: {
+        self assert: (self scanSingleToken: "A") equals: TokenType Identifier.
+        self assert: (self scanSingleTokenText: "A") asArraySlice equals: "A".
+
+        self assert: (self scanSingleToken: "_") equals: TokenType Identifier.
+        self assert: (self scanSingleTokenText: "_") asArraySlice equals: "_".
+
+        self assert: (self scanSingleToken: "a") equals: TokenType Identifier.
+        self assert: (self scanSingleTokenText: "a") asArraySlice equals: "a".
+
+        self assert: (self scanSingleToken: "hello") equals: TokenType Identifier.
+        self assert: (self scanSingleTokenText: "hello") asArraySlice equals: "hello".
+
+        self assert: (self scanSingleToken: "helloWorld01234") equals: TokenType Identifier.
+        self assert: (self scanSingleTokenText: "helloWorld01234") asArraySlice equals: "helloWorld01234".
+    }.
+
+    test: testKeywords with: {
+        self assert: (self scanSingleToken: "A:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "A:") asArraySlice equals: "A:".
+
+        self assert: (self scanSingleToken: "_:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "_:") asArraySlice equals: "_:".
+
+        self assert: (self scanSingleToken: "a:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "a:") asArraySlice equals: "a:".
+
+        self assert: (self scanSingleToken: "hello:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "hello:") asArraySlice equals: "hello:".
+
+        self assert: (self scanSingleToken: "helloWorld01234:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "helloWorld01234:") asArraySlice equals: "helloWorld01234:".
+
+        self assert: (self scanSingleToken: "helloWorld01234:A:a1:_:") equals: TokenType Keyword.
+        self assert: (self scanSingleTokenText: "helloWorld01234:A:a1:_:") asArraySlice equals: "helloWorld01234:A:a1:_:".
+    }.
+
+    test: testSymbolIdentifiers with: {
+        self assert: (self scanSingleToken: "#A") equals: TokenType SymbolIdentifier.
+        self assert: (self scanSingleTokenText: "#A") asArraySlice equals: "#A".
+
+        self assert: (self scanSingleToken: "#_") equals: TokenType SymbolIdentifier.
+        self assert: (self scanSingleTokenText: "#_") asArraySlice equals: "#_".
+
+        self assert: (self scanSingleToken: "#a") equals: TokenType SymbolIdentifier.
+        self assert: (self scanSingleTokenText: "#a") asArraySlice equals: "#a".
+
+        self assert: (self scanSingleToken: "#hello") equals: TokenType SymbolIdentifier.
+        self assert: (self scanSingleTokenText: "#hello") asArraySlice equals: "#hello".
+
+        self assert: (self scanSingleToken: "#helloWorld01234") equals: TokenType SymbolIdentifier.
+        self assert: (self scanSingleTokenText: "#helloWorld01234") asArraySlice equals: "#helloWorld01234".
+    }.
+
+    test: testSymbolKeyword with: {
+        self assert: (self scanSingleToken: "#A:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#A:") asArraySlice equals: "#A:".
+
+        self assert: (self scanSingleToken: "#_:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#_:") asArraySlice equals: "#_:".
+
+        self assert: (self scanSingleToken: "#a:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#a:") asArraySlice equals: "#a:".
+
+        self assert: (self scanSingleToken: "#hello:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#hello:") asArraySlice equals: "#hello:".
+
+        self assert: (self scanSingleToken: "#helloWorld01234:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#helloWorld01234:") asArraySlice equals: "#helloWorld01234:".
+
+        self assert: (self scanSingleToken: "#helloWorld01234:A:a1:_:") equals: TokenType SymbolKeyword.
+        self assert: (self scanSingleTokenText: "#helloWorld01234:A:a1:_:") asArraySlice equals: "#helloWorld01234:A:a1:_:".
+    }.
+
+    test: testSymbolOperator with: {
+        self assert: (self scanSingleToken: "#<") equals: TokenType SymbolOperator.
+        self assert: (self scanSingleTokenText: "#<") asArraySlice equals: "#<".
+
+        self assert: (self scanSingleToken: "#==") equals: TokenType SymbolOperator.
+        self assert: (self scanSingleTokenText: "#==") asArraySlice equals: "#==".
+
+        self assert: (self scanSingleToken: "#->") equals: TokenType SymbolOperator.
+        self assert: (self scanSingleTokenText: "#->") asArraySlice equals: "#->".
+
+        self assert: (self scanSingleToken: "#=>") equals: TokenType SymbolOperator.
+        self assert: (self scanSingleTokenText: "#=>") asArraySlice equals: "#=>".
+
+    }.
+
+    test: testIntegers with: {
+        self assert: (self scanSingleToken: "0") equals: TokenType Integer.
+        self assert: (self scanSingleTokenText: "0") asArraySlice equals: "0".
+
+        self assert: (self scanSingleToken: "0123456789") equals: TokenType Integer.
+        self assert: (self scanSingleTokenText: "0123456789") asArraySlice equals: "0123456789".
+
+        self assert: (self scanSingleToken: "+0123456789") equals: TokenType Integer.
+        self assert: (self scanSingleTokenText: "+0123456789") asArraySlice equals: "+0123456789".
+
+        self assert: (self scanSingleToken: "-0123456789") equals: TokenType Integer.
+        self assert: (self scanSingleTokenText: "-0123456789") asArraySlice equals: "-0123456789".
+
+        self assert: (self scanSingleToken: "32rHELLO012364WORLD") equals: TokenType Integer.
+        self assert: (self scanSingleTokenText: "32rHELLO012364WORLD") asArraySlice equals: "32rHELLO012364WORLD".
+    }.
+
+    test: testFloats with: {
+        self assert: (self scanSingleToken: "0.0") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "0.0") asArraySlice equals: "0.0".
+
+        self assert: (self scanSingleToken: "-0.0") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "-0.0") asArraySlice equals: "-0.0".
+
+        self assert: (self scanSingleToken: "-0e-53") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "-0e-53") asArraySlice equals: "-0e-53".
+
+        self assert: (self scanSingleToken: "0123456789.14565") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "0123456789.14565") asArraySlice equals: "0123456789.14565".
+
+        self assert: (self scanSingleToken: "0123456789.14565e+53") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "0123456789.14565e+53") asArraySlice equals: "0123456789.14565e+53".
+
+        self assert: (self scanSingleToken: "-0123456789.14565") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "-0123456789.14565") asArraySlice equals: "-0123456789.14565".
+
+        self assert: (self scanSingleToken: "-0123456789.14565e-53") equals: TokenType Float.
+        self assert: (self scanSingleTokenText: "-0123456789.14565e-53") asArraySlice equals: "-0123456789.14565e-53".
+    }.
+
+    test: testCharacter with: {
+        self assert: (self scanSingleToken: "$a") equals: TokenType Character.
+        self assert: (self scanSingleTokenText: "$a") asArraySlice equals: "$a".
+
+        self assert: (self scanSingleToken: "$$") equals: TokenType Character.
+        self assert: (self scanSingleTokenText: "$$") asArraySlice equals: "$$".
+
+        self assert: (self scanSingleToken: "$") equals: TokenType ErrorIncompleteCharacter.
+        self assert: (self scanSingleTokenText: "$") asArraySlice equals: "$".
+    }.
+
+    test: testString with: {
+        self assert: (self scanSingleToken: "''") equals: TokenType String.
+        self assert: (self scanSingleTokenText: "''") asArraySlice equals: "''".
+
+        self assert: (self scanSingleToken: "'a'") equals: TokenType String.
+        self assert: (self scanSingleTokenText: "'a'") asArraySlice equals: "'a'".
+
+        self assert: (self scanSingleToken: "''''") equals: TokenType String.
+        self assert: (self scanSingleTokenText: "''''") asArraySlice equals: "''''".
+
+        self assert: (self scanSingleToken: "'''") equals: TokenType ErrorIncompleteString.
+        self assert: (self scanSingleTokenText: "'''") asArraySlice equals: "'''".
+
+        self assert: (self scanSingleToken: "'std::string'") equals: TokenType String.
+        self assert: (self scanSingleTokenText: "'std::string'") asArraySlice equals: "'std::string'".
+    }.
+
+    test: testSymbolString with: {
+        self assert: (self scanSingleToken: "#''") equals: TokenType SymbolString.
+        self assert: (self scanSingleTokenText: "#''") asArraySlice equals: "#''".
+
+        self assert: (self scanSingleToken: "#'a'") equals: TokenType SymbolString.
+        self assert: (self scanSingleTokenText: "#'a'") asArraySlice equals: "#'a'".
+
+        self assert: (self scanSingleToken: "#''''") equals: TokenType SymbolString.
+        self assert: (self scanSingleTokenText: "#''''") asArraySlice equals: "#''''".
+
+        self assert: (self scanSingleToken: "#'''") equals: TokenType ErrorIncompleteSymbolString.
+        self assert: (self scanSingleTokenText: "#'''") asArraySlice equals: "#'''".
+
+        self assert: (self scanSingleToken: "#'std::string'") equals: TokenType SymbolString.
+        self assert: (self scanSingleTokenText: "#'std::string'") asArraySlice equals: "#'std::string'".
+    }.
+
+    test: testSpecialOperators with: {
+        self assert: (self scanSingleToken: ":") equals: TokenType Colon.
+        self assert: (self scanSingleToken: ":=") equals: TokenType Assignment.
+        self assert: (self scanSingleToken: "::") equals: TokenType ColonColon.
+    }.
+
+    test: testMacroOperators with: {
+        self assert: (self scanSingleToken: "`'") equals: TokenType Quote.
+        self assert: (self scanSingleToken: "``") equals: TokenType QuasiQuote.
+        self assert: (self scanSingleToken: "`,") equals: TokenType QuasiUnquote.
+        self assert: (self scanSingleToken: "`@") equals: TokenType Splice.
+    }.
+
+    test: testDelimiters with: {
+        self assert: (self scanSingleToken: ".") equals: TokenType Dot.
+        self assert: (self scanSingleToken: ";") equals: TokenType Semicolon.
+
+        self assert: (self scanSingleToken: "(") equals: TokenType LeftParent.
+        self assert: (self scanSingleToken: ")") equals: TokenType RightParent.
+        self assert: (self scanSingleToken: "[") equals: TokenType LeftBracket.
+        self assert: (self scanSingleToken: "]") equals: TokenType RightBracket.
+        self assert: (self scanSingleToken: "{") equals: TokenType LeftCurlyBracket.
+        self assert: (self scanSingleToken: "}") equals: TokenType RightCurlyBracket.
+
+        self assert: (self scanSingleToken: "#(") equals: TokenType LiteralArrayLeftParent.
+        self assert: (self scanSingleToken: "#[") equals: TokenType ByteArrayLeftBracket.
+        self assert: (self scanSingleToken: "#{") equals: TokenType DictionaryLeftBracket.
+    }.
+
+    test: testOperator with: {
+        self assert: (self scanSingleToken: "::=>") equals: TokenType LowPrecedenceBinaryOperator.
+        self assert: (self scanSingleToken: ",") equals: TokenType GenericBinaryOperator.
+        self assert: (self scanSingleToken: "=>") equals: TokenType GenericBinaryOperator.
+        self assert: (self scanSingleToken: "|") equals: TokenType BitwiseOr.
+        self assert: (self scanSingleToken: "^") equals: TokenType BitwiseXor.
+        self assert: (self scanSingleToken: "+") equals: TokenType Plus.
+        self assert: (self scanSingleToken: "-") equals: TokenType Minus.
+        self assert: (self scanSingleToken: "!") equals: TokenType LogicalNot.
+        self assert: (self scanSingleToken: "<") equals: TokenType LessThan.
+        self assert: (self scanSingleToken: ">") equals: TokenType GreaterThan.
+    }.
+}.
+
+} ## End of namespace Tests
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

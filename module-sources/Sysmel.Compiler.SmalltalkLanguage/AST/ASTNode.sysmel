@@ -1,0 +1,31 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+class ASTNode superclass: Stdn SharedObject; definition: {
+    public field sourcePosition type: SourceCodeRange.
+    field tokenRange type: TokenizedSourceCodeRange.
+
+    const method tokenRange => TokenizedSourceCodeRange const ref
+        := tokenRange.
+
+    method tokenRange: (range: TokenizedSourceCodeRange const ref) ::=> Void := {
+        tokenRange := range.
+        sourcePosition := SourceCodeRange()
+            sourceCollection: tokenRange sourceCollection _ sourceCode;
+            startPosition: tokenRange first position startPosition;
+            endPosition: tokenRange last position endPosition;
+            yourself
+    }.
+
+    abstract method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult.
+}.
+
+compileTime constant ASTNodePtr := ASTNode sharedPointer.
+compileTime constant ASTNodePtrList := Stdn Collections Vector(ASTNodePtr).
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

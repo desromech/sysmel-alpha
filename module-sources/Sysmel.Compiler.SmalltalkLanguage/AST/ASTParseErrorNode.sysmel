@@ -1,0 +1,47 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isParseErrorNode => Boolean8
+        := false.
+}.
+
+class ASTParseErrorNode superclass: ASTNode; definition: {
+    public field errorMessage type: Stdn String.
+
+    meta definition: {
+        static method atTokens: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Stdn String const ref) ::=> ASTNodePtr := {
+            let result := InstanceType sharedNew.
+            result _
+                tokenRange: tokenRange;
+                errorMessage: errorMessage.
+            result upCastFor: ASTNode
+        }.
+
+        static method atToken: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Stdn String const ref) ::=> ASTNodePtr
+            := self atTokens: (tokenRange until: 1) message: errorMessage.
+    }.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitParseErrorNode: self.
+
+    override const method isParseErrorNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitParseErrorNode: (node: ASTParseErrorNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitParseErrorNode: (node: ASTParseErrorNode ref) ::=> ASTVisitorResult := {
+        ASTVisitorResult()
+    }.
+}.
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

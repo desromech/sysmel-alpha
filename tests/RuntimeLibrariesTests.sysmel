@@ -26,14 +26,8 @@ compileTime if: OnlyRuntimeCoreTests not then: {
 			importIndirectModulesNamed: #(
 				#"Sysmel.Networking.Core.Tests"
 				#"Sysmel.Compiler.SysmelLanguage.Tests"
+				#"Sysmel.Compiler.SmalltalkLanguage.Tests"
 			).
-	}.
-
-	compileTime if: Compiler hasGarbageCollectedRuntime then: {
-	    Compiler importIndirectModulesNamed: #(
-			#"Smalltalk.GUI.Core.Tests"
-			#"Smalltalk.Interpreter.Tests"
-		).
 	}.
 }.
 

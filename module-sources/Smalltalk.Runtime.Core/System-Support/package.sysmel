@@ -1,3 +1,0 @@
-namespace Smalltalk definition: {
-    global Undeclared mutable := Dictionary new
-}.

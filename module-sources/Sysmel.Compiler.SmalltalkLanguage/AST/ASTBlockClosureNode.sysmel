@@ -1,0 +1,39 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isBlockClosureNode => Boolean8
+        := false.
+}.
+
+class ASTBlockClosureNode superclass: ASTNode; definition: {
+    public field arguments type: ASTNodePtrList.
+    public field returnType type: ASTNodePtr.
+    public field content type: ASTNodePtr.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitBlockClosureNode: self.
+
+    override const method isBlockClosureNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitBlockClosureNode: (node: ASTBlockClosureNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitBlockClosureNode: (node: ASTBlockClosureNode ref) ::=> ASTVisitorResult := {
+        self
+            visitNodeList: node arguments;
+            visitOptionalNode: node returnType;
+            visitNode: node content.
+    }.
+}.
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

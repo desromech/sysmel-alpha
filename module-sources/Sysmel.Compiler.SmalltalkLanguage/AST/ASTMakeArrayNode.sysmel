@@ -1,0 +1,35 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isMakeArrayNode => Boolean8
+        := false.
+}.
+
+class ASTMakeArrayNode superclass: ASTNode; definition: {
+    public field elements type: ASTNodePtrList.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitMakeArrayNode: self.
+
+    override const method isMakeArrayNode => Boolean8
+        := true.
+}.
+
+ASTVisitor extend: {
+    abstract method visitMakeArrayNode: (node: ASTMakeArrayNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitMakeArrayNode: (node: ASTMakeArrayNode ref) ::=> ASTVisitorResult := {
+        self
+            visitNodeList: node elements
+    }.
+}.
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

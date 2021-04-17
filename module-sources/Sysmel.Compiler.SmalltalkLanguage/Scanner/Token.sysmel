@@ -1,0 +1,90 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+enum TokenType valueType: UInt8; values: #{
+    Error:.
+    ErrorUnexpected:.
+    ErrorIncompleteComment:.
+    ErrorIncompleteCharacter:.
+    ErrorIncompleteString:.
+    ErrorIncompleteSymbolString:.
+
+    Float:. ## [+\-]?[0-9]+ \. [0-9]+ ([eE] [\+\-]? [0-9]+:.? ;
+    Integer:. ## [+\-]?[0-9]+ (r [0-9A-Za-z]+:.?;
+    Keyword:. ## ([_A-Za-z][_A-Za-z0-9]*\::.+;
+    Identifier:. ## [_A-Za-z][_A-Za-z0-9]* ;
+    String:. ## '(''|(^'))';
+    Character:. ## $.;
+    SymbolKeyword:. ## \#([_A-Za-z][_A-Za-z0-9]*\::.+ ;
+    SymbolIdentifier:. ## \#([_A-Za-z][_A-Za-z0-9]*:.+ ;
+    SymbolOperator:. ## \#[\+\-/\\\*~<>=@,%|&?!^]+ ;
+    SymbolString:. ## #'(''|(^'))';
+    LowPrecedenceBinaryOperator:. ## ::[\+\-/\\\*~<>=@,%|&?!^]+;
+    GenericBinaryOperator:. ## [\+\-/\\\*~<>=@,%|&?!^]+;
+
+    LogicalNot:. ## !
+    BitwiseNot:. ## ~
+    BitwiseOr:. ## |
+    BitwiseXor:. ## ^
+    Minus:. ## -
+    Plus:. ## +
+    LessThan:. ## <
+    GreaterThan:. ## >
+
+    Colon:. ## :
+    ColonColon:. ## ::
+    Assignment:. ## :=
+
+    Dot:. ## .
+    Semicolon:. ## ;
+    LeftParent:. ## (
+    RightParent:. ## ).
+    LeftBracket:. ## [
+    RightBracket:. ## ]
+    LeftCurlyBracket:. ## {
+    RightCurlyBracket:. ## }
+
+    LiteralArrayLeftParent:. ## #(
+    ByteArrayLeftBracket:. ## #[
+    DictionaryLeftBracket:. ## #{
+
+    Quote:. ## `'
+    QuasiQuote:. ## ``
+    QuasiUnquote:. ## `,
+    Splice:. ## `@
+
+    EndOfSource:.
+}; definition: {
+    SelfType makePrintable.
+
+    method isEndOfSource => Boolean8
+        := self = EndOfSource.
+
+    method isError => Boolean8
+        := self selectCase: #{
+        (Error, ErrorUnexpected, ErrorIncompleteComment, ErrorIncompleteCharacter, ErrorIncompleteString, ErrorIncompleteSymbolString) asValueInSetPattern
+            : true.
+        _ : false.
+        }.
+
+    method isBinaryOperator => Boolean8
+        := self selectCase: #{
+        (GenericBinaryOperator, LogicalNot, BitwiseNot, BitwiseOr, BitwiseXor, Minus, Plus, LessThan, GreaterThan) asValueInSetPattern
+            : true.
+        _ : false.
+        }.
+}.
+
+compileTime constant Token := GenericToken(TokenType).
+compileTime constant TokenList := Stdn Collections Vector(Token).
+
+compileTime constant TokenizedSourceCode := GenericTokenizedSourceCode(TokenType).
+compileTime constant TokenizedSourceCodePtr := TokenizedSourceCode sharedPointer.
+compileTime constant TokenizedSourceCodeRange := SourceCollectionRange(TokenizedSourceCode).
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

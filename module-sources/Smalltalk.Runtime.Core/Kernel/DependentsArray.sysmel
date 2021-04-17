@@ -1,9 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass DependentsArray weakSubclass superclass: Object; definition: {
-    field __data protected type: ProtoObject array.
-
-	__global Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
-}.
-
-}. ## End of namespace Smalltalk

@@ -1,0 +1,44 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+useNamespace: Sysmel Compiler Parsing.
+
+ASTNode extend: {
+    virtual const method isBinaryMessageSendSequenceNode => Boolean8
+        := false.
+
+    virtual const method isSingleMessageBinaryMessageSendSequenceNode => Boolean8
+        := false.
+}.
+
+class ASTBinaryMessageSendSequenceNode superclass: ASTNode; definition: {
+    public field isLowPrecedence type: Boolean8.
+    public field operands type: ASTNodePtrList.
+    public field selectors type: ASTNodePtrList.
+
+    override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
+        := visitor visitBinaryMessageSendSequenceNode: self.
+
+    override const method isBinaryMessageSendSequenceNode => Boolean8
+        := true.
+
+    override const method isSingleMessageBinaryMessageSendSequenceNode => Boolean8
+        := isLowPrecedence not && operands size = 2.
+}.
+
+ASTVisitor extend: {
+    abstract method visitBinaryMessageSendSequenceNode: (node: ASTBinaryMessageSendSequenceNode ref) ::=> ASTVisitorResult.
+}.
+
+ASTSequentialVisitor extend: {
+    override method visitBinaryMessageSendSequenceNode: (node: ASTBinaryMessageSendSequenceNode ref) ::=> ASTVisitorResult := {
+        self
+            visitNodeList: node operands;
+            visitNodeList: node selectors
+    }.
+}.
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

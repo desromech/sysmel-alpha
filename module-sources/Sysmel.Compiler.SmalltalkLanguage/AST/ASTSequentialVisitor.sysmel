@@ -1,0 +1,17 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+class ASTSequentialVisitor superclass: ASTVisitor; definition: {
+    method visitNodeList: (nodeList: ASTNodePtrList const ref) ::=> ASTVisitorResult := {
+        let result mutable := ASTVisitorResult().
+        nodeList do: {:each :: Void |
+            result := self visitNode: each _
+        }.
+        result
+    }.
+}.
+
+}. ## End of namespace SysmelLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

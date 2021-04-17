@@ -1,3 +1,0 @@
-loadFileOnce: "SpNorphicBackend.sysmel".
-loadFileOnce: "SpNorphicAdapterBindings.sysmel".
-loadFileOnce: "SpAbstractNorphicAdapter.sysmel".

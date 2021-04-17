@@ -1,0 +1,46 @@
+Compiler importModulesNamed: #(
+    #"Sysmel.Compiler.SmalltalkLanguage"
+).
+
+useNamespace: Sysmel Compiler Parsing.
+useNamespace: Sysmel Compiler SmalltalkLanguage.
+
+function parseAndVerifySourceCode(fileName: Stdn ImmutableString, content: Stdn String const ref) => Void := {
+    let sourceCode := SourceCode sharedNew.
+    sourceCode _
+        content: content;
+        name: fileName.
+
+    let tokenizedSourceCode := Scanner() scan: sourceCode.
+    tokenizedSourceCode _ tokens do: {:each :: Void |
+        each type isError ifTrue: {
+            Stdn stderr << each position << ": tokenization error: " << each type; nl
+        }.
+    }.
+
+    let ast := Parser() parse: tokenizedSourceCode.
+    ASTParseErrorCheckerVisitor verify: ast _ callback: {:parserErrorNode :: Void |
+        Stdn stderr << parserErrorNode sourcePosition << ": " << parserErrorNode errorMessage; nl
+    }.
+}.
+
+Stdn MainEntryPoint: {:args :: Int32 |
+    (args elements from: 1 until: args size) do: {:rawArg :: Void |
+        let arg := rawArg until: Stdn cstrlen(rawArg).
+
+        arg = "-" ifTrue: {
+            let contents := Stdn stdin readUntilEnd.
+            parseAndVerifySourceCode("stdin", contents)
+        } ifFalse: {
+            let contents := arg asNativeFileReference utf8Contents.
+            contents ifNil: {
+                Stdn stderr << "Failed to read content of file named " << arg; nl.
+                return: 1
+            }.
+
+            parseAndVerifySourceCode(arg, contents _)
+        }.
+    }.
+
+    0
+}.

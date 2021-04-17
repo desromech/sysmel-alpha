@@ -1,0 +1,25 @@
+namespace Sysmel definition: {
+namespace Compiler definition: {
+namespace SmalltalkLanguage definition: {
+
+compileTime constant ASTVisitorResult := Stdn Object sharedPointer.
+
+class ASTVisitor definition: {
+    method visitNode: (node: ASTNode ref) ::=> ASTVisitorResult
+        := node accept: self.
+
+    method visitNode: (node: ASTNodePtr const ref) ::=> ASTVisitorResult
+        := self visitNode: node _.
+
+    method visitOptionalNode: (node: ASTNodePtr const ref) ::=> ASTVisitorResult := {
+        node ifNil: {
+            return: ASTVisitorResult()
+        }.
+
+        self visitNode: node
+    }.
+}.
+
+}. ## End of namespace SmalltalkLanguage
+}. ## End of namespace Compiler
+}. ## End of namespace Sysmel

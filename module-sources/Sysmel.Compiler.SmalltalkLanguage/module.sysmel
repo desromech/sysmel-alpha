@@ -1,0 +1,7 @@
+Compiler
+    importModuleNamed: #"Sysmel.Compiler.Parsing";
+    loadPackages: #(
+        Scanner
+        Parser
+        AST
+    ).
