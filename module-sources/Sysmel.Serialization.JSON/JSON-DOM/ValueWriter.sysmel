@@ -58,6 +58,12 @@ Writer definition: {
                 textStreamWriter: out address;
                 putValue: value
         }.
+
+        static method valueToString: (value: Value const ref) ::=> Stdn String := {
+            Stdn String textStreamContents: {:out :: Void |
+                self writeValue: value onTextStream: out
+            }
+        }.
     }.
 }.
 

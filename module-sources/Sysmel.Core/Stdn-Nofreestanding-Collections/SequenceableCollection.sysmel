@@ -126,6 +126,36 @@ macro method SequenceableCollectionMixin := ``{
 
         const method copyUpToLast: (value: ValueType const ref) ::=> SelfType
             := self copyFrom: 0 until: (self lastIndexOf: value).
+
+        const method startsWith: (sequence: ValueType const arraySlice) ::=> Boolean8 := {
+            self size < sequence size ifTrue: {
+                return: false
+            }.
+
+            0 until: sequence size do: {:i :: Void |
+                self[i] = sequence[i] ifFalse: {
+                    return: false
+                }
+            }.
+
+            return: true
+        }.
+
+        const method endsWith: (sequence: ValueType const arraySlice) ::=> Boolean8 := {
+            self size < sequence size ifTrue: {
+                return: false
+            }.
+
+            let startIndex := self size - sequence size.
+            0 until: sequence size do: {:i :: Void |
+                self[startIndex + i] = sequence[i] ifFalse: {
+                    return: false
+                }
+            }.
+
+            return: true
+        }.
+
     }.
 }.
 

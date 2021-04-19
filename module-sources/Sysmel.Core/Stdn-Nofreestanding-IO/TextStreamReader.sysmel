@@ -10,14 +10,14 @@ class TextStreamReader definition: {
     public field stream type: Stream pointer.
     field characterBuffer type: Int32.
 
+    method initialize => Void := {
+        characterBuffer := -1
+    }.
+
     meta method for: (stream: Stream pointer) ::=> SelfType
         := SelfType newValue
             stream: stream;
             yourself.
-
-    method initialize => Void := {
-        characterBuffer := -1
-    }.
 
     method peekChar8 => Int32 := {
         characterBuffer < 0 ifTrue: {
@@ -111,6 +111,72 @@ class TextStreamReader definition: {
         }.
         newline = '\n' ifTrue: {
             self nextChar8
+        }.
+
+        line
+    }.
+
+    method nextBytes: (byteCount: UIntPointer) ::=> Stdn ByteVector := {
+        byteCount = 0 ifTrue: {
+            return: Stdn ByteVector()
+        }.
+
+        let result mutable := Stdn ByteVector().
+        result resizeTo: byteCount.
+
+        let destPosition mutable type: UIntPointer := 0.
+        characterBuffer >= 0 ifTrue: {
+            result[0] := characterBuffer castTo: UInt8.
+            destPosition := destPosition + 1.
+            characterBuffer := -1
+        }.
+
+        let remainingSize := byteCount - destPosition.
+        remainingSize > 0 ifTrue: {
+            let readedCount := stream _ read: result[destPosition] address size: remainingSize.
+            readedCount >= 0 ifTrue: {
+                destPosition := destPosition + (readedCount castTo: UIntPointer)
+            }.
+        }.
+
+        result resizeTo: destPosition.
+        return: result asMoveReference
+    }.
+
+    method nextString: (stringLength: UIntPointer) ::=> Stdn String := {
+        stringLength = 0 ifTrue: {
+            return: Stdn String()
+        }.
+
+        let result mutable := Stdn String().
+        result resizeTo: stringLength.
+
+        let destPosition mutable type: UIntPointer := 0.
+        characterBuffer >= 0 ifTrue: {
+            result[0] := characterBuffer castTo: Char8.
+            destPosition := destPosition + 1.
+            characterBuffer := -1
+        }.
+
+        let remainingSize := stringLength - destPosition.
+        remainingSize > 0 ifTrue: {
+            let readedCount := stream _ read: result[destPosition] address size: remainingSize.
+            readedCount >= 0 ifTrue: {
+                destPosition := destPosition + (readedCount castTo: UIntPointer)
+            }.
+        }.
+
+        result resizeTo: destPosition.
+        return: result asMoveReference
+    }.
+
+    method nextLineWithDelimiter: (delimiter: Stdn ImmutableString) ::=> Stdn String := {
+        let line mutable := Stdn String().
+        while: {
+            let nextChar := self peekChar8.
+            nextChar >= 0 && (line endsWith: delimiter) not
+        } do: {
+            line add: (self nextChar8 castTo: Char8)
         }.
 
         line

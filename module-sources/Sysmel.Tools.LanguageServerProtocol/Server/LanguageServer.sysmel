@@ -1,0 +1,129 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace LanguageServerProtocol definition: {
+
+useNamespace: Stdn Serialization.
+
+class LanguageServer definition: {
+    public field inputReader type: Stdn IO TextStreamReader pointer.
+    public field outputWriter type: Stdn IO TextStreamWriter pointer.
+
+    method setForStdio => Void := {
+        inputReader := Stdn stdin address.
+        outputWriter := Stdn stdout address.
+    }.
+
+    method run => Void := {
+        let request mutable := MessagePtr nil.
+        while: (request := self readNextRequest) isNotNil  do: {
+            self processRequest: request
+        }
+    }.
+
+    method readNextRequest ::=> MessagePtr := {
+        let header mutable := MessageHeader().
+        (header readFrom: inputReader _) ifFalse: {
+            return: MessagePtr nil
+        }.
+
+        header hasContentLength ifFalse: {
+            return: MessagePtr nil
+        }.
+
+        let message := Message sharedNew.
+        header isJsonRequest ifTrue: {
+            let jsonString := inputReader _ nextString: header contentLength.
+            message _ jsonContent: (JSON ValueParser parseString: jsonString)
+        } ifFalse: {
+            message _ binaryContent: (inputReader _ nextBytes: header contentLength)
+        }.
+
+        message _ header: header.
+        message
+    }.
+
+    method processRequest: (request: MessagePtr const ref) ::=> Void := {
+        request _ header isJsonRequest ifFalse: {
+            return: void
+        }.
+
+        let requestObject ref := (request _ jsonContent get: DOM ObjectPtr) _.
+        let version := requestObject getString: "jsonrpc" asMutableString.
+        Stdn assert: version asArraySlice = "2.0".
+        let rpcMethod := requestObject getString: "method" asMutableString.
+        let params := requestObject getObject: "params" asMutableString.
+
+        requestObject at: "id" asMutableString ifPresent: {:(DOM Value const ref)id :: Void |
+            self processRequest: id name: rpcMethod asArraySlice params: params _
+        } ifAbsent: {
+            self processNotification: rpcMethod asArraySlice params: params _
+        }.
+    }.
+
+    method doProcessRequest: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> DOM Value := {
+        methodName selectCase: #{
+        _ : {
+            let error mutable type: JsonRpcError.
+            error
+                code: -32601;
+                message: (Stdn String textStreamContents: {:out :: Void |
+                    out << "Unimplemented method '" << methodName << "'."
+                });
+                signal.
+        }
+        }.
+
+        DOM Value()
+    }.
+
+    method doProcessNotification: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+    }.
+
+    method processRequest: (id: DOM Value const ref) name: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+        let response := DOM Object sharedNew.
+        response _
+            at: "jsonrpc" asMutableString put: "2.0" asMutableString;
+            at: "id" asMutableString put: id.
+
+        try: {
+            try: {
+                response _
+                    at: "result" asMutableString put: (self doProcessRequest: methodName params: params)
+            } catch: JsonRpcError doing: {:exception :: Void |
+                let error := DOM Object sharedNew.
+                error _
+                    at: "code" asMutableString put: exception code;
+                    at: "message" asMutableString put: exception message.
+                response _
+                    at: "error" asMutableString put: error.
+            }.
+        } catch: Stdn Error doing: {:exception :: Void |
+            let error := DOM Object sharedNew.
+            error _
+                at: "code" asMutableString put: -32000; ## Server specific error
+                at: "message" asMutableString put: exception messageText asMutableString.
+            response _
+                at: "error" asMutableString put: error.
+        }.
+
+        let encodedResponse := JSON Writer valueToString: response.
+        outputWriter _
+            << "Content-Length: " << (encodedResponse size + 2); crlf;
+            << "Content-Type: application/vscode-jsonrpc; charset=utf-8"; crlf;
+            crlf;
+            << encodedResponse; crlf;
+            flush.
+    }.
+
+    method processNotification: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+        try: {
+            self doProcessNotification: methodName params: params
+        } catch: Stdn Error doing: {:exception :: Void |
+            Stdn stderr << "Caught error during notification processing: " << exception; nl.
+        }.
+    }.
+}.
+
+}. ## End of namespace LanguageServerProtocol
+}. ## End of namespace Tools
+}. ## End of namespace Sysmel

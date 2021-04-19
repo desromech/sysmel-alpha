@@ -1,0 +1,61 @@
+namespace Sysmel definition: {
+namespace Tools definition: {
+namespace LanguageServerProtocol definition: {
+
+class MessageHeader definition: {
+    compileTime constant Delimiter := "\r\n".
+
+    public field hasContentLength type: Boolean8.
+    public field contentLength type: UIntPointer.
+
+    public field hasContentType type: Boolean8.
+    public field contentType type: Stdn String.
+
+    method readFrom: (input: Stdn IO TextStreamReader ref) ::=> Boolean8 := {
+        let line mutable := Stdn String().
+
+        do:
+        {
+            line := input nextLineWithDelimiter: Delimiter.
+        } while: (line endsWith: Delimiter) && (line size > 2) && (self parseLine: (line data until: line size - 2)).
+
+        line asArraySlice = Delimiter
+    }.
+
+    method isJsonRequest => Boolean8
+        := hasContentType not || (contentType startsWith: "application/vscode-jsonrpc").
+
+    method parseLine: (line: Stdn ImmutableString) ::=> Boolean8 := {
+        let colonPosition mutable type: UIntPointer := 0.
+        while: colonPosition < line size && line[colonPosition] ~= ':' do: {
+            colonPosition := colonPosition + 1
+        }.
+        colonPosition >= line size ifTrue: {
+            return: false
+        }.
+
+        let headerName := line elements until: colonPosition.
+        let valueStartPosition mutable := colonPosition + 1.
+        while: valueStartPosition < line size && line[valueStartPosition] <= ' ' do: {
+            valueStartPosition := valueStartPosition + 1
+        }.
+
+        let headerValue := line elements from: valueStartPosition until: line size.
+        headerName selectCase: #{
+        "Content-Length" : {
+            contentLength := headerValue parseUInt32.
+            hasContentLength := true.
+        }.
+        "Content-Type" : {
+            contentType := headerValue.
+            hasContentType := true.
+        }.
+        _ : {}
+        }.
+        true
+    }
+}.
+
+}. ## End of namespace LanguageServerProtocol
+}. ## End of namespace Tools
+}. ## End of namespace Sysmel
