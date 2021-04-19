@@ -260,6 +260,17 @@ MbndAstEvaluator >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitGetFieldReferenceNode: node [
+	| aggregate |
+	aggregate := self visitNode: node aggregate.
+	^ MbndValue value: (MbndAggregateFieldReferenceValue new
+		aggregate: aggregate unwrapMbndValue;
+		slotIndex: node field slotIndex;
+		type: node field valueType;
+		yourself) type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitGlobalVariableDefinitionNode: node [
 	self assert: node binding isNotNil.
 	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
@@ -501,13 +512,18 @@ MbndAstEvaluator >> visitTemplateDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitTemporaryVariableNode: node [
-	| defaultValue |
+	| defaultValue result |
 	defaultValue := node valueType defaultValueAt: node.
 	defaultValue isAggregateTypeInstanceValue ifTrue: [
-		^ MbndValue value: defaultValue copy type: node type
+		result := MbndValue value: defaultValue copy type: node type
+	] ifFalse: [ 
+		self halt.
 	].
 
-	self halt
+	node hasInitialization ifTrue: [
+		result evaluateInitializationAt: node
+	].
+	^ result
 ]
 
 { #category : #visiting }

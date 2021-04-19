@@ -75,6 +75,15 @@ MbndAbstractValue >> encodeGraphForMessagePackWith: graphEncoder [
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractValue >> evaluateInitializationAt: aPosition [
+	| baseType |
+	baseType := self type withoutReferences withoutTopDecorations.
+	baseType hasTrivialInitialization ifTrue: [ ^ self ].
+	
+	baseType initializeMethod evaluateApplicationWithReceiver: self arguments: #() withEvaluator: self createEvaluator at: aPosition
+]
+
 { #category : #evaluation }
 MbndAbstractValue >> evaluateReference [
 	self assert: self type isReferenceType.

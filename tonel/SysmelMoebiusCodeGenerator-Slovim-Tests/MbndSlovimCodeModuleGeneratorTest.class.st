@@ -9743,6 +9743,46 @@ global testGlobal externC mutable type: PackedStructure';
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithCompileTime [
+	| global |
+	self
+		evaluateSysmelSource: '
+class TextStreamReader definition: {
+    public field stream type: Void pointer.
+    field characterBuffer type: Int32.
+
+    method initialize => Void := {
+        characterBuffer := -1
+    }.
+
+    meta method for: (stream: Void pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            yourself.
+}.
+
+global stream externC mutable type: Int32.
+global streamReader externC mutable := TextStreamReader for: stream address.
+';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #stream.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isIntegerType.
+	self assert: global initialValue isNotNil.
+
+	global := ssaModule globalNamed: #streamReader.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: global initialValue slots first isConstantExpressionBitCast.
+	self assert: global initialValue slots second isConstantValue.
+	self assert: global initialValue slots second value equals: -1.
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithConstructor [
 	| global ctor globalCtor |
 	self
