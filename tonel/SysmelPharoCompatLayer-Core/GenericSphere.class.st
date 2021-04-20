@@ -22,7 +22,7 @@ GenericSphere class >> typeOfGenericSlotNamed: slotName [
 
 { #category : #comparing }
 GenericSphere >> = other [
-	^ center = other center and: [ radius = other radius ]
+	^ self class == other class and: [center = other center and: [ radius = other radius ]]
 ]
 
 { #category : #accessing }
@@ -33,6 +33,17 @@ GenericSphere >> center [
 { #category : #accessing }
 GenericSphere >> center: anObject [
 	center := anObject implicitCastTo: self class vector3Type
+]
+
+{ #category : #'as yet unclassified' }
+GenericSphere >> distanceWithShape: otherShape [
+	^ otherShape distanceWithSphere: self
+	
+]
+
+{ #category : #'as yet unclassified' }
+GenericSphere >> distanceWithSphere: sphere [
+	^ (center - sphere center) length - radius - sphere radius max: 0
 ]
 
 { #category : #comparing }
@@ -48,4 +59,9 @@ GenericSphere >> radius [
 { #category : #accessing }
 GenericSphere >> radius: anObject [
 	radius := anObject implicitCastTo: self class scalarType
+]
+
+{ #category : #accessing }
+GenericSphere >> support: direction [
+	^ direction normalized * radius + center
 ]

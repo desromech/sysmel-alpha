@@ -46,3 +46,28 @@ GenericGeometricShape class >> ray3dType [
 GenericGeometricShape class >> rectangleType [
 	^ rectangleType ifNil: [ rectangleType := self environment at: (#Rectangle , self scalarType shortCapitalTypeSuffix) asSymbol  ]
 ]
+
+{ #category : #'as yet unclassified' }
+GenericGeometricShape >> distanceWithConvexShape: convexShape [
+	^ GJK distanceFrom: self supportFunction to: convexShape supportFunction
+]
+
+{ #category : #'as yet unclassified' }
+GenericGeometricShape >> distanceWithShape: otherShape [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+GenericGeometricShape >> distanceWithSphere: sphere [
+	^ self distanceWithConvexShape: sphere
+]
+
+{ #category : #accessing }
+GenericGeometricShape >> support: direction [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+GenericGeometricShape >> supportFunction [
+	^ [ :dir | self support: dir ]
+]

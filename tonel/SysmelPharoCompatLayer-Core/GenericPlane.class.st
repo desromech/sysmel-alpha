@@ -137,8 +137,18 @@ GenericPlane >> isBehind: point [
 ]
 
 { #category : #'as yet unclassified' }
+GenericPlane >> isBehindOrInside: point [
+	^ (self pointDistance: point) <= 0
+]
+
+{ #category : #'as yet unclassified' }
 GenericPlane >> isInFront: point [
 	^ (self pointDistance: point) > 0
+]
+
+{ #category : #'as yet unclassified' }
+GenericPlane >> isInFrontOrInside: point [
+	^ (self pointDistance: point) >= 0
 ]
 
 { #category : #arithmetic }
