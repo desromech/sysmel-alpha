@@ -162,6 +162,11 @@ GenericBox >> center [
 ]
 
 { #category : #'as yet unclassified' }
+GenericBox >> computeNormalForPoint: point [
+	^ (self computePenetrationNormalAndDistanceForPoint: point) first
+]
+
+{ #category : #'as yet unclassified' }
 GenericBox >> computePenetrationNormalAndDistanceForPoint: point [
 	| delta deltaAbsolute normal penetrationDistance |
 	delta := point - self center.
