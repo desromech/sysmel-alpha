@@ -33,9 +33,9 @@ Geometry class >> closestPointInTetrahedronA: a B: b C: c D: d to: point [
 	
 	p1 := PlaneF32 point: a point: b point: c.
 	(p1 isBehind: d) ifTrue: [
-		^ self closestPointInTetrahedronA: a B: b C: c D: d to: point
+		^ self doClosestPointInTetrahedronA: a B: b C: c D: d to: point
 	] ifFalse: [
-		^ self closestPointInTetrahedronA: b B: a C: c D: d to: point
+		^ self doClosestPointInTetrahedronA: b B: a C: c D: d to: point
 	].
 ]
 

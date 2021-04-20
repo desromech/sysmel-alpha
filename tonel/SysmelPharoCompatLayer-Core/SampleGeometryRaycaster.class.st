@@ -12,11 +12,36 @@ SampleGeometryRaycaster class >> exampleBox [
 ]
 
 { #category : #'as yet unclassified' }
+SampleGeometryRaycaster class >> exampleBoxGJK [
+	^ self new
+		rayCastSupportFunction: BoxF32 unitBox supportFunction
+		color: Color yellow darker asFloat32x3
+]
+
+{ #category : #'as yet unclassified' }
+SampleGeometryRaycaster class >> exampleEllipsoidGJK [
+	^ self new
+		rayCastSupportFunction: (EllipsoidF32 new
+			radiuses: (Float32x3 x: 1.0 y: 0.5 z: 0.3);
+			supportFunction)
+		color: Color yellow darker asFloat32x3
+]
+
+{ #category : #'as yet unclassified' }
 SampleGeometryRaycaster class >> exampleSphere [
 	^ self new
 		rayCastShape: (SphereF32 new
 			radius: 1.0;
 			yourself)
+		color: Color yellow darker asFloat32x3
+]
+
+{ #category : #'as yet unclassified' }
+SampleGeometryRaycaster class >> exampleSphereGJK [
+	^ self new
+		rayCastSupportFunction: (SphereF32 new
+			radius: 1.0;
+			supportFunction)
 		color: Color yellow darker asFloat32x3
 ]
 
@@ -73,6 +98,20 @@ SampleGeometryRaycaster >> rayCastShape: shape color: color [
 			| intersectionPoint normal NdotV |
 			intersectionPoint := ray pointAtDistance: t.
 			normal := shape computeNormalForPoint: intersectionPoint.
+			NdotV := (ray direction negated dot: normal) max: 0.0.
+			Float32x4 xyz: NdotV*color w: 1.0.
+		].
+	]
+]
+
+{ #category : #'as yet unclassified' }
+SampleGeometryRaycaster >> rayCastSupportFunction: supportFunction color: color [
+	^ self rayCastAndShadeWith: [:ray |
+		(GJK ray: ray castFor: supportFunction) ifNil: [
+			Float32x4 x: 0.2 y: 0.2 z: 0.5 w: 1.0
+		] ifNotNil: [:distanceAndNormal |
+			| normal NdotV |
+			normal := distanceAndNormal second normalized.
 			NdotV := (ray direction negated dot: normal) max: 0.0.
 			Float32x4 xyz: NdotV*color w: 1.0.
 		].
