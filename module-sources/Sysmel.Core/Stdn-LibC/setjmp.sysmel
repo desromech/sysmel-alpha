@@ -49,4 +49,21 @@ compileTime if: Compiler compilationTarget isWindowsFamily then: {
         exceptionLongjmpFunction: _longjmp.
 }.
 
+compileTime if: Compiler compilationTarget isWebAssembly then: {
+    struct JmpBuffer definition: {
+        public field jb type: (UInt64 array: 6).
+        public field fl type: UInt64.
+        public field ss type: (UInt8 array: 128).
+    }.
+
+    function setjmp externC returnsTwice(jmpBuffer: JmpBuffer ref) => Int32.
+    function longjmp externC noReturn(jmpBuffer: JmpBuffer ref, value: Int32) => Void.
+    compileTime constant _setjmp := setjmp.
+    compileTime constant _longjmp := longjmp.
+
+    Compiler compilationTarget
+        exceptionSetjmpFunction: _setjmp;
+        exceptionLongjmpFunction: _longjmp.
+}.
+
 }. ## End of namespace LibC

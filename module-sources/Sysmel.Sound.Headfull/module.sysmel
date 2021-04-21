@@ -9,3 +9,10 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
             #"Sysmel.Sound.Driver.SDL2"
         )
 }.
+
+compileTime if: Compiler compilationTarget isWebAssembly then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Sysmel.Sound.Driver.SDL2"
+        )
+}.

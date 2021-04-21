@@ -1,21 +1,13 @@
 namespace Stdn definition: {
 DiskFileSystem definition: {
-    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8 := {
-        let statBuffer mutable type: Unix Stat.
-        Unix stat(path asMutableString asCString, statBuffer address) = 0
-            && statBuffer isReg
-    }.
+    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8
+        := Unix sysmelUnix_stat_isFile(path elements, path size).
 
-    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8 := {
-        let statBuffer mutable type: Unix Stat.
-        Unix stat(path asMutableString asCString, statBuffer address) = 0
-            && statBuffer isDir
-    }.
+    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8
+        := Unix sysmelUnix_stat_isFile(path elements, path size).
 
-    override method exists: (path: Char8 const arraySlice) ::=> Boolean8 := {
-        let statBuffer mutable type: Unix Stat.
-        Unix stat(path asMutableString asCString, statBuffer address) = 0
-    }.
+    override method exists: (path: Char8 const arraySlice) ::=> Boolean8
+        := Unix sysmelUnix_stat_exists(path elements, path size).
 
     override method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void := {
         path ifEmpty: {return: void}.

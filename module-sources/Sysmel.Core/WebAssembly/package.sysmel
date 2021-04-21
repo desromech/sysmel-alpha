@@ -1,3 +1,4 @@
 Compiler loadPackage: #"Unix".
 loadFileOnce: "../NullOS/Threads.sysmel".
+loadFileOnce: "../NullOS/NativeVirtualMemoryInterface.sysmel".
 loadFileOnce: "emscripten.sysmel".

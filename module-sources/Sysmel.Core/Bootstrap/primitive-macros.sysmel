@@ -48,7 +48,7 @@ namespace SysmelKernel definition: {
 
     ## alignedTo:
     _PrimitiveIntegerType macro method alignedTo: alignment := ``(
-        (`,self + `,alignment - 1) & (`,alignment negated castTo: `,SelfType)
+        (`,self + `,alignment - 1 castTo: `,SelfType) & (`,alignment negated castTo: `,SelfType)
     ).
 
     ## isAlignedTo:

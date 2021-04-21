@@ -1,14 +1,14 @@
 namespace GPU definition: {
 
-function __sysmel_sampleTextureImplicitLod externC(sampler: Void pointer, texture: Void pointer, texcoord: Float32x4) => Float32x4 := {
+function __sysmel_sampleTextureImplicitLod externC CVariadic (sampler: Void pointer, texture: Void pointer, texcoord: Float32x4) => Float32x4 := {
     Float32x4 ones.
 }.
 
-function __sysmel_sampleTextureExplicitLod externC(sampler: Void pointer, texture: Void pointer, texcoord: Float32x4, lod: Float32) => Float32x4 := {
+function __sysmel_sampleTextureExplicitLod externC CVariadic(sampler: Void pointer, texture: Void pointer, texcoord: Float32x4, lod: Float32) => Float32x4 := {
     Float32x4 ones.
 }.
 
-function __sysmel_sampleTextureExplicitDerivatives externC(sampler: Void pointer, texture: Void pointer, texcoord: Float32x4, dtdx: Float32x4, dtdy: Float32x4) => Float32x4 := {
+function __sysmel_sampleTextureExplicitDerivatives externC CVariadic(sampler: Void pointer, texture: Void pointer, texcoord: Float32x4, dtdx: Float32x4, dtdy: Float32x4) => Float32x4 := {
     Float32x4 ones.
 }.
 

@@ -1,0 +1,9 @@
+Compiler addNativeLibraryDependency: #SysmelUnixApiBindings.
+
+namespace Unix definition: {
+
+function sysmelUnix_stat_isFile externC(filename: Char8 const pointer, filenameSize: UIntPointer) => Boolean8.
+function sysmelUnix_stat_isDirectory externC(filename: Char8 const pointer, filenameSize: UIntPointer) => Boolean8.
+function sysmelUnix_stat_exists externC(filename: Char8 const pointer, filenameSize: UIntPointer) => Boolean8.
+
+}.

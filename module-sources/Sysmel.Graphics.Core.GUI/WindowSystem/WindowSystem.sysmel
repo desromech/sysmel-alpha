@@ -86,7 +86,7 @@ class WindowSystem superclass: SharedObject; definition: {
             mainLoopStartTicks := Stdn Chrono now().
 
             compileTime if: Compiler compilationTarget isWebAssembly then: {
-                Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, targetFrameRate castTo: Int32, 1).
+                Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, 0, 1).
             } else: {
 
                 until: self isQuitting do: {

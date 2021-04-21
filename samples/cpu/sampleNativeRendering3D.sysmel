@@ -506,7 +506,7 @@ class Sample definition: {
 		## Create the camera state buffer and binding
 		{
 			cameraStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
-				size: (CameraTransformationState instanceSize alignedTo: 256);
+				size: ((CameraTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 				heapType: MemoryHeapType HostToDevice;
 				usageModes: BufferUsageMode Uniform;
 				mainUsageMode: BufferUsageMode Uniform;
@@ -539,7 +539,7 @@ class Sample definition: {
 				yourself.
 
 			planeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
-				size: (ObjectTransformationState instanceSize alignedTo: 256);
+				size: ((ObjectTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 				heapType: MemoryHeapType HostToDevice;
 				usageModes: BufferUsageMode Uniform;
 				mainUsageMode: BufferUsageMode Uniform;
@@ -617,7 +617,7 @@ class Sample definition: {
 					yourself.
 
 				cubeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
-					size: (ObjectTransformationState instanceSize alignedTo: 256);
+					size: ((ObjectTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 					heapType: MemoryHeapType HostToDevice;
 					usageModes: BufferUsageMode Uniform;
 					mainUsageMode: BufferUsageMode Uniform;
