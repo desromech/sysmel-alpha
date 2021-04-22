@@ -755,7 +755,10 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities name: theTargetCodeModuleName [
 	sourceModule := aModule.
 	ssaModule := SLVMModule new compilationTarget: self slvmCompilationTarget.
-	ssaModule sourceLanguageName: 'C++'. "HACK"
+	ssaModule
+		name: aModule name;
+		sourceFilename: aModule mainSourceFileName;
+		sourceLanguageName: 'C++'. "HACK"
 	theTargetCodeModuleName ifNotNil: [ aModule namedTargetCodeModules at: theTargetCodeModuleName put: ssaModule ].
 	targetCodeModuleName := theTargetCodeModuleName.
 	

@@ -15,7 +15,8 @@ Trait {
 		'specialStructures',
 		'entitiesWithPendingDefinitionFragments',
 		'addedGCClasses',
-		'addedClasses'
+		'addedClasses',
+		'mainSourceFileName'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -172,6 +173,9 @@ TMbndModule >> evaluateFileNamedOnce: fileName [
 	| fileReference parsedSource |
 	fileReference := fileName asFileReference asAbsolute canonicalize.
 	(self evaluatedFileSet includes: fileReference) ifTrue: [ ^ self ].
+	mainSourceFileName ifNil: [
+		mainSourceFileName := fileReference fullName
+	].
 	
 	self evaluatedFileSet add: fileReference.
 	parsedSource := self parseFileNamed: fileReference.
@@ -323,6 +327,18 @@ TMbndModule >> languageInterfaceCache [
 TMbndModule >> lookupSymbol: aSymbol [
 	aSymbol = #Compiler ifTrue: [ ^ self compilationEnvironment ].
 	^ nil
+]
+
+{ #category : #accessing }
+TMbndModule >> mainSourceFileName [
+
+	^ mainSourceFileName
+]
+
+{ #category : #accessing }
+TMbndModule >> mainSourceFileName: anObject [
+
+	mainSourceFileName := anObject
 ]
 
 { #category : #accessing }
