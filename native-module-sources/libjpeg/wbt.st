@@ -3,7 +3,7 @@ self platform name selectCase: {
         self importLibrary: 'jpeg' fromDebianPackage: 'libjpeg-turbo8-dev'.
     ].
     #osx -> [
-
+        self importLibrary: 'jpeg'
     ].
     #windows -> [
         | folder |

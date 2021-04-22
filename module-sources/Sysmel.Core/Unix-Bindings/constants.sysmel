@@ -104,6 +104,78 @@ namespace Unix definition: {
         compileTime constant CLOCK_THREAD_CPUTIME_ID := 3.
     }.
 
+    if: Compiler compilationTarget isOSX then: {
+        ## fcntl.h
+        compileTime constant O_RDONLY := 16r00000000.
+        compileTime constant O_WRONLY := 16r00000001.
+        compileTime constant O_RDWR := 16r00000002.
+        compileTime constant O_CREAT := 16r00000200.
+        compileTime constant O_EXCL := 16r00000800.
+        compileTime constant O_NOCTTY := 16r00020000.
+        compileTime constant O_TRUNC := 16r00000400.
+        compileTime constant O_APPEND := 16r00000008.
+        compileTime constant O_NONBLOCK := 16r00000004.
+        compileTime constant O_NDELAY := 16r00000004.
+        compileTime constant O_SYNC := 16r00000080.
+        compileTime constant O_FSYNC := 16r00000080.
+        compileTime constant O_ASYNC := 16r00000040.
+        compileTime constant O_DIRECTORY := 16r00100000.
+        compileTime constant O_NOFOLLOW := 16r00000100.
+        compileTime constant O_CLOEXEC := 16r01000000.
+        compileTime constant O_DSYNC := 16r00400000.
+        ## sys/mman.h
+        compileTime constant PROT_NONE := 16r00000000.
+        compileTime constant PROT_READ := 16r00000001.
+        compileTime constant PROT_WRITE := 16r00000002.
+        compileTime constant PROT_EXEC := 16r00000004.
+        compileTime constant MAP_SHARED := 16r00000001.
+        compileTime constant MAP_PRIVATE := 16r00000002.
+        compileTime constant MAP_ANON := 16r00001000.
+        compileTime constant MAP_ANONYMOUS := 16r00001000.
+        compileTime constant MAP_FILE := 16r00000000.
+        compileTime constant MAP_FIXED := 16r00000010.
+        compileTime constant MAP_NORESERVE := 16r00000040.
+        ## sys/socket.h
+        compileTime constant SHUT_RD := 0.
+        compileTime constant SHUT_WR := 1.
+        compileTime constant SHUT_RDWR := 2.
+        compileTime constant AF_UNIX := 1.
+        compileTime constant AF_LOCAL := 1.
+        compileTime constant AF_INET := 2.
+        compileTime constant AF_INET6 := 30.
+        compileTime constant SOCK_STREAM := 1.
+        compileTime constant SOCK_DGRAM := 2.
+        compileTime constant SOCK_SEQPACKET := 5.
+        compileTime constant SOCK_RAW := 3.
+        compileTime constant SOL_SOCKET := 65535.
+        compileTime constant SO_ACCEPTCONN := 2.
+        compileTime constant SO_BROADCAST := 32.
+        compileTime constant SO_DEBUG := 1.
+        compileTime constant SO_ERROR := 4103.
+        compileTime constant SO_DONTROUTE := 16.
+        compileTime constant SO_KEEPALIVE := 8.
+        compileTime constant SO_LINGER := 128.
+        compileTime constant SO_OOBINLINE := 256.
+        compileTime constant SO_RCVBUF := 4098.
+        compileTime constant SO_RCVLOWAT := 4100.
+        compileTime constant SO_SNDLOWAT := 4099.
+        compileTime constant SO_RCVTIMEO := 4102.
+        compileTime constant SO_SNDTIMEO := 4101.
+        compileTime constant SO_REUSEADDR := 4.
+        compileTime constant SO_REUSEPORT := 512.
+        compileTime constant SO_SNDBUF := 4097.
+        compileTime constant SO_TIMESTAMP := 1024.
+        compileTime constant SO_TYPE := 4104.
+        compileTime constant IPPROTO_IP := 0.
+        compileTime constant IPPROTO_UDP := 17.
+        compileTime constant IPPROTO_TCP := 6.
+        compileTime constant IPPROTO_IPV6 := 41.
+        compileTime constant CLOCK_REALTIME := 0.
+        compileTime constant CLOCK_MONOTONIC := 6.
+        compileTime constant CLOCK_PROCESS_CPUTIME_ID := 12.
+        compileTime constant CLOCK_THREAD_CPUTIME_ID := 16.
+    }.
+
     if: Compiler compilationTarget isWebAssembly then: {
         compileTime constant O_RDONLY := 16r00000000.
         compileTime constant O_WRONLY := 16r00000001.

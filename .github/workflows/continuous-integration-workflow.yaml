@@ -9,21 +9,12 @@ jobs:
             matrix:
                 variant:
                     - os: ubuntu-18.04
-                      llc: llc-9
                       platformName: linux64
                     - os: macos-latest
-                      llc: llc
                       platformName: osx
         env:
-            LLC: ${{ matrix.variant.llc }}
             PLATFORM_NAME: ${{ matrix.variant.platformName }}
-            CC: clang
-            CXX: clang++
         steps:
-            - name: Install dependencies homebrew
-              if: matrix.variant.os == 'macos-latest'
-              run: brew install llvm
-
             - uses: actions/checkout@v1
 
             - name: Image loading

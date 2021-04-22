@@ -1,4 +1,11 @@
 namespace Unix definition: {
-    function open64 externC CVariadic (path: ConstString, flags: Int32) => Int32.
-    compileTime constant open := open64.
+    compileTime if: Compiler compilationTarget isLinux || Compiler compilationTarget isWebAssembly then: {
+        function open64 externC CVariadic (path: ConstString, flags: Int32) => Int32.
+        compileTime constant open := open64.
+    }.
+    
+    compileTime if: Compiler compilationTarget isOSX then: {
+        function open externC CVariadic (path: ConstString, flags: Int32) => Int32.
+        compileTime constant open64 := open.
+    }.
 }.

@@ -3,7 +3,7 @@ self platform name selectCase: {
         self importLibrary: 'SDL2' fromDebianPackage: 'libsdl2-dev'.
     ].
     #osx -> [
-
+        self importLibrary: 'SDL2-2.0'
     ].
     #windows -> [
         | folder |

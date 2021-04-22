@@ -1,3 +1,6 @@
 self staticLibrary: 'SysmelUnixApiBindings' with: [:lib |
-    lib source: 'stat.c'
+    lib sources: #(
+        'dirent.c'
+        'stat.c'
+    )
 ]

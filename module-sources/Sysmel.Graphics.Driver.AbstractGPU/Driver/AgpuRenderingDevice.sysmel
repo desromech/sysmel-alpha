@@ -183,7 +183,14 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let pso := builder _ build.
         pso ifNil: {
-            return: PipelineStatePtr nil.
+            let buildingLog mutable := Stdn String().
+            let logLength := builder _ getBuildingLogLength.
+            buildingLog resizeTo: logLength.
+            builder _ getBuildingLog: logLength buffer: buildingLog data.
+
+            Stdn stderr << "Failed to build compute pipeline state:"; nl.
+            Stdn stderr << buildingLog; nl.
+            return: PipelineStatePtr nil
         }.
 
         let result := AgpuComputePipelineState sharedNew.
@@ -256,6 +263,13 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let pso := builder _ build.
         pso ifNil: {
+            let buildingLog mutable := Stdn String().
+            let logLength := builder _ getBuildingLogLength.
+            buildingLog resizeTo: logLength.
+            builder _ getBuildingLog: logLength buffer: buildingLog data.
+
+            Stdn stderr << "Failed to build graphics pipeline state:"; nl.
+            Stdn stderr << buildingLog; nl.
             return: PipelineStatePtr nil.
         }.
 

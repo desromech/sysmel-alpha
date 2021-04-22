@@ -3,7 +3,7 @@ self platform name selectCase: {
         self importLibrary: 'png' fromDebianPackage: 'libpng-dev'.
     ].
     #osx -> [
-
+        self importLibrary: 'png'
     ].
     #windows -> [
         | folder |

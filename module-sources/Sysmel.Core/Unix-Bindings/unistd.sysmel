@@ -60,8 +60,13 @@ namespace Unix definition: {
         newdirfd: Int, newpath: ConstString, flags: Int) => Int.
     function lockf externC (fd: Int, cmd: Int, len: OFF_T) => Int.
     function lseek externC (fd: Int, offset: OFF_T, whence: Int) => OFF_T.
-    function lseek64 externC (fd: Int, offset: OFF64_T, whence: Int) => OFF64_T.
     function nice externC (inc: Int) => Int.
+
+    compileTime if: Compiler compilationTarget isOSX then: {
+        compileTime constant lseek64 := lseek.
+    } else: {
+        function lseek64 externC (fd: Int, offset: OFF64_T, whence: Int) => OFF64_T.
+    }.
 
     function pathconf externC (path: ConstString, name: Int) => Long.
     function pause externC () => Int.

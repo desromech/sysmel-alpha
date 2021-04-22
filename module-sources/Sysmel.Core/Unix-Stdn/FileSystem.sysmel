@@ -23,7 +23,8 @@ DiskFileSystem definition: {
         try: {
             let dirent mutable type: Unix dirent64 pointer.
             while: (dirent := Unix readdir64(dir)) isNotNil do: {
-                let entryName := dirent _ d_name[0] address until: Stdn cstrlen(dirent _ d_name[0] address).
+                let d_name := Unix sysmelUnix_dirent64_d_name(dirent).
+                let entryName := d_name[0] address until: Stdn cstrlen(d_name[0] address).
 
                 entryName = "." || entryName = ".." ifFalse: {
                     iterationBlock(self makeFileReferenceWithPath: (prefix -- entryName) asArraySlice)
