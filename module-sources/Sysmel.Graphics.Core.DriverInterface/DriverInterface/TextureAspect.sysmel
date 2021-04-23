@@ -6,7 +6,8 @@ namespace Core definition: {
  * Texture type.
  * The values of these constants are the same as the ones that exposed in agpu.
  *#
-enum TextureAspect valueType: UInt8; values: #{
+enum TextureAspect bitMask valueType: UInt8; values: #{
+    None: 0.
     Color: 1<<0.
     Depth: 1<<1.
     Stencil: 1<<3.

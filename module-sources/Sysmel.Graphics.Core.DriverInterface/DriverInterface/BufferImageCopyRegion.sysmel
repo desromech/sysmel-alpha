@@ -9,9 +9,11 @@ useNamespace: Stdn Math Geometry.
  *#
 struct BufferImageCopyRegion definition: {
     public field bufferOffset type: UIntPointer.
-    public field bufferRowLength type: UIntPointer.
-    public field bufferImageHeight type: UIntPointer.
-    public field textureSubResourceRange type: TextureSubResourceRange.
+    public field bufferPitch type: UIntPointer.
+    public field bufferSlicePitch type: UIntPointer.
+
+    public field textureUsageMode type: TextureUsageMode.
+    public field textureSubResourceLevel type: TextureSubResourceLevel.
     public field textureRegion type: BoxI32.
 }.
 

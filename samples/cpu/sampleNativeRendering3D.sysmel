@@ -238,12 +238,13 @@ class Sample definition: {
 		commandList _
 			resetFor: commandListAllocator;
 			useShaderSignature: shaderSignature;
-			usePipelineState: renderingPipelineState;
-			useGraphicShaderBindings: cameraStateBinding;
 
 			beginRenderPass: mainRenderPass on: mainFrameBuffer contentOnBundle: false;
 			setViewport: (RectangleI32 min: Int32x2 zeros max: (mainFrameBufferExtent castTo: Int32x2));
-			setScissor: (RectangleI32 min: Int32x2 zeros max: (mainFrameBufferExtent castTo: Int32x2)).
+			setScissor: (RectangleI32 min: Int32x2 zeros max: (mainFrameBufferExtent castTo: Int32x2));
+
+			usePipelineState: renderingPipelineState;
+			useGraphicShaderBindings: cameraStateBinding.
 
 		commandList _ useGraphicShaderBindings: planeObjectStateBinding.
 		planeMesh _ drawWith: commandList _.

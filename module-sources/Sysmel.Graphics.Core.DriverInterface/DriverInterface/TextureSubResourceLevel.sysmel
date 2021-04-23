@@ -3,12 +3,11 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * Texture sub resource range.
+ * Texture sub resource level.
  *#
-struct TextureSubResourceRange definition: {
+struct TextureSubResourceLevel definition: {
     public field aspect type: TextureAspect.
-    public field baseMipLevel type: UInt32.
-    public field levelCount type: UInt32.
+    public field level type: UInt32.
     public field baseArrayLayer type: UInt32.
     public field layerCount type: UInt32.
 }.

@@ -11,10 +11,25 @@ useNamespace: Stdn Math Geometry.
 sealed class AgpuTexture superclass: Texture; definition: {
     public field handle type: AGPU TextureRef.
     public field creationDescription type: TextureDescription.
+    public field creationAspect type: TextureAspect.
 
     protected field fullTextureView type: TextureViewPtr.
     protected field fullTextureViewOnceFlag type: Stdn OnceFlag.
 
+    method inferCreationAspect => Void := {
+        creationAspect := TextureAspect Color.
+        (creationDescription usageModes anyMask: TextureUsageMode DepthAttachment | TextureUsageMode StencilAttachment) ifTrue:{
+            creationAspect := TextureAspect None.
+            
+            (creationDescription usageModes anyMask: TextureUsageMode DepthAttachment) ifTrue: {
+                creationAspect := creationAspect | TextureAspect Depth
+            }.
+
+            (creationDescription usageModes anyMask: TextureUsageMode StencilAttachment) ifTrue: {
+                creationAspect := creationAspect | TextureAspect Stencil
+            }
+        }.
+    }.
 
     override method description => TextureDescription
         := creationDescription.
@@ -49,10 +64,11 @@ sealed class AgpuTexture superclass: Texture; definition: {
             type: creationDescription type;
             format: creationDescription format;
             sampleCount: creationDescription sampleCount;
+            usageMode: creationDescription mainUsageMode;
             subresourceRange: (TextureSubResourceRange()
-                usageModes: creationDescription mainUsageMode;
+                aspect: creationAspect;
                 levelCount: creationDescription miplevels;
-                layerCount: (creationDescription layers > 1 ifTrue: creationDescription layers ifFalse: 0u);
+                layerCount: creationDescription layers;
                 yourself);
             components: creationDescription mainViewComponents;
             yourself
@@ -62,6 +78,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
         let convertedViewDescription mutable := AGPU TextureViewDescription()
             type: (viewDescription type castTo: AGPU TextureType);
             format: (viewDescription format castTo: AGPU TextureFormat);
+            usage_mode: (viewDescription usageMode castTo: AGPU TextureUsageModeMask);
             sample_count: viewDescription sampleCount;
             components: (AGPU ComponentsSwizzle()
                 r: (viewDescription components r castTo: AGPU ComponentSwizzle);
@@ -69,8 +86,8 @@ sealed class AgpuTexture superclass: Texture; definition: {
                 b: (viewDescription components b castTo: AGPU ComponentSwizzle);
                 a: (viewDescription components a castTo: AGPU ComponentSwizzle);
                 yourself);
-            subresource_range: (AGPU SubresourceRange()
-                usage_mode: (viewDescription subresourceRange usageModes castTo: AGPU TextureUsageModeMask);
+            subresource_range: (AGPU TextureSubresourceRange()
+                aspect: (viewDescription subresourceRange aspect castTo: AGPU TextureAspect);
                 base_miplevel: viewDescription subresourceRange baseMipLevel;
                 level_count: viewDescription subresourceRange levelCount;
                 base_arraylayer: viewDescription subresourceRange baseArrayLayer;

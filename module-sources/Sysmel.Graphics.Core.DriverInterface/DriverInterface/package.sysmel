@@ -8,6 +8,7 @@ loadFileOnce: "CompareFunction.sysmel".
 loadFileOnce: "ComputePipelineStateDescription.sysmel".
 loadFileOnce: "DepthStencilValue.sysmel".
 loadFileOnce: "GraphicsPipelineStateDescription.sysmel".
+loadFileOnce: "ImageCopyRegion.sysmel".
 loadFileOnce: "MappingAccessMask.sysmel".
 loadFileOnce: "MemoryHeapType.sysmel".
 loadFileOnce: "PipelineStageMask.sysmel".
@@ -31,6 +32,7 @@ loadFileOnce: "TextureAspect.sysmel".
 loadFileOnce: "TextureDescription.sysmel".
 loadFileOnce: "TextureFilter.sysmel".
 loadFileOnce: "TextureSubResourceRange.sysmel".
+loadFileOnce: "TextureSubResourceLevel.sysmel".
 loadFileOnce: "TextureUsageMode.sysmel".
 loadFileOnce: "TextureViewDescription.sysmel".
 loadFileOnce: "VertexAttributeDescription.sysmel".

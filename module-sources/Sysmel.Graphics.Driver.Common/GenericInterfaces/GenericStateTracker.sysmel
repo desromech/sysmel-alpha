@@ -447,16 +447,16 @@ class GenericStateTracker superclass: StateTracker; definition: {
         commandList _ buffer: buffer offset: offset size: size memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
         commandList _ texture: texture subresourceRange: subresourceRange memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
     }.
 
-    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void := {
-        commandList _ pushBuffer: buffer transitionBarrierInto: newUsageMode
+    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
+        commandList _ pushBuffer: buffer transitionBarrierFrom: oldUsageMode into: newUsageMode
     }.
 
-    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
-        commandList _ pushTexture: texture subresourceRange: subresourceRange transitionBarrierInto: newUsageMode
+    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+        commandList _ pushTexture: texture subresourceRange: subresourceRange transitionBarrierFrom: oldUsageMode into: newUsageMode
     }.
 
     override method popBufferTransitionBarrier ::=> Void := {
@@ -471,12 +471,16 @@ class GenericStateTracker superclass: StateTracker; definition: {
         commandList _ copyFromBuffer: sourceBuffer offset: sourceOffset into: destBuffer offset: destOffset size: copySize
     }.
 
-    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
         commandList _ copyFromBuffer: sourceBuffer intoTexture: destTexture region: copyRegion
     }.
 
-    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
         commandList _ copyFromTexture: sourceTexture intoBuffer: destBuffer region: copyRegion
+    }.
+
+    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
+        commandList _ copyFromTexture: sourceTexture intoTexture: destTexture region: copyRegion
     }.
 
     override method dumpToFileNamed: (fileName: Char8 const pointer) ::=> Void := {

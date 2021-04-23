@@ -11,10 +11,25 @@ useNamespace: Stdn Math Geometry.
  *#
 class SoftTexture superclass: Texture; definition: {
     protected field description type: TextureDescription.
+    protected field aspect type: TextureAspect.
     protected field fullTextureView type: TextureViewPtr.
 
     virtual method initializeWithDescription: (theDescription: TextureDescription const ref) ::=> Boolean8 := {
         description := theDescription.
+        
+        aspect := TextureAspect Color.
+        (theDescription usageModes anyMask: TextureUsageMode DepthAttachment | TextureUsageMode StencilAttachment) ifTrue:{
+            aspect := TextureAspect None.
+            
+            (theDescription usageModes anyMask: TextureUsageMode DepthAttachment) ifTrue: {
+                aspect := aspect | TextureAspect Depth
+            }.
+
+            (theDescription usageModes anyMask: TextureUsageMode StencilAttachment) ifTrue: {
+                aspect := aspect | TextureAspect Stencil
+            }
+        }.
+
         true
     }.
 
@@ -54,8 +69,9 @@ class SoftTexture superclass: Texture; definition: {
             type: description type;
             format: description format;
             sampleCount: description sampleCount;
+            usageMode: description mainUsageMode;
             subresourceRange: (TextureSubResourceRange()
-                usageModes: description mainUsageMode;
+                aspect: aspect;
                 levelCount: description miplevels;
                 layerCount: description layers;
                 yourself);

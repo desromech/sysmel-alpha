@@ -110,7 +110,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         let result := AgpuTexture sharedNew.
         result _
             handle: textureHandle;
-            creationDescription: description.
+            creationDescription: description;
+            inferCreationAspect.
         result upCastFor: Texture
     }.
 
