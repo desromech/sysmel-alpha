@@ -96,6 +96,12 @@ GenericReversibleAffineTransform3d >> initialize [
 	inverseTranslation := self class vector3Type zeros.
 ]
 
+{ #category : #testing }
+GenericReversibleAffineTransform3d >> inverse [
+	^ self class basicNew
+		matrix: inverseMatrix inverseMatrix: matrix translation: inverseTranslation
+]
+
 { #category : #accessing }
 GenericReversibleAffineTransform3d >> inverseMatrix [
 	^ inverseMatrix

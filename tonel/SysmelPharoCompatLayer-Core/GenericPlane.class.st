@@ -73,6 +73,40 @@ GenericPlane >> = other [
 	^ normal = other normal and: [ distance = other distance ]
 ]
 
+{ #category : #'as yet unclassified' }
+GenericPlane >> classifyVertex: vertex epsilon: epsilon [
+	| d |
+	d := self pointDistance: vertex.
+	d < epsilon negated ifTrue: [ ^ #back ].
+	d > epsilon ifTrue: [ ^ #front ].
+	^ #inside
+]
+
+{ #category : #'as yet unclassified' }
+GenericPlane >> classifyVertices: vertices epsilon: epsilon [
+	| hasFront hasBack hasInside |
+	hasFront := false.
+	hasBack := false.
+	hasInside := false.
+	self assert: vertices isNotEmpty.
+	vertices do: [ :vertex |
+		| classification |
+		classification := self classifyVertex: vertex epsilon: epsilon.
+		classification == #inside ifTrue: [ hasInside := true ].
+		classification == #front ifTrue: [ hasFront := true ].
+		classification == #back ifTrue: [ hasBack := true ].
+		
+		(hasFront and: [hasBack]) ifTrue: [ ^ #frontAndBack ].
+	].
+
+	self assert: (hasFront and: [hasBack]) not. "Case already handled."
+	hasFront ifTrue: [ ^ #front ].
+	hasBack ifTrue: [ ^ #back ].
+	hasInside ifTrue: [ ^ #inside ].
+	self error: 'Case should not exists'.
+
+]
+
 { #category : #comparing }
 GenericPlane >> closeTo: other [
 	^ (normal closeTo: other normal) and: [ distance closeTo: other distance ]
@@ -188,10 +222,10 @@ GenericPlane >> printOn: aStream [
 ]
 
 { #category : #'as yet unclassified' }
-GenericPlane >> transformedWithAffineMatrix: matrix [
+GenericPlane >> transformedWith: transform [
 	| planeEquation transformedPlaneEquation transformedPlane |
-	planeEquation := self class vector4Type xyz: normal w: distance.
-	transformedPlaneEquation := planeEquation * matrix.
-	transformedPlane := self class normal: transformedPlaneEquation xyz distance: transformedPlaneEquation w.
+	planeEquation := self class vector4Type xyz: normal w: distance negated.
+	transformedPlaneEquation := transform inverseMatrix4 transpose * planeEquation.
+	transformedPlane := self class normal: transformedPlaneEquation xyz distance: transformedPlaneEquation w negated.
 	^ transformedPlane normalized
 ]

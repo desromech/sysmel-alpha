@@ -328,6 +328,11 @@ TMbndAbstractProgramEntity >> isVariable [
 TMbndAbstractProgramEntity >> markCompileTimeEvaluationImpossibility [
 ]
 
+{ #category : #accessing }
+TMbndAbstractProgramEntity >> methods [
+	^ self children select: [ :each | each isConcreteMethod ]
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> mustBeAvailableInTheGPU [
 	^ false
