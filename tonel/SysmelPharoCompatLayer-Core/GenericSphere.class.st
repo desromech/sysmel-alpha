@@ -101,3 +101,11 @@ GenericSphere >> radius: anObject [
 GenericSphere >> support: direction [
 	^ direction normalized * radius + center
 ]
+
+{ #category : #transforming }
+GenericSphere >> transformedWith: transform [
+	^ self class basicNew
+		center: (transform transformPosition: center);
+		radius: radius * transform maxScaleFactor;
+		yourself
+]

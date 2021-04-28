@@ -224,6 +224,13 @@ GenericBox >> depth [
 	^ max z - min z
 ]
 
+{ #category : #'as yet unclassified' }
+GenericBox >> distanceToPoint: point [
+	| delta |
+	delta := (point - self center) abs - self halfExtent max: 0.0.
+	^ delta length
+]
+
 { #category : #serialization }
 GenericBox >> encodeForJSON [
 	^ OrderedDictionary newFromPairs: {
@@ -295,6 +302,11 @@ GenericBox >> hasIntersectionWithBox: other [
 { #category : #'as yet unclassified' }
 GenericBox >> hasIntersectionWithRay: ray [
 	^ (self intersectionWithRay: ray) isNotNil.
+]
+
+{ #category : #testing }
+GenericBox >> hasIntersectionWithSphere: sphere [
+	^ (self distanceToPoint: sphere center) <= sphere radius
 ]
 
 { #category : #comparing }

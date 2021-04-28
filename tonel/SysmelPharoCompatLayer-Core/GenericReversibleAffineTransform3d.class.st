@@ -203,6 +203,11 @@ GenericReversibleAffineTransform3d >> matrix: newMatrix inverseMatrix: newInvers
 	inverseTranslation := inverseMatrix * translation negated
 ]
 
+{ #category : #accessing }
+GenericReversibleAffineTransform3d >> maxScaleFactor [
+	^ (self matrix firstColumn length max: matrix secondColumn length) max: matrix thirdColumn length
+]
+
 { #category : #testing }
 GenericReversibleAffineTransform3d >> orthonormal: newMatrix [
 	matrix := newMatrix implicitCastTo: self class matrix3x3Type.
@@ -255,6 +260,11 @@ GenericReversibleAffineTransform3d >> rotateRadiansOnZ: z [
 { #category : #'as yet unclassified' }
 GenericReversibleAffineTransform3d >> rotateRadiansOnZ: z y: y x: x [
 	self applyOrthonormalMatrix: (self class matrix3x3Type zyxRotation: (self class vector3Type x: z y: x z: y)).
+]
+
+{ #category : #'as yet unclassified' }
+GenericReversibleAffineTransform3d >> scale [
+	^ self class vector3Type x: matrix firstColumn length y: matrix secondColumn length z: matrix thirdColumn length
 ]
 
 { #category : #'as yet unclassified' }
