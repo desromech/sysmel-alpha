@@ -24,8 +24,8 @@ GenericRectangle class >> center: center halfExtent: halfExtent [
 { #category : #constructing }
 GenericRectangle class >> empty [
 	^ self basicNew
-		min: self vector3Type infinityOrMaxValue;
-		max: self vector3Type negativeInfinityOrMinValue;
+		min: self vector2Type infinityOrMaxValue;
+		max: self vector2Type negativeInfinityOrMinValue;
 		yourself
 ]
 
@@ -48,8 +48,8 @@ GenericRectangle class >> extent: extent [
 { #category : #constructing }
 GenericRectangle class >> fullSpace [
 	^ self basicNew
-		min: self vector3Type negativeInfinityOrMinValue;
-		max: self vector3Type infinityOrMaxValue;
+		min: self vector2Type negativeInfinityOrMinValue;
+		max: self vector2Type infinityOrMaxValue;
 		yourself
 ]
 
@@ -119,8 +119,28 @@ GenericRectangle >> asBox [
 ]
 
 { #category : #accessing }
+GenericRectangle >> bottomLeft [
+	^ min
+]
+
+{ #category : #accessing }
+GenericRectangle >> bottomRight [
+	^ self class vector2Type x: max x y: min y
+]
+
+{ #category : #accessing }
 GenericRectangle >> center [
 	^ min + ((max - min) / 2)
+]
+
+{ #category : #accessing }
+GenericRectangle >> corners [
+	^ {
+		self bottomLeft .
+		self bottomRight .
+		self topRight .
+		self topLeft .
+	}
 ]
 
 { #category : #serialization }
@@ -217,6 +237,16 @@ GenericRectangle >> reversibleTransform3dToConvertToMe: sourceRectangle [
 { #category : #'as yet unclassified' }
 GenericRectangle >> reversibleTransformToConvertUnitRectangleToMe [
 	^ self reversibleTransform3dToConvertToMe: self class unitRectangle
+]
+
+{ #category : #accessing }
+GenericRectangle >> topLeft [
+	^ self class vector2Type x: min x y: max y
+]
+
+{ #category : #accessing }
+GenericRectangle >> topRight [
+	^ max
 ]
 
 { #category : #transforming }
