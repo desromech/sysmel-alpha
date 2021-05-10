@@ -493,7 +493,7 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 Stdn MainEntryPoint: {:args :: Int32 |
 	let vsyncDisabled mutable := false.
 	args do: {:arg :: Void |
-		(arg until: Stdn cstrlen(arg)) selectCase: #{
+		arg selectCase: #{
 		"-no-vsync" : {
 			vsyncDisabled := true
 		}.

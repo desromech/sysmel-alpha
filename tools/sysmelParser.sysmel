@@ -35,7 +35,7 @@ function startLanguageServerOnStdio() => Void := {
 
 Stdn MainEntryPoint: {:args :: Int32 |
     for: (let i mutable type: UIntPointer := 1) while: (i < args size) do: {
-        let arg := args[i] until: Stdn cstrlen(args[i]).
+        let arg := args[i].
 
         arg selectCase: #{
         "-" : {
@@ -43,8 +43,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
             parseAndVerifySourceCode("stdin", contents)
         }.
         "-lang-server" : {
-            i := i + 1.
-            let endpointName := args[i] until: Stdn cstrlen(args[i]).
+            let endpointName := args[i := i + 1].
             endpointName = "stdio" ifTrue: {
                 startLanguageServerOnStdio()
             } ifFalse: {

@@ -172,7 +172,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
 	let sample mutable := Sample().
 
 	args do: {:arg :: Void |
-		(arg until: Stdn cstrlen(arg)) selectCase: #{
+		arg selectCase: #{
 		"-no-vsync" : {
 			sample vsyncDisabled: true
 		}.

@@ -25,8 +25,7 @@ function parseAndVerifySourceCode(fileName: Stdn ImmutableString, content: Stdn 
 }.
 
 Stdn MainEntryPoint: {:args :: Int32 |
-    (args elements from: 1 until: args size) do: {:rawArg :: Void |
-        let arg := rawArg until: Stdn cstrlen(rawArg).
+    (args elements from: 1 until: args size) do: {:arg :: Void |
 
         arg = "-" ifTrue: {
             let contents := Stdn stdin readUntilEnd.

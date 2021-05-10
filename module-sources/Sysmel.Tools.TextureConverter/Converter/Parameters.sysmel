@@ -49,9 +49,9 @@ struct Parameters definition: {
         }.
     }.
 
-    method parseFromCommandLine: (args: Char8 const pointer arraySlice) ::=> Boolean8 := {
+    method parseFromCommandLine: (args: Stdn ImmutableString const arraySlice) ::=> Boolean8 := {
         for: (let i mutable type: UIntPointer := 0) while: (i < args size) do: {
-            let arg := args[i] until: Stdn cstrlen(args[i]).
+            let arg := args[i].
             arg selectCase: #{
                 "-h" : {
                     self printHelpOnto: Stdn stdout.
@@ -82,23 +82,23 @@ struct Parameters definition: {
                 }.
 
                 "-min-mip-width" : {
-                    minMipLevelExtent x: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    minMipLevelExtent x: args[i := i + 1] parseUInt32
                 }.
                 "-min-mip-height" : {
-                    minMipLevelExtent y: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    minMipLevelExtent y: args[i := i + 1] parseUInt32
                 }.
                 "-min-mip-depth" : {
-                    minMipLevelExtent z: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    minMipLevelExtent z: args[i := i + 1] parseUInt32
                 }.
 
                 "-max-mip-width" : {
-                    maxMipLevelExtent x: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    maxMipLevelExtent x: args[i := i + 1] parseUInt32
                 }.
                 "-max-mip-height" : {
-                    maxMipLevelExtent y: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    maxMipLevelExtent y: args[i := i + 1] parseUInt32
                 }.
                 "-max-mip-depth" : {
-                    maxMipLevelExtent z: (LibC atoi(args[i := i + 1]) castTo: UInt32)
+                    maxMipLevelExtent z: args[i := i + 1] parseUInt32
                 }.
                 "-i" : {
                     inputFileName := args[i := i + 1].

@@ -11,7 +11,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
         return: 0
     }.
 
-    (parameters parseFromCommandLine: (args[1] address until: args size - 1)) ifFalse: {
+    (parameters parseFromCommandLine: (args elements from: 1 until: args size)) ifFalse: {
         parameters printHelpOnto: Stdn stderr.
         return: 1
     }.
