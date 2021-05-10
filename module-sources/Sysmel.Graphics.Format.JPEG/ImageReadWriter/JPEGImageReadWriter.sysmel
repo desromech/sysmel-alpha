@@ -6,6 +6,7 @@ useNamespace: Stdn Graphics Core.
 useNamespace: LibJPEG.
 
 compileTime constant JPEGInputBufferSize := 4096.
+compileTime constant JPEGOutputBufferSize := 4096.
 
 class JPEGError superclass: Error; definition: {
 
@@ -89,6 +90,58 @@ function setJpegStreamSource(cinfo: j_decompress_ptr, stream: Stdn IO Stream poi
     cinfo _ src: source _ pub address.
 }.
 
+struct JPEGStreamDestination definition: {
+    public field pub type: jpeg_destination_mgr.
+    public field stream type: Stdn IO Stream pointer.
+    public field buffer type: UInt8 pointer.
+}.
+
+function jpegInitDestination(cinfo: j_compress_ptr) => Void := {
+    let destination := cinfo _ dest reinterpretCastTo: JPEGStreamDestination pointer.
+    destination _ pub
+        next_output_byte: destination _ buffer;
+        free_in_buffer: JPEGOutputBufferSize.
+}.
+
+function jpegEmptyOutputBuffer(cinfo: j_compress_ptr) => Int32 := {
+    let destination := cinfo _ dest reinterpretCastTo: JPEGStreamDestination pointer.
+    let succeeded := (destination _ stream _ write: destination _ buffer size: JPEGOutputBufferSize) = JPEGOutputBufferSize.
+
+    destination _ pub
+        next_output_byte: destination _ buffer;
+        free_in_buffer: JPEGOutputBufferSize.
+    succeeded ifFalse: {
+        jpegErrorRaiseFunction(cinfo).
+    }.
+
+    1
+}.
+
+function jpegTermDestination(cinfo: j_compress_ptr) => Void := {
+    jpegEmptyOutputBuffer(cinfo).
+    let destination := cinfo _ dest reinterpretCastTo: JPEGStreamDestination pointer.
+
+    let toWriteCount := (JPEGOutputBufferSize castTo: UIntPointer) - destination _ pub free_in_buffer.
+    toWriteCount > 0 ifTrue: {
+        destination _ stream _ write: destination _ buffer size: toWriteCount.
+    }.
+
+    destination _ stream _ flush
+}.
+
+function setJpegStreamDestination(cinfo: j_compress_ptr, stream: Stdn IO Stream pointer) => Void := {
+    let destination := cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGStreamDestination instanceSize) reinterpretCastTo: JPEGStreamDestination pointer.
+    destination _
+        stream: stream;
+        buffer: (cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGOutputBufferSize) reinterpretCastTo: UInt8 pointer).
+    destination _ pub
+        init_destination: jpegInitDestination address;
+        empty_output_buffer: jpegEmptyOutputBuffer address;
+        term_destination: jpegTermDestination address.
+
+    cinfo _ dest: destination _ pub address.
+}.
+
 class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := extension = "jpeg" || extension = "jpg".
@@ -153,6 +206,90 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
 
         result
     }.
+
+    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        let cinfo mutable := jpeg_compress_struct().
+        let jerr mutable := jpeg_error_mgr().
+
+        cinfo err: jpeg_std_error(jerr address).
+        jerr error_exit: jpegErrorRaiseFunction address.
+
+        try:
+        {
+            jpeg_create_compress(cinfo address).
+
+
+            ## Create the source.
+            setJpegStreamDestination(cinfo address, outputStream address).
+
+            ## Set the compression parameters.
+            let sourceComponentCount := form pixelFormat componentCount.
+            let sourceBytesPerPixel := form pixelFormat bytesPerPixel.
+            let resultComponentCount := sourceComponentCount > 1 ifTrue: 3 ifFalse: 1.
+            let resultColorSpace := sourceComponentCount > 1 ifTrue: J_COLOR_SPACE JCS_RGB ifFalse: J_COLOR_SPACE JCS_GRAYSCALE.
+
+            cinfo
+                image_width: form width;
+                image_height: form height;
+                input_components: resultComponentCount;
+                in_color_space: resultColorSpace.
+            jpeg_set_defaults(cinfo address).
+
+            jpeg_start_compress(cinfo address, 1).
+
+            let rowPointer mutable type: JSAMPROW.
+
+            sourceComponentCount = 1 && sourceBytesPerPixel = 1 ||
+            sourceComponentCount = 3 && sourceBytesPerPixel = 3 ifTrue: {
+                while: cinfo next_scanline < cinfo image_height do: {
+                    rowPointer := form pixels getPointer + form pitch * cinfo next_scanline.
+                    jpeg_write_scanlines(cinfo address, rowPointer address, 1)
+                }.
+            } ifFalse: {
+                let scanlineData mutable type: UInt8 uniquePointer.
+                scanlineData reset: (Stdn zmalloc((resultComponentCount castTo: UIntPointer) * form width) reinterpretCastTo: UInt8 pointer).
+
+                while: cinfo next_scanline < cinfo image_height do: {
+                    let sourcePixel mutable := form pixels getPointer + form pitch * cinfo next_scanline.
+                    let destPixel mutable := scanlineData getPointer.
+
+                    0 until: form width do: {:x :: Void |
+                        let fetchedPixel := sourceComponentCount = sourceBytesPerPixel ifTrue: {
+                            let fetchedPixelComponents mutable type: (UInt8 array: 3).
+                            0 until: (sourceBytesPerPixel min: 3) do: {:i :: Void |
+                                fetchedPixelComponents[i] := sourcePixel[i]
+                            }.
+
+                            let swizzledPixel := form pixelFormat swizzleLoadedUnorm8x4: UInt8x4(fetchedPixelComponents[0], fetchedPixelComponents[1], fetchedPixelComponents[2], 255).
+                        } ifFalse: {
+                            let decodedPixel := form pixelFormat fetchFromMemory: sourcePixel.
+                            (decodedPixel * 255 + 0.5f clampMin: 0 max: 255) castTo: UInt8x4.
+                        }.
+
+                        sourceComponentCount = 1 ifTrue: {
+                            destPixel[0] := fetchedPixel r.
+                        } ifFalse: {
+                            destPixel[0] := fetchedPixel r.
+                            destPixel[1] := fetchedPixel g.
+                            destPixel[2] := fetchedPixel b.
+                        }.
+
+                        sourcePixel := sourcePixel + sourceBytesPerPixel.
+                        destPixel := destPixel + cinfo input_components.
+                    }.
+
+                    rowPointer := scanlineData getPointer.
+                    jpeg_write_scanlines(cinfo address, rowPointer address, 1)
+                }.
+            }.
+
+            jpeg_finish_compress(cinfo address).
+        } catch: JPEGError doing: {:e :: Void |
+        } finally: {
+            jpeg_destroy_compress(cinfo address).
+        }.
+    }.
+
 }.
 
 global JPEGImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(JPEGImageReadWriter).
