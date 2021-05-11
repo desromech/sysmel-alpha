@@ -439,6 +439,7 @@ function jpeg_finish_decompress externC(cinfo: j_decompress_ptr) => Int32.
 
 
 function jpeg_set_defaults externC(cinfo: j_compress_ptr) => Void.
+function jpeg_set_quality externC(cinfo: j_compress_ptr, quality: Int32, force_baseline: JBoolean) => Void.
 function jpeg_start_compress externC(cinfo: j_compress_ptr, write_all_tables: JBoolean) => Void.
 function jpeg_write_scanlines externC(cinfo: j_compress_ptr, scanlines: JSAMPARRAY, num_lines: JDIMENSION) => Void.
 function jpeg_finish_compress externC(cinfo: j_compress_ptr) => Void.

@@ -234,6 +234,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
                 input_components: resultComponentCount;
                 in_color_space: resultColorSpace.
             jpeg_set_defaults(cinfo address).
+            jpeg_set_quality(cinfo address, 90, 0).
 
             jpeg_start_compress(cinfo address, 1).
 

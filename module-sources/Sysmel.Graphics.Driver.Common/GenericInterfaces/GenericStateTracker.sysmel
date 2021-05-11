@@ -447,8 +447,8 @@ class GenericStateTracker superclass: StateTracker; definition: {
         commandList _ buffer: buffer offset: offset size: size memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
-        commandList _ texture: texture subresourceRange: subresourceRange memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+        commandList _ texture: texture subresourceRange: subresourceRange memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses transitionFrom: oldUsageMode into: newUsageMode
     }.
 
     override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {

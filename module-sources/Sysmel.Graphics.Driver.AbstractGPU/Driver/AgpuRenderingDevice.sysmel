@@ -23,7 +23,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     private field minTexelBufferOffsetAlignment type: UIntPointer.
     private field minUniformBufferOffsetAlignment type: UIntPointer.
     private field minStorageBufferOffsetAlignment type: UIntPointer.
-
+    private field minTextureDataOffsetAlignment type: UIntPointer.
+    private field minTextureDataPitchAlignment type: UIntPointer.
+    
     method initializeWithHandle: (theHandle: AGPU DeviceRef const ref) platformHandle: (thePlatformHandle: AGPU Platform pointer) ::=> Void := {
         handle := theHandle.
         platformHandle := thePlatformHandle.
@@ -33,6 +35,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         minTexelBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinTexelBufferOffsetAlignment) castTo: UIntPointer.
         minUniformBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinUniformBufferOffsetAlignment) castTo: UIntPointer.
         minStorageBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinStorageBufferOffsetAlignment) castTo: UIntPointer.
+        minTextureDataOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinTextureDataOffsetAlignment) castTo: UIntPointer.
+        minTextureDataPitchAlignment := (handle _ getLimitValue: AGPU Limit MinTextureDataPitchAlignment) castTo: UIntPointer.
 
         {
             let defaultCommandQueueHandle := handle _ getDefaultCommandQueue.
@@ -579,6 +583,12 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         := minUniformBufferOffsetAlignment.
     override method minStorageBufferOffsetAlignment => UIntPointer
         := minStorageBufferOffsetAlignment.
+
+    override method minTextureDataOffsetAlignment => UIntPointer
+        := minTextureDataOffsetAlignment.
+
+    override method minTextureDataPitchAlignment => UIntPointer
+        := minTextureDataPitchAlignment.
 
     override method createShaderSignatureCache => ShaderSignatureCachePtr := {
         let result := GenericShaderSignatureCache sharedNew.

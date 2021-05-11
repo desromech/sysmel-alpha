@@ -295,7 +295,7 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
 
     }.
 

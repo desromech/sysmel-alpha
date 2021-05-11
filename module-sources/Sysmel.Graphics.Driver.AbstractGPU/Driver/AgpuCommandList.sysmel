@@ -201,8 +201,21 @@ class AgpuCommandList superclass: CommandList; definition: {
         }.
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
-
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+        let agpuTexture := texture getPointer castTo: AgpuTexture pointer.
+        agpuTexture ifNotNil: {
+            let subresourceRange mutable := AGPU TextureSubresourceRange()
+	            aspect: (subresourceRange aspect castTo: AGPU TextureAspect);
+                base_miplevel: (subresourceRange baseMipLevel castTo: UInt32);
+                level_count: (subresourceRange levelCount castTo: UInt32);
+                base_arraylayer: (subresourceRange baseArrayLayer castTo: UInt32);
+                layer_count: (subresourceRange layerCount castTo: UInt32);
+                yourself.
+            handle _ textureMemoryBarrier: agpuTexture _ handle
+                sourceStage: (sourceStage castTo: AGPU PipelineStageFlags) destStage: (destStage castTo: AGPU PipelineStageFlags)
+                sourceAccesses: (sourceAccesses castTo: AGPU AccessFlags) destAccesses: (destAccesses castTo: AGPU AccessFlags)
+                oldUsage: (oldUsageMode castTo: AGPU TextureUsageModeMask) newUsage: (newUsageMode castTo: AGPU TextureUsageModeMask) subresourceRange: subresourceRange address
+        }.
     }.
 
     override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
@@ -213,7 +226,17 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
-
+        let agpuTexture := texture getPointer castTo: AgpuTexture pointer.
+        agpuTexture ifNotNil: {
+            let subresourceRange mutable := AGPU TextureSubresourceRange()
+	            aspect: (subresourceRange aspect castTo: AGPU TextureAspect);
+                base_miplevel: (subresourceRange baseMipLevel castTo: UInt32);
+                level_count: (subresourceRange levelCount castTo: UInt32);
+                base_arraylayer: (subresourceRange baseArrayLayer castTo: UInt32);
+                layer_count: (subresourceRange layerCount castTo: UInt32);
+                yourself.
+            handle _ pushTextureTransitionBarrier: agpuTexture _ handle oldUsage: (oldUsageMode castTo: AGPU TextureUsageModeMask) newUsage: (newUsageMode castTo: AGPU TextureUsageModeMask) subresourceRange: subresourceRange address
+        }.
     }.
 
     override method popBufferTransitionBarrier ::=> Void := {
@@ -225,19 +248,108 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
-
+        let agpuSourceBuffer := sourceBuffer getPointer castTo: AgpuBuffer pointer.
+        let agpuDestBuffer := destBuffer getPointer castTo: AgpuBuffer pointer.
+        agpuSourceBuffer isNotNil && agpuDestBuffer isNotNil ifTrue: {
+            handle _ copyBuffer: agpuSourceBuffer _ handle  sourceOffset: (sourceOffset castTo: UInt32)
+                destBuffer: agpuDestBuffer _ handle destOffset: (destOffset castTo: UInt32) copySize: (copySize castTo: UInt32)
+        }.
     }.
 
     override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
-
+        let agpuDestTexture := destTexture getPointer castTo: AgpuTexture pointer.
+        let agpuSourceBuffer := sourceBuffer getPointer castTo: AgpuBuffer pointer.
+        agpuSourceBuffer isNotNil && agpuDestTexture isNotNil ifTrue: {
+            let copyRegion mutable := AGPU BufferImageCopyRegion()
+                buffer_offset: (copyRegion bufferOffset castTo: UInt32);
+                buffer_pitch: (copyRegion bufferPitch castTo: UInt32);
+                buffer_slice_pitch: (copyRegion bufferSlicePitch castTo: UInt32);
+                texture_usage_mode: (copyRegion textureUsageMode castTo: AGPU TextureUsageModeMask);
+                texture_subresource_level: (AGPU TextureSubresourceLevel()
+                    aspect: (copyRegion textureSubResourceLevel aspect castTo: AGPU TextureAspect);
+                    miplevel: (copyRegion textureSubResourceLevel level castTo: UInt32);
+                    base_arraylayer: (copyRegion textureSubResourceLevel baseArrayLayer castTo: UInt32);
+                    layer_count: (copyRegion textureSubResourceLevel layerCount castTo: UInt32);
+                    yourself);
+                texture_region: (AGPU Region3d()
+                    x: (copyRegion textureRegion min x castTo: UInt32);
+                    y: (copyRegion textureRegion min y castTo: UInt32);
+                    z: (copyRegion textureRegion min z castTo: UInt32);
+                    width: (copyRegion textureRegion width castTo: UInt32);
+                    height: (copyRegion textureRegion height castTo: UInt32);
+                    depth: (copyRegion textureRegion depth castTo: UInt32);
+                    yourself);
+                yourself.
+            handle _ copyBufferToTexture: agpuSourceBuffer _ handle texture: agpuDestTexture _ handle copyRegion: copyRegion address
+        }
     }.
 
     override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
-
+        let agpuSourceTexture := sourceTexture getPointer castTo: AgpuTexture pointer.
+        let agpuDestBuffer := destBuffer getPointer castTo: AgpuBuffer pointer.
+        agpuSourceTexture isNotNil && agpuDestBuffer isNotNil ifTrue: {
+            let copyRegion mutable := AGPU BufferImageCopyRegion()
+                buffer_offset: (copyRegion bufferOffset castTo: UInt32);
+                buffer_pitch: (copyRegion bufferPitch castTo: UInt32);
+                buffer_slice_pitch: (copyRegion bufferSlicePitch castTo: UInt32);
+                texture_usage_mode: (copyRegion textureUsageMode castTo: AGPU TextureUsageModeMask);
+                texture_subresource_level: (AGPU TextureSubresourceLevel()
+                    aspect: (copyRegion textureSubResourceLevel aspect castTo: AGPU TextureAspect);
+                    miplevel: (copyRegion textureSubResourceLevel level castTo: UInt32);
+                    base_arraylayer: (copyRegion textureSubResourceLevel baseArrayLayer castTo: UInt32);
+                    layer_count: (copyRegion textureSubResourceLevel layerCount castTo: UInt32);
+                    yourself);
+                texture_region: (AGPU Region3d()
+                    x: (copyRegion textureRegion min x castTo: UInt32);
+                    y: (copyRegion textureRegion min y castTo: UInt32);
+                    z: (copyRegion textureRegion min z castTo: UInt32);
+                    width: (copyRegion textureRegion width castTo: UInt32);
+                    height: (copyRegion textureRegion height castTo: UInt32);
+                    depth: (copyRegion textureRegion depth castTo: UInt32);
+                    yourself);
+                yourself.
+            handle _ copyTextureToBuffer: agpuSourceTexture _ handle buffer: agpuDestBuffer _ handle copyRegion: copyRegion address
+        }
     }.
 
     override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
-
+        let agpuSourceTexture := sourceTexture getPointer castTo: AgpuTexture pointer.
+        let agpuDestTexture := destTexture getPointer castTo: AgpuTexture pointer.
+        agpuSourceTexture isNotNil && agpuSourceTexture isNotNil ifTrue: {
+            let copyRegion mutable := AGPU ImageCopyRegion()
+                source_usage_mode: (copyRegion sourceUsageMode castTo: AGPU TextureUsageModeMask);
+                source_subresource_level: (AGPU TextureSubresourceLevel()
+                    aspect: (copyRegion sourceLevel aspect castTo: AGPU TextureAspect);
+                    miplevel: (copyRegion sourceLevel level castTo: UInt32);
+                    base_arraylayer: (copyRegion sourceLevel baseArrayLayer castTo: UInt32);
+                    layer_count: (copyRegion sourceLevel layerCount castTo: UInt32);
+                    yourself);
+                source_offset: (AGPU Offset3d()
+                    x: copyRegion sourceOffset x;
+                    y: copyRegion sourceOffset y;
+                    z: copyRegion sourceOffset z;
+                    yourself);
+                
+                destination_usage_mode: (copyRegion destinationUsageMode castTo: AGPU TextureUsageModeMask);
+                destination_subresource_level: (AGPU TextureSubresourceLevel()
+                    aspect: (copyRegion destinationLevel aspect castTo: AGPU TextureAspect);
+                    miplevel: (copyRegion destinationLevel level castTo: UInt32);
+                    base_arraylayer: (copyRegion destinationLevel baseArrayLayer castTo: UInt32);
+                    layer_count: (copyRegion destinationLevel layerCount castTo: UInt32);
+                    yourself);
+                destination_offset: (AGPU Offset3d()
+                    x: copyRegion destinationOffset x;
+                    y: copyRegion destinationOffset y;
+                    z: copyRegion destinationOffset z;
+                    yourself);
+                extent: (AGPU Size3d()
+                    width: copyRegion extent x;
+                    height: copyRegion extent y;
+                    depth: copyRegion extent z;
+                    yourself);
+                yourself.
+            handle _ copyTexture: agpuSourceTexture _ handle destTexture: agpuDestTexture _ handle copyRegion: copyRegion address
+        }
     }.
 
 }.

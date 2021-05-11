@@ -104,6 +104,12 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method minStorageBufferOffsetAlignment => UIntPointer
         := 256.
 
+    virtual method minTextureDataOffsetAlignment => UIntPointer
+        := 4.
+
+    virtual method minTextureDataPitchAlignment => UIntPointer
+        := 4.
+
     abstract method createShaderSignatureCache => ShaderSignatureCachePtr.
     abstract method createVertexLayoutCache => VertexLayoutCachePtr.
     abstract method createPipelineStateCache => PipelineStateCachePtr.
