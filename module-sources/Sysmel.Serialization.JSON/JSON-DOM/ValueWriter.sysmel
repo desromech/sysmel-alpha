@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 
-useNamespace: Stdn Serialization DOM.
+useNamespace: Std Serialization DOM.
 
 Writer definition: {
 
@@ -13,8 +13,8 @@ Writer definition: {
         (let x type: Int64) : (self putInteger: x).
         (let x type: UInt64) : (self putInteger: x).
         (let x type: Float64) : (self putFloat: x).
-        (let x type: Stdn String) : (self putString: x).
-        (let x type: Stdn ByteVector) : (self putString: Stdn Serialization BinaryEncoding encodeBase64String(x)).
+        (let x type: Std String) : (self putString: x).
+        (let x type: Std ByteVector) : (self putString: Std Serialization BinaryEncoding encodeBase64String(x)).
         (let list type: ListPtr) : {
             self beginList.
             let isFirst mutable := true.
@@ -31,7 +31,7 @@ Writer definition: {
         (let object type: ObjectPtr) : {
             self beginObject.
             let isFirst mutable := true.
-            object _ keysAndValuesDo: {:(Stdn String const ref)k :(Value const ref)v :: Void |
+            object _ keysAndValuesDo: {:(Std String const ref)k :(Value const ref)v :: Void |
                 isFirst ifTrue: {
                     isFirst := false
                 } ifFalse: {
@@ -46,21 +46,21 @@ Writer definition: {
     }.
 
     meta definition: {
-        static method writeValue: (value: Value const ref) onStream: (out: Stdn IO Stream ref) ::=> Void := {
-            let outTextStreamWriter mutable := Stdn IO TextStreamWriter for: out address.
+        static method writeValue: (value: Value const ref) onStream: (out: Std IO Stream ref) ::=> Void := {
+            let outTextStreamWriter mutable := Std IO TextStreamWriter for: out address.
             Writer()
                 textStreamWriter: outTextStreamWriter address;
                 putValue: value
         }.
 
-        static method writeValue: (value: Value const ref) onTextStream: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+        static method writeValue: (value: Value const ref) onTextStream: (out: Std IO TextStreamWriter ref) ::=> Void := {
             Writer()
                 textStreamWriter: out address;
                 putValue: value
         }.
 
-        static method valueToString: (value: Value const ref) ::=> Stdn String := {
-            Stdn String textStreamContents: {:out :: Void |
+        static method valueToString: (value: Value const ref) ::=> Std String := {
+            Std String textStreamContents: {:out :: Void |
                 self writeValue: value onTextStream: out
             }
         }.
@@ -69,4 +69,4 @@ Writer definition: {
 
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

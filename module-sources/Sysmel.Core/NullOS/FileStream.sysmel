@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace IO definition: {
 
 #**
@@ -48,4 +48,4 @@ global stderrFile mutable type: UnbufferedFileStream.
 
 global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
 global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
-}. ## End of namespace Stdn
+}. ## End of namespace Std

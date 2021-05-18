@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
@@ -45,4 +45,4 @@ compileTime constant Ray3dF64 := GenericRay3d(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

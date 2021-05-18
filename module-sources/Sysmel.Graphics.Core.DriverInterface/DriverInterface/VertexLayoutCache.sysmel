@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ class VertexLayoutCache superclass: RenderingDriverObjectHandle; definition: {
     abstract method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr.
 }.
 
-compileTime constant VertexLayoutCachePtr := VertexLayoutCache sharedPointer.
+compileTime constant VertexLayoutCachePtr := VertexLayoutCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

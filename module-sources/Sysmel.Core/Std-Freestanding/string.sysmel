@@ -1,0 +1,204 @@
+namespace Std definition: {
+if: Compiler useLibC then: {
+	compileTime constant memchr := LibC memchr.
+	compileTime constant memcmp := LibC memcmp.
+	compileTime constant memcpy := LibC memcpy.
+	compileTime constant memmove := LibC memmove.
+	compileTime constant memset := LibC memset.
+
+	compileTime constant cstrlen := LibC strlen.
+	compileTime constant cstrnlen := LibC strnlen.
+	compileTime constant cstrstr := LibC strstr.
+
+} else: {
+#**
+ * Scan memory for a character.
+ *#
+function memchr(source: Void const pointer, character: Int32, size: UIntPointer) => Void const pointer := {
+    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        if: sourceBytes[i] == character then: {
+            return: sourceBytes[i] address
+        }
+    } continueWith: (i := i + 1).
+
+    return: nil.
+}.
+
+#**
+ * Compare bytes.
+ *#
+function memcmp(left: Void const pointer, right: Void const pointer, size: UIntPointer) => Int32 := {
+    let leftBytes := left reinterpretCastTo: UInt8 pointer.
+    let rightBytes := right reinterpretCastTo: UInt8 const pointer.
+
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        let diff := (leftBytes[i] castTo: Int32) - (rightBytes[i] castTo: Int32).
+        if: diff ~= 0 then: {
+            return: diff
+        }.
+    } continueWith: (i := i + 1).
+
+    return: 0
+}.
+
+#**
+ * Copy bytes from one place into another.
+ *#
+function memcpy(dest: Void pointer, source: Void const pointer, size: UIntPointer) => Void pointer := {
+    let destBytes := dest reinterpretCastTo: UInt8 pointer.
+    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        destBytes[i] := sourceBytes[i]
+    } continueWith: (i := i + 1).
+
+    return: dest
+}.
+
+#**
+ * Moves bytes from one place into another.
+ *#
+function memmove(dest: Void pointer, source: Void const pointer, size: UIntPointer) => Void pointer := {
+    let destBytes := dest reinterpretCastTo: UInt8 pointer.
+    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        destBytes[i] := sourceBytes[i]
+    } continueWith: (i := i + 1).
+
+    return: dest
+}.
+
+#**
+ * Sets bytes into a specific value.
+ *#
+function memset(dest: Void pointer, value: Int32, size: UIntPointer) => Void pointer := {
+    let destBytes := dest reinterpretCastTo: UInt8 pointer.
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        destBytes[i] := value castTo: UInt8
+    } continueWith: (i := i + 1).
+
+    return: dest
+}.
+
+#**
+ * Computes the length of a C-String.
+ *#
+function cstrlen (string: Char8 const pointer) => UIntPointer := {
+    ## Null C-String pointer case.
+    if: string == nil then: {
+        return: 0
+    }.
+
+    let size mutable type: UIntPointer := 0.
+    while: string[size] ~= 0 do: {
+        size := size + 1
+    }.
+
+    return: size
+}.
+
+#**
+ * Computes the length of a fixed size C-String.
+ *#
+function cstrnlen (string: Char8 const pointer, maxLength: UIntPointer) => UIntPointer := {
+    ## Null C-String pointer case.
+    if: string == nil then: {
+        return: 0
+    }.
+
+    let size mutable type: UIntPointer := 0.
+    while: size < maxLength && string[size] ~= 0 do: {
+        size := size + 1
+    }.
+
+    return: size
+}.
+
+#**
+ * Finds a substring in a C-string
+ *#
+function cstrstr (haystack: Char8 const pointer, needle: Char8 const pointer) => Char8 const pointer := {
+    ## Null search case
+    if: haystack == nil || needle == nil then: {
+        return: nil
+    }.
+
+    return: (memstrstr(haystack reinterpretCastTo: UInt8 const pointer, cstrlen(haystack),
+					needle reinterpretCastTo: UInt8 const pointer, cstrlen(needle)) reinterpretCastTo: Char8 const pointer)
+}.
+}. ## useLibC
+
+#**
+ * Scan memory for the last occurrence of a character.
+ *#
+function memrchr(source: Void const pointer, character: Int32, size: UIntPointer) => Void const pointer := {
+    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
+    let bestResult mutable type: Void const pointer := nil.
+
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        if: sourceBytes[i] == character then: {
+            bestResult := sourceBytes[i] address
+        }
+    } continueWith: (i := i + 1).
+
+    return: bestResult.
+}.
+
+#**
+ * Finds a substring in a memory region.
+ *#
+function memstrstr(haystack: Void const pointer, haystackSize: UIntPointer, needle: Void const pointer, needleSize: UIntPointer) => Void const pointer := {
+    ## TODO: Use KMP when possible.
+    let haystackBytes := haystack reinterpretCastTo: UInt8 const pointer.
+
+    for: (let i mutable type: UIntPointer := 0) while: i < haystackSize do: {
+        ## Can we still have a match?
+        if: haystackSize - i < needleSize then: {
+            return: nil
+        }.
+
+        ## Check this element with the needle.
+        let position := haystackBytes[i] address.
+        if: memcmp(position, needle, needleSize) = 0 then: {
+            return: position
+        }.
+    } continueWith: (i := i + 1).
+
+    return: nil
+}.
+
+#**
+ * Computes the length of a C-String.
+ *#
+function cwstrlen (string: Char16 const pointer) => UIntPointer := {
+    ## Null C-String pointer case.
+    if: string == nil then: {
+        return: 0
+    }.
+
+    let size mutable type: UIntPointer := 0.
+    while: string[size] ~= 0 do: {
+        size := size + 1
+    }.
+
+    return: size
+}.
+
+#**
+ * Computes the length of a C-String.
+ *#
+function clstrlen (string: Char32 const pointer) => UIntPointer := {
+    ## Null C-String pointer case.
+    if: string == nil then: {
+        return: 0
+    }.
+
+    let size mutable type: UIntPointer := 0.
+    while: string[size] ~= 0 do: {
+        size := size + 1
+    }.
+
+    return: size
+}.
+
+}.

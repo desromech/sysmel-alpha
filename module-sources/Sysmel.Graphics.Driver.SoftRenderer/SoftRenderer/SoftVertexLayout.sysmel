@@ -1,16 +1,16 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am an specification for a vertex attribute.
  *#
 class SoftVertexLayout superclass: VertexLayout; definition: {
-    public field attributes type: Stdn Collections Vector(VertexAttributeDescription).
-    public field strides type: Stdn Collections Vector(UInt32).
+    public field attributes type: Std Collections Vector(VertexAttributeDescription).
+    public field strides type: Std Collections Vector(UInt32).
 
     override method addVertexBuffers: (newStrides: UInt32 const arraySlice) withAttributes: (newAttributes: VertexAttributeDescription const arraySlice) ::=> Void := {
         strides addAll: newStrides.
@@ -21,4 +21,4 @@ class SoftVertexLayout superclass: VertexLayout; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

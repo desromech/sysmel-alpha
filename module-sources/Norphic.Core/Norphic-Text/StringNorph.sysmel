@@ -1,18 +1,18 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a norph that displays a text.
  *#
 class StringNorph superclass: Norph; definition: {
-    protected field text type: Stdn String.
+    protected field text type: Std String.
 
-    method text => Stdn String const ref
+    method text => Std String const ref
         := text.
 
-    method text: (newText: Stdn String const ref) ::=> Void := {
+    method text: (newText: Std String const ref) ::=> Void := {
         text := newText.
         self extent: self minimalExtent.
     }.
@@ -47,6 +47,6 @@ class StringNorph superclass: Norph; definition: {
         := false.
 }.
 
-compileTime constant StringNorphPtr := StringNorph sharedPointer.
+compileTime constant StringNorphPtr := StringNorph rcPointer.
 
 }. ## End of namespace Norphic

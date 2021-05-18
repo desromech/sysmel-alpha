@@ -1,22 +1,22 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU software based rasterization texture view. I am used blitting pixels into other canvases.
  *#
 class SoftTextureView superclass: TextureView; definition: {
-    public field texture type: SoftTexture weakPointer.
+    public field texture type: SoftTexture weakRCPointer.
     public field pixelsBlitter type: Blitter.
 
 }.
 
-compileTime constant SoftTextureViewPtr := SoftTextureView sharedPointer.
+compileTime constant SoftTextureViewPtr := SoftTextureView rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

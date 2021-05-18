@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * A triangle rasterizer. A tool to simplify writing rasterization loops.
@@ -249,7 +249,7 @@ class TriangleRasterizer definition: {
             }.
         }.
 
-        ## Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
+        ## Std stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
         clippedPolygonDestIndex >= 3 ifTrue: {
             self rasterizeClippedTriangleNDC: clippedPolygon[0] barycentric: clippedPolygonBarycentric[0]
                 p2: clippedPolygon[1] barycentric: clippedPolygonBarycentric[1]
@@ -270,4 +270,4 @@ class TriangleRasterizer definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

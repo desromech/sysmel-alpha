@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace ImageFormats definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 struct TGAHeader packed definition: {
     public field idLength type: UInt8.
@@ -34,7 +34,7 @@ class TGAImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/x-targa" || mimeType = "image/x-tga".
 
-    const method putConvertedForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const method putConvertedForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         let header mutable type: TGAHeader.
         header
             imageType: 2; ## True color image.
@@ -47,7 +47,7 @@ class TGAImageReadWriter superclass: ImageReadWriter; definition: {
             write: form pixels getPointer size: form height * form pitch.
     }.
 
-    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const override method putForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         self putConvertedForm: (form asVerticallyFlippedFormWithFormat: form pixelFormat asValidFormatForTGA) _ onStream: outputStream.
     }.
 }.
@@ -55,7 +55,7 @@ class TGAImageReadWriter superclass: ImageReadWriter; definition: {
 global TGAImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(TGAImageReadWriter).
 
 Form extend: {
-    method writeTGAfileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+    method writeTGAfileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := TGAImageReadWriter().
         readWriter putForm: self onFileNamed: fileName.
     }.
@@ -63,4 +63,4 @@ Form extend: {
 
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

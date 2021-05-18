@@ -1,19 +1,19 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 #**
  * I am norph whose task is to displaying a text model.
  *#
 class TextModelNorph superclass: Norph; definition: {
-    protected field textModel type: TextModel sharedPointer.
+    protected field textModel type: TextModel rcPointer.
 
-    const virtual method textModel => TextModel sharedPointer const ref
+    const virtual method textModel => TextModel rcPointer const ref
         := textModel.
 
-    virtual method textModel: (theTextModel: TextModel sharedPointer const ref) ::=> Void := {
+    virtual method textModel: (theTextModel: TextModel rcPointer const ref) ::=> Void := {
         textModel := theTextModel.
         self textModelChanged.
     }.

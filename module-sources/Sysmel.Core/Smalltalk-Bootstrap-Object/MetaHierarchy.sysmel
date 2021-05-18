@@ -175,7 +175,7 @@ ProtoObject definition: {
 }.
 
 ProgramEntity definition: {
-	## These first fields must match the fields in Stdn Reflection ProgramEntity so that
+	## These first fields must match the fields in Std Reflection ProgramEntity so that
 	## exception handling can work.
 	public field parent type: ProgramEntity.
 }.
@@ -185,23 +185,23 @@ SharedProgramEntity definition: {
 }.
 
 ModuleDefinedProgramEntity definition: {
-	## These first fields must match the fields in Stdn Reflection ModuleDefinedProgramEntity so that
+	## These first fields must match the fields in Std Reflection ModuleDefinedProgramEntity so that
 	## exception handling can work.
 	public field module type: ModuleInformation.
 	protected field children.
 }.
 
 TypeInformation definition: {
-	## These first fields must match the fields in Stdn Reflection TypeInformation so that
+	## These first fields must match the fields in Std Reflection TypeInformation so that
 	## exception handling can work.
 	public field superclass type: TypeInformation.
 	public field instanceDataSize type: UIntPointer.
 	public field instanceDataAlignment type: UIntPointer.
 
-	public field basicInitializationFunctionPointer type: Stdn Reflection BasicInitializeFunctionPointerType.
-	public field copyConstructorFunctionPointer type: Stdn Reflection CopyConstructorFunctionPointerType.
-	public field moveConstructorFunctionPointer type: Stdn Reflection MoveConstructorFunctionPointerType.
-    public field finalizeFunctionPointer type: Stdn Reflection FinalizeFunctionPointerType.
+	public field basicInitializationFunctionPointer type: Std Reflection BasicInitializeFunctionPointerType.
+	public field copyConstructorFunctionPointer type: Std Reflection CopyConstructorFunctionPointerType.
+	public field moveConstructorFunctionPointer type: Std Reflection MoveConstructorFunctionPointerType.
+    public field finalizeFunctionPointer type: Std Reflection FinalizeFunctionPointerType.
 
 	public field methodDict public type: MethodDictionary.
 
@@ -308,7 +308,7 @@ Behavior definition: {
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
 
         ## Allocate the object memory.
-        let allocatedObject := Stdn GC NativeCollector uniqueInstance
+        let allocatedObject := Std GC NativeCollector uniqueInstance
             allocate: objectSize
             variableDataSize: (variableInstanceElementSize > 0 ifTrue: initialSize ifFalse: 0u)
             initializingWith: basicInitializationFunctionPointer.
@@ -323,7 +323,7 @@ Behavior definition: {
 		let objectSize := instanceDataSize + variableDataSize*variableInstanceElementSize.
 
 		## Allocate the object memory.
-        let allocatedObject := Stdn GC NativeCollector uniqueInstance
+        let allocatedObject := Std GC NativeCollector uniqueInstance
             allocate: objectSize
             variableDataSize: variableDataSize
             initializingWith: basicInitializationFunctionPointer
@@ -820,7 +820,7 @@ NativeBlockClosure definition: {
 
 	inline method checkRequiredArgumentCount: (i: UInt32) ::=> Void := {
 		numArgs ~= i ifTrue: {
-			Stdn fatalError: "Mismatching argument count for block closure activation."
+			Std fatalError: "Mismatching argument count for block closure activation."
 		}.
 	}.
 
@@ -941,13 +941,13 @@ struct MessageLookupResult definition: {
 }.
 
 struct InlineCacheRecord definition: {
-	public field lookupClass type: Stdn AtomicUIntPointer.
-	public field lookupMethod type: Stdn AtomicUIntPointer.
+	public field lookupClass type: Std AtomicUIntPointer.
+	public field lookupMethod type: Std AtomicUIntPointer.
 }.
 
 struct InlineCache definition: {
 	compileTime constant RecordCount := 5.
-	public field lastWrittenSlot type: Stdn AtomicUIntPointer.
+	public field lastWrittenSlot type: Std AtomicUIntPointer.
 	public field records type: (InlineCacheRecord array: RecordCount).
 }.
 
@@ -961,8 +961,8 @@ function genericMessageLookup(receiver: ProtoObject, selector: Object, typeInfo:
 
     if: methodObject == nil then: {
         if: selector == #doesNotUnderstand: then: {
-            Stdn stderr << "Fatal error: Failed to lookup doesNotUnderstand:"; nl.
-            Stdn abort()
+            Std stderr << "Fatal error: Failed to lookup doesNotUnderstand:"; nl.
+            Std abort()
         }.
 
         lookupResult methodObject: (typeInfo reinterpretCastTo: Void pointer).
@@ -993,7 +993,7 @@ inline function methodSuperClassGetter(methodClass: TypeInformation) => TypeInfo
 
 inline function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
 	<nogc>
-	let allocatedObject := Stdn GC NativeCollector uniqueInstance
+	let allocatedObject := Std GC NativeCollector uniqueInstance
  		allocate: instanceSize instanceAlignment: 0
 		copyingFromPrototype: prototype.
 

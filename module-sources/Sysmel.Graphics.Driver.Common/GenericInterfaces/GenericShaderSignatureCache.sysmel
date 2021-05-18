@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -7,8 +7,8 @@ namespace Core definition: {
  *#
 class GenericShaderSignatureCache superclass: ShaderSignatureCache; definition: {
     public field device type: RenderingDeviceWeakPtr.
-    protected field mutex type: Stdn Mutex.
-    protected field shaderSignatures type: Stdn Collections Dictionary(ShaderSignatureDescription, ShaderSignaturePtr).
+    protected field mutex type: Std Mutex.
+    protected field shaderSignatures type: Std Collections Dictionary(ShaderSignatureDescription, ShaderSignaturePtr).
 
     override method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr := {
         mutex withLock: {
@@ -31,8 +31,8 @@ class GenericShaderSignatureCache superclass: ShaderSignatureCache; definition: 
     }.
 }.
 
-compileTime constant GenericShaderSignatureCachePtr := GenericShaderSignatureCache sharedPointer.
+compileTime constant GenericShaderSignatureCachePtr := GenericShaderSignatureCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

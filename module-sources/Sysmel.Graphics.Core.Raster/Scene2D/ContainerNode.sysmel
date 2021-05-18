@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
 class ContainerNode superclass: Node; definition: {
-    public field children type: Stdn Collections Vector(NodePtr).
+    public field children type: Std Collections Vector(NodePtr).
 
     method add: (child: NodePtr const ref) ::=> Void := {
         child ifNotNil: {
@@ -19,13 +19,13 @@ class ContainerNode superclass: Node; definition: {
             children add: other.
         }.
         
-        self asSharedPointer upCastFor: Node
+        self asRCPointer upCastFor: Node
     }.
 
 }.
 
-compileTime constant ContainerNodePtr := ContainerNode sharedPointer.
+compileTime constant ContainerNodePtr := ContainerNode rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

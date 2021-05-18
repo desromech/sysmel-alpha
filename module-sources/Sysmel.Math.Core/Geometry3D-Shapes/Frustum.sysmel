@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
@@ -16,7 +16,7 @@ sealed template GenericFrustum(ST: Type)
 
     public field planes type: (Plane array: 6).
 
-    const inline method hash => Stdn Hash
+    const inline method hash => Std Hash
         := leftBottomNear hash ^ rightBottomNear hash ^ leftTopNear hash ^ rightTopNear hash ^
           leftBottomFar hash ^ rightBottomFar hash ^ leftTopFar hash ^ rightTopFar hash.
 
@@ -31,7 +31,7 @@ sealed template GenericFrustum(ST: Type)
         leftTopFar = other leftTopFar &&
         rightTopFar = other rightTopFar.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
     inline method makeFrustumFromStandardProjectionMatrix: (matrix: Matrix4x4) ::=> Void := {
         let inverseMatrix := matrix inverse.
@@ -214,4 +214,4 @@ compileTime constant FrustumF64 := GenericFrustum(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

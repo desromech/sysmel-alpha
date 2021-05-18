@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -11,16 +11,16 @@ enum FontVariant bitMask valueType: UInt8; values: #{
 #**
  * I am a font. A font is defined as a collection of related font faces.
  *#
-class Font definition: {
-    public field normalFace type: FontFace sharedPointer.
-    public field boldFace type: FontFace sharedPointer.
-    public field italicFace type: FontFace sharedPointer.
-    public field italicBoldFace type: FontFace sharedPointer.
+class Font superclass: RCObject; definition: {
+    public field normalFace type: FontFace rcPointer.
+    public field boldFace type: FontFace rcPointer.
+    public field italicFace type: FontFace rcPointer.
+    public field italicBoldFace type: FontFace rcPointer.
 
-    inline method validNormalFace => FontFace sharedPointer
+    inline method validNormalFace => FontFace rcPointer
         := normalFace.
 
-    inline method validBoldFace => FontFace sharedPointer := {
+    inline method validBoldFace => FontFace rcPointer := {
         boldFace ifNotNil: {
             return: boldFace
         } ifNil: {
@@ -28,7 +28,7 @@ class Font definition: {
         }
     }.
 
-    inline method validItalicFace => FontFace sharedPointer := {
+    inline method validItalicFace => FontFace rcPointer := {
         italicFace ifNotNil: {
             return: italicFace
         } ifNil: {
@@ -36,7 +36,7 @@ class Font definition: {
         }
     }.
 
-    inline method validItalicBoldFace => FontFace sharedPointer := {
+    inline method validItalicBoldFace => FontFace rcPointer := {
         italicBoldFace ifNotNil: {
             return: italicBoldFace
         } ifNil: {
@@ -48,4 +48,4 @@ class Font definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

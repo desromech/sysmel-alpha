@@ -1,14 +1,14 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
  * I represent a bunch of sound samples in. I can be either monophonic and/or stereophonic.
  *#
-class SoundBuffer superclass: SharedObject; definition: {
+class SoundBuffer superclass: Std RCObject; definition: {
     virtual method upload: (data: Void const pointer) size: (size: UIntPointer) offset: (offset: UIntPointer) ::=> Void := {}
 }.
 
-compileTime constant SoundBufferPtr := SoundBuffer sharedPointer.
+compileTime constant SoundBufferPtr := SoundBuffer rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

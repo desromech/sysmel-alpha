@@ -1,11 +1,11 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
 #**
  * I am a handle for a sampler.
  *#
-class TextureWithView superclass: Stdn Graphics Core StrongTextureHandle; definition: {
+class TextureWithView superclass: Std Graphics Core StrongTextureHandle; definition: {
     public field texture type: TexturePtr.
     public field textureView type: TextureViewPtr.
 
@@ -13,8 +13,8 @@ class TextureWithView superclass: Stdn Graphics Core StrongTextureHandle; defini
         := true.
 }.
 
-compileTime constant TextureWithViewPtr := TextureWithView sharedPointer.
+compileTime constant TextureWithViewPtr := TextureWithView rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

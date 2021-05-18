@@ -1,3 +1,0 @@
-namespace Stdn definition: {
-    macro method GenerateMainEntryPointInvokationSupportCode := `'void.
-}.

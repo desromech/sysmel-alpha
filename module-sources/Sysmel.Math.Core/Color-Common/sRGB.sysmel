@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Color definition: {
 
@@ -244,4 +244,4 @@ inline function encodeSRGBUnorm8(color: Float32x4) => UInt8x4
 
 } ## End of namespace Color
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

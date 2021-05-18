@@ -1,0 +1,333 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+template Vector(ET: Std Concepts Copyable)
+	:= class definition: {
+    compileTime constant ValueType := ET.
+	compileTime constant PredicateType := ((ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    private field capacity_ type: UIntPointer.
+	private field size_ type: UIntPointer.
+    private field storage_ type: ValueType pointer.
+
+	inline method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other
+    }.
+
+    inline method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other
+    }.
+
+    method finalize => Void := {
+        0 until: size_ do: {:(UIntPointer)i :: Void |.
+            storage_[i] finalize
+        }.
+		storage_ ifNotNil: {
+			Std free(storage_).
+			storage_ := nil.
+			capacity_ := 0.
+		}.
+		size_ := 0.
+    }.
+
+    const inline method capacity => UIntPointer
+        := capacity_.
+    const inline method size => UIntPointer
+        := size_.
+	const inline method data => ValueType pointer
+        := storage_.
+
+	const inline method asArraySlice => ValueType const arraySlice
+        := storage_ until: size_.
+	inline method asArraySlice => ValueType arraySlice
+        := storage_ until: size_.
+
+	const inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType const arraySlice
+        := storage_ from: (startIndex min: size_) until: (endIndex min: size_).
+
+    inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType arraySlice
+        := storage_ from: (startIndex min: size_) until: (endIndex min: size_).
+
+	inline method [index: UIntPointer] ::=> ValueType ref := {
+		assert: index < size_.
+		storage_[index].
+	}.
+
+	const inline method [index: UIntPointer] ::=> ValueType const ref := {
+		assert: index < size_.
+		storage_[index].
+	}.
+
+	(inline method := (other: SelfType const ref)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+			let newSize := other size.
+			self removeAll.
+			capacity_ < newSize ifTrue: {
+				self increaseCapacityTo: newSize.
+			}.
+
+			## Perform the actual copy.
+			let sourceStorage := other __private storage_.
+			0 until: newSize do: {:(UIntPointer)i :: Void |
+				storage_[i] basicInitialize.
+				storage_[i] := sourceStorage[i].
+			}.
+			size_ := newSize.
+        }.
+
+        self
+    }.
+
+    (inline method := (other: SelfType tempRef)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+			self finalize.
+
+            capacity_ := other __private capacity_.
+            size_ := other __private size_.
+            storage_ := other __private storage_.
+
+            other __private capacity_ := 0.
+            other __private size_ := 0.
+            other __private storage_ := nil.
+        }.
+
+        self
+    }.
+
+    method increaseCapacityToAtLeast: (requiredCapacity: UIntPointer) ::=> Void := {
+		self increaseCapacityTo: (requiredCapacity asLargerPowerOfTwo max: 16)
+    }.
+
+	method increaseCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
+		newCapacity <= capacity_ ifTrue: {return: nil}.
+
+		let newStorageSize := newCapacity * ValueType alignedInstanceSize.
+		let newStorage := Std zmalloc(newStorageSize) reinterpretCastTo: ValueType pointer.
+
+        0 until: size_ do: {:(UIntPointer)i :: Void |.
+            newStorage[i]
+				basicInitialize;
+				initializeMovingFrom: storage_[i] asMoveReference.
+			storage_[i] finalize.
+        }.
+		storage_ ifNotNil: {
+			Std free(storage_)
+		}.
+
+		storage_ := newStorage.
+		capacity_ := newCapacity.
+    }.
+
+    inline method add: (newElement: ValueType const ref) ::=> Void
+        := self addLast: newElement.
+
+    inline method addLast: (newElement: ValueType const ref) ::=> Void := {
+        size_ >= capacity_ ifTrue: {
+            self increaseCapacityToAtLeast: size_ + 1.
+        }.
+
+        storage_[size_]
+            basicInitialize;
+            initializeCopyingFrom: newElement.
+        size_ := size_ + 1.
+    }.
+
+	inline method addAll: (newElements: ValueType const arraySlice) beforeIndex: (firstElementIndex: UIntPointer) ::=> Void := {
+		newElements ifEmpty: {
+			return: void
+		}.
+
+		let requiredSize := (size_ max: firstElementIndex) + newElements size.
+        requiredSize >= capacity_ ifTrue: {
+            self increaseCapacityToAtLeast: requiredSize.
+        }.
+
+		## Make the gap by moving the elements.
+		let gapSize := newElements size.
+		let movedElementCount := firstElementIndex < size_
+			ifTrue: {size_ - firstElementIndex }
+			ifFalse: { 0 }.
+		0 until: movedElementCount do: {:i :: Void |
+			## Move from the end.
+			let oldIndex := firstElementIndex + movedElementCount - i - 1.
+			let newIndex := oldIndex + gapSize.
+
+			storage_[newIndex]
+				basicInitialize;
+				initializeMovingFrom: (storage_[oldIndex] asMoveReference).
+			storage_[oldIndex] finalize.
+		}.
+
+		## Copy the elements.
+		newElements doWithIndex: {:element :index :: Void |
+			storage_[firstElementIndex + index]
+	            basicInitialize;
+	            initializeCopyingFrom: element.
+		}.
+
+        size_ := size_ + newElements size.
+    }.
+
+    inline method removeLast => Void := {
+        assert: self isNotEmpty.
+        size_ := size_ - 1.
+        storage_[size_] finalize.
+    }.
+
+	inline method removeAll => Void := {
+		self resizeTo: 0
+	}.
+
+	method reserve: (reservedElements: UIntPointer) ::=> Void := {
+		self increaseCapacityToAtLeast: size_ + reservedElements
+	}.
+
+	method resizeTo: (newSize: UIntPointer) ::=> Void := {
+		## Same size, nothing is required.
+		newSize = size_ ifTrue: {return: nil}.
+
+		## Increase size, we may need to increase the, and basic initialize
+		newSize > size_ ifTrue: {
+			newSize > capacity_ ifTrue: {
+				self increaseCapacityToAtLeast: newSize.
+			}.
+
+			## Initialize the new elements
+			size_ until: newSize do: {:(UIntPointer)i :: Void |
+				storage_[i] basicInitialize; initialize.
+			}.
+
+		} ifFalse: {
+			assert: newSize < size_.
+
+			## Invoke the finalizer of the removed elements.
+			newSize until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] finalize
+			}.
+
+			let destroyedCount := size_ - newSize.
+			memset(storage_[newSize] address, 0, destroyedCount * ValueType alignedInstanceSize).
+		}.
+
+		size_ := newSize
+	}.
+
+	inline method swapWith: (other: SelfType ref) ::=> Void := {
+		Std swapValue: capacity_ with: other __private capacity_.
+		Std swapValue: size_ with: other __private size_.
+		Std swapValue: storage_ with: other __private storage_.
+	}.
+
+	inline method removeAt: (index: UIntPointer) ::=> Void := {
+		size_ == 0 || index >= size_ ifTrue: {
+			return: void
+		}.
+
+		index until: size_ - 1 do: {:(UIntPointer)destIndex :: Void |
+			storage_[destIndex] := storage_[destIndex + 1] asMoveReference
+		}.
+
+		size_ := size_ - 1.
+		storage_[size_] finalize.
+		memset(storage_[size_] address, 0, ValueType alignedInstanceSize).
+	}.
+
+	inline method removeAllSuchThat: (predicate: PredicateType) ::=> Void := {
+		let destIndex mutable type: UIntPointer := 0.
+		0 until: size_ do: {:(UIntPointer)i :: Void |
+			predicate(storage_[i]) ifFalse: {
+				destIndex ~~ i ifTrue: {
+					storage_[destIndex] := storage_[i] asMoveReference.
+				}.
+				destIndex := destIndex + 1
+			}
+		}.
+
+		destIndex < size_ ifTrue: {
+			destIndex until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] finalize.
+			}.
+			memset(storage_[destIndex] address, 0, (size_ - destIndex)*ValueType alignedInstanceSize).
+
+			size_ := destIndex.
+		}.
+	}.
+
+	Std Concepts Equalable ifType: ValueType complies: {
+		const method = (other: SelfType const ref) ::=> Boolean8 := {
+			size_ = other __private size_ ifFalse: { return: false }.
+			0 until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] = other __private storage_[i] ifFalse: {
+					return: false
+				}
+			}.
+
+			true
+		}.
+
+		Std Utility NotEqualsMethodMixin.
+
+		inline method remove: (value: ValueType const ref) ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
+			let elementIndex := self indexOf: value.
+			elementIndex == PositionNotFoundIndex ifTrue: {
+				return: absentBlock()
+			}.
+
+			self removeAt: elementIndex
+		}.
+
+		inline method remove: (value: ValueType const ref) ::=> Void := {
+			self remove: value ifAbsent: {:: Void | Std raiseError("Failed to find element in Vector"). }
+		}.
+
+		inline method removeIfPresent: (value: ValueType const ref) ::=> Void := {
+			self remove: value ifAbsent: {:: Void | }
+		}.
+
+		inline method removeAll: (values: ValueType const arraySlice) ::=> Void := {
+			values do: {:each :: Void |
+				self remove: each
+			}
+		}.
+
+		inline method removeAllFoundIn: (values: ValueType const arraySlice) ::=> Void := {
+			values do: {:each :: Void |
+				self removeIfPresent: each
+			}
+		}.
+
+	}.
+
+	Std Concepts HashKey ifType: ValueType complies: {
+		method hash => UIntPointer := {
+			let result mutable  := size_ hash.
+			0 until: size_ do: {:(UIntPointer)i :: Void |
+				result := (result + storage_[i] hash) * 1664525 ## TODO: Find a more suitable constant here.
+			}.
+
+			result
+		}.
+	}.
+
+	Std Collections ArrayedCollectionMixin.
+
+	macro method sortWith: aBlock := ``(`, self asArraySlice sortWith: `,aBlock).
+	macro method sort := ``(`, self asArraySlice sort).
+
+	macro method sortedWith: aBlock := ``(
+        ((let _ mutable := `,self)
+            sortWith: `,aBlock;
+            yourself) asMoveReference
+    ).
+    macro method sorted := ``(
+        ((let _ mutable := `,self)
+            sort;
+            yourself) asMoveReference
+    ).
+}.
+
+}. ## End of namespace Collections
+
+compileTime constant ByteVector := Std Collections Vector(UInt8).
+
+}. ## End of namespace Std

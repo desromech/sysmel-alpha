@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,7 +9,7 @@ class Surface.
 #**
  * I am an abstract rendering driver. I am typically a factory for creating device instances.
  *#
-class RenderingDriver superclass: Stdn Object; definition: {
+class RenderingDriver superclass: Std Object; definition: {
     const virtual method isOptimizedHardwareRenderingDriver => Boolean8
         := false.
 
@@ -19,10 +19,10 @@ class RenderingDriver superclass: Stdn Object; definition: {
     const virtual method isSoftRenderingDriver => Boolean8
         := false.
 
-    abstract method getMainDevice => RenderingDevice sharedPointer.
+    abstract method getMainDevice => RenderingDevice rcPointer.
 }.
 
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

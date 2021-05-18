@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a handle for a state tracker. A state tracker is a convenience way for
@@ -43,8 +43,8 @@ class StateTracker superclass: CommandList; definition: {
     abstract method depthBiasClamp: (factor: Float32) ::=> Void.
 }.
 
-compileTime constant StateTrackerPtr := StateTracker sharedPointer.
+compileTime constant StateTrackerPtr := StateTracker rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

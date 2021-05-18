@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-class NorphEventSubscription superclass: Stdn SharedObject; definition: {
+class NorphEventSubscription superclass: Std RCObject; definition: {
     virtual method handlesEvent: (event: NorphEvent const ref) ::=> Boolean8
         := false.
 

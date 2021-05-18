@@ -1,0 +1,57 @@
+namespace Std definition: {
+namespace IO definition: {
+
+#**
+ * This is a generic byte oriented stream.
+ *#
+class Stream superclass: Std RCObject; definition: {
+    #**
+     * Tells the current position of the stream in the file.
+     * Negative for error or not supported.
+     *#
+    virtual method position => Int64
+        := -1.
+
+    #**
+     * Tells whether the current position is at the end of the stream.
+     *#
+    virtual method atEnd => Boolean8
+        := true.
+
+    #**
+     * This methods is used form moving the internal position pointer. If the
+     * underlying stream cannot be seek (e.g: Pipes, Sockets), then this method
+     * always returns false.
+     *#
+    virtual method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
+        := false.
+
+    #**
+     * Writes the content of a buffer into the file.
+     *#
+    virtual method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+        := -1.
+
+    #**
+     * Read the content of a file towards a buffer.
+     *#
+     virtual method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+         := -1.
+
+    #**
+     * Flushes the buffered stream data. Any decorated stream is also flushed.
+     *#
+    virtual method flush => Void := {}.
+
+    #**
+     * Closes the stream. This closes any underlyng stream and file handle.
+     *#
+    virtual method close => Void := {}.
+}.
+
+class NullStream superclass: Stream; definition: {
+
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace Std

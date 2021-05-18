@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a handle for a texture.
@@ -21,12 +21,12 @@ class SoftLinearTexture superclass: SoftTexture; definition: {
             layerMemorySize := layerMemorySize + ((self computePitchesForLevel: i) z castTo: UIntPointer)
         }.
 
-        linearMemory := Stdn zmalloc(layerMemorySize*description layers) reinterpretCastTo: UInt8 pointer.
+        linearMemory := Std zmalloc(layerMemorySize*description layers) reinterpretCastTo: UInt8 pointer.
         true
     }.
 
     override method finalize => Void := {
-        Stdn free(linearMemory)
+        Std free(linearMemory)
     }.
 
     override method linearMemoryLockLevel: (level: UIntPointer) layer: (layer: UIntPointer) ::=> Void pointer := {
@@ -40,4 +40,4 @@ class SoftLinearTexture superclass: SoftTexture; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

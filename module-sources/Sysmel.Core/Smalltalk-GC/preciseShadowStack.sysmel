@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace GC definition: {
 
 struct ShadowStackRecord definition: {
@@ -11,9 +11,9 @@ struct ShadowStackRecord definition: {
         <nogc>
         let position mutable := self address.
         while: position isNotNil do: {
-            ##Stdn stdout << position << " " << position _ rootCount; nl.
+            ##Std stdout << position << " " << position _ rootCount; nl.
             0 until: position _ rootCount do: {:i :: Void |
-                block(position _ roots[i] address reinterpretCastTo: Stdn Reflection GCObjectHeader pointer pointer)
+                block(position _ roots[i] address reinterpretCastTo: Std Reflection GCObjectHeader pointer pointer)
             }.
             position := position _ previousRecord
         }.
@@ -21,11 +21,11 @@ struct ShadowStackRecord definition: {
 }.
 
 class NativeCollector definition: {
-    field activeShadowStacks type: Stdn Collections Vector(ShadowStackRecord pointer).
+    field activeShadowStacks type: Std Collections Vector(ShadowStackRecord pointer).
 
     method allStackRootsDo: (block: RootIterationBlock) ::=> Void := {
         <nogc>
-        Stdn GC shadowStackLastRecord ifNotNil: {:record :: Void |
+        Std GC shadowStackLastRecord ifNotNil: {:record :: Void |
             activeShadowStacks add: record
         }.
 
@@ -48,13 +48,13 @@ compileTime if: Compiler compilationTarget isEmbeddedPAL then: {
 
 inline function __sysmel_gc_safePoint externC() ::=> Void := {
     <nogc>
-    ##Stdn stdout << "__sysmel_gc_safePoint"; nl.
+    ##Std stdout << "__sysmel_gc_safePoint"; nl.
 }.
 
 inline function __sysmel_gc_shadowStackEnter externC(record: ShadowStackRecord pointer) ::=> Void := {
     <nogc>
-    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
-    Stdn assert: shadowStackLastRecord isNil || shadowStackLastRecord > record.
+    let shadowStackLastRecord ref := Std GC shadowStackLastRecord.
+    Std assert: shadowStackLastRecord isNil || shadowStackLastRecord > record.
 
     record _ previousRecord: shadowStackLastRecord.
     shadowStackLastRecord := record.
@@ -63,10 +63,10 @@ inline function __sysmel_gc_shadowStackEnter externC(record: ShadowStackRecord p
 
 inline function __sysmel_gc_shadowStackLeave externC(record: ShadowStackRecord pointer) ::=> Void := {
     <nogc>
-    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+    let shadowStackLastRecord ref := Std GC shadowStackLastRecord.
     let newLastRecord := record _ previousRecord.
 
-    Stdn assert: newLastRecord isNil || newLastRecord > shadowStackLastRecord.
+    Std assert: newLastRecord isNil || newLastRecord > shadowStackLastRecord.
     shadowStackLastRecord := newLastRecord.
 
     ##__sysmel_gc_safePoint().
@@ -74,12 +74,12 @@ inline function __sysmel_gc_shadowStackLeave externC(record: ShadowStackRecord p
 
 inline function __sysmel_gc_shadowStackLandingPad externC(record: ShadowStackRecord pointer) ::=> Void := {
     <nogc>
-    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+    let shadowStackLastRecord ref := Std GC shadowStackLastRecord.
 
     ## The unwind process is going to do part of this job, but it will
     ## overshoot a bit in case the CFA is used instead of the stack pointer
     ## because the CFA is above the shadow stack record.
-    Stdn assert: shadowStackLastRecord isNil || shadowStackLastRecord >= record.
+    Std assert: shadowStackLastRecord isNil || shadowStackLastRecord >= record.
     shadowStackLastRecord := record.
 
     ##__sysmel_gc_safePoint().
@@ -88,17 +88,17 @@ inline function __sysmel_gc_shadowStackLandingPad externC(record: ShadowStackRec
 inline function shadowStackPrepareUnwindTo(targetSP: Void pointer) ::=> Void := {
     <nogc>
     let deletedRecord := targetSP reinterpretCastTo: ShadowStackRecord pointer.
-    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+    let shadowStackLastRecord ref := Std GC shadowStackLastRecord.
     while: shadowStackLastRecord isNotNil && shadowStackLastRecord < deletedRecord do: {
         shadowStackLastRecord := shadowStackLastRecord _ previousRecord.
     }.
 }.
 
 inline function getShadowStackContextMemento() => Void pointer
-    := Stdn GC shadowStackLastRecord.
+    := Std GC shadowStackLastRecord.
 
 inline function restoreShadowStackContextMemento(memento: Void pointer) => Void := {
-    Stdn GC shadowStackLastRecord := memento reinterpretCastTo: ShadowStackRecord pointer
+    Std GC shadowStackLastRecord := memento reinterpretCastTo: ShadowStackRecord pointer
 }.
 
 Compiler compilationTarget managedObjectModel
@@ -109,4 +109,4 @@ Compiler compilationTarget managedObjectModel
     gcSafePointFunction: __sysmel_gc_safePoint.
 
 }. ## End of namespace GC
-}. ## End of namespace Stdn
+}. ## End of namespace Std

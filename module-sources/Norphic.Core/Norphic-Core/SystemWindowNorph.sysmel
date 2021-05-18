@@ -1,24 +1,24 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a root norph that is a wrapper for a window created by a Window system.
  *#
 class SystemWindowNorph superclass: RootNorph; definition: {
-    protected field windowSystem type: WindowSystem sharedPointer.
-    protected field window type: Window sharedPointer.
-    protected field sceneRenderer type: WindowScene2DRenderer sharedPointer.
+    protected field windowSystem type: WindowSystem rcPointer.
+    protected field window type: Window rcPointer.
+    protected field sceneRenderer type: WindowScene2DRenderer rcPointer.
     protected field hasChanged type: Boolean8.
 
     override method defaultColor => Float32x4
         := self theme _ systemWindowBackground.
 
     meta definition: {
-        method createFor: (windowSystem: WindowSystem sharedPointer const ref)
-            title: (theTitle: Stdn String const ref) extent: (theExtent: Int32x2) ::=> InstanceType sharedPointer := {
+        method createFor: (windowSystem: WindowSystem rcPointer const ref)
+            title: (theTitle: Std String const ref) extent: (theExtent: Int32x2) ::=> InstanceType rcPointer := {
 
             let creationInfo mutable type: WindowCreationInfo.
             creationInfo
@@ -28,27 +28,27 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             self createFor: windowSystem  creationInfo: creationInfo
         }.
 
-        method createFor: (windowSystem: WindowSystem sharedPointer const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType sharedPointer := {
+        method createFor: (windowSystem: WindowSystem rcPointer const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType rcPointer := {
 
             let window := windowSystem _ createWindow: creationInfo.
             window ifNil: {
-                return: InstanceType sharedPointer nil
+                return: InstanceType rcPointer nil
             }.
 
             ## Create the drawing surface.
             let renderer := window _ createScene2DRenderer.
             renderer ifNil: {
-                return: InstanceType sharedPointer nil
+                return: InstanceType rcPointer nil
             }.
 
             ## Create the system window norph.
-            let result := SystemWindowNorph sharedNew.
+            let result := SystemWindowNorph rcNew.
             result _
                 bounds: (RectangleF32 min: Float32x2 zeros extent: (creationInfo extent castTo: Float32x2));
                 initializeWithWindowSystem: windowSystem window: window renderer: renderer.
 
             ## Create the event handler
-            let eventHandler := SystemWindowNorphEventHandler sharedNew.
+            let eventHandler := SystemWindowNorphEventHandler rcNew.
             eventHandler _ norph: result getPointer.
             window _ eventHandler: (eventHandler upCastFor: EventHandler).
 
@@ -56,9 +56,9 @@ class SystemWindowNorph superclass: RootNorph; definition: {
         }.
     }.
 
-    inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem sharedPointer const ref)
-        window: (theWindow: Window sharedPointer const ref)
-        renderer: (theRenderer: WindowScene2DRenderer sharedPointer const ref) ::=> Void := {
+    inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem rcPointer const ref)
+        window: (theWindow: Window rcPointer const ref)
+        renderer: (theRenderer: WindowScene2DRenderer rcPointer const ref) ::=> Void := {
 
         windowSystem := theWindowSystem.
         window := theWindow.

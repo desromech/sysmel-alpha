@@ -1,6 +1,6 @@
 class Expression definition: {
     virtual method evaluate => Int32 := {
-        Stdn fatalError: "Evaluating pure virtual method.".
+        Std fatalError: "Evaluating pure virtual method.".
         0
     }.
 }.
@@ -59,9 +59,9 @@ Expression pointer extend: {
     macro method + other := ``(Addition left: `,self right: `,other asExpression).
 }.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     let expression := 5 asExpression * 2 + 4.
 
-    Stdn stdout << "Expression value " << expression _ evaluate; nl.
+    Std stdout << "Expression value " << expression _ evaluate; nl.
     return: 0.
 }.

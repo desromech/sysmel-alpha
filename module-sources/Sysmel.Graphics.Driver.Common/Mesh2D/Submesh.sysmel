@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 struct Submesh definition: {
     public field primitiveTopology type: PrimitiveTopology.
@@ -22,4 +22,4 @@ struct Submesh definition: {
 
 }. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

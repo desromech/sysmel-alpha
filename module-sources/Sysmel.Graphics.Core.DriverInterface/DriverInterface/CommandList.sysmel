@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a handle for a command list.
@@ -31,7 +31,7 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method dispatchCompute: (groupCount: UInt32x3) ::=> Void.
     abstract method dispatchComputeIndirect: (offset: UInt32) ::=> Void.
     abstract method setStencilReference: (reference: UInt32) ::=> Void.
-    abstract method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void.
+    abstract method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void.
 
     abstract method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void.
     abstract method endRenderPass ::=> Void.
@@ -60,8 +60,8 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
         := self resetFor: allocator initialPipelineState: PipelineStatePtr nil.
 }.
 
-compileTime constant CommandListPtr := CommandList sharedPointer.
+compileTime constant CommandListPtr := CommandList rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

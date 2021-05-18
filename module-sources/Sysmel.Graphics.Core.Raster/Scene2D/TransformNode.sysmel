@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Std Math LinearAlgebra.
 
 class TransformNode superclass: Node; definition: {
     public field transform type: AffinePostTransform2dF32.
@@ -12,8 +12,8 @@ class TransformNode superclass: Node; definition: {
         := visitor visitTransformNode: self
 }.
 
-compileTime constant TransformNodePtr := TransformNode sharedPointer.
+compileTime constant TransformNodePtr := TransformNode rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

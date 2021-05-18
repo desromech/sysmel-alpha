@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Tests definition: {
 
 sealed template GenericQuaternionTest(ST: Type)
-    := class superclass: Stdn Testing TestCase; definition: {
+    := class superclass: Std Testing TestCase; definition: {
 
     compileTime constant Quaternion := GenericQuaternion(ST).
     compileTime constant Scalar := Quaternion Scalar.
@@ -17,7 +17,7 @@ sealed template GenericQuaternionTest(ST: Type)
         let messageNode := __astBuilder literalString: errorMessage position: expression position.
 
         ``( (`,expression closeTo: `,expectedValue) || (`,expression negated closeTo: `,expectedValue) ifFalse: {
-            Stdn raiseAssertionFailure(`,messageNode)
+            Std raiseAssertionFailure(`,messageNode)
         })
     }.
 
@@ -166,4 +166,4 @@ compileTime constant QuaternionF64Tests := GenericQuaternionTest(Float64).
 
 } ## End of namespace Tests
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

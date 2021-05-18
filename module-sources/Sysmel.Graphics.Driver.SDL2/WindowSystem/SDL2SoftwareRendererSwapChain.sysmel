@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 useNamespace: SDL2.
-useNamespace: Stdn Graphics Driver SoftRenderer.
+useNamespace: Std Graphics Driver SoftRenderer.
 
 class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
     protected field window type: SDL2Window pointer.
@@ -12,7 +12,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
     protected field textureHandle type: SDL_Texture pointer.
     protected field textureExtent type: UInt32x2.
 
-    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain sharedPointer := {
+    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain rcPointer := {
         let flags mutable type: UInt32 := SDL_RENDERER_PRESENTVSYNC.
         window vsyncDisabled ifTrue: {
             flags := 0
@@ -20,10 +20,10 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
 
         let renderer := SDL_CreateRenderer(window handle, -1, flags).
         renderer ifNil: {
-            return: SDL2SoftwareRendererSwapChain sharedPointer nil
+            return: SDL2SoftwareRendererSwapChain rcPointer nil
         }.
 
-        let result := SDL2SoftwareRendererSwapChain sharedNew.
+        let result := SDL2SoftwareRendererSwapChain rcNew.
         result _ initializeWithWindow: window address handle: renderer.
         result.
     }.
@@ -98,4 +98,4 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

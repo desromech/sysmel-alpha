@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 class CanvasRenderer superclass: Visitor; definition: {
     public field canvas type: Canvas pointer.
@@ -107,4 +107,4 @@ class CanvasRenderer superclass: Visitor; definition: {
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

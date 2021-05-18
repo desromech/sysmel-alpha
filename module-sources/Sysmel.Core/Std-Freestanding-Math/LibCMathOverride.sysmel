@@ -1,0 +1,70 @@
+namespace LibC definition: {
+inline function trunc externC(x: Float64) => Float64
+    := Std Math trunc(x).
+
+inline function floor externC(x: Float64) => Float64
+    := Std Math floor(x).
+
+inline function ceil externC(x: Float64) => Float64
+    := Std Math ceil(x).
+
+inline function fmod externC(x: Float64, y: Float64) => Float64
+    := Std Math fmod(x, y).
+
+inline function cos externC(x: Float64) => Float64
+    := Std Math cos(x).
+
+inline function sin externC(x: Float64) => Float64
+    := Std Math sin(x).
+
+inline function tan externC(x: Float64) => Float64
+    := Std Math tan(x).
+
+inline function atan externC(value: Float64) => Float64
+    := Std Math atan(value).
+
+inline function atan2 externC(y: Float64, x: Float64) => Float64
+    := Std Math atan2(y, x).
+
+inline function exp externC(x: Float64) => Float64
+    := Std Math exp(x).
+
+inline function log externC(x: Float64) => Float64
+    := Std Math log(x).
+
+inline function pow externC(x: Float64, y: Float64) => Float64
+    := Std Math pow(x, y).
+
+inline function truncf externC(x: Float32) => Float32
+    := Std Math truncf(x).
+
+inline function floorf externC(x: Float32) => Float32
+    := Std Math floorf(x).
+
+inline function ceilf externC(x: Float32) => Float32
+    := Std Math ceilf(x).
+
+inline function cosf externC(x: Float32) => Float32
+    := Std Math cosf(x).
+
+inline function sinf externC(x: Float32) => Float32
+    := Std Math sinf(x).
+
+inline function tanf externC(x: Float32) => Float32
+    := Std Math tanf(x).
+
+inline function atanf externC(angle: Float32) => Float32
+    := Std Math atanf(angle).
+
+inline function atan2f externC(y: Float32, x: Float32) => Float32
+    := Std Math atan2f(y, x).
+
+inline function expf externC(x: Float32) => Float32
+    := Std Math expf(x).
+
+inline function logf externC(x: Float32) => Float32
+    := Std Math logf(x).
+
+inline function powf externC(x: Float32, y: Float32) => Float32
+    := Std Math powf(x, y).
+}. ## End of namespace LibC

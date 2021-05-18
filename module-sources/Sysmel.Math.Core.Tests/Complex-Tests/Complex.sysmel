@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Tests definition: {
 
 sealed template GenericComplexTest(ST: Type)
-    := class superclass: Stdn Testing TestCase; definition: {
+    := class superclass: Std Testing TestCase; definition: {
 
     compileTime constant Complex := GenericComplex(ST).
     compileTime constant Scalar := Complex Scalar.
@@ -239,4 +239,4 @@ compileTime constant ComplexF64Tests := GenericComplexTest(Float64).
 
 } ## End of namespace Tests
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

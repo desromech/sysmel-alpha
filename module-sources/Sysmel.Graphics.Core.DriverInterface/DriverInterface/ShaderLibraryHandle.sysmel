@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ class ShaderLibraryHandle superclass: RenderingDriverObjectHandle; definition: {
     abstract method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
 }.
 
-compileTime constant ShaderLibraryHandlePtr := ShaderLibraryHandle sharedPointer.
+compileTime constant ShaderLibraryHandlePtr := ShaderLibraryHandle rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

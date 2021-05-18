@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a canvas that provides the bare minimum boiler plater facilities.
@@ -12,7 +12,7 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
     protected field transform type: AffinePostTransform2dF32.
     protected field drawingState type: CanvasDrawingState.
     protected field paintState type: CanvasPaintState.
-    protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
+    protected field currentFontFaceWithSize type: FontFaceWithSize rcPointer.
     protected field currentClipRectangle type: RectangleF32.
 
     method resetCanvasState => Void := {
@@ -39,10 +39,10 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
             fillTriangle: rectangle topRight tc: Float32x2(1, 1) p2: rectangle topLeft tc: Float32x2(0, 1) p3: rectangle bottomLeft tc: Float32x2(0, 0)
     }.
 
-    override method fontFaceWithSize => FontFaceWithSize sharedPointer const ref
+    override method fontFaceWithSize => FontFaceWithSize rcPointer const ref
         := currentFontFaceWithSize.
 
-    override method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
+    override method fontFaceWithSize: (font: FontFaceWithSize rcPointer const ref) ::=> Void := {
         currentFontFaceWithSize := font.
     }.
 
@@ -65,4 +65,4 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

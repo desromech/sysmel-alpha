@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 
 sealed template GenericComplex(ST: Type)
@@ -113,7 +113,7 @@ sealed template GenericComplex(ST: Type)
         xy closeTo: o xy
     }.
 
-    const inline method hash ::=> Stdn Hash := {
+    const inline method hash ::=> Std Hash := {
         <gpu>
         xy hash
     }.
@@ -123,7 +123,7 @@ sealed template GenericComplex(ST: Type)
         xy <=> o xy
     }.
 
-    Stdn Utility RelationshipComparisonMethodsMixin.
+    Std Utility RelationshipComparisonMethodsMixin.
 
     const inline method negated ::=> SelfType := {
         <gpu>
@@ -217,7 +217,7 @@ sealed template GenericComplex(ST: Type)
         self asMatrix2x2 castTo: Float64x2x2
     }.
 
-    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (out: Std IO TextStreamWriter ref) ::=> Void := {
         out << xy
     }.
 }.

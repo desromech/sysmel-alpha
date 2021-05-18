@@ -1,12 +1,12 @@
 Compiler
     importModuleNamed: #"Sysmel.Testing";
     loadPackages: #(
-        #"Stdn-Collections-Tests"
-        #"Stdn-Algorithms-Tests"
-        #"Stdn-IO-FileSystem"
-        #"Stdn-IO-Tests"
-        #"Stdn-Memory-Tests"
-        #"Stdn-Functional-Tests"
+        #"Std-Collections-Tests"
+        #"Std-Algorithms-Tests"
+        #"Std-IO-FileSystem"
+        #"Std-IO-Tests"
+        #"Std-Memory-Tests"
+        #"Std-Functional-Tests"
     ).
 
 compileTime if: Compiler hasGarbageCollectedRuntime then: {

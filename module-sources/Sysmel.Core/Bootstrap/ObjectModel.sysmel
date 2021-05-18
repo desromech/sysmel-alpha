@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Reflection definition: {
 
 compileTime constant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
@@ -51,4 +51,4 @@ compileTime if: Compiler hasGarbageCollectedRuntime then: {
 }.
 
 }. ## End of namespace Reflection
-}. ## End of namespace Stdn
+}. ## End of namespace Std

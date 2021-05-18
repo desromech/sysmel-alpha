@@ -1,6 +1,0 @@
-loadFileOnce: "stddef.sysmel".
-loadFileOnce: "stdlib.sysmel".
-loadFileOnce: "stdio.sysmel".
-loadFileOnce: "string.sysmel".
-loadFileOnce: "setjmp.sysmel".
-loadFileOnce: "Stdn.sysmel".

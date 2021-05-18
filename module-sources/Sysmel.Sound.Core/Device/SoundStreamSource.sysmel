@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
  * I am a sound stream generator.
  *#
-class SoundStreamSource superclass: SharedObject; definition: {
+class SoundStreamSource superclass: Std RCObject; definition: {
     virtual method resetState => Void := {
 
     }.
@@ -21,7 +21,7 @@ class SoundStreamSource superclass: SharedObject; definition: {
     virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32x2Buffer: (mixBuffer: Float32x2 pointer) pitch: (pitch: Float32x2) gain: (gain: Float32x2) ::=> Void := {}.
 }.
 
-compileTime constant SoundStreamSourcePtr := SoundStreamSource sharedPointer.
+compileTime constant SoundStreamSourcePtr := SoundStreamSource rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

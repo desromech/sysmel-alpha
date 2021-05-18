@@ -1,17 +1,17 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace GC definition: {
 
-useNamespace: Stdn Reflection.
+useNamespace: Std Reflection.
 
 class NativeCollector definition: {
     compileTime constant CollectionStartThresholdIncrement := 2<<20 castTo: UIntPointer.
 
-    field memoryHeap mutable type: Stdn Memory GarbageCollectableMemoryHeap.
+    field memoryHeap mutable type: Std Memory GarbageCollectableMemoryHeap.
 
-    field collectorMutex type: Stdn Mutex.
-    field moduleRootPointers type: Stdn Collections Vector(GCRootPointersDescriptor).
-    field markingStack type: Stdn Collections Vector(GCObjectHeader pointer).
-    field explicitRootSet type: Stdn Collections Vector(GCObjectHeader pointer pointer). ## FIME: use a set here.
+    field collectorMutex type: Std Mutex.
+    field moduleRootPointers type: Std Collections Vector(GCRootPointersDescriptor).
+    field markingStack type: Std Collections Vector(GCObjectHeader pointer).
+    field explicitRootSet type: Std Collections Vector(GCObjectHeader pointer pointer). ## FIME: use a set here.
 
     field whiteColor type: UInt32.
     field grayColor type: UInt32.
@@ -52,12 +52,12 @@ class NativeCollector definition: {
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
-        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
-          ::=> Stdn Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: Std Reflection BasicInitializeFunctionPointerType)
+          ::=> Std Reflection GCObjectHeader pointer := {
         <nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
@@ -73,16 +73,16 @@ class NativeCollector definition: {
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
-        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
-        copyingFrom: (originalObject: Void pointer) copyConstructor: (copyConstructor: Stdn Reflection CopyConstructorFunctionPointerType)
-          ::=> Stdn Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: Std Reflection BasicInitializeFunctionPointerType)
+        copyingFrom: (originalObject: Void pointer) copyConstructor: (copyConstructor: Std Reflection CopyConstructorFunctionPointerType)
+          ::=> Std Reflection GCObjectHeader pointer := {
         <nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: objectSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
         copyConstructor ifNil: {
             LibC memcpy(allocatedObject, originalObject, objectSize).
-            Stdn assert: allocatedObject _ __variableDataSize = variableDataSize.
+            Std assert: allocatedObject _ __variableDataSize = variableDataSize.
 
             allocatedObject _
                 __gcColor: whiteColor.
@@ -103,11 +103,11 @@ class NativeCollector definition: {
 
     method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
 		copyingFromPrototype: (prototype: Void pointer)
-		  ::=> Stdn Reflection GCObjectHeader pointer := {
+		  ::=> Std Reflection GCObjectHeader pointer := {
 		<nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := (self allocateMemoryForObjectOfSize: instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (self allocateMemoryForObjectOfSize: instanceSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
 
         ## Copy the data from the prototype
         LibC memcpy(allocatedObject, prototype, instanceSize).
@@ -134,7 +134,7 @@ class NativeCollector definition: {
 
     method swapColors => Void := {
         <nogc>
-        Stdn swapValue: whiteColor with: blackColor.
+        Std swapValue: whiteColor with: blackColor.
     }.
 
     method garbageCollect => Void := {
@@ -160,7 +160,7 @@ class NativeCollector definition: {
     method mark => Void := {
         <nogc>
 
-        Stdn assert: whiteColor ~= grayColor && grayColor ~= blackColor && blackColor ~= whiteColor.
+        Std assert: whiteColor ~= grayColor && grayColor ~= blackColor && blackColor ~= whiteColor.
         self markRoots.
         until: markingStack isEmpty do: {
             let currentObject := markingStack last.
@@ -173,8 +173,8 @@ class NativeCollector definition: {
 
     method expandMarkingFrom: (object: GCObjectHeader pointer) ::=> Void := {
         <nogc>
-        Stdn assert: object __isImmediateValue not.
-        Stdn assert: object _ __gcColor = grayColor.
+        Std assert: object __isImmediateValue not.
+        Std assert: object _ __gcColor = grayColor.
 
         let protoObject := object reinterpretCastTo: Smalltalk ProtoObject.
         let behavior := protoObject class.
@@ -189,10 +189,10 @@ class NativeCollector definition: {
 
     method enqueueNextObject: (object: GCObjectHeader pointer) ::=> Void := {
         <nogc>
-        Stdn assert: ((object reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: UIntPointer) ~~ 16r657a.
+        Std assert: ((object reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: UIntPointer) ~~ 16r657a.
         object __isImmediateValue not && object _ __gcColor = whiteColor ifTrue: {
             object _ __gcColor: grayColor.
-            ##Stdn stdout << "enqueueNextObject " << object; nl.
+            ##Std stdout << "enqueueNextObject " << object; nl.
             markingStack add: object
         }
     }.
@@ -209,9 +209,9 @@ class NativeCollector definition: {
         memoryHeap sweepAllocationsWhen: {:allocation :: Boolean8|
             let object := allocation reinterpretCastTo: GCObjectHeader pointer.
             let color := object _ __gcColor.
-            Stdn assert: color ~= grayColor.
+            Std assert: color ~= grayColor.
             #*color = whiteColor ifTrue: {
-                Stdn stdout << "sweep ["
+                Std stdout << "sweep ["
                     << ((allocation reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: Void pointer)
                     << "] " << allocation; nl.
             }.*#
@@ -256,4 +256,4 @@ class NativeCollector definition: {
 }.
 
 }. ## End of namespace GC
-}. ## End of namespace Stdn
+}. ## End of namespace Std

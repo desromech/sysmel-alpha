@@ -1,19 +1,19 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I represent an interface into a window system window.
  *#
-class Window superclass: SharedObject; definition: {
-    public field eventHandler type: EventHandler sharedPointer.
+class Window superclass: Std RCObject; definition: {
+    public field eventHandler type: EventHandler rcPointer.
     public field animated type: Boolean8.
     public field vsyncDisabled type: Boolean8.
 
-    virtual method windowSystem => WindowSystemRef
-        := WindowSystemRef nil.
+    virtual method windowSystem => WindowSystemPtr
+        := WindowSystemPtr nil.
 
     #**
      * This method closes the window.
@@ -35,13 +35,13 @@ class Window superclass: SharedObject; definition: {
     #**
      * This method creates gets or creates a default rendering device.
      *#
-    abstract method renderingDevice => RenderingDevice sharedPointer.
+    abstract method renderingDevice => RenderingDevice rcPointer.
 
     #**
      * This method sets a particular rendering device that should be used with this window.
      * This rendering device is used for creating a swap chain suitable for this window.
      *#
-    abstract method renderingDevice: (theRenderingDevice: RenderingDevice sharedPointer) ::=> Void.
+    abstract method renderingDevice: (theRenderingDevice: RenderingDevice rcPointer) ::=> Void.
 
     #**
      * This method creates a swap chain with the specified properties for the
@@ -74,7 +74,7 @@ class Window superclass: SharedObject; definition: {
     #**
      * This method sets the cursor that is active on the window.
      *#
-    virtual method setCursor: (cursor: Cursor sharedPointer const ref) ::=> Void := {
+    virtual method setCursor: (cursor: Cursor rcPointer const ref) ::=> Void := {
 
     }.
 
@@ -99,9 +99,9 @@ class Window superclass: SharedObject; definition: {
     }.
 }.
 
-compileTime constant WindowRef := Window sharedPointer.
-compileTime constant WindowWeakRef := Window weakPointer.
+compileTime constant WindowPtr := Window rcPointer.
+compileTime constant WindowWeakPtr := Window weakRCPointer.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

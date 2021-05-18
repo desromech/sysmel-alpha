@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -11,8 +11,8 @@ class ComputePipelineState superclass: PipelineState; definition: {
 
 }.
 
-compileTime constant ComputePipelineStatePtr := ComputePipelineState sharedPointer.
+compileTime constant ComputePipelineStatePtr := ComputePipelineState rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

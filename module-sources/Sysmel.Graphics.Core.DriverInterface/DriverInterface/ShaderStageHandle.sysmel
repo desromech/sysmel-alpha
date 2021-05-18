@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,8 +8,8 @@ namespace Core definition: {
 class ShaderStageHandle superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant ShaderStageHandlePtr := ShaderStageHandle sharedPointer.
+compileTime constant ShaderStageHandlePtr := ShaderStageHandle rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

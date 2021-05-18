@@ -1,19 +1,19 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a form based texture view.
  *#
 class SoftFormTextureView superclass: SoftTextureView; definition: {
-    public field form type: Form sharedPointer.
+    public field form type: Form rcPointer.
 
     meta definition: {
-        method for: (form: Form sharedPointer const ref) ::=> TextureView sharedPointer
-        := TextureView sharedPointer for: (SoftFormTextureView nativeNew _
+        method for: (form: Form rcPointer const ref) ::=> TextureView rcPointer
+        := TextureView rcPointer for: (SoftFormTextureView nativeNew _
             form: form;
             pixelsBlitter: form _ makeBlitter;
             address).
@@ -24,4 +24,4 @@ class SoftFormTextureView superclass: SoftTextureView; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,8 +8,8 @@ namespace Core definition: {
 class Framebuffer superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant FramebufferPtr := Framebuffer sharedPointer.
+compileTime constant FramebufferPtr := Framebuffer rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,19 +1,19 @@
 Compiler
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
-useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
+useNamespace: Std Math LinearAlgebra.
 
-compileTime constant Node2D := Stdn Graphics Scene2D Node.
-compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
+compileTime constant Node2D := Std Graphics Scene2D Node.
+compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
 
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
-	public field mainWindow type: Window sharedPointer.
+	public field mainWindow type: Window rcPointer.
 	public field mainWindowRenderer type: WindowScene2DRendererPtr.
-	public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+	public field fontFaceWithSize type: FontFaceWithSize rcPointer.
 
 	public field mainRectangle type: RectangleF32.
 	public field mainRectangleNormalColor type: Float32x4.
@@ -33,7 +33,7 @@ class Sample definition: {
 		mainRectangleColor := mainRectangleNormalColor.
 	}.
 
-	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildRenderScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
 		let scene2D mutable :=
 			(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
 			((builder borderRectangle: mainRectangle color: Float32x4 black width: 4.0f) upCastFor: Node2D).
@@ -48,7 +48,7 @@ class Sample definition: {
 
 		{
 			let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
-			let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+			let frameTimeString := Std String textStreamContents: {:out :: Void |
 				out << "Frame time " << (frameTime * 1000.0) << " ms"; nl.
 				out << "FPS " << 1.0f / frameTime; nl.
 				out << "Current time " << currentTime; nl.
@@ -94,7 +94,7 @@ class Sample definition: {
 
 	    ## Create the event handler.
 	    {
-	        let eventHandler := MainWindowEventHandler sharedNew.
+	        let eventHandler := MainWindowEventHandler rcNew.
 			eventHandler _ sample: self address.
 	        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
 	    }.
@@ -105,7 +105,7 @@ class Sample definition: {
 	}.
 
 	method render ::=> Void := {
-		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
+		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
 		mainWindowRenderer _
 			clearColor: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
 			renderScene: (self buildRenderScene2D: (mainWindowRenderer _ newSceneBuilder _));
@@ -168,7 +168,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
     }.
 }.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
 	let sample mutable := Sample().
 
 	args do: {:arg :: Void |

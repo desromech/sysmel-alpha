@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -11,8 +11,8 @@ class RenderingDeviceFontCache superclass: RenderingDriverObjectHandle; definiti
     abstract method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> FontFaceWithSizePtr.
 }.
 
-compileTime constant RenderingDeviceFontCachePtr := RenderingDeviceFontCache sharedPointer.
+compileTime constant RenderingDeviceFontCachePtr := RenderingDeviceFontCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

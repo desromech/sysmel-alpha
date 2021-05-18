@@ -4,15 +4,15 @@ namespace Norphic definition: {
  * I am a button widget norph with a text label.
  *#
 class SimpleButtonNorph superclass: AbstractButtonNorph; definition: {
-    protected field label type: StringNorph sharedPointer.
+    protected field label type: StringNorph rcPointer.
 
     method initialize => Void := {
-        label := StringNorph sharedNew.
+        label := StringNorph rcNew.
 
         let labelRef := label upCastFor: Norph.
         self addSubnorph: labelRef.
 
-        let sizer := HorizontalBoxSizer sharedNew.
+        let sizer := HorizontalBoxSizer rcNew.
         sizer _ element: label with: {:constraints :: Void |
             constraints centered; allBorders; borderSize: 2.
         }.
@@ -22,15 +22,15 @@ class SimpleButtonNorph superclass: AbstractButtonNorph; definition: {
             autolayout: true
     }.
 
-    method text => Stdn String const ref := {
+    method text => Std String const ref := {
         label _ text.
     }.
 
-    method text: (newLabel: Stdn String const ref) ::=> Void := {
+    method text: (newLabel: Std String const ref) ::=> Void := {
         label _ text: newLabel
     }.
 }.
 
-compileTime constant SimpleButtonNorphPtr := SimpleButtonNorph sharedPointer.
+compileTime constant SimpleButtonNorphPtr := SimpleButtonNorph rcPointer.
 
 }. ## End of namespace Norphic

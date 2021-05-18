@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 
 sealed template GenericQuaternion(ST: Type)
@@ -220,7 +220,7 @@ sealed template GenericQuaternion(ST: Type)
         xyzw closeTo: o xyzw
     }.
 
-    const inline method hash ::=> Stdn Hash := {
+    const inline method hash ::=> Std Hash := {
         <gpu>
         xyzw hash
     }.
@@ -230,7 +230,7 @@ sealed template GenericQuaternion(ST: Type)
         xyzw <=> o xyzw
     }.
 
-    Stdn Utility RelationshipComparisonMethodsMixin.
+    Std Utility RelationshipComparisonMethodsMixin.
 
     const inline method negated ::=> SelfType := {
         <gpu>
@@ -375,7 +375,7 @@ sealed template GenericQuaternion(ST: Type)
     const method inverseRotateVector: (vector: Vector3) ::=> Vector3
         := (self conjugated * SelfType(vector) * self) xyz.
 
-    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (out: Std IO TextStreamWriter ref) ::=> Void := {
         out << xyzw
     }.
 }.
@@ -384,4 +384,4 @@ compileTime constant QuaternionF32 := GenericQuaternion(Float32).
 compileTime constant QuaternionF64 := GenericQuaternion(Float64).
 
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

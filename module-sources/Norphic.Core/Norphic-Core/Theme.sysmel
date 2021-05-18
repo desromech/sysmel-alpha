@@ -1,12 +1,12 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I represent a norph Theme
  *#
-class Theme superclass: Stdn Object; definition: {
-    public field font type: Font sharedPointer.
+class Theme superclass: Std RCObject; definition: {
+    public field font type: Font rcPointer.
     public field fontPointSize type: UInt32.
 
     public field defaultBorderColor type: Float32x4.
@@ -58,8 +58,8 @@ class Theme superclass: Stdn Object; definition: {
 
     }.
 
-    field normalFontFaceWithSize type: FontFaceWithSize sharedPointer.
-    method normalFontFaceWithSize => FontFaceWithSize sharedPointer := {
+    field normalFontFaceWithSize type: FontFaceWithSize rcPointer.
+    method normalFontFaceWithSize => FontFaceWithSize rcPointer := {
         normalFontFaceWithSize ifNil: {
             normalFontFaceWithSize := font _ normalFace _ getOrCreateFaceWithSize: fontPointSize
         }.

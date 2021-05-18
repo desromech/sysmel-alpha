@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Unwind definition: {
 
 function gcExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindException: _Unwind_Exception pointer) => Void := {
@@ -6,7 +6,7 @@ function gcExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindExcep
 }.
 
 
-function allocateGCExceptionDataFor(object: Void pointer, typeInfo: Stdn Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function allocateGCExceptionDataFor(object: Void pointer, typeInfo: Std Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
     let exceptionData := SysmelUnwindExceptionData basicNativeNew.
 
     exceptionData _
@@ -21,7 +21,7 @@ function allocateGCExceptionDataFor(object: Void pointer, typeInfo: Stdn Reflect
 
 Smalltalk Exception extend: {
     method signal := {
-        let typeInfo := self class reinterpretCastTo: Stdn Reflection TypeInformation pointer.
+        let typeInfo := self class reinterpretCastTo: Std Reflection TypeInformation pointer.
 
         ## Use the RTTI type information for cloning the exception object into the heap.
         let exceptionData := allocateGCExceptionDataFor(self reinterpretCastTo: Void pointer, typeInfo).
@@ -33,4 +33,4 @@ Smalltalk Exception extend: {
 }.
 
 }. ## End of namespace Unwind
-}. ## End of namespace Stdn
+}. ## End of namespace Std

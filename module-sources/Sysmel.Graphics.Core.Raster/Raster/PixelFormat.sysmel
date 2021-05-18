@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -322,7 +322,7 @@ enum PixelFormat valueType: UInt32; values: #{
         _ : {return: value}.
         }.
 
-        Stdn abort().
+        Std abort().
     }.
 
     inline method swizzleStoringUnorm8x4: (value: UInt8x4) ::=> UInt8x4 := {
@@ -340,7 +340,7 @@ enum PixelFormat valueType: UInt32; values: #{
         _ : {return: value}.
         }.
 
-        Stdn abort().
+        Std abort().
     }.
 
     inline method isUnknown => Boolean8
@@ -394,7 +394,7 @@ enum PixelFormat valueType: UInt32; values: #{
 
     inline method encodeColorSpace: (color: Float32x4) ::=> Float32x4 := {
         self isInSRGB ifTrue: {
-            Stdn Math Color encodeSRGB(color)
+            Std Math Color encodeSRGB(color)
         } ifFalse: {
             color
         }
@@ -402,7 +402,7 @@ enum PixelFormat valueType: UInt32; values: #{
 
     inline method decodeColorSpace: (color: Float32x4) ::=> Float32x4 := {
         self isInSRGB ifTrue: {
-            Stdn Math Color decodeSRGB(color)
+            Std Math Color decodeSRGB(color)
         } ifFalse: {
             color
         }
@@ -473,7 +473,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         R8G8B8_UNormSRGB : {
-            Stdn Math Color decodeSRGBUnorm8(UInt8x4(memory[0], memory[1], memory[2], 255))
+            Std Math Color decodeSRGBUnorm8(UInt8x4(memory[0], memory[1], memory[2], 255))
         }.
 
         R8G8B8_SNorm : {
@@ -486,7 +486,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         B8G8R8_UNormSRGB : {
-            Stdn Math Color decodeSRGBUnorm8(UInt8x4(memory[2], memory[1], memory[0], 255))
+            Std Math Color decodeSRGBUnorm8(UInt8x4(memory[2], memory[1], memory[0], 255))
         }.
 
         (R8G8B8A8_Typeless, R8G8B8A8_UNorm) asValueInSetPattern : {
@@ -494,7 +494,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         R8G8B8A8_UNormSRGB : {
-            Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _)
+            Std Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _)
         }.
 
         (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm) asValueInSetPattern : {
@@ -502,7 +502,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
-            Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
+            Std Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
         }.
         _ : {Float32x4 zeros }
         }.
@@ -531,7 +531,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         R8G8B8A8_UNormSRGB : {
-            (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f)
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := Std Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f)
         }.
 
         R8G8B8A8_SNorm : {
@@ -551,7 +551,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
-            (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel bgra clampMin: 0.0f max: 1.0f)
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := Std Math Color encodeSRGBUnorm8(pixel bgra clampMin: 0.0f max: 1.0f)
         }.
 
         R8G8B8_UNorm : {
@@ -560,7 +560,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         R8G8B8_UNormSRGB : {
-            let encodedPixel := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
+            let encodedPixel := Std Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
             memory[0] := encodedPixel r. memory[1] := encodedPixel g. memory[2] := encodedPixel b.
         }.
 
@@ -576,7 +576,7 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         B8G8R8_UNormSRGB : {
-            let encodedPixel := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
+            let encodedPixel := Std Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f).
             memory[0] := encodedPixel b. memory[1] := encodedPixel g. memory[2] := encodedPixel r.
         }.
 
@@ -820,4 +820,4 @@ enum PixelFormat valueType: UInt32; values: #{
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

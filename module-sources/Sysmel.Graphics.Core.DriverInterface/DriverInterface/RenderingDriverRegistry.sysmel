@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -7,11 +7,11 @@ namespace Core definition: {
  * I am a registry for rendering drivers.
  *#
 class RenderingDriverRegistry definition: {
-    protected field registeredDrivers type: Stdn Collections Vector(RenderingDriver pointer).
+    protected field registeredDrivers type: Std Collections Vector(RenderingDriver pointer).
 
     meta definition: {
         let defaultInstance mutable type: RenderingDriverRegistry uniquePointer.
-        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let defaultInstanceOnceCreation mutable type: Std OnceFlag.
 
         method default => RenderingDriverRegistry ref := {
             defaultInstanceOnceCreation do: {
@@ -58,4 +58,4 @@ class RenderingDriverRegistry definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

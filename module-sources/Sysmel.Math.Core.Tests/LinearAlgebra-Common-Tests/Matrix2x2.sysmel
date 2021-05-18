@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 namespace Tests definition: {
 
 sealed template GenericMatrix2x2Test(ST: Type)
-    := class superclass: Stdn Testing TestCase; definition: {
+    := class superclass: Std Testing TestCase; definition: {
     compileTime constant GLA := GenericLinearAlgebra(ST).
 
     compileTime constant Scalar := GLA Scalar.
@@ -142,4 +142,4 @@ compileTime constant Float64x2x2Tests := GenericMatrix2x2Test(Float64).
 } ## End of namespace Tests
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

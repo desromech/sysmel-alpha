@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -22,9 +22,9 @@ struct BlendingEquation definition: {
         alphaOperation = o alphaOperation.
     }.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash := {
+    const inline method hash ::=> Std Hash := {
         sourceColorFactor hash ^ destColorFactor hash ^ colorOperation hash ^
         sourceAlphaFactor hash ^ destAlphaFactor hash ^ alphaOperation hash
     }.
@@ -79,4 +79,4 @@ struct BlendingEquation definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

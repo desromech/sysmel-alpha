@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Graphics Scene2DMesh.
+useNamespace: Std Math Geometry.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Graphics Scene2DMesh.
 
 #**
  * I am a 2D scene renderer that constructs a mesh list.
@@ -41,7 +41,7 @@ class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
 }.
 
-compileTime constant MeshListBuilder2DSceneRendererPtr := MeshListBuilder2DSceneRenderer sharedPointer.
+compileTime constant MeshListBuilder2DSceneRendererPtr := MeshListBuilder2DSceneRenderer rcPointer.
 
 class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; definition: {
     public field renderer type: MeshListBuilder2DSceneRenderer pointer.
@@ -299,7 +299,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         let currentState mutable := node drawingState.
 
-        (Stdn Collections UTF8CodePointsIterator for: node string asArraySlice) do: {:c :: Void |
+        (Std Collections UTF8CodePointsIterator for: node string asArraySlice) do: {:c :: Void |
             currentState character: c.
             currentState := self drawCharacterWithState: currentState font: fontFaceWithSize color: node color.
         }.
@@ -370,4 +370,4 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

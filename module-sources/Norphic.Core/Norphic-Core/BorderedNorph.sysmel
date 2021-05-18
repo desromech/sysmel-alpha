@@ -1,7 +1,7 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a norph with a borderd

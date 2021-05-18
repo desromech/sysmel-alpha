@@ -5,8 +5,8 @@ Compiler importModulesNamed: #(
 useNamespace: Sysmel Compiler Parsing.
 useNamespace: Sysmel Compiler SmalltalkLanguage.
 
-function parseAndVerifySourceCode(fileName: Stdn ImmutableString, content: Stdn String const ref) => Void := {
-    let sourceCode := SourceCode sharedNew.
+function parseAndVerifySourceCode(fileName: Std ImmutableString, content: Std String const ref) => Void := {
+    let sourceCode := SourceCode rcNew.
     sourceCode _
         content: content;
         name: fileName.
@@ -14,26 +14,26 @@ function parseAndVerifySourceCode(fileName: Stdn ImmutableString, content: Stdn 
     let tokenizedSourceCode := Scanner() scan: sourceCode.
     tokenizedSourceCode _ tokens do: {:each :: Void |
         each type isError ifTrue: {
-            Stdn stderr << each position << ": tokenization error: " << each type; nl
+            Std stderr << each position << ": tokenization error: " << each type; nl
         }.
     }.
 
     let ast := Parser() parse: tokenizedSourceCode.
     ASTParseErrorCheckerVisitor verify: ast _ callback: {:parserErrorNode :: Void |
-        Stdn stderr << parserErrorNode sourcePosition << ": " << parserErrorNode errorMessage; nl
+        Std stderr << parserErrorNode sourcePosition << ": " << parserErrorNode errorMessage; nl
     }.
 }.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     (args elements from: 1 until: args size) do: {:arg :: Void |
 
         arg = "-" ifTrue: {
-            let contents := Stdn stdin readUntilEnd.
+            let contents := Std stdin readUntilEnd.
             parseAndVerifySourceCode("stdin", contents)
         } ifFalse: {
             let contents := arg asNativeFileReference utf8Contents.
             contents ifNil: {
-                Stdn stderr << "Failed to read content of file named " << arg; nl.
+                Std stderr << "Failed to read content of file named " << arg; nl.
                 return: 1
             }.
 

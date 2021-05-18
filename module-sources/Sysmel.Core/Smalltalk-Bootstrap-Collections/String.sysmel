@@ -12,7 +12,7 @@ String definition: {
 	meta definition: {
 		method fromNativeString: (string: Char8 const arraySlice) ::=> _DependentInstanceType := {
 			let result := self new: string size.
-			Stdn memcpy(result __private __data[0] address, string elements, string size).
+			Std memcpy(result __private __data[0] address, string elements, string size).
 			result
 		}.
 
@@ -42,7 +42,7 @@ String definition: {
 				return: false.
 			}.
 
-			return: (Stdn memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
+			return: (Std memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
 		}.
 		return: (super beginsWith: prefix)
 	}.
@@ -68,7 +68,7 @@ String definition: {
 				return: false.
 			}.
 
-			return: (Stdn memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
+			return: (Std memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
 		}.
 		return: (super endsWith: suffix)
 	}.
@@ -93,7 +93,7 @@ String definition: {
 					return: 0
 				}.
 
-				Stdn memcmp(__data[i - 1] address, substringData, substringSize) == 0 ifTrue: {
+				Std memcmp(__data[i - 1] address, substringData, substringSize) == 0 ifTrue: {
 					return: i
 				}.
 			}.
@@ -149,17 +149,17 @@ String definition: {
             return: false.
         }.
 
-        return: Stdn memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
+        return: Std memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
     }.
 
-	method asStdnMutableString => Stdn String := {
-		Stdn String fromUTF8: __data[0] address size: __data size
+	method asStdnMutableString => Std String := {
+		Std String fromUTF8: __data[0] address size: __data size
 	}.
 
 	method asString
 		:= self.
 
-    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Std IO TextStreamWriter ref) := {
 		__data size > 0 ifTrue: {
 		    writer write: __data [0] address size: __data size
 		}.
@@ -229,7 +229,7 @@ String definition: {
 }.
 
 ProtoObject extend: {
-	method asStdnMutableString => Stdn String := {
+	method asStdnMutableString => Std String := {
 		self asString asStdnMutableString.
 	}
 }.
@@ -241,10 +241,10 @@ ProtoObject extend: {
 
 (Char8 pointer | Char8 const pointer) extend: {
 	method asSmalltalkString => String
-		:= String fromNativeString: (self until: Stdn cstrlen(self))
+		:= String fromNativeString: (self until: Std cstrlen(self))
 }.
 
-Stdn String extend: {
+Std String extend: {
 	const method asSmalltalkString => String
 		:= String fromNativeString: self asArraySlice
 }.

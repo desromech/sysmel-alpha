@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 
 class AbstractMutex definition: {
     method lock => Void
@@ -70,4 +70,4 @@ Thread extend: {
         := void.
 }.
 
-}. ## End of namespace Stdn
+}. ## End of namespace Std

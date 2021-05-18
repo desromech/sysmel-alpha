@@ -1,0 +1,13 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+template SortedDictionary(KT: Type, VT: Type)
+    := class definition: {
+    compileTime constant KeyType := KT.
+    compileTime constant ValueType := VT.
+    compileTime constant AssociationType := Association(KeyType, ValueType).
+    ##compileTime constant NodeType := ExplicitMemoryCollections BalancedTreeNode(AssociationType).
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

@@ -1,12 +1,12 @@
 Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 compileTime constant Texture2DPtr := StrongTextureHandlePtr.
-compileTime constant Node2D := Stdn Graphics Scene2D Node.
-compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
+compileTime constant Node2D := Std Graphics Scene2D Node.
+compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
 
 struct SimpleVertex definition: {
 	public field position type: Float32x4.
@@ -90,7 +90,7 @@ function fuzzyXor(a: Float32, b: Float32) => Float32 := {
 	(a max: b) - (a min: b)
 }.
 
-class Mesh definition: {
+class Mesh superclass: Std RCObject; definition: {
 	public field vertexBinding type: VertexBindingPtr.
 	public field indexBuffer type: BufferPtr.
 	public field indexCount type: UInt32.
@@ -102,14 +102,14 @@ class Mesh definition: {
 			drawElements: indexCount instanceCount: 1 firstIndex: 0 baseVertex: 0 baseInstance: 0.
 	}.
 }.
-compileTime constant MeshPtr := Mesh sharedPointer.
+compileTime constant MeshPtr := Mesh rcPointer.
 
 class MeshBuilder definition: {
 	public field renderingDevice type: RenderingDevicePtr.
 
 	public field baseVertex type: UInt32.
-	public field vertices type: Stdn Collections Vector(SimpleVertex).
-	public field indices type: Stdn Collections Vector(UInt32).
+	public field vertices type: Std Collections Vector(SimpleVertex).
+	public field indices type: Std Collections Vector(UInt32).
 	public field vertexLayout type: VertexLayoutPtr.
 
 	method beginSubmesh => Void := {
@@ -163,7 +163,7 @@ class MeshBuilder definition: {
 		let vertexBinding := renderingDevice _ createVertexBindingFor: vertexLayout.
 		vertexBinding _ bindVertexBuffers: vertexBuffers.
 
-		let result := Mesh sharedNew.
+		let result := Mesh rcNew.
 		result _
 			vertexBinding: vertexBinding;
 			indexBuffer: indexBuffer;
@@ -175,9 +175,9 @@ class MeshBuilder definition: {
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
 	field renderingDevice type: RenderingDevicePtr.
-	field mainWindow type: Window sharedPointer.
+	field mainWindow type: Window rcPointer.
 	field mainWindowRenderer type: WindowScene2DRendererPtr.
-	field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+	field fontFaceWithSize type: FontFaceWithSize rcPointer.
 
 	field shaderSignature type: ShaderSignaturePtr.
 
@@ -261,8 +261,8 @@ class Sample definition: {
 			waitForIdle.
 	}.
 
-	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
-		let rendering3DTime := (Stdn Chrono profileTimeToRun: {
+	method buildRenderScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let rendering3DTime := (Std Chrono profileTimeToRun: {
 			self doRender3D.
 		}) castTo: Float32.
 
@@ -275,7 +275,7 @@ class Sample definition: {
 
 		{
 			let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
-			let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+			let frameTimeString := Std String textStreamContents: {:out :: Void |
 				out << "Frame time " << (frameTime * 1000.0) << " ms"; nl.
 				out << "FPS " << 1.0f / frameTime; nl.
 				out << "Current time " << currentTime; nl.
@@ -292,7 +292,7 @@ class Sample definition: {
 	method render ::=> Void := {
 		(self setMainFramebufferWithExtent: mainWindow _ extent) ifFalse: {return: void}.
 
-		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
+		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
 			mainWindowRenderer _
 				clearColor: Float32x4 zeros;
 				renderScene: (self buildRenderScene2D: mainWindowRenderer _ newSceneBuilder _);
@@ -353,7 +353,7 @@ class Sample definition: {
 		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
 
 		colorBufferTextureHandle := mainWindowRenderer _ newSceneBuilder _
-			createTextureHandleFor: (colorBuffer upCastFor: Stdn SharedObject) view: (colorBufferTextureView upCastFor: Stdn SharedObject).
+			createTextureHandleFor: (colorBuffer upCastFor: Std RCObject) view: (colorBufferTextureView upCastFor: Std RCObject).
 
 		let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
 			type: TextureType Texture2D;
@@ -629,7 +629,7 @@ class Sample definition: {
 
 	    ## Create the event handler.
 	    {
-	        let eventHandler := MainWindowEventHandler sharedNew.
+	        let eventHandler := MainWindowEventHandler rcNew.
 			eventHandler _ sample: self address.
 	        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
 	    }.
@@ -667,7 +667,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
     }.
 }.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
 	let sample mutable := Sample().
 	args do: {:arg :: Void |
 		arg selectCase: #{

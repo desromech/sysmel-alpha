@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Unwind definition: {
 Smalltalk Exception extend: {
     method signal := {
-        let typeInfo := self class reinterpretCastTo: Stdn Reflection TypeInformation pointer.
+        let typeInfo := self class reinterpretCastTo: Std Reflection TypeInformation pointer.
 
         ## Find the target catching context.
         let (let matchingContext, let catchActionIndex) := findContextCatchingTypeInfo(typeInfo).
@@ -14,4 +14,4 @@ Smalltalk Exception extend: {
     }.
 }.
 }. ## End of namespace Unwind
-}. ## End of namespace Stdn
+}. ## End of namespace Std

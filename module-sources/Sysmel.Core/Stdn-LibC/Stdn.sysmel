@@ -1,4 +1,0 @@
-namespace Stdn definition: {
-function native_abort noReturn() => Void
-    := LibC abort().
-}.

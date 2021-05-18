@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 compileTime constant LayoutBuilderBlock := (LayoutBuilder ref => Void) nativeStackBlockClosure.
 compileTime constant SizerLayoutBuilderBlock := (SizerLayoutBuilder ref => Void) nativeStackBlockClosure.
@@ -66,11 +66,11 @@ class SizerLayoutBuilder superclass: LayoutBuilder; definition: {
     public field sizer type: SizerPtr.
 
     method forVerticalBox => Void := {
-        sizer := VerticalBoxSizer sharedNew upCastFor: Sizer
+        sizer := VerticalBoxSizer rcNew upCastFor: Sizer
     }.
 
     method forHorizontalBox => Void := {
-        sizer := HorizontalBoxSizer sharedNew upCastFor: Sizer
+        sizer := HorizontalBoxSizer rcNew upCastFor: Sizer
     }.
 
     method buildWith: (aBlock: SizerLayoutBuilderBlock) ::=> Void := {
@@ -111,7 +111,7 @@ class NorphLayoutBuilder superclass: LayoutBuilder; definition: {
     override method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
         let fullSizer mutable := subBuilder sizer.
         constraintsBlock ifNotNil: {
-            let ownerSizer := VerticalBoxSizer sharedNew.
+            let ownerSizer := VerticalBoxSizer rcNew.
             ownerSizer _ element: fullSizer with: constraintsBlock.
             fullSizer := ownerSizer upCastFor: Sizer
         }.
@@ -121,7 +121,7 @@ class NorphLayoutBuilder superclass: LayoutBuilder; definition: {
     }.
 
     override method addSubBuilderResult: (subBuilder: NorphLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
-        let fullSizer := VerticalBoxSizer sharedNew.
+        let fullSizer := VerticalBoxSizer rcNew.
         constraintsBlock ifNotNil: {
             fullSizer _ element: subBuilder owner with: constraintsBlock.
         } ifNil: {
@@ -138,7 +138,7 @@ class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
     field panedNorph type: PanedNorphPtr.
 
     override method ownerForSizer => NorphPtr := {
-        let result := Norph sharedNew.
+        let result := Norph rcNew.
         result _
             color: Float32x4 transparent.
         result
@@ -149,12 +149,12 @@ class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
     }.
 
     method forHorizontalPaned => Void := {
-        panedNorph := HorizontalPanedNorph sharedNew upCastFor: PanedNorph.
+        panedNorph := HorizontalPanedNorph rcNew upCastFor: PanedNorph.
         owner := panedNorph upCastFor: Norph.
     }.
 
     method forVerticalPaned => Void := {
-        panedNorph := VerticalPanedNorph sharedNew upCastFor: PanedNorph.
+        panedNorph := VerticalPanedNorph rcNew upCastFor: PanedNorph.
         owner := panedNorph upCastFor: Norph.
     }.
 
@@ -183,7 +183,7 @@ class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
 Norph extend: {
     method buildLayoutWith: (aBlock: LayoutBuilderBlock) ::=> Void := {
         NorphLayoutBuilder()
-            on: self asSharedPointer buildWith: aBlock
+            on: self asRCPointer buildWith: aBlock
     }.
 }.
 

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
@@ -12,16 +12,16 @@ class SoftSoundBuffer superclass: SoundBuffer; definition: {
     method initializeWithDescription: (theDescription: SoundBufferDescription const ref) ::=> Void := {
         description := theDescription.
         dataSize := description bufferByteSize.
-        data reset: (Stdn zmalloc(dataSize) reinterpretCastTo: UInt8 pointer)
+        data reset: (Std zmalloc(dataSize) reinterpretCastTo: UInt8 pointer)
     }.
 
     override method upload: (newData: Void const pointer) size: (size: UIntPointer) offset: (offset: UIntPointer) ::=> Void := {
         size + offset > dataSize ifTrue: {return: void}.
-        Stdn memcpy(data getPointer + offset, newData, size).
+        Std memcpy(data getPointer + offset, newData, size).
     }.
 }.
 
-compileTime constant SoftSoundBufferPtr := SoftSoundBuffer sharedPointer.
+compileTime constant SoftSoundBufferPtr := SoftSoundBuffer rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

@@ -1,18 +1,18 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 class BlendingModeNode superclass: ParameterChangeNode; definition: {
-    public field blendingMode type: Stdn Graphics Core BlendingMode.
+    public field blendingMode type: Std Graphics Core BlendingMode.
 
     override method accept: (visitor: Visitor ref) ::=> Void
         := visitor visitBlendingModeNode: self.
 }.
 
-compileTime constant BlendingModeNodePtr := BlendingModeNode sharedPointer.
+compileTime constant BlendingModeNodePtr := BlendingModeNode rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

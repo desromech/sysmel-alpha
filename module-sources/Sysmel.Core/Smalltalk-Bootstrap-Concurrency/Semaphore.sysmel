@@ -1,7 +1,7 @@
 namespace Smalltalk definition: {
 
 gcclass Semaphore superclass: Object; definition: {
-    field handle type: Stdn Semaphore.
+    field handle type: Std Semaphore.
 
     meta definition: {
         method forMutualExclusion

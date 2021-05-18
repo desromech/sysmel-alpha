@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTSymbolLiteralNode superclass: ASTNode; definition: {
-    public field value type: Stdn String.
+    public field value type: Std String.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitSymbolLiteralNode: self.

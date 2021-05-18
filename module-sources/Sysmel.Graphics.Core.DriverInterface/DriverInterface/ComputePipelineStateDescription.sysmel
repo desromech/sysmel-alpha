@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -11,13 +11,13 @@ struct ComputePipelineStateDescription definition: {
 
     const method = (other: SelfType const ref) ::=> Boolean8
         := shaderSignature = other shaderSignature && computeShader = other computeShader.
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const method hash => Stdn Hash
+    const method hash => Std Hash
         := shaderSignature hash ^ computeShader hash.
 
 }.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

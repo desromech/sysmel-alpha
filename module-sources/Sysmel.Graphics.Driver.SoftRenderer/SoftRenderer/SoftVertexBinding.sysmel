@@ -1,21 +1,21 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am an specification for a vertex attribute.
  *#
 class SoftVertexBinding superclass: VertexBinding; definition: {
-    public field layout type: SoftVertexLayout sharedPointer.
+    public field layout type: SoftVertexLayout rcPointer.
 
-    public field buffers type: Stdn Collections Vector(SoftBuffer sharedPointer).
-    public field offsets type: Stdn Collections Vector(UIntPointer).
-    public field bufferStartPointers type: Stdn Collections Vector(UInt8 const pointer).
+    public field buffers type: Std Collections Vector(SoftBuffer rcPointer).
+    public field offsets type: Std Collections Vector(UIntPointer).
+    public field bufferStartPointers type: Std Collections Vector(UInt8 const pointer).
 
-    method initializeWithLayout: (theLayout: SoftVertexLayout sharedPointer const ref) ::=> Void := {
+    method initializeWithLayout: (theLayout: SoftVertexLayout rcPointer const ref) ::=> Void := {
         layout := theLayout.
         let bufferCount := layout _ strides size.
         buffers resizeTo: bufferCount.
@@ -27,7 +27,7 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
         := layout upCastFor: VertexLayout.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
-        Stdn assert: theVertexBuffers size = buffers size.
+        Std assert: theVertexBuffers size = buffers size.
         0 until: buffers size do: {:i :: Void |
             buffers[i] := theVertexBuffers[i] downCastFor: SoftBuffer.
             offsets[i] := 0
@@ -37,8 +37,8 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
     }.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (theOffsets: Offsets) ::=> Void := {
-        Stdn assert: theVertexBuffers size = buffers size.
-        Stdn assert: offsets size = buffers size.
+        Std assert: theVertexBuffers size = buffers size.
+        Std assert: offsets size = buffers size.
         0 until: buffers size do: {:i :: Void |
             buffers[i] := theVertexBuffers[i] downCastFor: SoftBuffer.
             offsets[i] := theOffsets[i]
@@ -81,4 +81,4 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

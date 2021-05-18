@@ -1,0 +1,19 @@
+namespace Std definition: {
+
+macro method MainEntryPoint: aBlock := {
+    ``{
+    function sysmel_main externC(__main_entry_point_raw_args: Char8 const pointer arraySlice const ref) => Int32 := {
+        let __main_entry_point_raw_args_list mutable type: Std Collections Vector(Std ImmutableString).
+        __main_entry_point_raw_args_list reserve: __main_entry_point_raw_args size.
+        __main_entry_point_raw_args do: {:each :: Void |
+            __main_entry_point_raw_args_list add: (each until: Std cstrlen(each)).
+        }.
+
+        `,aBlock __macroInlineBlock: __main_entry_point_raw_args_list asArraySlice
+    }.
+
+    Std GenerateMainEntryPointInvokationSupportCode
+    } asSequenceWithoutLexicalScope.
+}
+
+}. ## End of namespace Std

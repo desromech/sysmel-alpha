@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a agpu based device.
@@ -48,8 +48,8 @@ sealed class AgpuBuffer superclass: Buffer; definition: {
 
 }.
 
-compileTime constant AgpuBufferPtr := AgpuBuffer sharedPointer.
+compileTime constant AgpuBufferPtr := AgpuBuffer rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

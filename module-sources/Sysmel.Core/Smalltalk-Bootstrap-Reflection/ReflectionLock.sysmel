@@ -1,9 +1,9 @@
 namespace Smalltalk definition: {
 namespace Runtime definition: {
 
-static global globalReflectionLockStateChangedCondition mutable type: Stdn ConditionVariable;
+static global globalReflectionLockStateChangedCondition mutable type: Std ConditionVariable;
     constructionPriority: Compiler compilationTarget gcInitializationPriority.
-static global globalReflectionLockStateMutex mutable type: Stdn Mutex;
+static global globalReflectionLockStateMutex mutable type: Std Mutex;
     constructionPriority: Compiler compilationTarget gcInitializationPriority.
 static global globalReflectionReadLockCount mutable type: UIntPointer.
 static global globalReflectionWriteLockWaitingCount mutable type: UIntPointer. ## We give priority to the writers to prevent starvation.
@@ -34,13 +34,13 @@ function enterReflectionLockedRead() => Void := {
 
 function leaveReflectionLockedRead() => Void := {
     <nogc>
-    Stdn assert: globalReflectionThisThreadReadEnterCount > 0.
+    Std assert: globalReflectionThisThreadReadEnterCount > 0.
     globalReflectionThisThreadReadEnterCount := globalReflectionThisThreadReadEnterCount - 1.
 
     globalReflectionThisThreadReadEnterCount == 0 && globalReflectionThisThreadWriteEnterCount == 0 ifTrue: {
         globalReflectionLockStateMutex withLock: {
-            Stdn assert: globalReflectionReadLockCount > 0.
-            Stdn assert: globalReflectionWriteLockTaken not.
+            Std assert: globalReflectionReadLockCount > 0.
+            Std assert: globalReflectionWriteLockTaken not.
 
             globalReflectionReadLockCount := globalReflectionReadLockCount - 1.
 
@@ -67,7 +67,7 @@ function enterReflectionLockedWrite() => Void := {
             ## release the read lock to prevent a deadlock where multiple
             ## readers would like to upgrade its lock.
             globalReflectionThisThreadReadEnterCount > 0 ifTrue: {
-                Stdn assert: globalReflectionReadLockCount > 0.
+                Std assert: globalReflectionReadLockCount > 0.
                 globalReflectionReadLockCount := globalReflectionReadLockCount - 1.
                 globalReflectionReadLockCount == 0 ifTrue: {
                     globalReflectionLockStateChangedCondition notifyAll
@@ -95,12 +95,12 @@ function enterReflectionLockedWrite() => Void := {
 
 function leaveReflectionLockedWrite() => Void := {
     <nogc>
-    Stdn assert: globalReflectionThisThreadWriteEnterCount > 0.
+    Std assert: globalReflectionThisThreadWriteEnterCount > 0.
     globalReflectionThisThreadWriteEnterCount := globalReflectionThisThreadWriteEnterCount - 1.
 
     globalReflectionThisThreadWriteEnterCount == 0 ifTrue: {
         globalReflectionLockStateMutex withLock: {
-            Stdn assert: globalReflectionWriteLockTaken.
+            Std assert: globalReflectionWriteLockTaken.
             globalReflectionWriteLockTaken := false.
             globalReflectionLockStateChangedCondition notifyAll.
 

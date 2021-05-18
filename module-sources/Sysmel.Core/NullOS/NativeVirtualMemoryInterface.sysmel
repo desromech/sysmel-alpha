@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 
 #**
  * Null virtual memory interface.
@@ -25,4 +25,4 @@ namespace NativeVirtualMemoryInterface definition: {
 
 }.
 
-}. ## End of namespace Stdn
+}. ## End of namespace Std

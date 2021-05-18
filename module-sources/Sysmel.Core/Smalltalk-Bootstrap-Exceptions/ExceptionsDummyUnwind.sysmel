@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 
 Smalltalk Exception extend: {
     method signal := {
@@ -9,4 +9,4 @@ Smalltalk Exception extend: {
         self
     }.
 }.
-}. ## End of namespace Stdn
+}. ## End of namespace Std

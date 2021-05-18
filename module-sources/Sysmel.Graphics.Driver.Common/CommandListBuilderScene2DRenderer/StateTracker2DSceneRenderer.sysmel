@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
-useNamespace: Stdn Graphics Scene2DMesh.
+useNamespace: Std Math Geometry.
+useNamespace: Std Graphics Scene2DMesh.
 
 #**
  * I am a 2D scene renderer that draws onto a specific state tracker.
@@ -25,8 +25,8 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
     protected field indexBuffer type: BufferPtr.
 
-    protected field texturingBindingDictionary type: Stdn Collections Dictionary(TextureViewPtr, ShaderResourceBindingsPtr).
-    protected field texturingBindings type: Stdn Collections Vector(ShaderResourceBindingsPtr).
+    protected field texturingBindingDictionary type: Std Collections Dictionary(TextureViewPtr, ShaderResourceBindingsPtr).
+    protected field texturingBindings type: Std Collections Vector(ShaderResourceBindingsPtr).
     protected field nextAvailableTexturingBindings type: UIntPointer.
 
     private field currentActiveClipSubmesh type: Int32.
@@ -284,8 +284,8 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
 }.
 
-compileTime constant StateTracker2DSceneRendererPtr := StateTracker2DSceneRenderer sharedPointer.
+compileTime constant StateTracker2DSceneRendererPtr := StateTracker2DSceneRenderer rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -4,8 +4,8 @@ namespace Norphic definition: {
  * I am abstract base for text editor widgets in Norphic.
  *#
 class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
-    protected field textModel type: TextModel sharedPointer.
-    protected field textEditingArea type: TextEditingAreaNorph sharedPointer.
+    protected field textModel type: TextModel rcPointer.
+    protected field textEditingArea type: TextEditingAreaNorph rcPointer.
 
     override method isClipped => Boolean8
         := true.
@@ -20,7 +20,7 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
         self createTextEditingArea.
         self addSubnorph: (textEditingArea upCastFor: Norph).
 
-        let sizer := HorizontalBoxSizer sharedNew.
+        let sizer := HorizontalBoxSizer rcNew.
         sizer _ element: textEditingArea with: {:constraints :: Void |
             constraints expanded; centered; allBorders; proportion: 1.0; borderSize: 4.
         }.
@@ -36,34 +36,34 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     override method handlesKeyboardEvents => Boolean8
         := true.
 
-    const virtual method textModel => TextModel sharedPointer const ref
+    const virtual method textModel => TextModel rcPointer const ref
         := textModel.
 
-    const method text ::=> Stdn String := {
+    const method text ::=> Std String := {
         textModel ifNil: {
-            Stdn String ()
+            Std String ()
         } ifNotNil: {
             textModel _ text
         }
     }.
 
-    method text: (newText: Stdn String const ref) ::=> Void := {
+    method text: (newText: Std String const ref) ::=> Void := {
         textModel ifNotNil: {
             textModel _ text: newText
         }
     }.
 
-    virtual method textModel: (aTextModel: TextModel sharedPointer const ref) ::=> Void := {
+    virtual method textModel: (aTextModel: TextModel rcPointer const ref) ::=> Void := {
         textModel := aTextModel.
         textEditingArea _ textModel: aTextModel.
     }.
 
     virtual method createTextEditingArea => Void := {
-        textEditingArea := TextEditingAreaNorph sharedNew.
+        textEditingArea := TextEditingAreaNorph rcNew.
     }.
 
     virtual method createTextModel => Void := {
-        let simpleTextModel := SimpleTextModel sharedNew.
+        let simpleTextModel := SimpleTextModel rcNew.
         simpleTextModel _
             color: self theme _ textColor;
             fontFaceWithSize: self theme _ normalFontFaceWithSize.
@@ -72,6 +72,6 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     }.
 }.
 
-compileTime constant AbstractTextEditorNorphPtr := AbstractTextEditorNorph sharedPointer.
+compileTime constant AbstractTextEditorNorphPtr := AbstractTextEditorNorph rcPointer.
 
 }. ## End of namespace Norphic

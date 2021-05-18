@@ -22,20 +22,20 @@ gcclass TestRunner definition: {
         := self runTestCases: TestCase allSubclasses.
 
     method printReport := {
-        Stdn stdout << "==============================================="; nl.
-        Stdn stdout << "GC test execution report:"; nl.
-        Stdn stdout << "==============================================="; nl.
-        Stdn stdout << "Running test count: " << self runningTestCount; nl.
+        Std stdout << "==============================================="; nl.
+        Std stdout << "GC test execution report:"; nl.
+        Std stdout << "==============================================="; nl.
+        Std stdout << "Running test count: " << self runningTestCount; nl.
         self skippedTestCount > 0 ifTrue: {
-            Stdn stdout << "Skipped test count: " << self skippedTestCount; nl.
+            Std stdout << "Skipped test count: " << self skippedTestCount; nl.
         }.
         self failingTestCount > 0 ifTrue: {
-            Stdn stdout << "Failing test count: " << self failingTestCount; nl.
+            Std stdout << "Failing test count: " << self failingTestCount; nl.
         }.
         self errorTestCount > 0 ifTrue: {
-            Stdn stdout << "Error test count: " << self errorTestCount; nl.
+            Std stdout << "Error test count: " << self errorTestCount; nl.
         }.
-        Stdn stdout << "Passing test count: " << self passingTestCount; nl.
+        Std stdout << "Passing test count: " << self passingTestCount; nl.
         self
     }.
 
@@ -54,7 +54,7 @@ gcclass TestRunner definition: {
             return: self.
         }.
 
-        Stdn stdout << "--- Running test case " << aTestCase ; nl.
+        Std stdout << "--- Running test case " << aTestCase ; nl.
 
         testSelectors do: {:testSelector :: Void |
             self runTestCase: aTestCase testWithSelector: testSelector
@@ -65,7 +65,7 @@ gcclass TestRunner definition: {
 
     method runTestCase: aTestCase testWithSelector: testSelector := {
         self catchExceptionsDuring: {:: Void |
-            Stdn stdout << testSelector << "..."; flush.
+            Std stdout << testSelector << "..."; flush.
             let testInstance := aTestCase new setUp.
             try: {
                 testInstance perform: testSelector
@@ -76,7 +76,7 @@ gcclass TestRunner definition: {
             isCurrentTestPassing := true.
 
             isCurrentTestPassing ifTrue: {
-                Stdn stdout << "Passing."; nl.
+                Std stdout << "Passing."; nl.
             }.
             self countPassingTest
         }.
@@ -98,19 +98,19 @@ gcclass TestRunner definition: {
             try: {
                 try: {
                     aBlock value
-                } catch: Stdn Testing TestSkipException doing: {:exception :: Void |
+                } catch: Std Testing TestSkipException doing: {:exception :: Void |
                     self countSkippedTest.
-                    Stdn stdout << "Skipped."; nl.
+                    Std stdout << "Skipped."; nl.
                 }
-            } catch: Stdn AssertionFailure doing: {:exception :: Void |
+            } catch: Std AssertionFailure doing: {:exception :: Void |
                 self countFailingTest.
-                Stdn stdout << "Failure:"; nl.
-                Stdn stdout << exception; nl.
+                Std stdout << "Failure:"; nl.
+                Std stdout << exception; nl.
             }
-        } catch: Stdn Error doing: {:exception :: Void |
+        } catch: Std Error doing: {:exception :: Void |
             self countErrorTest.
-            Stdn stdout << "Error:"; nl.
-            Stdn stdout << exception; nl.
+            Std stdout << "Error:"; nl.
+            Std stdout << exception; nl.
         }.
 
         self
@@ -123,17 +123,17 @@ gcclass TestRunner definition: {
                     aBlock value
                 } catch: TestSkip doing: {:exception :: Void |
                     self countSkippedTest.
-                    Stdn stdout << "Skipped."; nl.
+                    Std stdout << "Skipped."; nl.
                 }
             } catch: AssertionFailure doing: {:exception :: Void |
                 self countFailingTest.
-                Stdn stdout << "Failure:"; nl.
-                Stdn stdout << exception; nl.
+                Std stdout << "Failure:"; nl.
+                Std stdout << exception; nl.
             }
         } catch: Error doing: {:exception :: Void |
             self countErrorTest.
-            Stdn stdout << "Error:"; nl.
-            Stdn stdout << exception; nl.
+            Std stdout << "Error:"; nl.
+            Std stdout << exception; nl.
         }.
 
         self

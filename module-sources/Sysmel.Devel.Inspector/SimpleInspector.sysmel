@@ -18,11 +18,11 @@ Collection definition: {
 
 gcclass SimpleInspector definition: {
     public field inspectedObject.
-    protected field norphicWindow type: SystemWindowNorph sharedPointer.
+    protected field norphicWindow type: SystemWindowNorph rcPointer.
 
-    protected field label type: LabelNorph sharedPointer.
-    protected field listView type: ListViewNorph sharedPointer.
-    protected field evaluationEditor type: TextAreaNorph sharedPointer.
+    protected field label type: LabelNorph rcPointer.
+    protected field listView type: ListViewNorph rcPointer.
+    protected field evaluationEditor type: TextAreaNorph rcPointer.
 
     meta definition: {
         method openOn: anObject
@@ -32,9 +32,9 @@ gcclass SimpleInspector definition: {
     }.
 
     method createWidgets := {
-        label := LabelNorph sharedNew.
-        listView := ListViewNorph sharedNew.
-        evaluationEditor := TextAreaNorph sharedNew.
+        label := LabelNorph rcNew.
+        listView := ListViewNorph rcNew.
+        evaluationEditor := TextAreaNorph rcNew.
         self
     }.
 
@@ -46,7 +46,7 @@ gcclass SimpleInspector definition: {
 
     method addKey: key value: value := {
         listView _ addItem: (key asString -- ": " -- value printString) asStdnMutableString.
-        ##Stdn stdout << "Inspector add key " << key << " value " << value; nl.
+        ##Std stdout << "Inspector add key " << key << " value " << value; nl.
         self.
     }.
 
@@ -75,7 +75,7 @@ gcclass SimpleInspector definition: {
     }.
 
     method open := {
-        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem activeWindowSystem
+        norphicWindow := SystemWindowNorph createFor: Std Graphics GUI WindowSystem activeWindowSystem
             title: "Inspector" asMutableString extent: Int32x2(400, 400).
         self
             createWidgets;

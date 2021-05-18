@@ -1,24 +1,24 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace BinaryEncoding definition: {
 
-function encodeBase16String(byteArray: Stdn ByteVector const ref) ::=> Stdn String := {
-    Stdn String textStreamContents: {:out :: Void |
+function encodeBase16String(byteArray: Std ByteVector const ref) ::=> Std String := {
+    Std String textStreamContents: {:out :: Void |
         byteArray do: {:byte :: Void |
             out nextPutHexDigit: byte >> 4; nextPutHexDigit: byte & 16rf
         }
     }
 }.
 
-function decodeBase16String(string: Stdn String const ref) ::=> Stdn ByteVector := {
-    Stdn assert: (string size % 2) == 0.
-    let result mutable := Stdn ByteVector().
+function decodeBase16String(string: Std String const ref) ::=> Std ByteVector := {
+    Std assert: (string size % 2) == 0.
+    let result mutable := Std ByteVector().
     result reserve: string size / 2.
 
     0 until: string size by: 2 do: {:(UIntPointer)i :: Void |
         let high := string[i].
         let low := string[i + 1].
-        result add: ((Stdn parseHexDigit(high) << 4) | Stdn parseHexDigit(low) castTo: UInt8)
+        result add: ((Std parseHexDigit(high) << 4) | Std parseHexDigit(low) castTo: UInt8)
     }.
 
     result
@@ -26,4 +26,4 @@ function decodeBase16String(string: Stdn String const ref) ::=> Stdn ByteVector 
 
 }. ## End of namespace DOM
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

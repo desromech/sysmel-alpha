@@ -1,0 +1,212 @@
+namespace Std definition: {
+namespace IO definition: {
+
+#**
+ * Binary data stream reader
+ *#
+class BinaryDataStreamReader superclass: BinaryDataStreamReaderWriterCommon; definition: {
+    meta method for: (stream: Stream pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            isGood: true;
+            yourself.
+
+    inline method nextBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
+        := ((stream _ read: buffer size: count) castTo: UIntPointer) == count .
+
+    ## Native data fetching without byte swapping.
+    inline method nextNativeUInt8Into: (dest: UInt8 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 1) == 1.
+    inline method nextNativeInt8Into: (dest: Int8 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 1) == 1.
+
+    inline method nextNativeUInt16Into: (dest: UInt16 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 2) == 2.
+    inline method nextNativeInt16Into: (dest: Int16 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 2) == 2.
+
+    inline method nextNativeUInt32Into: (dest: UInt32 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 4) == 4.
+    inline method nextNativeInt32Into: (dest: Int32 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 4) == 4.
+
+    inline method nextNativeUInt64Into: (dest: UInt64 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 8) == 8.
+    inline method nextNativeInt64Into: (dest: Int64 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 8) == 8.
+
+    inline method nextNativeFloat32Into: (dest: Float32 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 4) == 4.
+    inline method nextNativeFloat64Into: (dest: Float64 ref) ::=> Boolean8
+        := (stream _ read: dest address size: 8) == 8.
+
+    inline method swapFromActiveEndianness16: (v: UInt16 pointer) ::=> Boolean8
+		:= self swap16: v endianness: activeEndianness.
+
+    inline method swapFromActiveEndianness32: (v: UInt32 pointer) ::=> Boolean8
+		:= self swap32: v endianness: activeEndianness.
+
+    inline method swapFromActiveEndianness64: (v: UInt64 pointer) ::=> Boolean8
+		:= self swap64: v endianness: activeEndianness.
+
+    ## Active mode byte swapping.
+    inline method nextUInt8Into: (dest: UInt8 ref) ::=> Boolean8
+        := self nextNativeUInt8Into: dest.
+    inline method nextInt8Into: (dest: Int8 ref) ::=> Boolean8
+        := self nextNativeInt8Into: dest.
+
+    inline method nextUInt16Into: (dest: UInt16 ref) ::=> Boolean8
+        := (self nextNativeUInt16Into: dest) && (self swapFromActiveEndianness16: dest address).
+    inline method nextInt16Into: (dest: Int16 ref) ::=> Boolean8
+        := (self nextNativeInt16Into: dest) && (self swapFromActiveEndianness16: (dest address reinterpretCastTo: UInt16 pointer)).
+
+    inline method nextUInt32Into: (dest: UInt32 ref) ::=> Boolean8
+        := (self nextNativeUInt32Into: dest) && (self swapFromActiveEndianness32: dest address).
+    inline method nextInt32Into: (dest: Int32 ref) ::=> Boolean8
+        := (self nextNativeInt32Into: dest) && (self swapFromActiveEndianness32: (dest address reinterpretCastTo: UInt32 pointer)).
+    inline method nextFloat32Into: (dest: Float32 ref) ::=> Boolean8
+        := (self nextNativeFloat32Into: dest) && (self swapFromActiveEndianness32: (dest address reinterpretCastTo: UInt32 pointer)).
+
+    inline method nextUInt64Into: (dest: UInt64 ref) ::=> Boolean8
+        := (self nextNativeUInt64Into: dest) && (self swapFromActiveEndianness64: dest address).
+    inline method nextInt64Into: (dest: Int64 ref) ::=> Boolean8
+        := (self nextNativeInt64Into: dest) && (self swapFromActiveEndianness64: (dest address reinterpretCastTo: UInt64 pointer)).
+    inline method nextFloat64Into: (dest: Float64 ref) ::=> Boolean8
+        := (self nextNativeFloat64Into: dest) && (self swapFromActiveEndianness64: (dest address reinterpretCastTo: UInt64 pointer)).
+
+	## Decodes a DWARF ULEB128 according to the algorithm exposed
+	## in "DWARF Debugging Information Format Version 4" from http://www.dwarfstd.org
+	inline method nextULEB128Into: (dest: UInt64 ref) ::=> Boolean8 := {
+		dest := 0.
+		let shift mutable type: UInt64 := 0.
+		while: true do: {
+			let byte mutable type: UInt8.
+			(self nextNativeUInt8Into: byte) ifFalse: {
+				return: false
+			}.
+
+			dest := dest | ((byte & 16r7F castTo: UInt64) << shift).
+			shift := shift + 7.
+			(byte anyMask: 16r80) ifFalse: {
+				return: true
+			}
+		}.
+
+		true
+	}.
+
+	## Decodes a DWARF SLEB128 according to the algorithm exposed
+	## in "DWARF Debugging Information Format Version 4" from http://www.dwarfstd.org
+	inline method nextSLEB128Into: (dest: Int64 ref) ::=> Boolean8 := {
+		dest := 0.
+		let shift mutable type: Int64 := 0.
+		while: true do: {
+			let byte mutable type: UInt8.
+			(self nextNativeUInt8Into: byte) ifFalse: {
+				return: false
+			}.
+
+			dest := dest | ((byte & 16r7F castTo: Int64) << shift).
+			shift := shift + 7.
+			(byte anyMask: 16r80) ifFalse: {
+				let isSigned := byte anyMask: 16r40.
+				shift < 64 && isSigned ifTrue: {
+					dest := dest | (1 << shift) negated
+				}.
+
+				return: true
+			}
+		}.
+
+		true
+	}.
+
+    ## Convenience return type based methods.
+    inline method nextUInt8 ::=> UInt8 := {
+        let result mutable type: UInt8.
+        isGood := isGood && (self nextUInt8Into: result).
+        result
+    }.
+
+    inline method nextInt8 ::=> Int8 := {
+        let result mutable type: Int8.
+        isGood := isGood && (self nextInt8Into: result).
+        result
+    }.
+
+    inline method nextUInt16 ::=> UInt16 := {
+        let result mutable type: UInt16.
+        isGood := isGood && (self nextUInt16Into: result).
+        result
+    }.
+
+    inline method nextInt16 ::=> Int16 := {
+        let result mutable type: Int16.
+        isGood := isGood && (self nextInt16Into: result).
+        result
+    }.
+
+    inline method nextUInt32 ::=> UInt32 := {
+        let result mutable type: UInt32.
+        isGood := isGood && (self nextUInt32Into: result).
+        result
+    }.
+
+    inline method nextInt32 ::=> Int32 := {
+        let result mutable type: Int32.
+        isGood := isGood && (self nextInt32Into: result).
+        result
+    }.
+
+    inline method nextUInt64 ::=> UInt64 := {
+        let result mutable type: UInt64.
+        isGood := isGood && (self nextUInt64Into: result).
+        result
+    }.
+
+    inline method nextInt64 ::=> Int64 := {
+        let result mutable type: Int64.
+        isGood := isGood && (self nextInt64Into: result).
+        result
+    }.
+
+    inline method nextFloat32 ::=> Float32 := {
+        let result mutable type: Float32.
+        isGood := isGood && (self nextFloat32Into: result).
+        result
+    }.
+
+    inline method nextFloat64 ::=> Float64 := {
+        let result mutable type: Float64.
+        isGood := isGood && (self nextFloat64Into: result).
+        result
+    }.
+
+    inline method nextULEB128 ::=> UInt64 := {
+        let result mutable type: UInt64.
+        isGood := isGood && (self nextULEB128Into: result).
+        result
+    }.
+
+    inline method nextSLEB128 ::=> Int64 := {
+        let result mutable type: Int64.
+        isGood := isGood && (self nextSLEB128Into: result).
+        result
+    }.
+
+    method nextUTF8StringOfSize: (stringSize: UIntPointer) ::=> Std String := {
+        isGood not || stringSize = 0 ifTrue: {return: Std String()}.
+
+        ## Create the string
+        let result mutable := Std String().
+        result resizeTo: stringSize.
+        let readedCount := stream _ read: result data size: stringSize.
+
+        isGood := readedCount >= 0.
+        result resizeTo: ((readedCount max: 0) castTo: UIntPointer).
+        result asMoveReference
+    }.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace Std

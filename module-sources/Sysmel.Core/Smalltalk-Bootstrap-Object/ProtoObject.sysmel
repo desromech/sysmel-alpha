@@ -61,7 +61,7 @@ ProtoObject extend: {
 
     macro method not := ``(`,self ifTrue: false ifFalse: true).
 
-    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Std IO TextStreamWriter ref) := {
         self printString printOnNativeTextStreamWriter: writer.
 		self
     }.

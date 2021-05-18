@@ -1,17 +1,17 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU software based rendering swap chain.
  *#
 class SoftSwapChain superclass: SwapChain; definition: {
     protected field creationInfo type: SwapChainCreationInfo.
-    protected field colorBuffers type: Stdn Collections Vector(SoftTextureViewPtr).
-    protected field framebuffers type: Stdn Collections Vector(FramebufferPtr).
+    protected field colorBuffers type: Std Collections Vector(SoftTextureViewPtr).
+    protected field framebuffers type: Std Collections Vector(FramebufferPtr).
     protected field currentBackBufferIndex type: UInt32.
 
     method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) on: (device: SoftRenderingDevice ref) ::=> Boolean8 := {
@@ -113,9 +113,9 @@ class SoftSwapChain superclass: SwapChain; definition: {
     }
 }.
 
-compileTime constant SoftSwapChainPtr := SoftSwapChain sharedPointer.
+compileTime constant SoftSwapChainPtr := SoftSwapChain rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

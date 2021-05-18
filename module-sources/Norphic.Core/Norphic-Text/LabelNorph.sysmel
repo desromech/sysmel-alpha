@@ -1,7 +1,7 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a label widget norph.
@@ -9,6 +9,6 @@ useNamespace: Stdn Math Geometry.
 class LabelNorph superclass: StringNorph; definition: {
 }.
 
-compileTime constant LabelNorphPtr := LabelNorph sharedPointer.
+compileTime constant LabelNorphPtr := LabelNorph rcPointer.
 
 }. ## End of namespace Norphic

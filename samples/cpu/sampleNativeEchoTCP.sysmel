@@ -1,10 +1,10 @@
 Compiler importModuleNamed: #"Sysmel.Networking.Core".
 
 class ClientProcessor definition: {
-    field clientSocket type: Stdn IO Socket.
-    field clientThread type: Stdn Thread.
+    field clientSocket type: Std IO Socket.
+    field clientThread type: Std Thread.
 
-    method startProcessingNewClient: (theClientSocket: Stdn IO Socket ref) ::=> Void := {
+    method startProcessingNewClient: (theClientSocket: Std IO Socket ref) ::=> Void := {
         clientSocket := theClientSocket asMoveReference.
         clientThread start: { :: Void |
             self echoLoop
@@ -12,7 +12,7 @@ class ClientProcessor definition: {
     }.
 
     method echoLoop => Void := {
-        Stdn stdout << "Accepted client with endpoint " << clientSocket endpoint; nl.
+        Std stdout << "Accepted client with endpoint " << clientSocket endpoint; nl.
         let buffer mutable type: (UInt8 array: 2048).
 
         while: clientSocket isValid do: {
@@ -24,28 +24,28 @@ class ClientProcessor definition: {
             }
         }.
 
-        Stdn stdout << "Client with endpoint has " << clientSocket endpoint << " has closed its connection."; nl.
+        Std stdout << "Client with endpoint has " << clientSocket endpoint << " has closed its connection."; nl.
         self address nativeDelete.
     }.
 }.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     let port mutable type: UInt16 := 1234.
     argc > 1 ifTrue: {
         port := LibC atoi(argv[1]) castTo: UInt16
     }.
 
-    let endpoint := Stdn IO Endpoint ipv4SourcePort: port.
-    let socket mutable := Stdn IO Socket tcpIPv4.
+    let endpoint := Std IO Endpoint ipv4SourcePort: port.
+    let socket mutable := Std IO Socket tcpIPv4.
     socket isValid ifFalse: {
-        Stdn stdout << "Failed to create the socket."; nl.
+        Std stdout << "Failed to create the socket."; nl.
         return: 1.
     }.
 
-    socket setOption: Stdn IO SocketOption ReuseAddress value: 1.
+    socket setOption: Std IO SocketOption ReuseAddress value: 1.
 
     (socket bind: endpoint) ifFalse: {
-        Stdn stdout << "Failed to bind listening port " << port; nl.
+        Std stdout << "Failed to bind listening port " << port; nl.
         return: 1.
     }.
 

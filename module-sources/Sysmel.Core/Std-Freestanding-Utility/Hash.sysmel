@@ -1,0 +1,86 @@
+namespace Std definition: {
+
+compileTime constant Hash := UIntPointer.
+
+## UInt64 integer hashing function from: https://nullprogram.com/blog/2018/07/31/
+function hashForUInt64(v: UInt64) => Hash := {
+    <gpu>
+    let r mutable := v ^ (v >> 30).
+    r := r * 16rbf58476d1ce4e5b9.
+    r := r ^ (r >> 27).
+    r := r * 16r94d049bb133111eb.
+    r := r ^ (r >> 31).
+    return: (r castTo: Hash)
+}.
+
+function hashForUInt32(v: UInt32) => Hash := {
+    <gpu>
+    let r mutable := v ^ (v >> 16).
+    r := r * 16r7feb352d.
+    r := r ^ (r >> 15).
+    r := r * 16r846ca68b.
+    r := r ^ (r >> 16).
+    return: (r castTo: Hash)
+}.
+
+function hashForBoolean8(v: Boolean8) => Hash := {
+    <gpu>
+    hashForUInt32(v ifTrue: 1u ifFalse: 0u).
+}.
+
+function concatenateHashes(left: Hash, right: Hash) => Hash
+    := left * 1664525 + right.
+
+Boolean8 macro method hash := ``(Std hashForBoolean8(`,self)).
+
+(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32 |
+ Char8 | Char16 | Char32) macro method hash := ``(Std hashForUInt32(`,self castTo: UInt32)).
+(Int64 | UInt64) macro method hash := ``(Std hashForUInt64(`,self castTo: UInt64)).
+Float32 macro method hash := ``(Std hashForUInt32(`,self reinterpretCastTo: UInt32)).
+Float64 macro method hash := ``(Std hashForUInt64(`,self reinterpretCastTo: UInt64)).
+_EnumType macro method hash := ``(`,self value hash).
+_PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) hash).
+
+_PrimitiveVectorTypeTemplate extend: {
+    let VectorType := SelfType.
+    let VectorSize := SelfType elements.
+
+    inline method hash => Hash := {
+        <gpu>
+        let r mutable := self x hash.
+        compileTime if: VectorSize > 1 then: {
+            r := concatenateHashes(r, self y hash).
+            compileTime if: VectorSize > 2 then: {
+                r := concatenateHashes(r, self z hash).
+                compileTime if: VectorSize > 3 then: {
+                    r := concatenateHashes(r, self w hash).
+                }
+            }
+        }.
+
+        return: r
+    }.
+}.
+
+_PrimitiveMatrixTypeTemplate extend: {
+    let MatrixType := SelfType.
+    let ColumnCount := SelfType columns.
+
+    inline method hash => Hash := {
+        <gpu>
+        let r mutable := self firstColumn hash.
+        compileTime if: ColumnCount > 1 then: {
+            r := concatenateHashes(r, self secondColumn hash).
+            compileTime if: ColumnCount > 2 then: {
+                r := concatenateHashes(r, self thirdColumn hash).
+                compileTime if: ColumnCount > 3 then: {
+                    r := concatenateHashes(r, self fourthColumn hash).
+                }
+            }
+        }.
+
+        return: r
+    }.
+}.
+
+}. ## End of namespace Std

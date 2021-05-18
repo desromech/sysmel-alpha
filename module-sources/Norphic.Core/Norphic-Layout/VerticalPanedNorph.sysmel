@@ -1,17 +1,17 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 class VerticalPanedNorph superclass: PanedNorph; definition: {
     override method splitDirection => Float32x2
         := Float32x2(0, 1).
 
     override method newPanelSplitterNorph => PanelSplitterNorphPtr
-        := VerticalPanelSplitterNorph sharedNew upCastFor: PanelSplitterNorph.
+        := VerticalPanelSplitterNorph rcNew upCastFor: PanelSplitterNorph.
 }.
 
-compileTime constant VerticalPanedNorphPtr := VerticalPanedNorph sharedPointer.
+compileTime constant VerticalPanedNorphPtr := VerticalPanedNorph rcPointer.
 
 }. ## End of namespace Norphic

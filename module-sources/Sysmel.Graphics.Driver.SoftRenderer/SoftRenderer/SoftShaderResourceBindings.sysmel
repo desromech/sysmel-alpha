@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU only implementation for a shader resource binding.
@@ -13,8 +13,8 @@ class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition:
     public field bankIndex type: UIntPointer.
     public field bankDescription type: ShaderSignatureBankDescription pointer.
 
-    public field bindingTable type: Stdn Collections Vector(Void pointer).
-    public field bindingHandleTable type: Stdn Collections Vector(RenderingDriverObjectHandle sharedPointer).
+    public field bindingTable type: Std Collections Vector(Void pointer).
+    public field bindingHandleTable type: Std Collections Vector(RenderingDriverObjectHandle rcPointer).
 
     method createBindingTable => Void := {
         let bindingTableSize := bankDescription _ elements size.
@@ -82,4 +82,4 @@ class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition:
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

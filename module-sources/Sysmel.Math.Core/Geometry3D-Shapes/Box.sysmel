@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
@@ -38,7 +38,7 @@ sealed template GenericBox(ST: Type)
         }.
     }.
 
-    const inline method hash => Stdn Hash
+    const inline method hash => Std Hash
         := min hash ^ max hash.
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
@@ -270,4 +270,4 @@ compileTime constant BoxF64 := GenericBox(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

@@ -16,7 +16,7 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
 
-        let result := ASTIntegerLiteralNode sharedNew.
+        let result := ASTIntegerLiteralNode rcNew.
         result _
             tokenRange: position;
             stringValue: token text asMutableString.
@@ -32,14 +32,14 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
 
-        let result := ASTFloatLiteralNode sharedNew.
+        let result := ASTFloatLiteralNode rcNew.
         result _
             tokenRange: position;
             value: token text parseFloat64.
         result upCastFor: ASTNode
     }.
 
-    method parseString: (rawString: Char8 const arraySlice) escapeSequencesInto: (result: Stdn String ref) errorMessageInto: (errorMessage: Stdn String ref) ::=> Boolean8 := {
+    method parseString: (rawString: Char8 const arraySlice) escapeSequencesInto: (result: Std String ref) errorMessageInto: (errorMessage: Std String ref) ::=> Boolean8 := {
         let end := rawString size - 1.
         for: (let i mutable type: UIntPointer := 1) while: (i < end) do: {
             let c := rawString[i].
@@ -73,13 +73,13 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
         let tokenContent := token text.
-        Stdn assert: tokenContent size >= 2.
+        Std assert: tokenContent size >= 2.
 
-        let result := ASTStringLiteralNode sharedNew.
+        let result := ASTStringLiteralNode rcNew.
         result _
             tokenRange: position.
 
-        let errorMessage mutable type: Stdn String.
+        let errorMessage mutable type: Std String.
         (self parseString: tokenContent escapeSequencesInto: result _ value errorMessageInto: errorMessage) ifFalse: {
             return: (ASTParseErrorNode atToken: startPosition message: errorMessage).
         }.
@@ -96,14 +96,14 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
         let tokenContent := token text.
-        Stdn assert: tokenContent size >= 1.
+        Std assert: tokenContent size >= 1.
 
-        let utf32String := Stdn LString fromUTF8: (tokenContent elements from: 1 until: tokenContent size).
+        let utf32String := Std LString fromUTF8: (tokenContent elements from: 1 until: tokenContent size).
         utf32String size ~= 1 ifTrue: {
             return: (ASTParseErrorNode atToken: startPosition message: "Invalid character literal with multiple code points." asMutableString).
         }.
 
-        let result := ASTCharacterLiteralNode sharedNew.
+        let result := ASTCharacterLiteralNode rcNew.
         result _
             tokenRange: position;
             value: utf32String first.
@@ -120,7 +120,7 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
 
-        let result := ASTIdentifierReferenceNode sharedNew.
+        let result := ASTIdentifierReferenceNode rcNew.
         result _
             tokenRange: position;
             identifier: token text asMutableString.
@@ -136,7 +136,7 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
 
-        let result := ASTSymbolLiteralNode sharedNew.
+        let result := ASTSymbolLiteralNode rcNew.
         result _
             tokenRange: position;
             value: token text asMutableString.
@@ -152,13 +152,13 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
         let tokenContent := token text.
-        Stdn assert: tokenContent size >= 3.
+        Std assert: tokenContent size >= 3.
 
-        let result := ASTSymbolLiteralNode sharedNew.
+        let result := ASTSymbolLiteralNode rcNew.
         result _
             tokenRange: position.
 
-        let errorMessage mutable type: Stdn String.
+        let errorMessage mutable type: Std String.
         (self parseString: (tokenContent elements from: 1 until: tokenContent size)
             escapeSequencesInto: result _ value errorMessageInto: errorMessage) ifFalse: {
             return: (ASTParseErrorNode atToken: startPosition message: errorMessage).
@@ -172,9 +172,9 @@ class Parser definition: {
         let token := currentPosition next.
         let position := startPosition until: currentPosition.
         let tokenContent := token text.
-        Stdn assert: tokenContent size >= prefixSize.
+        Std assert: tokenContent size >= prefixSize.
 
-        let result := ASTSymbolLiteralNode sharedNew.
+        let result := ASTSymbolLiteralNode rcNew.
         result _
             value: (tokenContent elements from: prefixSize until: tokenContent size);
             tokenRange: position.
@@ -224,10 +224,10 @@ class Parser definition: {
     method parseDictionaryKeyIn: (currentPosition: TokenizedSourceCodeRange ref) isLiteral: (isLiteral: Boolean8) ::=> ASTNodePtr := {
         ## The single keyword cased.
         currentPosition peek type = TokenType Keyword ifTrue: {
-            let symbol := ASTSymbolLiteralNode sharedNew.
+            let symbol := ASTSymbolLiteralNode rcNew.
             let keywordPosition := currentPosition until: 1.
             let keywordContent := currentPosition next text.
-            Stdn assert: keywordContent size > 1.
+            Std assert: keywordContent size > 1.
             (self isSingleKeyword: keywordContent) ifFalse: {
                 return: (ASTParseErrorNode atToken: keywordPosition message: "Expected a single keyword ." asMutableString).
             }.
@@ -264,7 +264,7 @@ class Parser definition: {
         }.
 
         let startPosition := currentPosition.
-        let element := ASTDictionaryElementNode sharedNew.
+        let element := ASTDictionaryElementNode rcNew.
         element _ key: (self parseDictionaryKeyIn: currentPosition isLiteral: isLiteral).
 
         currentPosition peek type selectCase: #{
@@ -291,7 +291,7 @@ class Parser definition: {
         }.
         currentPosition advance.
 
-        let result := ASTMakeDictionaryNode sharedNew.
+        let result := ASTMakeDictionaryNode rcNew.
         let hasMetError mutable := false.
         do: {
             while: currentPosition peek type = TokenType Dot do: {
@@ -345,7 +345,7 @@ class Parser definition: {
         }.
         currentPosition advance.
 
-        let result := ASTLiteralArrayNode sharedNew.
+        let result := ASTLiteralArrayNode rcNew.
         let hasMetError mutable := false.
         until: hasMetError || currentPosition peek type = TokenType RightParent do: {
             let element := self parseLiteralArrayElementIn: currentPosition.
@@ -386,7 +386,7 @@ class Parser definition: {
     }.
 
     method parseMakeArrayExpressionIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
-        let result := ASTMakeArrayNode sharedNew.
+        let result := ASTMakeArrayNode rcNew.
         currentPosition peek type = TokenType LeftCurlyBracket ifFalse: {
             return: (ASTParseErrorNode atToken: currentPosition message: "Expected a left curly bracket." asMutableString).
         }.
@@ -436,7 +436,7 @@ class Parser definition: {
     }.
 
     method parseKeywordPragmaIn: (currentPosition: TokenizedSourceCodeRange ref) contentInto: (pragma: ASTPragmaNode ref) ::=> Void := {
-        let selector := ASTSymbolLiteralNode sharedNew.
+        let selector := ASTSymbolLiteralNode rcNew.
         let startPosition := currentPosition.
 
         let hasMetError mutable := false.
@@ -467,10 +467,10 @@ class Parser definition: {
         }.
         currentPosition advance.
 
-        let pragma := ASTPragmaNode sharedNew.
+        let pragma := ASTPragmaNode rcNew.
         currentPosition peek type selectCase: #{
         TokenType Identifier : {
-            let selector := ASTSymbolLiteralNode sharedNew.
+            let selector := ASTSymbolLiteralNode rcNew.
             selector _
                 tokenRange: (currentPosition until: 1);
                 value: currentPosition next text.
@@ -509,7 +509,7 @@ class Parser definition: {
         }.
         currentPosition advance.
 
-        let node := ASTBlockClosureArgumentNode sharedNew.
+        let node := ASTBlockClosureArgumentNode rcNew.
         currentPosition peek type = TokenType LeftParent ifTrue: {
             node _ type: (self parseParentExpressionIn: currentPosition)
         }.
@@ -536,7 +536,7 @@ class Parser definition: {
         }.
         currentPosition advance.
 
-        let block := ASTBlockClosureNode sharedNew.
+        let block := ASTBlockClosureNode rcNew.
 
         let hasMetError mutable := false.
         let hasArgumentsOrReturnType mutable := false.
@@ -571,7 +571,7 @@ class Parser definition: {
             currentPosition advance
         } ifFalse: {
             block _ content _ isParseErrorNode ifFalse: {
-                Stdn assert: block _ content _ isSequenceNode.
+                Std assert: block _ content _ isSequenceNode.
                 (block _ content getPointer castTo: ASTSequenceNode pointer) _
                     expressions add: (ASTParseErrorNode atToken: currentPosition message: "Expected a block ending with a right bracket(']')." asMutableString)
             }.
@@ -591,7 +591,7 @@ class Parser definition: {
 
         let expression := self parseExpressionIn: currentPosition.
 
-        let result := ASTReturnNode sharedNew.
+        let result := ASTReturnNode rcNew.
         result _
             tokenRange: (startPosition until: currentPosition);
             expression: expression.
@@ -609,7 +609,7 @@ class Parser definition: {
 
         let quoted := self parsePrimaryExpressionIn: currentPosition.
 
-        let result := ASTQuoteNode sharedNew.
+        let result := ASTQuoteNode rcNew.
         result _
             tokenRange: (startPosition until: currentPosition);
             quoted: quoted.
@@ -627,7 +627,7 @@ class Parser definition: {
 
         let quoted := self parsePrimaryExpressionIn: currentPosition.
 
-        let result := ASTQuasiQuoteNode sharedNew.
+        let result := ASTQuasiQuoteNode rcNew.
         result _
             tokenRange: (startPosition until: currentPosition);
             quoted: quoted.
@@ -645,7 +645,7 @@ class Parser definition: {
 
         let expression := self parsePrimaryExpressionIn: currentPosition.
 
-        let result := ASTQuasiUnquoteNode sharedNew.
+        let result := ASTQuasiUnquoteNode rcNew.
         result _
             tokenRange: (startPosition until: currentPosition);
             expression: expression.
@@ -663,7 +663,7 @@ class Parser definition: {
 
         let expression := self parsePrimaryExpressionIn: currentPosition.
 
-        let result := ASTSpliceNode sharedNew.
+        let result := ASTSpliceNode rcNew.
         result _
             tokenRange: (startPosition until: currentPosition);
             expression: expression.
@@ -698,12 +698,12 @@ class Parser definition: {
             currentPosition peek type selectCase: #{
             TokenType Identifier : {
                 ## Unary message.
-                let selector := ASTSymbolLiteralNode sharedNew.
+                let selector := ASTSymbolLiteralNode rcNew.
                 selector _
                     tokenRange: (currentPosition until: 1);
                     value: currentPosition next text.
 
-                let messageSend := ASTMessageSendNode sharedNew.
+                let messageSend := ASTMessageSendNode rcNew.
                 messageSend _
                     tokenRange: (startPosition until: currentPosition);
                     receiver: receiver;
@@ -713,7 +713,7 @@ class Parser definition: {
                 void
             }.
             TokenType LeftParent : {
-                let call := ASTCallNode sharedNew.
+                let call := ASTCallNode rcNew.
                 call _
                     callable: receiver;
                     arguments: (self parseCallArgumentsIn: currentPosition);
@@ -734,7 +734,7 @@ class Parser definition: {
                     }.
                 }.
 
-                let subscript := ASTSubscriptNode sharedNew.
+                let subscript := ASTSubscriptNode rcNew.
                 subscript _
                     array: receiver;
                     index: index;
@@ -746,7 +746,7 @@ class Parser definition: {
                 ## Unary message with macro selector.
                 let selector := self parseQuasiUnquoteIn: currentPosition.
 
-                let messageSend := ASTMessageSendNode sharedNew.
+                let messageSend := ASTMessageSendNode rcNew.
                 messageSend _
                     tokenRange: (startPosition until: currentPosition);
                     receiver: receiver;
@@ -768,7 +768,7 @@ class Parser definition: {
             let startPosition := currentPosition.
             let operation := currentPosition next text.
 
-            let selector := ASTSymbolLiteralNode sharedNew.
+            let selector := ASTSymbolLiteralNode rcNew.
             selector _ tokenRange: (startPosition until: currentPosition).
             selector _ value
                 addAll: "pre-";
@@ -776,7 +776,7 @@ class Parser definition: {
 
             let receiver := self parseUnaryPrefixExpressionIn: currentPosition.
 
-            let messageSend := ASTMessageSendNode sharedNew.
+            let messageSend := ASTMessageSendNode rcNew.
             messageSend _
                 tokenRange: (startPosition until: currentPosition);
                 selector: (selector upCastFor: ASTNode);
@@ -799,13 +799,13 @@ class Parser definition: {
         }.
 
 
-        let result := ASTBinaryMessageSendSequenceNode sharedNew.
+        let result := ASTBinaryMessageSendSequenceNode rcNew.
         result _ operands add: receiver.
 
         while: currentPosition peek type isBinaryOperator do: {
             let selectorPosition := (currentPosition until: 1).
             let selectorValue := currentPosition next text.
-            let selector := ASTSymbolLiteralNode sharedNew.
+            let selector := ASTSymbolLiteralNode rcNew.
             selector _
                 tokenRange: selectorPosition;
                 value: selectorValue.
@@ -824,7 +824,7 @@ class Parser definition: {
         self parseBinaryExpressionIn: currentPosition
     }.
 
-    method isSingleKeyword: (text: Stdn ImmutableString) ::=> Boolean8 := {
+    method isSingleKeyword: (text: Std ImmutableString) ::=> Boolean8 := {
         let colonCount mutable type: UInt32.
         text do: {:c :: Void |
             c = ':' ifTrue: {
@@ -839,8 +839,8 @@ class Parser definition: {
             return: (ASTParseErrorNode atToken: currentPosition message: "Expected a keyword chained message." asMutableString)
         }.
 
-        let selectorContent mutable := Stdn String().
-        let chainMessage := ASTMessageChainMessageNode sharedNew.
+        let selectorContent mutable := Std String().
+        let chainMessage := ASTMessageChainMessageNode rcNew.
 
         let hasMetError mutable := false.
         while: hasMetError not && currentPosition peek type = TokenType Keyword do: {
@@ -858,7 +858,7 @@ class Parser definition: {
             hasMetError := hasMetError || argument _ isParseErrorNode
         }.
 
-        let selector := ASTSymbolLiteralNode sharedNew.
+        let selector := ASTSymbolLiteralNode rcNew.
         selector _
             tokenRange: (startPosition until: currentPosition);
             value: selectorContent.
@@ -874,12 +874,12 @@ class Parser definition: {
             return: (ASTParseErrorNode atToken: currentPosition message: "Expected an unary chained." asMutableString)
         }.
 
-        let selector := ASTSymbolLiteralNode sharedNew.
+        let selector := ASTSymbolLiteralNode rcNew.
         selector _
             tokenRange: (currentPosition until: 1);
             value: currentPosition next text.
 
-        let messageNode := ASTMessageChainMessageNode sharedNew.
+        let messageNode := ASTMessageChainMessageNode rcNew.
         messageNode _
             tokenRange: selector _ tokenRange;
             selector: (selector upCastFor: ASTNode).
@@ -892,14 +892,14 @@ class Parser definition: {
         }.
 
         let startPosition := currentPosition.
-        let selector := ASTSymbolLiteralNode sharedNew.
+        let selector := ASTSymbolLiteralNode rcNew.
         selector _
             tokenRange: (currentPosition until: 1);
             value: currentPosition next text.
 
         let operand := self parseUnaryExpressionIn: currentPosition.
 
-        let messageNode := ASTMessageChainMessageNode sharedNew.
+        let messageNode := ASTMessageChainMessageNode rcNew.
         messageNode _
             tokenRange: (startPosition until: currentPosition);
             selector: (selector upCastFor: ASTNode);
@@ -941,11 +941,11 @@ class Parser definition: {
                 return: receiver
             }.
 
-            Stdn assert: firstChainKeywordMessage _ isMessageChainMessageNode.
+            Std assert: firstChainKeywordMessage _ isMessageChainMessageNode.
 
             let castedChain ref := (firstChainKeywordMessage getPointer castTo: ASTMessageChainMessageNode pointer) _.
 
-            let messageNode := ASTMessageSendNode sharedNew.
+            let messageNode := ASTMessageSendNode rcNew.
             messageNode _
                 receiver: receiver;
                 selector: castedChain selector;
@@ -955,7 +955,7 @@ class Parser definition: {
         }.
 
         ## Message chain case.
-        let chainNode := ASTMessageChainNode sharedNew.
+        let chainNode := ASTMessageChainNode rcNew.
 
         firstChainKeywordMessage ifNotNil: {
             chainNode _ receiver: receiver.
@@ -965,7 +965,7 @@ class Parser definition: {
             receiver _ isMessageSendNode ifTrue: {
                 let firstMessage ref := (receiver getPointer castTo: ASTMessageSendNode pointer) _.
 
-                let firstChain := ASTMessageChainMessageNode sharedNew.
+                let firstChain := ASTMessageChainMessageNode rcNew.
                 firstChain _
                     tokenRange: firstMessage tokenRange;
                     selector: firstMessage selector;
@@ -976,10 +976,10 @@ class Parser definition: {
             } ifFalse: {
                 receiver _ isSingleMessageBinaryMessageSendSequenceNode ifTrue: {
                     let firstMessage ref := (receiver getPointer castTo: ASTBinaryMessageSendSequenceNode pointer) _.
-                    Stdn assert: firstMessage selectors size = 1.
-                    Stdn assert: firstMessage operands size = 2.
+                    Std assert: firstMessage selectors size = 1.
+                    Std assert: firstMessage operands size = 2.
 
-                    let firstChain := ASTMessageChainMessageNode sharedNew.
+                    let firstChain := ASTMessageChainMessageNode rcNew.
                     firstChain _
                         tokenRange: firstMessage tokenRange;
                         selector: firstMessage selectors first;
@@ -1010,14 +1010,14 @@ class Parser definition: {
             return: receiver.
         }.
 
-        let result := ASTBinaryMessageSendSequenceNode sharedNew.
+        let result := ASTBinaryMessageSendSequenceNode rcNew.
         result _ isLowPrecedence: true.
         result _ operands add: receiver.
 
         while: currentPosition peek type = TokenType LowPrecedenceBinaryOperator do: {
             let selectorPosition := (currentPosition until: 1).
             let rawSelectorValue := currentPosition next text.
-            let selector := ASTSymbolLiteralNode sharedNew.
+            let selector := ASTSymbolLiteralNode rcNew.
             selector _
                 tokenRange: selectorPosition;
                 value: (rawSelectorValue elements from: 2 until: rawSelectorValue size).
@@ -1039,14 +1039,14 @@ class Parser definition: {
             return: receiver
         }.
 
-        let selector := ASTSymbolLiteralNode sharedNew.
+        let selector := ASTSymbolLiteralNode rcNew.
         selector _
             tokenRange: (currentPosition until: 1);
             value: ":=".
         currentPosition advance.
         let newValue := self parseAssignmentExpressionIn: currentPosition.
 
-        let assignment := ASTMessageSendNode sharedNew.
+        let assignment := ASTMessageSendNode rcNew.
         assignment _
             receiver: receiver;
             selector: (selector upCastFor: ASTNode);
@@ -1065,7 +1065,7 @@ class Parser definition: {
     }.
 
     method parseExpressionListIn: (currentPosition: TokenizedSourceCodeRange ref) until: (expectedDelimiter: TokenType) ::=> ASTNodePtr := {
-        let result := ASTExpressionListNode sharedNew.
+        let result := ASTExpressionListNode rcNew.
         let startPosition := currentPosition.
 
         do: {
@@ -1093,7 +1093,7 @@ class Parser definition: {
 
     method parseLocalDeclarationIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
         let startPosition := currentPosition.
-        let local := ASTLocalDeclarationNode sharedNew.
+        let local := ASTLocalDeclarationNode rcNew.
 
         currentPosition peek type = TokenType LeftParent ifTrue: {
             local _ type: (self parseParentExpressionIn: currentPosition)
@@ -1133,7 +1133,7 @@ class Parser definition: {
     }.
 
     method parseSequenceIn: (currentPosition: TokenizedSourceCodeRange ref) until: (expectedDelimiter: TokenType) ::=> ASTNodePtr := {
-        let sequence := ASTSequenceNode sharedNew.
+        let sequence := ASTSequenceNode rcNew.
         let startPosition := currentPosition.
 
         ## Parse the pragmas.
@@ -1174,7 +1174,7 @@ class Parser definition: {
     method parseSourceWithLiteralArrayContentIn: (currentPosition: TokenizedSourceCodeRange ref) ::=> ASTNodePtr := {
         let startPosition := currentPosition.
 
-        let result := ASTLiteralArrayNode sharedNew.
+        let result := ASTLiteralArrayNode rcNew.
         let hasMetError mutable := false.
         until: hasMetError || currentPosition peek type isEndOfSource do: {
             let element := self parseLiteralArrayElementIn: currentPosition.

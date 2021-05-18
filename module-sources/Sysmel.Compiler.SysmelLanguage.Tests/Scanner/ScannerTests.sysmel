@@ -5,9 +5,9 @@ namespace Tests definition: {
 
 useNamespace: Sysmel Compiler Parsing.
 
-class ScannerTests superclass: Stdn Testing TestCase; definition: {
-    method scanSource: (source: Stdn ImmutableString) ::=> TokenizedSourceCodePtr := {
-        let sourceCode := SourceCode sharedNew.
+class ScannerTests superclass: Std Testing TestCase; definition: {
+    method scanSource: (source: Std ImmutableString) ::=> TokenizedSourceCodePtr := {
+        let sourceCode := SourceCode rcNew.
         sourceCode _
             content: source asMutableString;
             name: "unit test".
@@ -15,7 +15,7 @@ class ScannerTests superclass: Stdn Testing TestCase; definition: {
         Scanner() scan: sourceCode
     }.
 
-    method scanSingleToken: (source: Stdn ImmutableString) ::=> TokenType := {
+    method scanSingleToken: (source: Std ImmutableString) ::=> TokenType := {
         let result mutable := self scanSource: source.
         self assert: result _ tokens isNotEmpty.
 
@@ -23,7 +23,7 @@ class ScannerTests superclass: Stdn Testing TestCase; definition: {
         return: result _ tokens first type
     }.
 
-    method scanSingleTokenText: (source: Stdn ImmutableString) ::=> Stdn String := {
+    method scanSingleTokenText: (source: Std ImmutableString) ::=> Std String := {
         let result mutable := self scanSource: source.
         self assert: result _ tokens isNotEmpty.
         result _ tokens first text asMutableString

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace BinaryEncoding definition: {
 
@@ -12,11 +12,11 @@ function encodeBase64Digit(value: UInt8) ::=> Char8 := {
     }.
 }.
 
-function encodeBase64String(byteArray: Stdn ByteVector const ref) ::=> Stdn String := {
+function encodeBase64String(byteArray: Std ByteVector const ref) ::=> Std String := {
     let inputSize := byteArray size.
     let outputSize := (inputSize + 2) / 3 * 4.
 
-    let result mutable := Stdn String ()
+    let result mutable := Std String ()
         reserve: outputSize;
         yourself.
 
@@ -63,11 +63,11 @@ function decodeBase64Digit(character: Char8) ::=> UInt8 := {
     }.
 }.
 
-function decodeBase64String(string: Stdn String const ref) ::=> Stdn ByteVector := {
+function decodeBase64String(string: Std String const ref) ::=> Std ByteVector := {
     let inputSize := string size.
     let outputSize := (inputSize + 3) / 4 * 3.
 
-    let result mutable := Stdn ByteVector()
+    let result mutable := Std ByteVector()
         reserve: outputSize;
         yourself.
 
@@ -102,4 +102,4 @@ function decodeBase64String(string: Stdn String const ref) ::=> Stdn ByteVector 
 
 }. ## End of namespace DOM
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am a font face loader
  *#
 class FontFaceLoader superclass: Object; definition: {
-    abstract method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer.
+    abstract method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFace rcPointer.
 }.
 
 #**
@@ -31,13 +31,13 @@ template FontFaceLoaderFactory(FT: Type)
  * I am a registry for font face loaders.
  *#
 class FontFaceLoaderRegistry definition: {
-    private field loadersMutex type: Stdn Mutex.
-    private field loaders type: Stdn Collections Vector(FontFaceLoader pointer).
-    public field fallbackFontFace type: FontFace sharedPointer.
+    private field loadersMutex type: Std Mutex.
+    private field loaders type: Std Collections Vector(FontFaceLoader pointer).
+    public field fallbackFontFace type: FontFace rcPointer.
 
     meta definition: {
         let uniqueInstance mutable type: FontFaceLoaderRegistry uniquePointer.
-        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let uniqueInstanceOnceCreation mutable type: Std OnceFlag.
 
         method uniqueInstance => FontFaceLoaderRegistry ref := {
             uniqueInstanceOnceCreation do: {
@@ -60,7 +60,7 @@ class FontFaceLoaderRegistry definition: {
         }.
     }.
 
-    method loadFontFaceFromFileNamed: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+    method loadFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
         loadersMutex withLock: {
             loaders do: {:(FontFaceLoader pointer)faceLoader :: Void |
                 let face mutable := faceLoader _ loadFromFileNamed: faceFileName.
@@ -70,27 +70,27 @@ class FontFaceLoaderRegistry definition: {
             }.
         }.
 
-        FontFace sharedPointer nil
+        FontFace rcPointer nil
     }.
 
-    method loadRequiredFontFaceFromFileNamed: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+    method loadRequiredFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
         let result := self loadFontFaceFromFileNamed: faceFileName.
         result ifNotNil: {return: result}.
 
         self validFallbackFontFace
     }.
 
-    method validFallbackFontFace => FontFace sharedPointer := {
+    method validFallbackFontFace => FontFace rcPointer := {
         fallbackFontFace ifNil: {
-            fallbackFontFace := NullFontFace sharedNew upCastFor: FontFace.
+            fallbackFontFace := NullFontFace rcNew upCastFor: FontFace.
         }.
 
         fallbackFontFace
     }.
 }.
 
-compileTime constant FontFaceWithSizePtr := FontFaceWithSize sharedPointer.
+compileTime constant FontFaceWithSizePtr := FontFaceWithSize rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

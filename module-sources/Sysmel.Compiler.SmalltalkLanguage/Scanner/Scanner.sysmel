@@ -73,7 +73,7 @@ class Scanner definition: {
         }.
     }.
 
-    method tokenTypeForBinaryOperator: (operator: Stdn ImmutableString) ::=> TokenType := {
+    method tokenTypeForBinaryOperator: (operator: Std ImmutableString) ::=> TokenType := {
         operator selectCase: #{
         "-" : TokenType Minus.
         "+" : TokenType Plus.
@@ -89,7 +89,7 @@ class Scanner definition: {
 
 
     method skipMultiLineCommentIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
-        Stdn assert: currentPosition peek = '"'.
+        Std assert: currentPosition peek = '"'.
         currentPosition advance.
         
         until: currentPosition isEmpty do: {
@@ -211,7 +211,7 @@ class Scanner definition: {
     }.
 
     method skipStringLiteralIn: (currentPosition: SourceCodeRange ref) ::=> Boolean8 := {
-        Stdn assert: currentPosition peek = '\''.
+        Std assert: currentPosition peek = '\''.
         currentPosition advance.
 
         while: (currentPosition peek ~= '\'') || ((currentPosition peek: 1) = '\'') do: {
@@ -220,7 +220,7 @@ class Scanner definition: {
             }.
 
             currentPosition next = '\'' ifTrue: {
-                Stdn assert: currentPosition peek = '\''.
+                Std assert: currentPosition peek = '\''.
                 currentPosition advance
             }.
         }.
@@ -461,7 +461,7 @@ class Scanner definition: {
 
     method scan: (sourceCode: SourceCodePtr const ref) ::=> TokenizedSourceCodePtr := {
         let currentPosition mutable := SourceCodeRange for: sourceCode.
-        let result mutable := TokenizedSourceCode sharedNew.
+        let result mutable := TokenizedSourceCode rcNew.
         result _ sourceCode: sourceCode.
 
         do: {

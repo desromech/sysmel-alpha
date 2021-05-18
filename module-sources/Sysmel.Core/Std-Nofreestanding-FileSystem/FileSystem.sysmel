@@ -1,0 +1,27 @@
+namespace Std definition: {
+
+class FileSystem superclass: Std RCObject; definition: {
+    method makeFileReferenceWithPath: (path: Char8 const arraySlice) ::=> FileReference := {
+        FileReference()
+            setFileSystem: self asRCPointer path: path;
+            yourself
+    }.
+
+    virtual method isDisk => Boolean8
+        := false.
+
+    abstract method exists: (path: Char8 const arraySlice) ::=> Boolean8.
+    abstract method isFile: (path: Char8 const arraySlice) ::=> Boolean8.
+    abstract method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8.
+
+    abstract method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void.
+
+    abstract method binaryUnbufferedReadStreamOn: (path: Char8 const arraySlice) ::=> Std IO Stream uniquePointer.
+    abstract method binaryReadStreamOn: (path: Char8 const arraySlice) ::=> Std IO Stream uniquePointer.
+    abstract method binaryUnbufferedWriteStreamOn: (path: Char8 const arraySlice) ::=> Std IO Stream uniquePointer.
+    abstract method binaryWriteStreamOn: (path: Char8 const arraySlice) ::=> Std IO Stream uniquePointer.
+}.
+
+compileTime constant FileSystemPtr := FileSystem rcPointer.
+
+} ## End of namespace Std

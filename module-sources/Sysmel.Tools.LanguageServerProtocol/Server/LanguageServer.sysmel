@@ -2,15 +2,15 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace LanguageServerProtocol definition: {
 
-useNamespace: Stdn Serialization.
+useNamespace: Std Serialization.
 
 class LanguageServer definition: {
-    public field inputReader type: Stdn IO TextStreamReader pointer.
-    public field outputWriter type: Stdn IO TextStreamWriter pointer.
+    public field inputReader type: Std IO TextStreamReader pointer.
+    public field outputWriter type: Std IO TextStreamWriter pointer.
 
     method setForStdio => Void := {
-        inputReader := Stdn stdin address.
-        outputWriter := Stdn stdout address.
+        inputReader := Std stdin address.
+        outputWriter := Std stdout address.
     }.
 
     method run => Void := {
@@ -30,7 +30,7 @@ class LanguageServer definition: {
             return: MessagePtr nil
         }.
 
-        let message := Message sharedNew.
+        let message := Message rcNew.
         header isJsonRequest ifTrue: {
             let jsonString := inputReader _ nextString: header contentLength.
             message _ jsonContent: (JSON ValueParser parseString: jsonString)
@@ -49,7 +49,7 @@ class LanguageServer definition: {
 
         let requestObject ref := (request _ jsonContent get: DOM ObjectPtr) _.
         let version := requestObject getString: "jsonrpc" asMutableString.
-        Stdn assert: version asArraySlice = "2.0".
+        Std assert: version asArraySlice = "2.0".
         let rpcMethod := requestObject getString: "method" asMutableString.
         let params := requestObject getObject: "params" asMutableString.
 
@@ -60,13 +60,13 @@ class LanguageServer definition: {
         }.
     }.
 
-    method doProcessRequest: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> DOM Value := {
+    method doProcessRequest: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> DOM Value := {
         methodName selectCase: #{
         _ : {
             let error mutable type: JsonRpcError.
             error
                 code: -32601;
-                message: (Stdn String textStreamContents: {:out :: Void |
+                message: (Std String textStreamContents: {:out :: Void |
                     out << "Unimplemented method '" << methodName << "'."
                 });
                 signal.
@@ -76,11 +76,11 @@ class LanguageServer definition: {
         DOM Value()
     }.
 
-    method doProcessNotification: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+    method doProcessNotification: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
     }.
 
-    method processRequest: (id: DOM Value const ref) name: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
-        let response := DOM Object sharedNew.
+    method processRequest: (id: DOM Value const ref) name: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+        let response := DOM Object rcNew.
         response _
             at: "jsonrpc" asMutableString put: "2.0" asMutableString;
             at: "id" asMutableString put: id.
@@ -90,15 +90,15 @@ class LanguageServer definition: {
                 response _
                     at: "result" asMutableString put: (self doProcessRequest: methodName params: params)
             } catch: JsonRpcError doing: {:exception :: Void |
-                let error := DOM Object sharedNew.
+                let error := DOM Object rcNew.
                 error _
                     at: "code" asMutableString put: exception code;
                     at: "message" asMutableString put: exception message.
                 response _
                     at: "error" asMutableString put: error.
             }.
-        } catch: Stdn Error doing: {:exception :: Void |
-            let error := DOM Object sharedNew.
+        } catch: Std Error doing: {:exception :: Void |
+            let error := DOM Object rcNew.
             error _
                 at: "code" asMutableString put: -32000; ## Server specific error
                 at: "message" asMutableString put: exception messageText asMutableString.
@@ -115,11 +115,11 @@ class LanguageServer definition: {
             flush.
     }.
 
-    method processNotification: (methodName: Stdn ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+    method processNotification: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
         try: {
             self doProcessNotification: methodName params: params
-        } catch: Stdn Error doing: {:exception :: Void |
-            Stdn stderr << "Caught error during notification processing: " << exception; nl.
+        } catch: Std Error doing: {:exception :: Void |
+            Std stderr << "Caught error during notification processing: " << exception; nl.
         }.
     }.
 }.

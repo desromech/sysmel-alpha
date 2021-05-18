@@ -81,7 +81,7 @@ Behavior definition: {
 		}.
 
 		gcLayout variableDataIsGCPointers ifTrue: {
-			let variableDataSize := (instance reinterpretCastTo: Stdn Reflection GCObjectHeader pointer) _ __variableDataSize * variableInstanceElementSize.
+			let variableDataSize := (instance reinterpretCastTo: Std Reflection GCObjectHeader pointer) _ __variableDataSize * variableInstanceElementSize.
 			let variableSlotCount := variableDataSize / UIntPointer instanceSize.
 			let variableSlots := fixedSlots[fixedSlotCount] address.
 			0 until: variableSlotCount do: {:i :: Void |

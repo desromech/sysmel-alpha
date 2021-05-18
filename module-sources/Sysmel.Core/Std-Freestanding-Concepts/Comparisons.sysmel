@@ -1,0 +1,25 @@
+namespace Std definition: {
+namespace Concepts definition: {
+
+#**
+ * I represent types that can be compared by equality.
+ *#
+concept Equalable := {:type | type canUnderstand: #= }.
+
+#**
+ * I represent types that can be used as a hash key.
+ *#
+concept HashKey := {:type | type canUnderstandAll: #(hash =) }.
+
+#**
+ * I represent types that can be compared by less than and by = equality.
+ *#
+concept LessThanComparable := {:type | type canUnderstandAll: #(= <) }.
+
+#**
+ * I represent types that can be compared.
+ *#
+concept Comparable := {:type | type canUnderstandAll: #(= ~= < <= > >= <=>) }.
+
+}. ## End of namespace Concepts
+}. ## End of namespace Std

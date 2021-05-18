@@ -1,14 +1,14 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am an abstract font face size variant. I am used with the objective of
  * managing glyphs at different sizes for an outline defined font.
  *#
-class FontFaceWithSize superclass: Object; definition: {
+class FontFaceWithSize superclass: RCObject; definition: {
 
     public field maxAdvance type: Float32x2.
     public field ascender type: Float32.
@@ -20,8 +20,8 @@ class FontFaceWithSize superclass: Object; definition: {
     virtual method isRenderingDeviceFontFaceWithSize => Boolean8
         := false.
 
-    virtual method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer
-        := Glyph sharedPointer nil.
+    virtual method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph rcPointer
+        := Glyph rcPointer nil.
 
     virtual method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2
         := Float32x2 zeros.
@@ -53,7 +53,7 @@ class FontFaceWithSize superclass: Object; definition: {
         ## Always apply the kerning.
         newState previousCharacter ~= 0 ifTrue: {
             let kerningDelta := self getKerningForCharacter: newState previousCharacter with: character.
-            ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
+            ## Std stdout << "kerningDelta " << kerningDelta; nl.
             newState advanceWith: kerningDelta.
         }.
         newState previousPosition: newState currentPosition.
@@ -98,7 +98,7 @@ class FontFaceWithSize superclass: Object; definition: {
         let result mutable := (RectangleF32 min: Float32x2(0, ascender negated) max: Float32x2(0, height - ascender)) translatedBy: initialState currentPosition.
         let currentState mutable := initialState.
 
-        (Stdn Collections UTF8CodePointsIterator for: string) do: {:(Char32)character :: Void |
+        (Std Collections UTF8CodePointsIterator for: string) do: {:(Char32)character :: Void |
             currentState character: character.
             currentState := self computeNewDrawingState: currentState.
 
@@ -117,13 +117,13 @@ class FontFaceWithSize superclass: Object; definition: {
     virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) ::=> RectangleF32
         := self computeBoundingBoxForUTF8String: string size: size state: (TextDrawingState position: Float32x2(0, ascender)).
 
-    virtual method computeBoundingBoxForString: (string: Stdn String const ref) ::=> RectangleF32
+    virtual method computeBoundingBoxForString: (string: Std String const ref) ::=> RectangleF32
         := self computeBoundingBoxForUTF8String: string asArraySlice state: (TextDrawingState position: Float32x2(0, ascender)).
 
-    virtual method computeExtentForString: (string: Stdn String const ref) ::=> Float32x2
+    virtual method computeExtentForString: (string: Std String const ref) ::=> Float32x2
         := (self computeBoundingBoxForString: string) extent.
 }.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

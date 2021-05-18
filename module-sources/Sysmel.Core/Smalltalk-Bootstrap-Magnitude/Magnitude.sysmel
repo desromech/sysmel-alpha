@@ -23,12 +23,12 @@ compileTime if: UIntPointer instanceSize = 4 then: {
 		v < 0 ifTrue: {
 			let largeNegativeInteger := LargeNegativeInteger basicNew: 4.
 			let spilledValue mutable := v negated.
-			Stdn memcpy(largeNegativeInteger __data[0] address, spilledValue address, 4).
+			Std memcpy(largeNegativeInteger __data[0] address, spilledValue address, 4).
 			return: largeNegativeInteger
 		} ifFalse: {
 			let largePositiveInteger := LargePositiveInteger basicNew: 4.
 			let spilledValue mutable := v.
-			Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+			Std memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 			return: largePositiveInteger
 		}.
 	}.
@@ -90,12 +90,12 @@ function int64ToInteger(v: Int64) => Integer := {
 	v < 0 ifTrue: {
 		let largeNegativeInteger := LargeNegativeInteger basicNew: 8.
 		let spilledValue mutable := v negated.
-		Stdn memcpy(largeNegativeInteger __data[0] address, spilledValue address, 8).
+		Std memcpy(largeNegativeInteger __data[0] address, spilledValue address, 8).
 		return: largeNegativeInteger
 	} ifFalse: {
 		let largePositiveInteger := LargePositiveInteger basicNew: 8.
 		let spilledValue mutable := v.
-		Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+		Std memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 		return: largePositiveInteger
 	}.
 }.
@@ -107,7 +107,7 @@ function uint64ToInteger(v: UInt64) => Integer := {
 
 	let largePositiveInteger := LargePositiveInteger basicNew: 8.
 	let spilledValue mutable := v.
-	Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+	Std memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 	return: largePositiveInteger
 }.
 

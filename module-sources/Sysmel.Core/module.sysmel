@@ -1,7 +1,7 @@
 Compiler loadPackage: #Bootstrap.
 
 if: Compiler hasStandardLibrary then: {
-    Compiler loadPackage: #Stdn.
+    Compiler loadPackage: #Std.
 
     if: Compiler hasGarbageCollectedRuntime then: {
         Compiler loadPackage: #Smalltalk.

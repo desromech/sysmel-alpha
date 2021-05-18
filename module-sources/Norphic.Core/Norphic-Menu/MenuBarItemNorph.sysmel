@@ -6,7 +6,7 @@ namespace Norphic definition: {
 class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
     protected field isActive_ type: Boolean8.
 
-    method menuBar => MenuBarNorph sharedPointer
+    method menuBar => MenuBarNorph rcPointer
         := self owner downCastFor: MenuBarNorph.
 
     override method isHighlighted => Boolean8
@@ -35,6 +35,6 @@ class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
     }.
 }.
 
-compileTime constant MenuBarItemNorphPtr := MenuBarItemNorph sharedPointer.
+compileTime constant MenuBarItemNorphPtr := MenuBarItemNorph rcPointer.
 
 }. ## End of namespace Norphic

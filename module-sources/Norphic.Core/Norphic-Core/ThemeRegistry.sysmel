@@ -6,7 +6,7 @@ namespace Norphic definition: {
 class ThemeRegistry definition: {
     meta definition: {
         let uniqueInstance mutable type: ThemeRegistry uniquePointer.
-        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let uniqueInstanceOnceCreation mutable type: Std OnceFlag.
 
         method uniqueInstance => ThemeRegistry ref := {
             uniqueInstanceOnceCreation do: {
@@ -17,10 +17,10 @@ class ThemeRegistry definition: {
         }.
     }.
 
-    public field defaultTheme type: Theme sharedPointer.
+    public field defaultTheme type: Theme rcPointer.
 
     method initialize => Void := {
-        defaultTheme := Theme sharedNew
+        defaultTheme := Theme rcNew
     }.
 }.
 

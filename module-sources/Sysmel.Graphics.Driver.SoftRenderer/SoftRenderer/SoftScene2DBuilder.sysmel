@@ -1,16 +1,16 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a handle for a sampler.
  *#
 class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
-    override method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (textureView: SharedObjectPtr const ref) ::=> StrongTextureHandlePtr := {
-        let result := SoftScene2DDeviceTextureHandle sharedNew.
+    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr := {
+        let result := SoftScene2DDeviceTextureHandle rcNew.
         result _
             texture: (texture downCastFor: Texture);
             textureView: (textureView downCastFor: TextureView).
@@ -19,7 +19,7 @@ class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
     }.
 
     override method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr := {
-        let result := SoftScene2DDeviceTextureHandle sharedNew.
+        let result := SoftScene2DDeviceTextureHandle rcNew.
         result _
             textureView: ((SoftFormTextureView for: form) downCastFor: TextureView).
 
@@ -27,9 +27,9 @@ class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
     }.
 }.
 
-compileTime constant SoftScene2DBuilderPtr := SoftScene2DBuilder sharedPointer.
+compileTime constant SoftScene2DBuilderPtr := SoftScene2DBuilder rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

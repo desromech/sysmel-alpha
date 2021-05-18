@@ -1,11 +1,11 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a norph sizer element. I am a wrapper around a another norph, or another sizer.
  *#
-class SizerElement superclass: Stdn SharedObject; definition: {
+class SizerElement superclass: Std RCObject; definition: {
 
     enum Flags bitMask valueType: UInt32; values: #{
         None: 0.

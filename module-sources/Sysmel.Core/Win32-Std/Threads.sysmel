@@ -1,0 +1,106 @@
+namespace Std definition: {
+
+class AbstractMutex definition: {
+    public field handle type: Win32 CRITICAL_SECTION.
+
+    method initialize => Void := {
+        Win32 InitializeCriticalSection(handle address).
+    }.
+
+    method finalize => Void := {
+        Win32 DeleteCriticalSection(handle address).
+    }.
+
+    method lock => Void := {
+        Win32 EnterCriticalSection(handle address).
+    }.
+
+    method unlock => Void := {
+        Win32 LeaveCriticalSection(handle address).
+    }.
+
+    macro method withLock: aBlock := ``{
+        `,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    } asSequenceWithoutLexicalScope.
+}.
+
+#**
+ * Pthread mutex wrapper.
+ *#
+class Mutex superclass: AbstractMutex; definition: {}.
+class MemoryHeapMutex superclass: Mutex; definition: {}.
+class RecursiveMutex superclass: AbstractMutex; definition: {}.
+
+class ConditionVariable
+definition: {
+    public field handle type: Win32 CONDITION_VARIABLE.
+
+    method initialize => Void := {
+        Win32 InitializeConditionVariable(handle address).
+    }.
+
+    method wait: (mutex: Mutex ref) ::=> Void := {
+        Win32 SleepConditionVariableCS(handle address, mutex handle address, Win32 INFINITE)
+    }.
+
+    method notifyOne => Void := {
+        Win32 WakeConditionVariable(handle address)
+    }.
+
+    method notifyAll => Void := {
+        Win32 WakeAllConditionVariable(handle address)
+    }.
+}.
+
+#**
+ * Semaphore implementation.
+ *#
+class Semaphore
+definition: {
+    method initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
+    }.
+
+    method lock => Void
+        := void.
+
+    method unlock => Void
+        := void.
+
+    method signal => Void
+        := void.
+
+    method wait => Void
+        := void.
+
+    method signal: (n: UIntPointer) ::=> Void
+        := void.
+
+    method wait: (n: UIntPointer) ::=> Void
+        := void.
+}.
+
+Thread extend: {
+    public field handle type: Win32 HANDLE.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void := {
+        handle := Win32 _beginthreadex(nil, 0, entryPoint reinterpretCastTo: Win32 CTHREAD_START_ROUTINE, argument, 0, nil).
+    }.
+
+    method detach => Void := {
+        handle ifNotNil: {
+            Win32 CloseHandle(handle).
+            handle := nil.
+        }.
+    }.
+
+    method join => Void := {
+        handle ifNotNil: {
+            Win32 WaitForSingleObject(handle, Win32 INFINITE).
+            Win32 CloseHandle(handle).
+            handle := nil.
+        }
+    }.
+}.
+
+}. ## End of namespace Std

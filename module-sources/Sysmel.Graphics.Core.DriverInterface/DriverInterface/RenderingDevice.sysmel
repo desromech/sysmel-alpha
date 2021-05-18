@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -36,7 +36,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method name => Char8 const pointer
         := "Unknown".
 
-    virtual method createColorTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+    virtual method createColorTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
         let texture := self createTexture: textureData colorTextureDescription.
         texture ifNotNil: {
             texture _ uploadTextureData: textureData
@@ -45,7 +45,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
         texture
     }.
 
-    virtual method createTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+    virtual method createTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
         let texture := self createTexture: textureData textureDescription.
         texture ifNotNil: {
             texture _ uploadTextureData: textureData
@@ -60,7 +60,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
         layout
     }.
 
-    abstract method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr.
+    abstract method createVertexBindingFor: (layout: VertexLayout rcPointer const ref) ::=> VertexBindingPtr.
 
     abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
     abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
@@ -124,9 +124,9 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     abstract method getDefaultFontCache => RenderingDeviceFontCachePtr const ref.
 }.
 
-compileTime constant RenderingDevicePtr := RenderingDevice sharedPointer.
-compileTime constant RenderingDeviceWeakPtr := RenderingDevice weakPointer.
+compileTime constant RenderingDevicePtr := RenderingDevice rcPointer.
+compileTime constant RenderingDeviceWeakPtr := RenderingDevice weakRCPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

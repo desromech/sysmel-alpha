@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a null sizer element. I provide an empty space with a minimal extent and a specified extent.

@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-class Scene2DRenderer superclass: SharedObject; definition: {
+class Scene2DRenderer superclass: Std RCObject; definition: {
     virtual method destroy => Void := {}.
     abstract method newSceneBuilder => BuilderPtr.
 
@@ -12,8 +12,8 @@ class Scene2DRenderer superclass: SharedObject; definition: {
 
 }.
 
-compileTime constant Scene2DRendererPtr := Scene2DRenderer sharedPointer.
+compileTime constant Scene2DRendererPtr := Scene2DRenderer rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

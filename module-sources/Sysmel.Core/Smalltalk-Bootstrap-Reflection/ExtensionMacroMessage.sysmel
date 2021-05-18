@@ -2,7 +2,7 @@ namespace Smalltalk definition: {
 
 ExtensionMacroMessage definition: {
     method apply := {
-        ##Stdn stdout << "TODO: Apply " << self; nl.
+        ##Std stdout << "TODO: Apply " << self; nl.
         self
     }.
 }.

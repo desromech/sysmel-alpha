@@ -3,7 +3,7 @@ namespace Smalltalk definition: {
 NamespaceInformation definition: {
     meta definition: {
         let GlobalNamespaceSingleton mutable type: NamespaceInformation.
-        let GlobalNamespaceSingletonOnceCreation mutable type: Stdn OnceFlag.
+        let GlobalNamespaceSingletonOnceCreation mutable type: Std OnceFlag.
 
         method globalNamespace => NamespaceInformation := {
             GlobalNamespaceSingletonOnceCreation do: {

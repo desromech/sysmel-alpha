@@ -138,10 +138,10 @@ gcclass UnhandledError superclass: UnhandledException; definition: {
     public field exception.
 
     method defaultAction := {
-        Stdn stderr << "Unhandled error:"; nl.
-        exception printOnNativeTextStreamWriter: Stdn stderr. Stdn stderr nl.
-        Stdn stderr << "Aborting the program execution."; nl.
-        Stdn native_abort().
+        Std stderr << "Unhandled error:"; nl.
+        exception printOnNativeTextStreamWriter: Std stderr. Std stderr nl.
+        Std stderr << "Aborting the program execution."; nl.
+        Std native_abort().
         self
     }.
 }.

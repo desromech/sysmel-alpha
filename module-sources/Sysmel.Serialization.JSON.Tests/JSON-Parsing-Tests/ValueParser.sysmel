@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 namespace Tests definition: {
 
-class ValueParserTest superclass: Stdn Testing TestCase; definition: {
+class ValueParserTest superclass: Std Testing TestCase; definition: {
 
     test: testInteger with: {
         self assert: ((ValueParser parseString: "1" asMutableString) get: UInt64) equals: 1.
@@ -22,7 +22,7 @@ class ValueParserTest superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testString with: {
-        self assert: ((ValueParser parseString: "\"Hello World\"" asMutableString) get: Stdn String) equals: "Hello World" asMutableString.
+        self assert: ((ValueParser parseString: "\"Hello World\"" asMutableString) get: Std String) equals: "Hello World" asMutableString.
     }.
 
     test: testKeywords with: {
@@ -83,4 +83,4 @@ class ValueParserTest superclass: Stdn Testing TestCase; definition: {
 } ## End of namespace Tests
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

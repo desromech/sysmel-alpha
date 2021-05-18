@@ -1,0 +1,163 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+compileTime constant PositionNotFoundIndex := UIntPointer maxValue.
+
+macro method SequenceableCollectionMixin := ``{
+    Std Collections CollectionMixin.
+    Std Collections SequenceableCollectionMacrosMixin.
+
+    inline method last => ValueType ref := {
+        assert: self isNotEmpty.
+        self[self size - 1].
+    }.
+
+	inline method at: (index: UIntPointer) ::=> ValueType ref := {
+		assert: index >= 1.
+		self [index - 1]
+	}.
+
+    const inline method at: (index: UIntPointer) ::=> ValueType const ref := {
+		assert: index >= 1.
+		self [index - 1]
+	}.
+
+    const method copyFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
+        let clippedStartIndex := startIndex min: self size.
+        let clippedEndIndex := endIndex min: self size.
+
+        let copySize := clippedEndIndex - clippedStartIndex.
+        let result mutable type: SelfType.
+        copySize > 0 ifTrue: {
+			result reserve: copySize.
+			clippedStartIndex until: clippedEndIndex do: {:i :: Void |
+				result add: self[i]
+			}
+        }.
+
+        result asMoveReference
+    }.
+
+    const method copyAfter: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
+        startIndex = PositionNotFoundIndex ifTrue: {
+            return: SelfType newValue
+        }.
+
+        self copyFrom: startIndex + 1 until: endIndex
+    }.
+
+    const method allButFirst: (ignoredCount: UIntPointer) ::=> SelfType
+        := self copyFrom: ignoredCount until: self size.
+
+    const method first: (extractedCount: UIntPointer) ::=> SelfType
+        := self copyFrom: 0 until: extractedCount.
+
+    const inline method -- (other: ValueType const arraySlice) ::=> SelfType := {
+        let result mutable type: SelfType.
+        result
+            reserve: self size + other size;
+            addAll: self;
+            addAll: other.
+        result asMoveReference
+    }.
+
+    const inline method -- (other: SelfType const ref) ::=> SelfType := {
+        let result mutable type: SelfType.
+        result
+            reserve: self size + other size;
+            addAll: self;
+            addAll: other.
+        result asMoveReference
+    }.
+
+    inline method addAll: (other: SelfType const ref) ::=> Void := {
+        self reserve: other size.
+        other do: {:(ValueType const ref)each :: Void |
+            self add: each
+        }
+    }.
+
+    inline method addAll: (elements: ValueType const arraySlice) ::=> Void := {
+        self reserve: elements size.
+        elements do: {:(ValueType const ref)each :: Void |
+            self add: each
+        }
+    }.
+
+    Std Concepts Equalable ifType: ValueType complies: {
+        const method indexOf: (value: ValueType const ref) ::=> UIntPointer := {
+            self doWithIndex: {:(ValueType const ref)each :index :: Void |
+                each = value ifTrue: {
+                    return: index
+                }
+            }.
+
+            return: PositionNotFoundIndex
+        }.
+
+        const method includes: (value: ValueType const ref) ::=> Boolean8 := {
+            self do: {:(ValueType const ref)each :: Void |
+                each = value ifTrue: {
+                    return: true
+                }
+            }.
+
+            return: false
+        }.
+
+        const method lastIndexOf: (value: ValueType const ref) ::=> UIntPointer := {
+            let lastFound mutable type: UIntPointer := PositionNotFoundIndex.
+            self doWithIndex: {:(ValueType const ref)each :index :: Void |
+                each = value ifTrue: {
+                    lastFound := index.
+                }
+            }.
+            lastFound
+        }.
+
+        const method copyFromLast: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: (self lastIndexOf: value) until: self size.
+
+        const method copyAfterLast: (value: ValueType const ref) ::=> SelfType
+            := self copyAfter: (self lastIndexOf: value) until: self size.
+
+        const method copyUpTo: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: 0 until: (self indexOf: value).
+
+        const method copyUpToLast: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: 0 until: (self lastIndexOf: value).
+
+        const method startsWith: (sequence: ValueType const arraySlice) ::=> Boolean8 := {
+            self size < sequence size ifTrue: {
+                return: false
+            }.
+
+            0 until: sequence size do: {:i :: Void |
+                self[i] = sequence[i] ifFalse: {
+                    return: false
+                }
+            }.
+
+            return: true
+        }.
+
+        const method endsWith: (sequence: ValueType const arraySlice) ::=> Boolean8 := {
+            self size < sequence size ifTrue: {
+                return: false
+            }.
+
+            let startIndex := self size - sequence size.
+            0 until: sequence size do: {:i :: Void |
+                self[startIndex + i] = sequence[i] ifFalse: {
+                    return: false
+                }
+            }.
+
+            return: true
+        }.
+
+    }.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

@@ -1,0 +1,18 @@
+namespace Std definition: {
+namespace Collections definition: {
+namespace Tests definition: {
+
+class DictionaryTestCase superclass: Std Testing TestCase; definition: {
+    test: testEmptyDictionary with: {
+        let dict mutable type: Dictionary(Int32, Int32).
+        self assert: dict size equals: 0.
+        self assert: dict isEmpty.
+        self deny: dict isNotEmpty.
+    }.
+
+
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
@@ -12,11 +12,11 @@ class SysmelUWPWindowSystemCallbacks definition: {
     public field windowSystem type: UWPWindowSystem pointer.
 
     virtual method onInitialize => Void := {
-        Stdn stdout << "onInitialize"; nl.
+        Std stdout << "onInitialize"; nl.
     }.
 
     virtual method onLoad => Void := {
-        Stdn stdout << "onLoad"; nl.
+        Std stdout << "onLoad"; nl.
     }.
 
     virtual method onRun => Void := {
@@ -28,7 +28,7 @@ class SysmelUWPWindowSystemCallbacks definition: {
     }.
 
     virtual method onUnitialize => Void := {
-        Stdn stdout << "onUnitialize"; nl.
+        Std stdout << "onUnitialize"; nl.
     }.
 
     virtual method onActivated => Void := {
@@ -36,11 +36,11 @@ class SysmelUWPWindowSystemCallbacks definition: {
     }.
 
     virtual method onSuspending => Void := {
-        Stdn stdout << "onSuspending"; nl.
+        Std stdout << "onSuspending"; nl.
     }.
 
     virtual method onResuming => Void := {
-        Stdn stdout << "onResuming"; nl.
+        Std stdout << "onResuming"; nl.
     }.
 
     virtual method onGamepadAdded: (gamepadIndex: UInt32) ::=> Void := {
@@ -79,7 +79,7 @@ class SysmelUWPWindowSystemCallbacks definition: {
 class UWPWindowSystem superclass: WindowSystem; definition: {
     compileTime constant MaxGameControllerCount := 8.
 
-    private field activeWindow type: UWPWindow sharedPointer.
+    private field activeWindow type: UWPWindow rcPointer.
     private field lastMousePosition type: Float32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field buttonState type: MouseButtonMask.
@@ -96,12 +96,12 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     method currentKeyModifiers => KeyModifiers
         := lastKeyModifiers.
 
-    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window sharedPointer := {
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcPointer := {
         activeWindow ifNotNil: {
-            return: Window sharedPointer nil
+            return: Window rcPointer nil
         }.
 
-        activeWindow := UWPWindow sharedNew.
+        activeWindow := UWPWindow rcNew.
         activeWindow _
             extent: (creationInfo extent castTo: UInt32x2);
             animated: creationInfo animated;
@@ -181,7 +181,7 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     }.
 
     method onGamepad: (gamepadIndex: UInt32) axis: (axis: GameControllerAxis) motion: (value: Float32) ::=> Void := {
-        Stdn stdout << "onGamepad: " << gamepadIndex << " axis: " << axis value  << " motion:" << value; nl.
+        Std stdout << "onGamepad: " << gamepadIndex << " axis: " << axis value  << " motion:" << value; nl.
         let convertedEvent mutable := GameControllerAxisMotionEvent()
             which: (gamepadIndex castTo: Int32);
             axis: axis;
@@ -240,11 +240,11 @@ class UWPWindowSystemFactory superclass: WindowsSystemFactory; definition: {
         global Singleton mutable type: UWPWindowSystemFactory.
     }.
 
-    override method createWindowSystem => WindowSystem sharedPointer := {
-        UWPWindowSystem sharedNew upCastFor: WindowSystem.
+    override method createWindowSystem => WindowSystem rcPointer := {
+        UWPWindowSystem rcNew upCastFor: WindowSystem.
     }.
 }.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

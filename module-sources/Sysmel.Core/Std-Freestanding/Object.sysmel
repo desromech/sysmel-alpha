@@ -1,0 +1,16 @@
+namespace Std definition: {
+
+## I am a native object that supports the basic construction and finalization
+## methods, and I provide a convenient method for retrieving my type information.
+class Object definition: {
+    virtual method initialize ::=> Void := {
+    }.
+
+    virtual method finalize ::=> Void := {
+    }.
+
+    const inline method __typeInformation => Std Reflection TypeInformation pointer
+        := Reflection typeInformationFromPointerToVTable(self address).
+}.
+
+}.

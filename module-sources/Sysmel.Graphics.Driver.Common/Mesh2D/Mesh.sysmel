@@ -1,15 +1,15 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 struct Mesh definition: {
     public field vertexBinding type: VertexBindingPtr.
     public field indices type: BufferPtr.
-    public field submeshes type: Stdn Collections Vector(Submesh).
+    public field submeshes type: Std Collections Vector(Submesh).
 }.
 
 }. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

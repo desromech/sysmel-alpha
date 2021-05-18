@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace GC definition: {
 
 class NativeCollector definition: {
@@ -12,12 +12,12 @@ class NativeCollector definition: {
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
-        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
-          ::=> Stdn Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: Std Reflection BasicInitializeFunctionPointerType)
+          ::=> Std Reflection GCObjectHeader pointer := {
         <nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := (LibC malloc(objectSize)) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := (LibC malloc(objectSize)) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
@@ -32,11 +32,11 @@ class NativeCollector definition: {
 
     method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
 		copyingFromPrototype: (prototype: Void pointer)
-		  ::=> Stdn Reflection GCObjectHeader pointer := {
+		  ::=> Std Reflection GCObjectHeader pointer := {
 		<nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := LibC malloc(instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := LibC malloc(instanceSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
 
 		## Copy the data from the prototype
         LibC memcpy(allocatedObject, prototype, instanceSize).
@@ -46,4 +46,4 @@ class NativeCollector definition: {
 }.
 
 }. ## End of namespace GC
-}. ## End of namespace Stdn
+}. ## End of namespace Std

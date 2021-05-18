@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a handle for a sampler.
@@ -17,9 +17,9 @@ class SoftSampler superclass: Sampler; definition: {
     }.
 }.
 
-compileTime constant SoftSamplerPtr := SoftSampler sharedPointer.
+compileTime constant SoftSamplerPtr := SoftSampler rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

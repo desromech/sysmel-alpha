@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 
@@ -20,17 +20,17 @@ enum TokenType valueType: UInt8; values: #{
 }.
 
 sealed class TokenStream definition: {
-    public field stream type: Stdn IO Stream pointer.
-    public field text type: Stdn String.
+    public field stream type: Std IO Stream pointer.
+    public field text type: Std String.
 
     field characterBuffer type: Int32.
 
-    meta method for: (stream: Stdn IO Stream pointer) ::=> SelfType
+    meta method for: (stream: Std IO Stream pointer) ::=> SelfType
         := SelfType()
             initializeWith: stream;
             yourself.
 
-    inline method initializeWith: (theStream: Stdn IO Stream pointer) ::=> Void := {
+    inline method initializeWith: (theStream: Std IO Stream pointer) ::=> Void := {
         stream := theStream.
         characterBuffer := -1.
     }.
@@ -232,7 +232,7 @@ sealed class TokenStream definition: {
         })
     }.
 
-    method nextText => Stdn String const ref := {
+    method nextText => Std String const ref := {
         self next.
         text
     }.
@@ -241,4 +241,4 @@ sealed class TokenStream definition: {
 
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

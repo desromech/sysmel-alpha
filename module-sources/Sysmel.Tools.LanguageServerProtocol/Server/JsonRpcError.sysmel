@@ -2,9 +2,9 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace LanguageServerProtocol definition: {
 
-class JsonRpcError superclass: Stdn Error; definition: {
+class JsonRpcError superclass: Std Error; definition: {
     public field code type: Int32.
-    public field message type: Stdn String.
+    public field message type: Std String.
 }.
 
 }. ## End of namespace LanguageServerProtocol

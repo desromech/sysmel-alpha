@@ -1,0 +1,15 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+macro method CollectionMacrosMixin := ``{
+    macro method isEmpty := ``(`,self size = 0).
+    macro method isNotEmpty := ``(`,self size ~= 0).
+
+    macro method ifEmpty: aBlock := ``(`,self isEmpty ifTrue: `,aBlock).
+    macro method ifNotEmpty: aBlock := ``(`,self isNotEmpty ifTrue: `,aBlock).
+    macro method ifEmpty: emptyBlock ifNotEmpty: notEmptyBlock := ``(`,self isEmpty ifTrue: `,emptyBlock ifFalse: `,notEmptyBlock).
+    macro method ifNotEmpty: notEmptyBlock ifEmpty: emptyBlock := ``(`,self isEmpty ifTrue: `,emptyBlock ifFalse: `,notEmptyBlock).
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

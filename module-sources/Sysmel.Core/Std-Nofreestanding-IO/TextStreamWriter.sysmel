@@ -1,0 +1,225 @@
+namespace Std definition: {
+namespace IO definition: {
+
+#**
+ * Text stream writer
+ *#
+class TextStreamWriter definition: {
+    field stream public type: Stream pointer.
+
+    meta method for: (stream: Stream pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            yourself.
+
+    method nextPut: (character: Char32) ::=> Boolean8 := {
+        let encoder mutable := Std Collections UTF8CodePointEncoder for: character.
+        (stream _ write: encoder encodedData address size: encoder encodedDataSize) == encoder encodedDataSize
+    }.
+
+    method nextPut: (character: Int32) ::=> Boolean8
+		:= self nextPut: (character castTo: Char32).
+
+    method nextPutAll: (string: Std ImmutableString) ::=> Boolean8 := {
+        string ifEmpty: {return: true}.
+        (stream _ write: string elements size: string size) == (string size castTo: IntPointer)
+    }.
+
+    method write: (string: Void const pointer) size: (size: UIntPointer) ::=> Boolean8 := {
+        (stream _ write: string size: size) == (size castTo: IntPointer)
+    }.
+
+    method flush => Void
+        := stream _ flush.
+
+    method close => Void
+        := stream _ close.
+
+    method nextPutBasicValuePrinterBuffer: (valuePrinter: BasicValuePrinter const ref) ::=> Boolean8 := {
+        valuePrinter bufferSize > 0 ifTrue: {
+            (stream _ write: valuePrinter buffer [0] address size: valuePrinter bufferSize) == (valuePrinter bufferSize castTo: IntPointer)
+        } ifFalse: {
+            true
+        }
+    }.
+
+    method nextPutBoolean: (value: Boolean8) ::=> Void := {
+        value ifTrue: {
+			self nextPutAll: "true"
+		} ifFalse:{
+			self nextPutAll: "false"
+		}
+    }.
+
+    method nextPutHexDigit: (digit: Int32) ::=> Void := {
+        if: 0 <= digit && digit <= 9 then: {
+            self nextPut: '0' + digit
+        } else: {
+            self nextPut: 'a' + digit - 10
+        }
+    }.
+
+    ## Integer formatting.
+    method nextPutInteger: (value: Int64) ::=> Void := {
+        let integerPrinter mutable type: BasicValueIntegerPrinter.
+        integerPrinter nextPutInteger: value.
+        self nextPutBasicValuePrinterBuffer: integerPrinter
+    }.
+
+    method nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
+        let integerPrinter mutable type: BasicValueIntegerPrinter.
+        integerPrinter nextPutUnsignedInteger: value.
+        self nextPutBasicValuePrinterBuffer: integerPrinter
+    }.
+
+    ## Floating point formatting
+    method nextPutSingleFloat: (float: Float32) ::=> Void := {
+        let floatPrinter mutable type: BasicValueFloatPrinter.
+        floatPrinter nextPutSingleFloat: float.
+        self nextPutBasicValuePrinterBuffer: floatPrinter
+    }.
+
+    method nextPutDouble: (double: Float64) ::=> Void := {
+        let floatPrinter mutable type: BasicValueFloatPrinter.
+        floatPrinter nextPutDouble: double.
+        self nextPutBasicValuePrinterBuffer: floatPrinter
+    }.
+
+    ## Pointer formatting.
+    method nextPutLittleUInt32: (value: UInt32) ::=> Void := {
+        let integerPrinter mutable type: BasicValueIntegerPrinter.
+        integerPrinter nextPutLittleUInt32: value.
+        self nextPutBasicValuePrinterBuffer: integerPrinter
+    }.
+
+    method nextPutHexPointer: (address: UInt32) ::=> Void := {
+        let integerPrinter mutable type: BasicValueIntegerPrinter.
+        integerPrinter nextPutHexUInt32: address.
+        self nextPutBasicValuePrinterBuffer: integerPrinter
+    }.
+
+    method nextPutHexPointer: (address: UInt64) ::=> Void := {
+        let integerPrinter mutable type: BasicValueIntegerPrinter.
+        integerPrinter nextPutHexUInt64: address.
+        self nextPutBasicValuePrinterBuffer: integerPrinter
+    }.
+
+    method nextPutHexPointer: (pointer: Void const pointer) ::=> Void := {
+        self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
+    }.
+
+    method nextPutCString:(cstring: Char8 const pointer) ::=> Boolean8 := {
+        cstring ifNil: {
+            true
+        } ifNotNil: {
+            let length := cstrlen(cstring).
+            (stream _ write: cstring size: length) == (length castTo: IntPointer)
+        }
+    }.
+
+    ## Special characters
+    method space => SelfType ref
+        := self nextPut: ' '; yourself.
+
+    method tab => SelfType ref
+        := self nextPut: '\t'; yourself.
+
+    method lf => SelfType ref
+        := self nextPut: '\n'; yourself.
+
+    method cr => SelfType ref
+        := self nextPut: '\r'; yourself.
+
+    method crlf => SelfType ref
+        := self nextPutAll: "\r\n"; yourself.
+
+    compileTime if: Compiler compilationTarget isWindowsFamily then: {
+        method nl => SelfType ref
+            := self crlf; yourself.
+    } else: {
+        method nl => SelfType ref
+            := self lf; yourself.
+    }.
+
+    macro method print: value := ``(`,value printOnNativeTextStreamWriter: `,self).
+
+    macro method << value := ``(`,self print: `,value; yourself).
+}.
+
+AnyValue macro fallback method printOnNativeTextStreamWriter: out := ``(`,out nextPutAll: "a "; nextPutAll: `,SelfType qualifiedName).
+
+(Char8 | Char16 | Char32) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPut: (`,self castTo: Char32)).
+
+(Char8 const arraySlice | Char8 arraySlice) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutAll: `,self).
+
+Boolean8 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutBoolean: `,self).
+
+_PointerType macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutHexPointer: `,self).
+
+Char8 const pointer macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutCString: `,self).
+
+(Int8 | Int16 | Int32 | Int64) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutInteger: `,self).
+(UInt8 | UInt16 | UInt32 | UInt64) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutUnsignedInteger: `,self).
+Float32 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutSingleFloat: `,self).
+Float64 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutDouble: `,self).
+
+_EnumType macro fallback method printOnNativeTextStreamWriter: out := ``(`,out print: `,self value).
+_EnumType definition: {
+    meta definition: {
+        macro method makePrintable := ``(`,self definition: `,`'{
+            const method asString => Std ImmutableString := {
+                self selectCase: #{
+                `@(SelfType valuesToStringCases)
+                }.
+            }.
+
+            const method printOnNativeTextStreamWriter: (out: Std IO TextStreamWriter ref) ::=> Void := {
+                out << self asString
+            }.
+        })
+    }.
+}.
+
+_LiteralValueType macro method printOnNativeTextStreamWriter: out := ``(`,out print: `,self asConcreteValue).
+
+_PrimitiveVectorTypeTemplate extend: {
+    let VectorType := SelfType.
+    let VectorSize := SelfType elements.
+
+    const method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
+        out print: self x.
+        compileTime if: VectorSize > 1 then: {
+            out nextPut: ' '; print: self y.
+            compileTime if: VectorSize > 2 then: {
+                out nextPut: ' '; print: self z.
+                compileTime if: VectorSize > 3 then: {
+                    out nextPut: ' '; print: self w.
+                }
+            }
+        }.
+    }.
+}.
+
+#*
+# Disable the printing of the matrix types. This seems to be putting too much strain on the compiler.
+_PrimitiveMatrixTypeTemplate extend: {
+    let MatrixType := SelfType.
+    let MatrixRows := SelfType rows.
+
+    const method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
+        out print: self firstRow.
+        compileTime if: MatrixRows > 1 then: {
+            out nextPut: ';'; nextPut: ' '; print: self secondRow.
+            compileTime if: MatrixRows > 2 then: {
+                out nextPut: ';'; nextPut: ' '; print: self thirdRow.
+                compileTime if: MatrixRows > 3 then: {
+                    out nextPut: ';'; nextPut: ' '; print: self fourthRow.
+                }
+            }
+        }.
+    }.
+}.
+*#
+
+}. ## End of namespace IO
+}. ## End of namespace Std

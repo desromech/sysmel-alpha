@@ -1,0 +1,6 @@
+namespace Std definition: {
+
+## Use the association type template specified by the base language.
+compileTime constant Association := _AssociationTypeTemplate.
+
+}. ## End of namespace Std

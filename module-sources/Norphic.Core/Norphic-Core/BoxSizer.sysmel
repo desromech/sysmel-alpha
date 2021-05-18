@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am box sizer that packs its elements in a linear fashion.

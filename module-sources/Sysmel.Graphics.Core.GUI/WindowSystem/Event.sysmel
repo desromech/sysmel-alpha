@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
@@ -18,15 +18,15 @@ class Event definition: {
  * of the windows to give them an opportunity to redraw themselves.
  *#
 class TickEvent superclass: Event; definition: {
-    public field ticks type: Stdn Chrono Time.
-    public field delta type: Stdn Chrono Time.
+    public field ticks type: Std Chrono Time.
+    public field delta type: Std Chrono Time.
     public field mainLoopFrameCount type: UInt32.
 
     inline method seconds => Float64
-        := Stdn Chrono ticksToFloatSeconds(ticks).
+        := Std Chrono ticksToFloatSeconds(ticks).
 
     inline method deltaSeconds => Float64
-        := Stdn Chrono ticksToFloatSeconds(delta).
+        := Std Chrono ticksToFloatSeconds(delta).
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onTickEvent: self.
@@ -61,7 +61,7 @@ class KeyReleasedEvent superclass: KeyboardEvent; definition: {
  * I am a text input event
  *#
 class TextInputEvent superclass: Event; definition: {
-    public field text type: Stdn String.
+    public field text type: Std String.
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onTextInputEvent: self.
@@ -348,4 +348,4 @@ class GameControllerButtonReleasedEvent superclass: GameControllerButtonEvent; d
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

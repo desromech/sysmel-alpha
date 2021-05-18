@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 useNamespace: SDL2.
@@ -20,7 +20,7 @@ class SDL2PlaybackDevice superclass: SoftPlaybackDevice; definition: {
         audioSpec := theAudioSpec.
 
         audioSpec format ~= AUDIO_F32 ifTrue: {
-			mixingBuffer reset: (Stdn malloc(audioSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer).
+			mixingBuffer reset: (Std malloc(audioSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer).
 		}.
     }.
 
@@ -73,7 +73,7 @@ class SDL2PlaybackDevice superclass: SoftPlaybackDevice; definition: {
                 }.
             }.
             _ : {
-                Stdn memset(stream, 0, len castTo: UIntPointer).
+                Std memset(stream, 0, len castTo: UIntPointer).
             }.
         }.
     }.
@@ -85,7 +85,7 @@ function sdl2PlaybackDeviceAudioCallback(userdata: Void pointer, stream: UInt8 p
         onAudioCallback: stream len: len
 }.
 
-compileTime constant SDL2PlaybackDevicePtr := SDL2PlaybackDevice sharedPointer.
+compileTime constant SDL2PlaybackDevicePtr := SDL2PlaybackDevice rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

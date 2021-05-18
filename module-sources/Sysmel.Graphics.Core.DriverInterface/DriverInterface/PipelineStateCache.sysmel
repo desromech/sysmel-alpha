@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -10,8 +10,8 @@ class PipelineStateCache superclass: RenderingDriverObjectHandle; definition: {
     abstract method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
 }.
 
-compileTime constant PipelineStateCachePtr := PipelineStateCache sharedPointer.
+compileTime constant PipelineStateCachePtr := PipelineStateCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

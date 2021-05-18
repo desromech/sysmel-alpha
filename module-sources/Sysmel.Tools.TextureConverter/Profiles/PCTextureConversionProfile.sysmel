@@ -2,7 +2,7 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace TextureConverter definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 PixelFormat extend: {
     inline method asTargetTextureFormatForPC => SelfType := {

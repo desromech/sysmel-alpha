@@ -12,7 +12,7 @@ ModuleNamespaceInformation definition: {
 
             sharedNamespace addModuleNamespaceInformation: self.
             children do: {:each :: Void |
-                ## Stdn stdout << "Namespace child " << each; nl.
+                ## Std stdout << "Namespace child " << each; nl.
                 each setupProgramEntityParent: self fromModule: theModule.
             }
         }.

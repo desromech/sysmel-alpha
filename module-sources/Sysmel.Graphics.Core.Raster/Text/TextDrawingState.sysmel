@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Std Math LinearAlgebra.
 
 struct TextDrawingState definition: {
     public field previousCharacter type: Char32.
@@ -59,4 +59,4 @@ struct TextDrawingState definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

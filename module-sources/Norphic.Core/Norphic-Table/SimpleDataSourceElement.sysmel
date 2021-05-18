@@ -6,14 +6,14 @@ template SimpleDataSourceElement(VT: Type)
     public field value type: ValueType.
 
     meta definition: {
-        method for: (value: ValueType const ref) ::=> InstanceType sharedPointer := {
-            let result := InstanceType sharedNew.
+        method for: (value: ValueType const ref) ::=> InstanceType rcPointer := {
+            let result := InstanceType rcNew.
             result _ value: value.
             result
         }.
     }.
 }.
 
-compileTime constant SimpleStringDataSourceElement := SimpleDataSourceElement(Stdn String).
+compileTime constant SimpleStringDataSourceElement := SimpleDataSourceElement(Std String).
 
 }. ## End of namespace

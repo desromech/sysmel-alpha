@@ -1,7 +1,7 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace GC definition: {
 
-useNamespace: Stdn Reflection.
+useNamespace: Std Reflection.
 
 compileTime constant RootIterationBlock := ((GCObjectHeader pointer pointer) => Void) nativeStackBlockClosure.
 
@@ -34,4 +34,4 @@ struct GCRootBox definition: {
 }.
 
 }. ## End of namespace GC
-}. ## End of namespace Stdn
+}. ## End of namespace Std

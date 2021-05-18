@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a 2D scene renderer that draws onto a specific swap chain.
@@ -13,19 +13,19 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     protected field swapChain type: SwapChainPtr.
 
     protected field device type: RenderingDevicePtr.
-    protected field renderPasses type: Stdn Collections Vector(RenderPassPtr).
-    protected field commandListAllocators type: Stdn Collections Vector(CommandListAllocatorPtr).
-    protected field stateTrackers type: Stdn Collections Vector(StateTrackerPtr).
-    protected field fences type: Stdn Collections Vector(FencePtr).
+    protected field renderPasses type: Std Collections Vector(RenderPassPtr).
+    protected field commandListAllocators type: Std Collections Vector(CommandListAllocatorPtr).
+    protected field stateTrackers type: Std Collections Vector(StateTrackerPtr).
+    protected field fences type: Std Collections Vector(FencePtr).
 
-    protected field perFrameSceneRenderers type: Stdn Collections Vector(StateTracker2DSceneRendererPtr).
+    protected field perFrameSceneRenderers type: Std Collections Vector(StateTracker2DSceneRendererPtr).
 
     protected field currentClearColor type: Float32x4.
     protected field isOutOfDate type: Boolean8.
 
     meta definition: {
-        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer sharedPointer := {
-            let result := SwapChain2DSceneRenderer sharedNew.
+        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer rcPointer := {
+            let result := SwapChain2DSceneRenderer rcNew.
             result _ initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent.
             result
         }.
@@ -52,7 +52,7 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
 
                 commandListAllocators add: commandListAllocator.
 
-                let stateTracker := GenericStateTracker sharedNew.
+                let stateTracker := GenericStateTracker rcNew.
                 stateTracker _
                     commandList: commandList;
                     shaderCache: device _ getDefaultShaderCache;
@@ -72,7 +72,7 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
             let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
             renderPasses add: renderPass.
 
-            let sceneRenderer := StateTracker2DSceneRenderer sharedNew.
+            let sceneRenderer := StateTracker2DSceneRenderer rcNew.
             sceneRenderer _
                 extent: extent;
                 device: device.
@@ -152,8 +152,8 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     }.
 }.
 
-compileTime constant SwapChain2DSceneRendererPtr := SwapChain2DSceneRenderer sharedPointer.
+compileTime constant SwapChain2DSceneRendererPtr := SwapChain2DSceneRenderer rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

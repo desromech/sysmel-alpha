@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,15 +6,15 @@ namespace Core definition: {
  * Shader signature description.
  *#
 struct ShaderSignatureDescription definition: {
-    public field banks type: Stdn Collections Vector(ShaderSignatureBankDescription).
+    public field banks type: Std Collections Vector(ShaderSignatureBankDescription).
     public field pushConstantsSize type: UIntPointer.
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
         := banks = other banks && pushConstantsSize = other pushConstantsSize.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := banks hash ^ pushConstantsSize hash.
 
     const method applyToBuilder: (builder: ShaderSignatureBuilder ref) ::=> Void := {
@@ -37,4 +37,4 @@ struct ShaderSignatureDescription definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

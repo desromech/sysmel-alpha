@@ -1,7 +1,7 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 class SimpleTextModelCursor.
 
@@ -9,15 +9,15 @@ class SimpleTextModelCursor.
  * Simplistic and slow text model.
  *#
 class SimpleTextModel superclass: TextModel; definition: {
-    public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+    public field fontFaceWithSize type: FontFaceWithSize rcPointer.
     public field color type: Float32x4.
-    public field textBuffer type: Stdn Collections Vector(Char8).
+    public field textBuffer type: Std Collections Vector(Char8).
 
-    override method text => Stdn String := {
-        Stdn String fromUTF8: textBuffer data size: textBuffer size
+    override method text => Std String := {
+        Std String fromUTF8: textBuffer data size: textBuffer size
     }.
 
-    override method text: (newText: Stdn String const ref) ::=> Void := {
+    override method text: (newText: Std String const ref) ::=> Void := {
         textBuffer removeAll.
         textBuffer resizeTo: newText size.
         0 until: newText size do: {:i :: Void |
@@ -25,9 +25,9 @@ class SimpleTextModel superclass: TextModel; definition: {
         }
     }.
 
-    override method newCursor => TextModelCursor sharedPointer := {
-        let result := SimpleTextModelCursor sharedNew.
-        result _ model: self asSharedPointer.
+    override method newCursor => TextModelCursor rcPointer := {
+        let result := SimpleTextModelCursor rcNew.
+        result _ model: self asRCPointer.
         result upCastFor: TextModelCursor
     }.
 
@@ -97,10 +97,10 @@ class SimpleTextModel superclass: TextModel; definition: {
  * Simplistic and slow text model cursor.
  *#
 class SimpleTextModelCursor superclass: TextModelCursor; definition: {
-    protected field model type: SimpleTextModel sharedPointer.
+    protected field model type: SimpleTextModel rcPointer.
     private field bufferPosition type: UIntPointer.
 
-    method model: (theModel: SimpleTextModel sharedPointer const ref) ::=> Void := {
+    method model: (theModel: SimpleTextModel rcPointer const ref) ::=> Void := {
         model := theModel
     }.
 
@@ -167,7 +167,7 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
         bufferPosition := model _ bufferPositionForDrawingPosition: position
     }.
 
-    override method insertString: (text: Stdn String const ref) ::=> Void := {
+    override method insertString: (text: Std String const ref) ::=> Void := {
         let textBuffer ref := model _ textBuffer.
 
         bufferPosition := bufferPosition min: textBuffer size.

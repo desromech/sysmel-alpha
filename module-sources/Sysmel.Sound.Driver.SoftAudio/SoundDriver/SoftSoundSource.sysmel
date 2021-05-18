@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
@@ -36,7 +36,7 @@ class SoftSoundSource superclass: SoundSource; definition: {
 
     override method resume => Void := {
         isPlaying := true.
-        playbackDevice _ activateSoundSource: self asSharedPointer.
+        playbackDevice _ activateSoundSource: self asRCPointer.
     }.
 
     override method stop => Void := {
@@ -74,7 +74,7 @@ class SoftSoundSource superclass: SoundSource; definition: {
         := streamSource.
 }.
 
-compileTime constant SoftSoundSourcePtr := SoftSoundSource sharedPointer.
+compileTime constant SoftSoundSourcePtr := SoftSoundSource rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

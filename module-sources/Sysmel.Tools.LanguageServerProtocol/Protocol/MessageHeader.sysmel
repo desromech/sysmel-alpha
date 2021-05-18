@@ -9,10 +9,10 @@ class MessageHeader definition: {
     public field contentLength type: UIntPointer.
 
     public field hasContentType type: Boolean8.
-    public field contentType type: Stdn String.
+    public field contentType type: Std String.
 
-    method readFrom: (input: Stdn IO TextStreamReader ref) ::=> Boolean8 := {
-        let line mutable := Stdn String().
+    method readFrom: (input: Std IO TextStreamReader ref) ::=> Boolean8 := {
+        let line mutable := Std String().
 
         do:
         {
@@ -25,7 +25,7 @@ class MessageHeader definition: {
     method isJsonRequest => Boolean8
         := hasContentType not || (contentType startsWith: "application/vscode-jsonrpc").
 
-    method parseLine: (line: Stdn ImmutableString) ::=> Boolean8 := {
+    method parseLine: (line: Std ImmutableString) ::=> Boolean8 := {
         let colonPosition mutable type: UIntPointer := 0.
         while: colonPosition < line size && line[colonPosition] ~= ':' do: {
             colonPosition := colonPosition + 1

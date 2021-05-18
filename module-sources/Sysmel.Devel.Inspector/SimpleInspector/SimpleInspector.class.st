@@ -18,7 +18,7 @@ SimpleInspector class >> defaultSpec [
 
 { #category : #'as yet unclassified' }
 SimpleInspector >> addKey: key value: value [
-	Stdn stdout << 'TODO: Add key ' << key << ' ' << value; nl
+	Std stdout << 'TODO: Add key ' << key << ' ' << value; nl
 ]
 
 { #category : #accessing }

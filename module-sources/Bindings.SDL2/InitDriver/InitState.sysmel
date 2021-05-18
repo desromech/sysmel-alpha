@@ -2,7 +2,7 @@ namespace SDL2 definition: {
 
 class SDL2InitState definition: {
 
-    private field initMutex type: Stdn Mutex.
+    private field initMutex type: Std Mutex.
     private field initCount type: UInt32.
     private field videoInitCount type: UInt32.
     private field audioInitCount type: UInt32.
@@ -39,7 +39,7 @@ class SDL2InitState definition: {
         initMutex withLock: {
             videoInitCount = 0 ifTrue: {
                 SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) ~= 0 ifTrue: {
-                    Stdn raiseError("Failed to initialize SDL2 video.").
+                    Std raiseError("Failed to initialize SDL2 video.").
                 }.
             }.
 
@@ -64,7 +64,7 @@ class SDL2InitState definition: {
         initMutex withLock: {
             audioInitCount = 0 ifTrue: {
                 SDL_InitSubSystem(SDL_INIT_AUDIO) ~= 0 ifTrue: {
-                    Stdn raiseError("Failed to initialize SDL2 audio.").
+                    Std raiseError("Failed to initialize SDL2 audio.").
                 }.
             }.
 

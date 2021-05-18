@@ -2,13 +2,13 @@ namespace Smalltalk definition: {
 useNamespace: Norphic.
 
 gcclass SimpleBrowser definition: {
-    protected field norphicWindow type: SystemWindowNorph sharedPointer.
+    protected field norphicWindow type: SystemWindowNorph rcPointer.
     protected field classBindings.
     protected field methodsBindings.
 
-    protected field classesListView type: ListViewNorph sharedPointer.
-    protected field methodsView type: ListViewNorph sharedPointer.
-    protected field codeEditor type: TextAreaNorph sharedPointer.
+    protected field classesListView type: ListViewNorph rcPointer.
+    protected field methodsView type: ListViewNorph rcPointer.
+    protected field codeEditor type: TextAreaNorph rcPointer.
 
     meta definition: {
         method openOn: anObject
@@ -18,9 +18,9 @@ gcclass SimpleBrowser definition: {
     }.
 
     method createWidgets := {
-        classesListView := ListViewNorph sharedNew.
-        methodsView := ListViewNorph sharedNew.
-        codeEditor := TextAreaNorph sharedNew.
+        classesListView := ListViewNorph rcNew.
+        methodsView := ListViewNorph rcNew.
+        codeEditor := TextAreaNorph rcNew.
         self
     }.
 
@@ -90,7 +90,7 @@ gcclass SimpleBrowser definition: {
     }.
 
     method open := {
-        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem activeWindowSystem
+        norphicWindow := SystemWindowNorph createFor: Std Graphics GUI WindowSystem activeWindowSystem
             title: "Browser" asMutableString extent: Int32x2(800, 400).
         self
             createWidgets;

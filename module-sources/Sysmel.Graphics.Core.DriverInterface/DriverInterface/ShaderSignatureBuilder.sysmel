@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -18,8 +18,8 @@ class ShaderSignatureBuilder superclass: RenderingDriverObjectHandle; definition
         := self addBankElementWithType: bindingType bindingPointCount: 1.
 }.
 
-compileTime constant ShaderSignatureBuilderPtr := ShaderSignatureBuilder sharedPointer.
+compileTime constant ShaderSignatureBuilderPtr := ShaderSignatureBuilder rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ class VertexLayout superclass: RenderingDriverObjectHandle; definition: {
     abstract method addVertexBuffers: (strides: UInt32 const arraySlice) withAttributes: (attributes: VertexAttributeDescription const arraySlice) ::=> Void.
 }.
 
-compileTime constant VertexLayoutPtr := VertexLayout sharedPointer.
+compileTime constant VertexLayoutPtr := VertexLayout rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

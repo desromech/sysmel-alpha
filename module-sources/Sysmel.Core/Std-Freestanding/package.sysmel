@@ -1,0 +1,38 @@
+## Core definitions without a requirement on memory allocation, or an actual operating system.
+Compiler loadPackages: #(
+	#"Std-Freestanding-Utility"
+	#"Std-Freestanding-Concepts"
+).
+
+if: Compiler compilationTarget isGPU not then: {
+	loadFileOnce: "ImmutableString.sysmel".
+	loadFileOnce: "Char.sysmel".
+	loadFileOnce: "string.sysmel".
+
+	loadFileOnce: "BasicValuePrinter.sysmel".
+	loadFileOnce: "StandaloneIntegerPrinter.sysmel".
+	loadFileOnce: "IntegerParser.sysmel".
+	loadFileOnce: "FloatMethods.sysmel".
+
+	## Our standalone float printer is not yet completely implemented, so for
+	## now just use the snprintf based implementation.
+	if: Compiler hasLibC then: {
+		loadFileOnce: "LibCFloatPrinter.sysmel".
+		loadFileOnce: "LibCFloatParser.sysmel".
+	} else: {
+		loadFileOnce: "FixedBigInteger.sysmel".
+		loadFileOnce: "StandaloneFloatPrinter.sysmel".
+		loadFileOnce: "StandaloneFloatParser.sysmel".
+	}.
+
+	Compiler loadPackages: #(
+		#"Std-Freestanding-ExplicitMemoryCollections"
+		#"Std-Freestanding-Collections"
+		#"Std-Freestanding-Algorithms"
+		#"Std-Freestanding-Math"
+		#"Std-Freestanding-Threading"
+	).
+	loadFileOnce: "RTTI.sysmel".
+	loadFileOnce: "Object.sysmel".
+	loadFileOnce: "BasicExceptions.sysmel".
+}.

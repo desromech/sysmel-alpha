@@ -1,0 +1,25 @@
+namespace Std definition: {
+DiskFileSystem definition: {
+    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_path_isFile(path asMutableString asCString).
+
+    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_path_isDirectory(path asMutableString asCString).
+
+    override method exists: (path: Char8 const arraySlice) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_path_exists(path asMutableString asCString).
+
+    override method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void := {
+    }.
+
+    method workingDirectory ::=> FileReference := {
+        let path := EmbeddedPAL sysmel_epal_path_getWorkingDirectory().
+        self makeFileReferenceWithPath: (path until: Std cstrlen(path)).
+    }.
+
+    method resourcesDirectory ::=> FileReference := {
+        let path := EmbeddedPAL sysmel_epal_path_getResourcesDirectory().
+        self makeFileReferenceWithPath: (path until: Std cstrlen(path)).
+    }.
+}.
+}. ## End of namespace Std.

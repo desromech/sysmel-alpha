@@ -10,7 +10,7 @@ class PopupNorph superclass: BorderedNorph; definition: {
     const override method isPopupNorph => Boolean8
         := true.
 
-    method parentPopup => PopupNorph sharedPointer := {
+    method parentPopup => PopupNorph rcPointer := {
         currentParent isNotNil && currentParent _ isPopupNorph ifTrue: {
             return: (currentParent downCastFor: PopupNorph)
         }.
@@ -21,7 +21,7 @@ class PopupNorph superclass: BorderedNorph; definition: {
     method popupAt: (position: Float32x2) withParent: (parent: NorphPtr const ref) on: (rootNorph: RootNorph pointer) ::=> Void := {
         rootNorph ifNil: {return: void}.
 
-        rootNorph _ activatePopup: self asSharedPointer at: position withParent: parent.
+        rootNorph _ activatePopup: self asRCPointer at: position withParent: parent.
     }.
 
     method popupAt: (position: Float32x2) on: (rootNorph: RootNorph pointer) ::=> Void
@@ -31,7 +31,7 @@ class PopupNorph superclass: BorderedNorph; definition: {
         currentParent := newParent.
 
         currentParent ifNotNil: {
-            currentParent _ ownedPopupCreated: self asSharedPointer.
+            currentParent _ ownedPopupCreated: self asRCPointer.
         }.
 
         self onPopupStarted
@@ -39,7 +39,7 @@ class PopupNorph superclass: BorderedNorph; definition: {
 
     method killed => Void := {
         currentParent ifNotNil: {
-            currentParent _ ownedPopupKilled: self asSharedPointer.
+            currentParent _ ownedPopupKilled: self asRCPointer.
         }.
 
         currentParent reset.
@@ -56,6 +56,6 @@ class PopupNorph superclass: BorderedNorph; definition: {
 
 }.
 
-compileTime constant PopupNorphPtr := PopupNorph sharedPointer.
+compileTime constant PopupNorphPtr := PopupNorph rcPointer.
 
  }. ## End of namespace Norphic

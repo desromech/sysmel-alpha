@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
@@ -6,19 +6,19 @@ namespace Sound definition: {
  *#
 class NullPlaybackDevice superclass: PlaybackDevice; definition: {
     override method newSoundBuffer: (description: SoundBufferDescription const ref) ::=> SoundBufferPtr
-        := SoundBuffer sharedNew.
+        := SoundBuffer rcNew.
 
     override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferPtr
-        := SoundBuffer sharedNew.
+        := SoundBuffer rcNew.
 
     override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr
-        := SoundSource sharedNew.
+        := SoundSource rcNew.
 
     override method newSoundSourceForStreamSource: (streamSource: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr
-        := SoundSource sharedNew.
+        := SoundSource rcNew.
 }.
 
-compileTime constant NullPlaybackDevicePtr := NullPlaybackDevice sharedPointer.
+compileTime constant NullPlaybackDevicePtr := NullPlaybackDevice rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

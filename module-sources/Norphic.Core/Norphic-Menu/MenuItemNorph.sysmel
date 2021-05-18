@@ -1,12 +1,12 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a menu item norph.
  *#
 class MenuItemNorph superclass: AbstractMenuItemNorph; definition: {
-    method parentMenu => MenuNorph sharedPointer
+    method parentMenu => MenuNorph rcPointer
         := self owner downCastFor: MenuNorph.
 
     override method isHighlighted => Boolean8
@@ -35,7 +35,7 @@ class MenuItemNorph superclass: AbstractMenuItemNorph; definition: {
     }.
 }.
 
-compileTime constant MenuItemNorphPtr := MenuItemNorph sharedPointer.
+compileTime constant MenuItemNorphPtr := MenuItemNorph rcPointer.
 
 
 }. ## End of namespace Norphic

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,14 +8,14 @@ namespace Core definition: {
 struct ShaderSignatureBankDescription definition: {
     ## A hint on the max number of binding points that may be actually created.
     public field maxBindingPointCountHint type: UIntPointer.
-    public field elements type: Stdn Collections Vector(ShaderBindingType).
+    public field elements type: Std Collections Vector(ShaderBindingType).
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
         := maxBindingPointCountHint = other maxBindingPointCountHint && elements = other elements.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := maxBindingPointCountHint hash ^ elements hash.
 
     const method applyToBuilder: (builder: ShaderSignatureBuilder ref) ::=> Void := {
@@ -32,4 +32,4 @@ struct ShaderSignatureBankDescription definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,8 +8,8 @@ namespace Core definition: {
 class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
     public field device type: RenderingDeviceWeakPtr.
 
-    override method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (textureView: SharedObjectPtr const ref) ::=> StrongTextureHandlePtr := {
-        let result := TextureWithView sharedNew.
+    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr := {
+        let result := TextureWithView rcNew.
         result _
             texture: (texture downCastFor: Texture);
             textureView: (textureView downCastFor: TextureView).
@@ -22,8 +22,8 @@ class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
     }.
 }.
 
-compileTime constant GenericScene2DBuilderPtr := GenericScene2DBuilder sharedPointer.
+compileTime constant GenericScene2DBuilderPtr := GenericScene2DBuilder rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

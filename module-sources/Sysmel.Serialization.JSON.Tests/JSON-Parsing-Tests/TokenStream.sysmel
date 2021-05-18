@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 namespace Tests definition: {
 
-class TokenStreamTest superclass: Stdn Testing TestCase; definition: {
+class TokenStreamTest superclass: Std Testing TestCase; definition: {
 
     test: testEOF with: {
         self assert: (TokenStream for: "" asMutableString readMemoryStream address) next equals: TokenType EOF.
@@ -78,4 +78,4 @@ class TokenStreamTest superclass: Stdn Testing TestCase; definition: {
 } ## End of namespace Tests
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

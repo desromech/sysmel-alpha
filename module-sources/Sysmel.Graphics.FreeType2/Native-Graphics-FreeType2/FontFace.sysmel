@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace FT2Bindings definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 useNamespace: FreeType2.
 
 class FT2FontFaceWithSize.
@@ -12,15 +12,15 @@ class FT2FontFaceWithSize.
  *#
 class FT2FontFace superclass: FontFace; definition: {
     meta definition: {
-        method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace sharedPointer := {
+        method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace rcPointer := {
             let library ref := FT2Library defaultInstance.
             let handle mutable type: FT_Face.
             let error := FT_New_Face(library _ handle, path, 0, handle address).
             convertError(error) ifTrue: {
-                return: FT2FontFace sharedPointer nil.
+                return: FT2FontFace rcPointer nil.
             }.
 
-            let result := FT2FontFace sharedNew.
+            let result := FT2FontFace rcNew.
             result _
                 ft2Library: library;
                 handle: handle.
@@ -28,12 +28,12 @@ class FT2FontFace superclass: FontFace; definition: {
         }
     }.
 
-    public field ft2Library type: FT2Library sharedPointer.
+    public field ft2Library type: FT2Library rcPointer.
     public field handle type: FT_Face.
-    private field faceSizes type: Stdn Collections Dictionary(UInt32, FontFaceWithSize sharedPointer).
+    private field faceSizes type: Std Collections Dictionary(UInt32, FontFaceWithSize rcPointer).
 
     override method finalize => Void := {
-        faceSizes valuesDo: {:(FontFaceWithSize sharedPointer ref)each :: Void |
+        faceSizes valuesDo: {:(FontFaceWithSize rcPointer ref)each :: Void |
             (each getPointer castTo: FT2FontFaceWithSize pointer)
                 _ releaseHandle.
         }.
@@ -43,18 +43,18 @@ class FT2FontFace superclass: FontFace; definition: {
         }.
     }.
 
-    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize sharedPointer := {
-        faceSizes at: faceSize ifAbsentPut: { :: (FontFaceWithSize sharedPointer) |
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize rcPointer := {
+        faceSizes at: faceSize ifAbsentPut: { :: (FontFaceWithSize rcPointer) |
             let sizeHandle mutable type: FT_Size.
             let error := FT_New_Size(handle, sizeHandle address).
-            let result mutable := FT2FontFaceWithSize sharedPointer nil.
+            let result mutable := FT2FontFaceWithSize rcPointer nil.
             convertError(error) ifFalse: {
                 FT_Activate_Size(sizeHandle).
                 FT_Set_Char_Size(handle, 0, faceSize*64 castTo: Int32, 72, 72).
 
                 let metrics ref := handle _ size _ metrics.
 
-                result := FT2FontFaceWithSize sharedNew.
+                result := FT2FontFaceWithSize rcNew.
                 result _
                     handle: sizeHandle;
                     face: self address;
@@ -73,11 +73,11 @@ class FT2FontFace superclass: FontFace; definition: {
 class FreeTypeFontFaceLoader superclass: FontFaceLoader; definition: {
     global Factory mutable type: FontFaceLoaderFactory(FreeTypeFontFaceLoader).
 
-    override method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+    override method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFace rcPointer := {
         (FT2FontFace loadFromFile: fileName asCString) upCastFor: FontFace
     }.
 }.
 
 }. ## End of namespace Text
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 class UnsafePixelIterator definition: {
     public field pixels type: UInt8 pointer.
@@ -143,7 +143,7 @@ class Blitter definition: {
     const inline method setRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
         let clippedRectangle := rectangle intersectionWith: self clippedBounds.
         clippedRectangle isEmpty ifTrue: {
-            Stdn stdout << "Empty clipped rectangle"; nl.
+            Std stdout << "Empty clipped rectangle"; nl.
             return: void
         }.
 
@@ -195,7 +195,7 @@ class Blitter definition: {
         clippedRectangle min y until: clippedRectangle max y do: {:(Int32)y :: Void |
             let destPixel mutable := destRow.
             clippedRectangle min x until: clippedRectangle max x do: {:(Int32)x :: Void |
-                Stdn memcpy(destPixel pixels, encodedPixel, pixelSize).
+                Std memcpy(destPixel pixels, encodedPixel, pixelSize).
                 destPixel advanceColumn
             }.
 
@@ -235,7 +235,7 @@ class Blitter definition: {
         clippedBounds = self bounds &&
         (color r == color g && color g == color b && color b == color a) &&
         pitch >= 0 ifTrue: {
-            Stdn memset(pixels, color r, pitch * extent y castTo: UIntPointer)
+            Std memset(pixels, color r, pitch * extent y castTo: UIntPointer)
         } ifFalse: {
             self setRectangle: self bounds pixelsTo: color
         }.
@@ -418,7 +418,7 @@ class Blitter definition: {
         sourceBlitter pixelFormat = pixelFormat &&
         sourceBlitter pitch = pitch &&
         pitch >= 0 ifTrue: {
-            Stdn memcpy(pixels, sourceBlitter pixels, pitch*extent y castTo: UIntPointer).
+            Std memcpy(pixels, sourceBlitter pixels, pitch*extent y castTo: UIntPointer).
             return: void.
         }.
 
@@ -503,4 +503,4 @@ class Blitter definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

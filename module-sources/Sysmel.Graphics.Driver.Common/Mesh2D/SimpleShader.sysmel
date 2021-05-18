@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 class SimpleShader superclass: Scene2DShaderSignature; definition: {
     class FragmentOutput definition: {
@@ -50,4 +50,4 @@ class SimpleShader superclass: Scene2DShaderSignature; definition: {
 
 }. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,0 +1,11 @@
+namespace Std definition: {
+namespace Chrono definition: {
+    compileTime constant microsecondClockValue := EmbeddedPAL sysmel_epal_microsecondClockValue.
+    compileTime constant monotonicClockValue := EmbeddedPAL sysmel_epal_monotonicClockValue.
+    compileTime constant processClockValue := EmbeddedPAL sysmel_epal_processClockValue.
+    compileTime constant threadClockValue := EmbeddedPAL sysmel_epal_threadClockValue.
+    compileTime constant sleepFor := EmbeddedPAL sysmel_epal_sleepFor.
+    compileTime constant sleepUntil := EmbeddedPAL sysmel_epal_sleepUntil.
+
+}. ## End of namespace Chrono
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -15,8 +15,8 @@ class VertexBinding superclass: RenderingDriverObjectHandle; definition: {
     abstract method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (offsets: Offsets) ::=> Void.
 }.
 
-compileTime constant VertexBindingPtr := VertexBinding sharedPointer.
+compileTime constant VertexBindingPtr := VertexBinding rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

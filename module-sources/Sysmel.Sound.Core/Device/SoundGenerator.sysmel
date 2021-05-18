@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
@@ -68,7 +68,7 @@ class SoundGenerator superclass: SoundStreamSource; definition: {
     }.
 }.
 
-compileTime constant SoundGeneratorPtr := SoundGenerator sharedPointer.
+compileTime constant SoundGeneratorPtr := SoundGenerator rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
 useNamespace: SDL2.
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 class SDL2Window.
 
 function convertSystemCursorName(name: SystemCursorName) => SDL_SystemCursor := {
@@ -29,7 +29,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     private field aliveWindowCount type: UInt32.
     private field isQuitRequested type: Boolean8.
-    private field windowIDDictionary type: Stdn Collections Dictionary(UInt32, SDL2Window sharedPointer).
+    private field windowIDDictionary type: Std Collections Dictionary(UInt32, SDL2Window rcPointer).
     private field lastMousePosition type: Float32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
@@ -62,7 +62,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     method currentKeyModifiers => KeyModifiers
         := lastKeyModifiers.
 
-    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window sharedPointer := {
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcPointer := {
         let position mutable := Int32x2(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED).
         creationInfo position isPresent ifTrue: {
             position := creationInfo position _
@@ -94,11 +94,11 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, flags).
         windowHandle ifNil: {
-            return: Window sharedPointer nil.
+            return: Window rcPointer nil.
         }.
 
         aliveWindowCount := aliveWindowCount + 1.
-        let result := SDL2Window sharedNew.
+        let result := SDL2Window rcNew.
         result _
             handle: windowHandle;
             setWindowSystem: self address;
@@ -114,7 +114,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     override method hasAnimatedWindow => Boolean8 := {
         let result mutable := false.
-        windowIDDictionary valuesDo: {:(SDL2Window sharedPointer const ref)each :: Void |
+        windowIDDictionary valuesDo: {:(SDL2Window rcPointer const ref)each :: Void |
             each _ animated ifTrue: {
                 result := true
             }
@@ -168,8 +168,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         }.
     }.
 
-    method findWrapperForWindowID: (id: UInt32) ::=> Window sharedPointer := {
-        let wrapper mutable := windowIDDictionary at: id ifAbsent: SDL2Window sharedPointer nil.
+    method findWrapperForWindowID: (id: UInt32) ::=> Window rcPointer := {
+        let wrapper mutable := windowIDDictionary at: id ifAbsent: SDL2Window rcPointer nil.
 
         wrapper upCastFor: Window.
     }.
@@ -280,7 +280,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         wrapper ifNil: {return: void}.
 
         let convertedEvent mutable := TextInputEvent newValue.
-        convertedEvent text := Stdn String fromCString: event text[0] address.
+        convertedEvent text := Std String fromCString: event text[0] address.
         wrapper _ deliverEvent: convertedEvent.
     }.
 
@@ -428,12 +428,12 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     override method broadcastEvent: (event: Event ref) ::=> Void := {
         super broadcastEvent: event.
-        windowIDDictionary valuesDo: {:(SDL2Window sharedPointer ref) window :: Void |
+        windowIDDictionary valuesDo: {:(SDL2Window rcPointer ref) window :: Void |
             window _ deliverEvent: event
         }
     }.
 
-    method getConvertedCursorFor: (cursor: Cursor sharedPointer) ::=> SDL_Cursor pointer := {
+    method getConvertedCursorFor: (cursor: Cursor rcPointer) ::=> SDL_Cursor pointer := {
         self getSystemCursor: cursor _ systemCursorName
     }.
 
@@ -459,11 +459,11 @@ class SDL2WindowSystemFactory superclass: WindowsSystemFactory; definition: {
         global Singleton mutable type: SDL2WindowSystemFactory.
     }.
 
-    override method createWindowSystem => WindowSystem sharedPointer := {
-        SDL2WindowSystem sharedNew upCastFor: WindowSystem.
+    override method createWindowSystem => WindowSystem rcPointer := {
+        SDL2WindowSystem rcNew upCastFor: WindowSystem.
     }.
 }.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

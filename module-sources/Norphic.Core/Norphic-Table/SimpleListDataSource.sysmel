@@ -4,7 +4,7 @@ namespace Norphic definition: {
  * I am a simple list data size. I just hold a vector of data elements.
  *#
 class SimpleListDataSource superclass: DataSource; definition: {
-    protected field items type: Stdn Collections Vector (DataSourceElementPtr).
+    protected field items type: Std Collections Vector (DataSourceElementPtr).
 
     override method numberOfElements => UIntPointer
         := items size.

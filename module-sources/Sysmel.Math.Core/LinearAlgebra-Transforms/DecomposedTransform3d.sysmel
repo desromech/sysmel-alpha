@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
@@ -110,4 +110,4 @@ compileTime constant DecomposedTransform3dF64 := GenericDecomposedTransform3d(Fl
 
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

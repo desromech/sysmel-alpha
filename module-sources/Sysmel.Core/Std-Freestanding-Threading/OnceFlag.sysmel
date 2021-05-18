@@ -1,0 +1,49 @@
+namespace Std definition: {
+
+#**
+ * I am a flag that is used for one time thread safe initialization of global values.
+ *#
+class OnceFlag definition: {
+    enum State valueType: UInt32; values: #{
+        NotDone: 0.
+        Waiting: 1.
+        Done: 2.
+    }.
+
+    private field state type: AtomicUIntPointer.
+
+    method shouldDoAction => Boolean8 := {
+        ## If the state is done, we just have to return false.
+        let currentState := state loadWith: MemoryOrder Acquire.
+        currentState == State Done value ifTrue: {
+            return: false.
+        }.
+
+        ## If the flag is not waiting, try to acquire the exclusive right to initialize the object.
+        currentState == State NotDone value ifTrue: {
+            (state atomicCompare: State NotDone value andSet: State Waiting value with: MemoryOrder AcquireAndRelease) ifTrue: {
+                return: true
+            }.
+        }.
+
+
+        ## We are waiting on the flag, so wait until it is done.
+        while: (state loadWith: MemoryOrder Acquire) == State Waiting value do: {
+            ## We are just burning CPU cycles until the initialization its finish.
+        }.
+
+        return: false
+    }.
+
+    method actionDone => Void := {
+        state store: State Done value with: MemoryOrder Release
+    }.
+
+    macro method do: aBlock := ``{
+        `,self shouldDoAction ifTrue: {
+            try: `,aBlock finally: {`,self actionDone}
+        }
+    }.
+}.
+
+}. ## End of namespace OnceFlag

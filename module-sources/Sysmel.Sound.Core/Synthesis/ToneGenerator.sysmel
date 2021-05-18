@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 class ToneGenerator superclass: EnvelopeSoundGenerator; definition: {
@@ -8,4 +8,4 @@ class ToneGenerator superclass: EnvelopeSoundGenerator; definition: {
 }.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

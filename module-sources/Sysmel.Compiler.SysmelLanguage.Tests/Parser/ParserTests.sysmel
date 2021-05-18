@@ -5,9 +5,9 @@ namespace Tests definition: {
 
 useNamespace: Sysmel Compiler Parsing.
 
-class ParserTests superclass: Stdn Testing TestCase; definition: {
-    method parseString: (source: Stdn ImmutableString) ::=> ASTNodePtr := {
-        let sourceCode := SourceCode sharedNew.
+class ParserTests superclass: Std Testing TestCase; definition: {
+    method parseString: (source: Std ImmutableString) ::=> ASTNodePtr := {
+        let sourceCode := SourceCode rcNew.
         sourceCode _
             content: source asMutableString;
             name: "unit test".
@@ -15,8 +15,8 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         Parser() parse: (Scanner() scan: sourceCode)
     }.
 
-    method parseStringWithLiteralArrayContent: (source: Stdn ImmutableString) ::=> ASTNodePtr := {
-        let sourceCode := SourceCode sharedNew.
+    method parseStringWithLiteralArrayContent: (source: Std ImmutableString) ::=> ASTNodePtr := {
+        let sourceCode := SourceCode rcNew.
         sourceCode _
             content: source asMutableString;
             name: "unit test".
@@ -24,7 +24,7 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         Parser() parseLiteralArrayContent: (Scanner() scan: sourceCode)
     }.
 
-    method parseSingleExpression: (source: Stdn ImmutableString) ::=> ASTNodePtr := {
+    method parseSingleExpression: (source: Std ImmutableString) ::=> ASTNodePtr := {
         let parseResult := self parseString: source.
         self assert: parseResult _ isExpressionListNode.
 
@@ -269,24 +269,24 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
     }.
 
-    method extractBinarySendSequenceSelectors: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Stdn Collections Vector(Stdn ImmutableString) := {
-        let result mutable type: Stdn Collections Vector(Stdn ImmutableString).
+    method extractBinarySendSequenceSelectors: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Std Collections Vector(Std ImmutableString) := {
+        let result mutable type: Std Collections Vector(Std ImmutableString).
 
         binarySendSequence selectors do: {:selectorNode :: Void |
             self assert: selectorNode _ isSymbolLiteralNode.
-            let value type: Stdn ImmutableString := (selectorNode downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+            let value type: Std ImmutableString := (selectorNode downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
             result add: value
         }.
 
         result asMoveReference
     }.
 
-    method extractBinarySendSequenceIdentifiers: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Stdn Collections Vector(Stdn ImmutableString) := {
-        let result mutable type: Stdn Collections Vector(Stdn ImmutableString).
+    method extractBinarySendSequenceIdentifiers: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Std Collections Vector(Std ImmutableString) := {
+        let result mutable type: Std Collections Vector(Std ImmutableString).
 
         binarySendSequence operands do: {:operandNode :: Void |
             self assert: operandNode _ isIdentifierReferenceNode.
-            let value type: Stdn ImmutableString := (operandNode downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice.
+            let value type: Std ImmutableString := (operandNode downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice.
             result add: value
         }.
 
@@ -302,10 +302,10 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
 
         self deny: binarySendSequence _ isLowPrecedence.
-        self assert: selectors asArraySlice equals: Stdn ImmutableString array(
+        self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+"
         ).
-        self assert: identifiers asArraySlice equals: Stdn ImmutableString array(
+        self assert: identifiers asArraySlice equals: Std ImmutableString array(
             "a", "b"
         ).
     }.
@@ -319,10 +319,10 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
 
         self deny: binarySendSequence _ isLowPrecedence.
-        self assert: selectors asArraySlice equals: Stdn ImmutableString array(
+        self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
-        self assert: identifiers asArraySlice equals: Stdn ImmutableString array(
+        self assert: identifiers asArraySlice equals: Std ImmutableString array(
             "a", "b", "c"
         ).
     }.
@@ -336,10 +336,10 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
 
         self deny: binarySendSequence _ isLowPrecedence.
-        self assert: selectors asArraySlice equals: Stdn ImmutableString array(
+        self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
-        self assert: identifiers asArraySlice equals: Stdn ImmutableString array(
+        self assert: identifiers asArraySlice equals: Std ImmutableString array(
             "a", "b", "c"
         ).
     }.
@@ -353,10 +353,10 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
 
         self assert: binarySendSequence _ isLowPrecedence.
-        self assert: selectors asArraySlice equals: Stdn ImmutableString array(
+        self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+"
         ).
-        self assert: identifiers asArraySlice equals: Stdn ImmutableString array(
+        self assert: identifiers asArraySlice equals: Std ImmutableString array(
             "a", "b"
         ).
     }.
@@ -370,10 +370,10 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
 
         self assert: binarySendSequence _ isLowPrecedence.
-        self assert: selectors asArraySlice equals: Stdn ImmutableString array(
+        self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
-        self assert: identifiers asArraySlice equals: Stdn ImmutableString array(
+        self assert: identifiers asArraySlice equals: Std ImmutableString array(
             "a", "b", "c"
         ).
     }.
@@ -767,14 +767,14 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         self assert: node _ isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        let operators mutable type: Stdn Collections Vector(Stdn ImmutableString).
+        let operators mutable type: Std Collections Vector(Std ImmutableString).
         arrayNode _ elements do: {:each :: Void |
             self assert: each _ isSymbolLiteralNode.
-            let value type: Stdn ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
             operators add: value.
         }.
 
-        self assert: operators asArraySlice equals: Stdn ImmutableString array(
+        self assert: operators asArraySlice equals: Std ImmutableString array(
             "*", "/", "//", "%", "+", "-", "<<", ">>",
             "<=", ">=", "<", ">", "=", "==", "~=", "~~", "&", "|", "&&",
             "||", "==>", "-->"
@@ -833,14 +833,14 @@ class ParserTests superclass: Stdn Testing TestCase; definition: {
         self assert: node _ isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        let operators mutable type: Stdn Collections Vector(Stdn ImmutableString).
+        let operators mutable type: Std Collections Vector(Std ImmutableString).
         arrayNode _ elements do: {:each :: Void |
             self assert: each _ isSymbolLiteralNode.
-            let value type: Stdn ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
             operators add: value.
         }.
 
-        self assert: operators asArraySlice equals: Stdn ImmutableString array(
+        self assert: operators asArraySlice equals: Std ImmutableString array(
             "*", "/", "//", "%", "+", "-", "<<", ">>",
             "<=", ">=", "<", ">", "=", "==", "~=", "~~", "&", "|", "&&",
             "||", "==>", "-->"

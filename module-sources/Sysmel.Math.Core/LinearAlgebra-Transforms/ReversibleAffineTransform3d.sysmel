@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
 sealed template GenericReversibleAffineTransform3d(ST: Type)
     := class superclass: GenericLinearAlgebra(ST); definition: {
-    compileTime constant Box := Stdn Math Geometry GenericBox(Scalar).
+    compileTime constant Box := Std Math Geometry GenericBox(Scalar).
 
     protected field matrix type: Matrix3x3.
     protected field translation4 type: Vector4.
@@ -250,4 +250,4 @@ compileTime constant ReversibleAffineTransform3dF64 := GenericReversibleAffineTr
 
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

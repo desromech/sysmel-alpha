@@ -55,7 +55,7 @@ ModuleInformation definition: {
     }.
 
     method shutDown => Void  := {
-        ##Stdn stdout << "Module " << name << " shutDown called."; nl
+        ##Std stdout << "Module " << name << " shutDown called."; nl
     }.
 }.
 

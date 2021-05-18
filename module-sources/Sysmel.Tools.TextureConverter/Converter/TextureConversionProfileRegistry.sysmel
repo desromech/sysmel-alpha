@@ -2,15 +2,15 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace TextureConverter definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a texture converter.
  *#
-class TextureConversionProfileRegistry superclass: Stdn SharedObject; definition: {
+class TextureConversionProfileRegistry superclass: Std RCObject; definition: {
     meta definition: {
         let singleton mutable type: TextureConversionProfileRegistry uniquePointer.
-        let singletonOnceCreation mutable type: Stdn OnceFlag.
+        let singletonOnceCreation mutable type: Std OnceFlag.
 
         method uniqueInstance => TextureConversionProfileRegistry ref := {
             singletonOnceCreation do: {
@@ -21,22 +21,22 @@ class TextureConversionProfileRegistry superclass: Stdn SharedObject; definition
         }.
     }.
 
-    private field mutex type: Stdn Mutex.
-    private field registeredProfiles type: Stdn Collections Vector(TextureConversionProfile sharedPointer).
+    private field mutex type: Std Mutex.
+    private field registeredProfiles type: Std Collections Vector(TextureConversionProfile rcPointer).
 
-    method addProfile: (profile: TextureConversionProfile sharedPointer const ref) ::=> Void := {
+    method addProfile: (profile: TextureConversionProfile rcPointer const ref) ::=> Void := {
         mutex withLock: {
             registeredProfiles add: profile
         }
     }.
 
-    method getProfiles ::=> Stdn Collections Vector(TextureConversionProfile sharedPointer) := {
+    method getProfiles ::=> Std Collections Vector(TextureConversionProfile rcPointer) := {
         mutex withLock: {
             return: registeredProfiles
         }.
     }.
 
-    method findNamed: (name: Char8 const arraySlice) default: (default: TextureConversionProfile sharedPointer const ref) ::=> TextureConversionProfile sharedPointer := {
+    method findNamed: (name: Char8 const arraySlice) default: (default: TextureConversionProfile rcPointer const ref) ::=> TextureConversionProfile rcPointer := {
         mutex withLock: {
             registeredProfiles do: {:each :: Void |
                 each _ name = name ifTrue: {
@@ -53,7 +53,7 @@ template TextureConversionProfileRegisterer (T: Type)
     := class definition: {
 
     method initialize => Void := {
-        TextureConversionProfileRegistry uniqueInstance addProfile: (T sharedNew upCastFor: TextureConversionProfile)
+        TextureConversionProfileRegistry uniqueInstance addProfile: (T rcNew upCastFor: TextureConversionProfile)
     }.
 }.
 } ## End of namespace Tools

@@ -1,0 +1,17 @@
+namespace Std definition: {
+namespace IO definition: {
+    class Stream.
+    class BinaryDataStreamReader.
+    class BinaryDataStreamWriter.
+    class TextStreamWriter.
+    class TextStreamReader.
+}.
+
+class Mutex.
+class RecursiveMutex.
+class ConditionVariable.
+class Semaphore.
+class MemoryHeapMutex.
+class Thread.
+
+}. ## End of namespace Std

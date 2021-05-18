@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a agpu based shader signature builder.
@@ -143,7 +143,7 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ setStencilReference: reference
     }.
 
-    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+    override method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void := {
 
     }.
 
@@ -354,8 +354,8 @@ class AgpuCommandList superclass: CommandList; definition: {
 
 }.
 
-compileTime constant AgpuCommandListPtr := AgpuCommandList sharedPointer.
+compileTime constant AgpuCommandListPtr := AgpuCommandList rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

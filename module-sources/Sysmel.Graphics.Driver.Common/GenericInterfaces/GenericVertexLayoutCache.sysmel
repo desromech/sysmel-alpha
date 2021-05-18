@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -7,8 +7,8 @@ namespace Core definition: {
  *#
 class GenericVertexLayoutCache superclass: VertexLayoutCache; definition: {
     public field device type: RenderingDeviceWeakPtr.
-    protected field mutex type: Stdn Mutex.
-    protected field vertexLayouts type: Stdn Collections Dictionary(VertexLayoutDescription, VertexLayoutPtr).
+    protected field mutex type: Std Mutex.
+    protected field vertexLayouts type: Std Collections Dictionary(VertexLayoutDescription, VertexLayoutPtr).
 
     override method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
         mutex withLock: {
@@ -31,8 +31,8 @@ class GenericVertexLayoutCache superclass: VertexLayoutCache; definition: {
     }.
 }.
 
-compileTime constant GenericVertexLayoutCachePtr := GenericVertexLayoutCache sharedPointer.
+compileTime constant GenericVertexLayoutCachePtr := GenericVertexLayoutCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

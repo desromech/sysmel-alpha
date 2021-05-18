@@ -1,0 +1,66 @@
+namespace Std definition: {
+compileTime constant BigIntegerForFloat := FixedBigInteger(32). ## 1024 bits big integer.
+
+class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
+
+    method nextPutBigInteger: (bigInteger: BigIntegerForFloat const ref) ::=> Void := {
+        0 to: BigIntegerForFloat WordCount do: {:(UIntPointer)i :: Void |
+            self nextPutLittleUInt32: bigInteger words[i]
+        }
+    }.
+
+    method nextPutDouble: (double: Float64) ::=> Void := {
+        let ieee754Double := double reinterpretCastTo: UInt64.
+
+        let negative := (ieee754Double >> 63) ~= 0.
+        let exponent := (ieee754Double >> 52) & ((1<<11) - 1).
+        let rawMantissa := ieee754Double & ((1<<52) - 1).
+
+        exponent == 0 && rawMantissa == 0 ifTrue: {
+            negative ifTrue: {
+                self nextPutAll: "-0.0".
+            } ifFalse: {
+                self nextPutAll: "0.0".
+            }.
+
+            return: nil
+        }.
+
+        exponent == 16r7FF ifTrue: {
+            rawMantissa == 0 ifTrue: {
+                negative ifTrue: {
+                    self nextPutAll: "-inf".
+                } ifFalse: {
+                    self nextPutAll: "inf".
+                }.
+
+            } ifFalse: {
+                self nextPutAll: "nan"
+            }.
+
+            return: nil
+        }.
+
+        negative ifTrue: {
+            self nextPut: '-'.
+        }.
+
+        let mantissa := rawMantissa | (1 <<52).
+
+        let numerator mutable type: BigIntegerForFloat.
+        let denominator mutable type: BigIntegerForFloat.
+        exponent == 0 ifTrue: {
+        } ifFalse: {
+        }.
+
+        self nextPut: 'e'; nextPutUnsignedInteger: exponent; nextPut: 'm'; nextPutUnsignedInteger: mantissa.
+        ##let decimalPart mutable type: BigIntegerForFloat := mantissa.
+        ##self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
+    }.
+
+    method nextPutSingleFloat: (float: Float32) ::=> Void := {
+        self nextPutDouble: float
+    }.
+}.
+
+}.

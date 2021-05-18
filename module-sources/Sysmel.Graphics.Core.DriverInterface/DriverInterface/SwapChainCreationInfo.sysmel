@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,7 +8,7 @@ namespace Core definition: {
 struct SwapChainCreationInfo definition: {
     public field display type: Void pointer.
     public field window type: Void pointer.
-    public field windowSystemName type: Stdn String.
+    public field windowSystemName type: Std String.
     public field surface type: Void pointer.
     public field colorBufferFormat type: PixelFormat.
     public field depthStencilFormat type: PixelFormat.
@@ -26,4 +26,4 @@ struct SwapChainCreationInfo definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

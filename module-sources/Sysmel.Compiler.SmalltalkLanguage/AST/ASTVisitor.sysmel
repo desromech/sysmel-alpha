@@ -2,7 +2,7 @@ namespace Sysmel definition: {
 namespace Compiler definition: {
 namespace SmalltalkLanguage definition: {
 
-compileTime constant ASTVisitorResult := Stdn Object sharedPointer.
+compileTime constant ASTVisitorResult := Std RCObjectPtr.
 
 class ASTVisitor definition: {
     method visitNode: (node: ASTNode ref) ::=> ASTVisitorResult

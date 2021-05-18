@@ -1,5 +1,0 @@
-Compiler loadPackage: #"Stdn-Freestanding".
-
-if: Compiler compilationTarget hasOperatingSystem then: {
-    Compiler loadPackage: #"Stdn-Nofreestanding"
-}.

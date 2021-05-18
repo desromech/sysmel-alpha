@@ -1,0 +1,38 @@
+namespace Std definition: {
+namespace Algorithms definition: {
+
+template EquivalentElementTest(VT: Type)
+:= struct definition: {
+    compileTime constant ValueType := VT.
+    compileTime constant EqualityBlockType := ((ValueType const ref -- ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    meta definition: {
+        static method compare: (left: ValueType const arraySlice) with: (right: ValueType const arraySlice) using: (equals: EqualityBlockType) ::=> Boolean8 := {
+            left size = right size ifFalse: { return: false }.
+
+            0 until: left size do: {:i :: Void |
+                equals(left[i], right[i]) ifFalse: { return: false }
+            }.
+
+            true
+        }.
+    }.
+}.
+
+_ArrayType extend: {
+    macro method isEquivalentTo: other byUsing: aBlock := ``(`,self asArraySlice equivalentTo: `,other using: `,aBlock).
+    macro method = other := ``(`,self asArraySlice = `,other).
+    macro method ~= other := ``(`,self asArraySlice ~= `,other).
+}.
+
+_ArraySliceType extend: {
+    macro method isEquivalentTo: other byUsing: aBlock :=
+        ``(Std Algorithms EquivalentElementTest(`,(SelfType asLiteralValueNode) elementType)
+            compare: `,self with: `,other asArraySlice using: `,aBlock).
+
+    macro method = other := ``(`,self isEquivalentTo: `,other asArraySlice byUsing: {:a :b :: Boolean8 | a = b}).
+    macro method ~= other := ``((`,self = `,other) not).
+}.
+
+}. ## End of namespace namespace Algorithms
+}. ## End of namespace namespace Std

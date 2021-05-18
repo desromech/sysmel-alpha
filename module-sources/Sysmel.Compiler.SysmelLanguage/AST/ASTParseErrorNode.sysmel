@@ -10,18 +10,18 @@ ASTNode extend: {
 }.
 
 class ASTParseErrorNode superclass: ASTNode; definition: {
-    public field errorMessage type: Stdn String.
+    public field errorMessage type: Std String.
 
     meta definition: {
-        static method atTokens: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Stdn String const ref) ::=> ASTNodePtr := {
-            let result := InstanceType sharedNew.
+        static method atTokens: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodePtr := {
+            let result := InstanceType rcNew.
             result _
                 tokenRange: tokenRange;
                 errorMessage: errorMessage.
             result upCastFor: ASTNode
         }.
 
-        static method atToken: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Stdn String const ref) ::=> ASTNodePtr
+        static method atToken: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodePtr
             := self atTokens: (tokenRange until: 1) message: errorMessage.
     }.
 

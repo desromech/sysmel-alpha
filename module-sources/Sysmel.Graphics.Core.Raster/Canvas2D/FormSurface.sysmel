@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,11 +6,11 @@ namespace Core definition: {
  * I am a form based drawing surface. I am useful for rasterizing into a CPU held form.
  *#
 class FormSurface superclass: SoftSurface; definition: {
-    public field form type: Form sharedPointer.
+    public field form type: Form rcPointer.
 
     meta definition: {
-        method for: (form: Form sharedPointer const ref) ::=> Surface sharedPointer
-        := Surface sharedPointer for: (FormSurface nativeNew _
+        method for: (form: Form rcPointer const ref) ::=> Surface rcPointer
+        := Surface rcPointer for: (FormSurface nativeNew _
             form: form;
             address).
     }.
@@ -27,4 +27,4 @@ class FormSurface superclass: SoftSurface; definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

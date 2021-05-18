@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Math Geometry.
 
 #**
  * I am an abstract rendering canvas interface. I could be implemented through
@@ -42,10 +42,10 @@ class Canvas superclass: Object; definition: {
     abstract method fillRectangle: (rectangle: RectangleF32) ::=> Void.
 
     ## Gets the current font face with size.
-    abstract method fontFaceWithSize => FontFaceWithSize sharedPointer const ref.
+    abstract method fontFaceWithSize => FontFaceWithSize rcPointer const ref.
 
     ## Sets the current font face with size.
-    abstract method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void.
+    abstract method fontFaceWithSize: (font: FontFaceWithSize rcPointer const ref) ::=> Void.
 
     ## Draw a character glyph in a particular position.
     abstract method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void.
@@ -149,7 +149,7 @@ class Canvas superclass: Object; definition: {
     inline method drawUTF8String: (encodedString: Char8 const arraySlice) withState: (state: TextDrawingState) ::=> TextDrawingState := {
         let currentState mutable := state.
 
-        (Stdn Collections UTF8CodePointsIterator for: encodedString) do: {:codePoint :: Void |
+        (Std Collections UTF8CodePointsIterator for: encodedString) do: {:codePoint :: Void |
             currentState character: codePoint.
             currentState := self drawCharacterWithState: currentState.
         }.
@@ -160,14 +160,14 @@ class Canvas superclass: Object; definition: {
     inline method drawUTF8String: (encodedString: Char8 const arraySlice) at: (position: Float32x2) ::=> TextDrawingState
         := self drawUTF8String: encodedString withState: (TextDrawingState position: position).
 
-    inline method drawUTF8String: (string: Stdn String const ref) at: (position: Float32x2) ::=> TextDrawingState
+    inline method drawUTF8String: (string: Std String const ref) at: (position: Float32x2) ::=> TextDrawingState
         := self drawUTF8String: string asArraySlice at: position.
 
-    inline method drawUTF8String: (string: Stdn String const ref) withState: (state: TextDrawingState) ::=> TextDrawingState
+    inline method drawUTF8String: (string: Std String const ref) withState: (state: TextDrawingState) ::=> TextDrawingState
         := self drawUTF8String: string asArraySlice withState: state.
 
     inline method drawUTF8String: (encodedString: Char8 const pointer) at: (position: Float32x2) ::=> TextDrawingState
-        := self drawUTF8String: (encodedString until: Stdn cstrlen(encodedString)) at: position.
+        := self drawUTF8String: (encodedString until: Std cstrlen(encodedString)) at: position.
 
     abstract method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void.
 
@@ -204,4 +204,4 @@ class Canvas superclass: Object; definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

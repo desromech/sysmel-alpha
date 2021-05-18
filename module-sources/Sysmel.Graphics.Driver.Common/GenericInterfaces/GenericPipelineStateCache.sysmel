@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -7,9 +7,9 @@ namespace Core definition: {
  *#
 class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
     public field device type: RenderingDeviceWeakPtr.
-    protected field mutex type: Stdn Mutex.
-    protected field graphicsPipelineStates type: Stdn Collections Dictionary(GraphicsPipelineStateDescription, PipelineStatePtr).
-    protected field computePipelineStates type: Stdn Collections Dictionary(ComputePipelineStateDescription, PipelineStatePtr).
+    protected field mutex type: Std Mutex.
+    protected field graphicsPipelineStates type: Std Collections Dictionary(GraphicsPipelineStateDescription, PipelineStatePtr).
+    protected field computePipelineStates type: Std Collections Dictionary(ComputePipelineStateDescription, PipelineStatePtr).
 
     override method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
         mutex withLock: {
@@ -52,8 +52,8 @@ class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
     }.
 }.
 
-compileTime constant GenericPipelineStateCachePtr := GenericPipelineStateCache sharedPointer.
+compileTime constant GenericPipelineStateCachePtr := GenericPipelineStateCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

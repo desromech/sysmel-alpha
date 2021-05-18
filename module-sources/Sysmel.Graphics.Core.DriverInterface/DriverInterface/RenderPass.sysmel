@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -15,8 +15,8 @@ class RenderPass superclass: RenderingDriverObjectHandle; definition: {
     const abstract method sampleQuality => UInt32.
 }.
 
-compileTime constant RenderPassPtr := RenderPass sharedPointer.
+compileTime constant RenderPassPtr := RenderPass rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

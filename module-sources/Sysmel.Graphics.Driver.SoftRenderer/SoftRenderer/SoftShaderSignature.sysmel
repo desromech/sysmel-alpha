@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU only implementation for a shader signature.
@@ -12,11 +12,11 @@ class SoftShaderSignature superclass: ShaderSignature; definition: {
     public field description type: ShaderSignatureDescription.
 
     override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
-        Stdn assert: elementIndex < description banks size.
+        Std assert: elementIndex < description banks size.
 
-        let result := SoftShaderResourceBindings sharedNew.
+        let result := SoftShaderResourceBindings rcNew.
         result _
-            shaderSignature: self asSharedPointer;
+            shaderSignature: self asRCPointer;
             bankIndex: elementIndex;
             bankDescription: description banks[elementIndex] address;
             createBindingTable;
@@ -26,9 +26,9 @@ class SoftShaderSignature superclass: ShaderSignature; definition: {
     }.
 }.
 
-compileTime constant SoftShaderSignaturePtr := SoftShaderSignature sharedPointer.
+compileTime constant SoftShaderSignaturePtr := SoftShaderSignature rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

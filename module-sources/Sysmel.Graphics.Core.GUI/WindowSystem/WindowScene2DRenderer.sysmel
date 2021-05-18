@@ -1,14 +1,14 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics Scene2D.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics Scene2D.
 
 compileTime constant WindowScene2DRenderer := Scene2DRenderer.
-compileTime constant WindowScene2DRendererPtr := Scene2DRenderer sharedPointer.
-compileTime constant WindowScene2DRendererWeakPtr := Scene2DRenderer weakPointer.
+compileTime constant WindowScene2DRendererPtr := Scene2DRenderer rcPointer.
+compileTime constant WindowScene2DRendererWeakPtr := Scene2DRenderer weakRCPointer.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,0 +1,32 @@
+namespace Std definition: {
+namespace Utility definition: {
+
+#**
+ * This mixin implements the following comparison methods: #(< <= > >=) by invoking the three-way comparison method <=>
+ *#
+macro method RelationshipComparisonMethodsMixin := ``{
+    const inline method < (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) < 0.
+    const inline method <= (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) <= 0.
+
+    const inline method > (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) > 0.
+    const inline method >= (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) >= 0.
+}.
+
+#**
+ *This mixin implements all of the comparison method by invoking the three-way comparison method.
+ *#
+macro method AllComparisonMethodsMixin := ``{
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) = 0.
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := (self <=> other) ~= 0.
+
+    Std Utility RelationshipComparisonMethodsMixin.
+}.
+
+}. ## End of namespace Utility
+}. ## End of namespace Std

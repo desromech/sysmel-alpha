@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -13,8 +13,8 @@ class PipelineState superclass: RenderingDriverObjectHandle; definition: {
 
 }.
 
-compileTime constant PipelineStatePtr := PipelineState sharedPointer.
+compileTime constant PipelineStatePtr := PipelineState rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

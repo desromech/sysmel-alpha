@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -24,37 +24,37 @@ struct TextureDescription definition: {
 TextureData extend: {
     const method colorTextureDescription => TextureDescription
         := TextureDescription()
-            type: type;
-            width: width;
-            height: height;
-            depth: depth;
-            layers: layers;
-            miplevels: miplevels;
-            format: srgbFormat;
+            type: self type;
+            width: self width;
+            height: self height;
+            depth: self depth;
+            layers: self layers;
+            miplevels: self miplevels;
+            format: self srgbFormat;
             usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
             mainUsageMode: TextureUsageMode Sampled;
             heapType: MemoryHeapType DeviceLocal;
             sampleCount: 1;
-            mainViewComponents: mainViewComponents;
+            mainViewComponents: self mainViewComponents;
             yourself.
 
     const method textureDescription => TextureDescription
         := TextureDescription()
-            type: type;
-            width: width;
-            height: height;
-            depth: depth;
-            layers: layers;
-            miplevels: miplevels;
-            format: format;
+            type: self type;
+            width: self width;
+            height: self height;
+            depth: self depth;
+            layers: self layers;
+            miplevels: self miplevels;
+            format: self format;
             usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
             mainUsageMode: TextureUsageMode Sampled;
             heapType: MemoryHeapType DeviceLocal;
             sampleCount: 1;
-            mainViewComponents: mainViewComponents;
+            mainViewComponents: self mainViewComponents;
             yourself.
 }.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
@@ -85,4 +85,4 @@ compileTime constant AffinePostTransform2dF64 := GenericAffinePostTransform2d(Fl
 
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

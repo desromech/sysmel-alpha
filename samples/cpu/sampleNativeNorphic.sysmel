@@ -2,12 +2,12 @@ Compiler
     importModuleNamed: #"Norphic.Core";
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 useNamespace: Norphic.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     let windowSystem mutable := createDefaultWindowSystem().
     windowSystem ifNil: {
         return: 0
@@ -19,14 +19,14 @@ Stdn MainEntryPoint: {:args :: Int32 |
         return: 0.
     }.
 
-    let menuBar := MenuBarNorph sharedNew.
-    let statusBar := StatusBarNorph sharedNew.
-    let rectangleWithBorder := BorderedNorph sharedNew.
-    let list := ListViewNorph sharedNew.
-    let label := LabelNorph sharedNew.
-    let button := SimpleButtonNorph sharedNew.
-    let textInput := TextInputNorph sharedNew.
-    let textArea := TextAreaNorph sharedNew.
+    let menuBar := MenuBarNorph rcNew.
+    let statusBar := StatusBarNorph rcNew.
+    let rectangleWithBorder := BorderedNorph rcNew.
+    let list := ListViewNorph rcNew.
+    let label := LabelNorph rcNew.
+    let button := SimpleButtonNorph rcNew.
+    let textInput := TextInputNorph rcNew.
+    let textArea := TextAreaNorph rcNew.
 
     ## Menu bar
     {
@@ -34,10 +34,10 @@ Stdn MainEntryPoint: {:args :: Int32 |
             addMenu: "File" asMutableString with: {:menu :: Void |
                 menu
                     addItem: "New" asMutableString doing: { :(NorphEvent ref) event :: Void |
-                        Stdn stdout << "TODO: File new"; nl.
+                        Std stdout << "TODO: File new"; nl.
                     };
                     addItem: "Open" asMutableString doing: { :(NorphEvent ref) event :: Void |
-                        Stdn stdout << "TODO: File open"; nl.
+                        Std stdout << "TODO: File open"; nl.
                     };
                     addSeparator;
                     addItem: "Exit" asMutableString doing: { :(NorphEvent ref) event :: Void |
@@ -46,7 +46,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
             };
             addMenu: "Help" asMutableString with: {:menu :: Void |
                 menu addItem: "About" asMutableString doing: { :(NorphEvent ref) event :: Void |
-                    Stdn stdout << "TODO: Help about"; nl.
+                    Std stdout << "TODO: Help about"; nl.
                 }
             }
     }.

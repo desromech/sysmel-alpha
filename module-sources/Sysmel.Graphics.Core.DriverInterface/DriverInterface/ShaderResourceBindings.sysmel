@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -33,8 +33,8 @@ class ShaderResourceBindings superclass: RenderingDriverObjectHandle; definition
     }.
 }.
 
-compileTime constant ShaderResourceBindingsPtr := ShaderResourceBindings sharedPointer.
+compileTime constant ShaderResourceBindingsPtr := ShaderResourceBindings rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

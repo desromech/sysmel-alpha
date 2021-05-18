@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,12 +6,12 @@ namespace Core definition: {
  * I am a bitmap based glyph.
  *#
 class BitmapGlyph superclass: Glyph; definition: {
-    public field form type: Form sharedPointer.
+    public field form type: Form rcPointer.
 
-    override method asForm => Form sharedPointer
+    override method asForm => Form rcPointer
         := form.
 }.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

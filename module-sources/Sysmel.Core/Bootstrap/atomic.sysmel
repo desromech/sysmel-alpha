@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 
 enum MemoryOrder values: #{
     Relaxed: 0.

@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics GUI.
+useNamespace: Std Graphics GUI.
 
 #**
  * I am a fully featured text editor norph.

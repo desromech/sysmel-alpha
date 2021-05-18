@@ -1,9 +1,0 @@
-namespace Stdn definition: {
-namespace Collections definition: {
-
-macro method CollectionMixin := ``{
-    Stdn Collections CollectionMacrosMixin.
-}.
-
-}. ## End of namespace Collections
-}. ## End of namespace Stdn

@@ -1,17 +1,17 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a norph sizer element. I am a wrapper around a another norph.
  *#
 class SizerNorphElement superclass: SizerElement; definition: {
-    public field norph type: Norph sharedPointer.
+    public field norph type: Norph rcPointer.
 
     meta definition: {
-        inline method for: (norph: Norph ref) ::=> InstanceType sharedPointer := {
-            let result := InstanceType sharedNew.
-            result _ norph: norph asSharedPointer.
+        inline method for: (norph: Norph ref) ::=> InstanceType rcPointer := {
+            let result := InstanceType rcNew.
+            result _ norph: norph asRCPointer.
             result
         }
     }.

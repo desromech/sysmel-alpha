@@ -1,7 +1,7 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 class TextModelCursor.
 
@@ -9,7 +9,7 @@ class TextModelCursor.
  * I am accessor for a text model span. I am typically used for rendering purposes.
  *#
 struct TextModelSpan definition: {
-    public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+    public field fontFaceWithSize type: FontFaceWithSize rcPointer.
     public field color type: Float32x4.
     public field utf8String type: Char8 const arraySlice.
     public field textDrawingState type: TextDrawingState.
@@ -24,8 +24,8 @@ compileTime constant TextModelSpanIterationBlock := ((TextModelSpan ref) => Void
 #**
  * I am an abstract interface for a text model. I take care of actually keeping track of an internal text data structure.
  *#
-class TextModel superclass: Stdn SharedObject; definition: {
-    public field newLineString type: Stdn String.
+class TextModel superclass: Std RCObject; definition: {
+    public field newLineString type: Std String.
     public field tabSize type: UInt32.
 
     override method initialize => Void := {
@@ -33,11 +33,11 @@ class TextModel superclass: Stdn SharedObject; definition: {
         tabSize := 4.
     }.
 
-    abstract method newCursor => TextModelCursor sharedPointer.
+    abstract method newCursor => TextModelCursor rcPointer.
     abstract method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void.
 
-    abstract method text => Stdn String.
-    abstract method text: (newText: Stdn String const ref) ::=> Void.
+    abstract method text => Std String.
+    abstract method text: (newText: Std String const ref) ::=> Void.
 
     method useLF => Void := {
         newLineString := "\n" asMutableString.
@@ -55,7 +55,7 @@ class TextModel superclass: Stdn SharedObject; definition: {
 #**
  * I am an abstract text model cursor interface. I am used to keep track
  *#
-class TextModelCursor superclass: Stdn SharedObject; definition: {
+class TextModelCursor superclass: Std RCObject; definition: {
     abstract method model => TextModel ref.
 
     virtual method drawingPosition => Float32x2 := Float32x2 zeros.
@@ -71,7 +71,7 @@ class TextModelCursor superclass: Stdn SharedObject; definition: {
         := {}.
     virtual method moveIntoPreviousCharacter ::=> Void
         := {}.
-    virtual method insertString: (text: Stdn String const ref) ::=> Void
+    virtual method insertString: (text: Std String const ref) ::=> Void
         := {}.
 
     virtual method deleteNext ::=> Boolean8

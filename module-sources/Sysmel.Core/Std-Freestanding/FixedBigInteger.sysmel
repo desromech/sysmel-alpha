@@ -1,0 +1,155 @@
+namespace Std definition: {
+
+#**
+ * I am a big integer with a maximum fixed length. I am used to implement
+ * conversions between floating point numbers and integers, and some
+ * cryptography primitives.
+ * My length is specified in terms of 32 bits words.
+ *#
+template FixedBigInteger(WC: _LiteralInteger)
+    := struct definition: {
+    compileTime constant WordCount := WC.
+    compileTime constant BitCount := WordCount*32.
+    compileTime constant MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
+    compileTime constant WordMask := 16rFFFFFFFF.
+
+    field words public type: (UInt32 array: WordCount).
+
+    (method := (other: SelfType const ref)) ::=> SelfType ref := {
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            words[i] := other words[i].
+        }.
+
+        self
+    }.
+
+    (method := (value: UInt32)) ::=> SelfType ref := {
+        words[0] := value.
+        1 until: WordCount do: {:(UIntPointer)i :: Void |
+            words[i] := 0.
+        }.
+
+        self
+    }.
+
+    if: WordCount > 1 then: {
+        (method := (value: UInt64)) ::=> SelfType ref := {
+            words[0] := value castTo: UInt32.
+            words[1] := value >> 32 castTo: UInt32.
+            2 until: WordCount do: {:(UIntPointer)i :: Void |
+                words[i] := 0.
+            }.
+
+            self
+        }.
+    }.
+
+    method nonZeroWordCount => UIntPointer := {
+        let result mutable type: UIntPointer := 0.
+
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            words[i] ~~ 0 ifTrue: {
+                result := i
+            }
+        }.
+
+        result
+    }.
+
+    method clearToZero => Void := {
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            words[i] := 0
+        }.
+    }.
+
+    method isZero => Boolean8 := {
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            words[i] ~~ 0 ifTrue: {
+                return: false
+            }
+        }.
+
+        true
+    }.
+
+    method add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        let carry mutable type: UInt64 := 0.
+
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            let left := words[i] castTo: UInt64.
+            let right := other words[i] castTo: UInt64.
+            let sum := left + right + carry.
+
+            carry := (sum >> 32) castTo: UInt32.
+            result words[i] := sum & WordMask castTo: UInt32.
+        }.
+    }.
+
+    method subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        let carry mutable type: UInt64 := 1. ## For two-complement negation.
+
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            let left := words[i] castTo: UInt64.
+            let right := other words[i] bitInvert castTo: UInt64.
+            let sum := left + right + carry.
+
+            carry := (sum >> 32) castTo: UInt32.
+            result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
+        }.
+    }.
+
+    method unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        result clearToZero.
+        let leftWordCount mutable := self nonZeroWordCount + 1.
+        leftWordCount > WordCount ifTrue: {
+            leftWordCount := WordCount
+        }.
+
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
+            let rightFactor type: UInt64 := result words[i].
+            rightFactor ~~ 0 ifTrue: {
+                let carry mutable type: UInt64 := 0.
+
+                i until: leftWordCount do: {:(UIntPointer)j :: Void |
+                    let leftFactor type: UInt64 := words[j].
+                    let product := leftFactor * rightFactor.
+
+                    ## The previous carry and the current result always fit in an UInt64.
+                    carry := carry + result words[j].
+
+                    ## The top bits of the multiplication always goes to the next carry.
+                    let nextCarry := (carry >> 32) + (product >> 32).
+                    let sum := (carry & WordMask) + (product & WordMask).
+
+                    ## Store the lower 32 bits of the sum in the result.
+                    result words[j] := sum & WordMask castTo: UInt32.
+
+                    ## Set the next carry
+                    carry := nextCarry + (sum >> 32)
+                }
+            }.
+        }.
+    }.
+
+    method smallModulo: (modulo: UInt32) ::=> UInt32 := {
+        let exponentModulo mutable type: UInt64 := 1.
+        let exponentIncreaseModulo type: UInt64 := (1<<32 castTo: UInt64) % modulo.
+        let result mutable type: UInt64 := 0.
+
+        0 until: self nonZeroWordCount do: {:(UIntPointer)i :: Void |
+            result := result + (words[i] % modulo) * (exponentModulo % modulo).
+            exponentModulo := (exponentModulo * exponentIncreaseModulo) % modulo
+        }.
+
+        result % modulo castTo: UInt32
+    }.
+
+    method modulo10 => UInt32
+        := self smallModulo: 10.
+
+    method divide: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+
+    }.
+}.
+
+}. ## End of namespace Std

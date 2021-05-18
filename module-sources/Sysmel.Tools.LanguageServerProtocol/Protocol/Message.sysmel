@@ -2,15 +2,15 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace LanguageServerProtocol definition: {
 
-useNamespace: Stdn Serialization.
+useNamespace: Std Serialization.
 
-class Message definition: {
+class Message superclass: Std RCObject; definition: {
     public field header type: MessageHeader.
-    public field binaryContent type: Stdn ByteVector.
+    public field binaryContent type: Std ByteVector.
     public field jsonContent type: DOM Value.
 }.
 
-compileTime constant MessagePtr := Message sharedPointer.
+compileTime constant MessagePtr := Message rcPointer.
 
 }. ## End of namespace LanguageServerProtocol
 }. ## End of namespace Tools

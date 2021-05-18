@@ -1,0 +1,57 @@
+namespace Std definition: {
+DiskFileSystem definition: {
+    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) noMask: Win32 FILE_ATTRIBUTE_DIRECTORY.
+
+    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) anyMask: Win32 FILE_ATTRIBUTE_DIRECTORY.
+
+    override method exists: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) ~= Win32 INVALID_FILE_ATTRIBUTES.
+
+    override method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void := {
+        path ifEmpty: {return: void}.
+
+        let findPath mutable := path asMutableString.
+        0 until: findPath size do: {:i :: Void |
+            findPath[i] = '\\' ifTrue: {
+                findPath[i] := '/'
+            }
+        }.
+        findPath last = '/' ifFalse: {
+            findPath add: '/'
+        }.
+        let findPathPattern mutable := findPath.
+        findPathPattern add: '*'.
+
+        let findState mutable := Win32 WIN32_FIND_DATAA().
+        let findHandle := Win32 FindFirstFileA(findPathPattern asCString, findState address).
+        findHandle = Win32 INVALID_HANDLE_VALUE ifTrue: {return: void}.
+
+        try: {
+            do: {
+                let elementName := findState cFileName[0] address until: Std cstrlen(findState cFileName[0] address).
+                elementName = "." || elementName = ".." ifFalse: {
+                    let elementFullPath := findPath -- elementName.
+                    iterationBlock(self makeFileReferenceWithPath: elementFullPath asArraySlice)
+                }.
+            } until: (Win32 FindNextFileA(findHandle, findState address) = 0).
+        } finally: {
+            Win32 FindClose(findHandle)
+        }.
+    }.
+
+    method workingDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: ".".
+
+compileTime if: Compiler compilationTarget isWindows then: {
+    method resourcesDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: "resources".
+} else: {
+    method resourcesDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: "Assets".
+}.
+
+}.
+
+}. ## End of namespace Std.

@@ -1,0 +1,67 @@
+namespace Std definition: {
+namespace Algorithms definition: {
+
+template IntroSort(VT: Type)
+:= struct definition: {
+    compileTime constant ValueType := VT.
+    compileTime constant Partition := Std Algorithms Partition(ValueType).
+    compileTime constant LessThanBlockType := ((ValueType const ref -- ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    meta definition: {
+        ## https://en.wikipedia.org/wiki/Introsort [July, 2020]
+
+        static method sort: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) ::=> Void := {
+            data size <= 1 ifTrue: {return: void}.
+
+            let maxDepth := (data size log2Floor) * 2.
+            self sort: data with: lessThan remainingDepth: maxDepth
+        }.
+
+        static method sort: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) remainingDepth: (remainingDepth: UIntPointer)::=> Void := {
+            ## With a small number of elements, use insertion sort because of its smaller constant.
+            data size <= 12 ifTrue: {
+                InsertionSort(ValueType) sort: data with: lessThan.
+                return: void.
+            }.
+
+            ## After a maximum depth fallback to heap sort.
+            remainingDepth = 0 ifTrue: {
+                HeapSort(ValueType) sort: data with: lessThan.
+                return: void.
+            }.
+
+            ## Normally use the quick sort algorithm.
+            let pivotLocation := Partition partition: data with: lessThan.
+            pivotLocation > 0 ifTrue: {
+                self sort: (data elements until: pivotLocation) with: lessThan remainingDepth: remainingDepth - 1.
+            }.
+            pivotLocation < data size - 1 ifTrue: {
+                self sort: (data elements from: pivotLocation + 1 until: data size) with: lessThan remainingDepth: remainingDepth - 1.
+            }.
+        }.
+    }.
+}.
+
+_ArrayType extend: {
+    macro method sortWith: aBlock := ``(`,self asArraySlice sortWith: `,aBlock).
+    macro method sort := ``(`,self asArraySlice sort).
+
+    macro method sortedWith: aBlock := ``(
+        ((let _ mutable := `,self)
+            sortWith: `,aBlock;
+            yourself) asMoveReference
+    ).
+    macro method sorted := ``(
+        ((let _ mutable := `,self)
+            sort;
+            yourself) asMoveReference
+    ).
+}.
+
+_ArraySliceType extend: {
+    macro method sortWith: aBlock := ``(Std Algorithms IntroSort(`,(SelfType asLiteralValueNode ) elementType) sort: `,self with: `,aBlock).
+    macro method sort := ``(`,self sortWith: {:a :b :: Boolean8 | a < b})
+}.
+
+}. ## End of namespace namespace Algorithms
+}. ## End of namespace namespace Std

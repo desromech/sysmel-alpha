@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a agpu based shader signature builder.
@@ -11,8 +11,8 @@ sealed class AgpuSampler superclass: Sampler; definition: {
     public field handle type: AGPU SamplerRef.
 }.
 
-compileTime constant AgpuSamplerPtr := AgpuSampler sharedPointer.
+compileTime constant AgpuSamplerPtr := AgpuSampler rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

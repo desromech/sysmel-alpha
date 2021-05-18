@@ -4,21 +4,21 @@ namespace Norphic definition: {
  * I am a table view norph.
  *#
 class TableViewNorph superclass: BorderedNorph; definition: {
-    compileTime constant Columns := Stdn Collections Vector(TableViewColumnPtr).
-    compileTime constant RowSelection := Stdn Collections Vector(UIntPointer).
+    compileTime constant Columns := Std Collections Vector(TableViewColumnPtr).
+    compileTime constant RowSelection := Std Collections Vector(UIntPointer).
 
     protected field dataSource type: DataSourcePtr.
     protected field columns type: Columns.
-    protected field headerNorph type: TableViewHeaderNorph sharedPointer.
-    protected field contentNorph type: TableViewContentNorph sharedPointer.
+    protected field headerNorph type: TableViewHeaderNorph rcPointer.
+    protected field contentNorph type: TableViewContentNorph rcPointer.
     protected field minimalRowExtent type: Float32x2.
     protected field selectedRows type: RowSelection.
 
     override method initialize => Void := {
-        contentNorph := TableViewContentNorph sharedNew.
+        contentNorph := TableViewContentNorph rcNew.
         self addSubnorph: (contentNorph upCastFor: Norph).
 
-        let sizer := VerticalBoxSizer sharedNew.
+        let sizer := VerticalBoxSizer rcNew.
         sizer _
             element: contentNorph with: {:constraints :: Void |
                 constraints expanded; allBorders; borderSize: 2; proportion: 1.0.
@@ -36,7 +36,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
     method withColumnHeaders => Void := {
         headerNorph ifNotNil: { return: void. }.
 
-        headerNorph := TableViewHeaderNorph sharedNew.
+        headerNorph := TableViewHeaderNorph rcNew.
         self addSubnorph: (contentNorph upCastFor: Norph).
 
         self sizer _
@@ -70,7 +70,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         super updateLayout.
     }.
 
-    method addColumn: (newColumn: TableViewColumn sharedPointer) ::=> Void := {
+    method addColumn: (newColumn: TableViewColumn rcPointer) ::=> Void := {
         columns add: newColumn.
 
         let minimalCellExtent := newColumn _ minimalCellExtent.
@@ -95,7 +95,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
     }.
 
     method selectionChanged => Void := {
-        self raiseEvent: (NorphSelectionChangedEvent sharedNew upCastFor: NorphEvent).
+        self raiseEvent: (NorphSelectionChangedEvent rcNew upCastFor: NorphEvent).
         self changed.
     }.
 
@@ -103,6 +103,6 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         := selectedRows includes: rowIndex.
 }.
 
-compileTime constant TableViewNorphPtr := TableViewNorph sharedPointer.
+compileTime constant TableViewNorphPtr := TableViewNorph rcPointer.
 
 }. ## End of namespace Norphic

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Graphics Core.
 
 class TextureNode superclass: RectangularShapeNode; definition: {
     public field textureHandle type: StrongTextureHandlePtr.
@@ -12,8 +12,8 @@ class TextureNode superclass: RectangularShapeNode; definition: {
         := visitor visitTextureNode: self
 }.
 
-compileTime constant TextureNodePtr := TextureNode sharedPointer.
+compileTime constant TextureNodePtr := TextureNode rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

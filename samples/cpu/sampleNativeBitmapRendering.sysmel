@@ -1,9 +1,9 @@
 Compiler
 	importModuleNamed: #"Sysmel.Graphics.Core.Raster".
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     ## Palette tga
     {
         let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.

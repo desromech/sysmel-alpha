@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
@@ -9,4 +9,4 @@ struct SoundSourceDescription definition: {
 }.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

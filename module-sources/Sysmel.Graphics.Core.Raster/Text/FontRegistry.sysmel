@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,19 +6,19 @@ namespace Core definition: {
  * I am a registry for loaded fonts.
  *#
 class FontRegistry definition: {
-    private field fontDictionaryMutex type: Stdn Mutex.
-    private field fontDictionary type: Stdn Collections Dictionary(Stdn String, Font sharedPointer).
+    private field fontDictionaryMutex type: Std Mutex.
+    private field fontDictionary type: Std Collections Dictionary(Std String, Font rcPointer).
 
-    private field fontFaceDictionaryMutex type: Stdn Mutex.
-    private field fontFaceDictionary type: Stdn Collections Dictionary(Stdn String, FontFace sharedPointer).
+    private field fontFaceDictionaryMutex type: Std Mutex.
+    private field fontFaceDictionary type: Std Collections Dictionary(Std String, FontFace rcPointer).
 
-    private field defaultSans type: Font sharedPointer.
-    private field defaultSerif type: Font sharedPointer.
-    private field defaultMonospaced type: Font sharedPointer.
+    private field defaultSans type: Font rcPointer.
+    private field defaultSerif type: Font rcPointer.
+    private field defaultMonospaced type: Font rcPointer.
 
     meta definition: {
         let defaultInstance mutable type: FontRegistry uniquePointer.
-        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let defaultInstanceOnceCreation mutable type: Std OnceFlag.
 
         method default => FontRegistry ref := {
             defaultInstanceOnceCreation do: {
@@ -29,36 +29,36 @@ class FontRegistry definition: {
         }.
     }.
 
-    method loadFontNamed: (fontName: Stdn String const ref) with: (fontFillingBlock: ((Font ref) => Void) nativeBlockClosure) ::=> Font sharedPointer := {
+    method loadFontNamed: (fontName: Std String const ref) with: (fontFillingBlock: ((Font ref) => Void) nativeBlockClosure) ::=> Font rcPointer := {
         fontDictionaryMutex withLock: {
-            fontDictionary at: fontName ifAbsentPut: {:: (Font sharedPointer) |
-                let font mutable := Font sharedNew.
+            fontDictionary at: fontName ifAbsentPut: {:: (Font rcPointer) |
+                let font mutable := Font rcNew.
                 fontFillingBlock(font _).
                 font
             }
         }
     }.
 
-    method loadFontFace: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+    method loadFontFace: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
         fontFaceDictionaryMutex withLock: {
-            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace sharedPointer) |
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace rcPointer) |
                 FontFaceLoaderRegistry uniqueInstance loadFontFaceFromFileNamed: faceFileName
             }
         }
     }.
 
-    method loadRequiredFontFace: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+    method loadRequiredFontFace: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
         fontFaceDictionaryMutex withLock: {
-            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace sharedPointer) |
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace rcPointer) |
                 FontFaceLoaderRegistry uniqueInstance loadRequiredFontFaceFromFileNamed: faceFileName
             }
         }
     }.
 
-    method setDefaultSansFont: (font: Font sharedPointer const ref) ::=> Void
+    method setDefaultSansFont: (font: Font rcPointer const ref) ::=> Void
         := defaultSans := font.
 
-    method defaultSans => Font sharedPointer := {
+    method defaultSans => Font rcPointer := {
         defaultSans ifNil: {
             defaultSans := self loadFontNamed: "DejaVuSans" asMutableString
                 with: {:(Font ref) font :: Void |
@@ -74,10 +74,10 @@ class FontRegistry definition: {
         defaultSans.
     }.
 
-    method setDefaultSerifFont: (font: Font sharedPointer const ref) ::=> Void
+    method setDefaultSerifFont: (font: Font rcPointer const ref) ::=> Void
         := defaultSerif := font.
 
-    method defaultSerif => Font sharedPointer := {
+    method defaultSerif => Font rcPointer := {
         defaultSerif ifNil: {
             defaultSerif := self loadFontNamed: "DejaVuSerif" asMutableString
                 with: {:(Font ref) font :: Void |
@@ -92,10 +92,10 @@ class FontRegistry definition: {
         defaultSerif
     }.
 
-    method setDefaultMonospaced: (font: Font sharedPointer const ref) ::=> Void
+    method setDefaultMonospaced: (font: Font rcPointer const ref) ::=> Void
         := defaultMonospaced := font.
 
-    method defaultMonospaced => Font sharedPointer := {
+    method defaultMonospaced => Font rcPointer := {
         defaultMonospaced ifNil: {
             defaultMonospaced := self loadFontNamed: "DejaVuMono" asMutableString
                 with: {:(Font ref) font :: Void |
@@ -114,4 +114,4 @@ class FontRegistry definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

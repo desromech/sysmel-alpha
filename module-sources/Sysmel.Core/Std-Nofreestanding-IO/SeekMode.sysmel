@@ -1,0 +1,14 @@
+namespace Std definition: {
+namespace IO definition: {
+
+#**
+ * The mode for seeking a file.
+ *#
+enum SeekMode valueType: Int32; values: #{
+    Set: 0.
+    Current: 1.
+    End: 2.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace Std

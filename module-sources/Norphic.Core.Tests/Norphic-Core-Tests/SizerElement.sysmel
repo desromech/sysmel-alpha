@@ -2,7 +2,7 @@ namespace Norphic definition: {
 namespace Core definition: {
 namespace Tests definition: {
 
-class SizerElementTestCase superclass: Stdn Testing TestCase; definition: {
+class SizerElementTestCase superclass: Std Testing TestCase; definition: {
     test: testDefaultSizer with: {
         let sizer mutable type: SizerNullSizerElement.
         self assert: sizer borderSize equals: 0.
@@ -164,4 +164,4 @@ class SizerElementTestCase superclass: Stdn Testing TestCase; definition: {
 
 }. ## namespace Tests
 }. ## namespace Collections
-}. ## namespace Stdn
+}. ## namespace Std

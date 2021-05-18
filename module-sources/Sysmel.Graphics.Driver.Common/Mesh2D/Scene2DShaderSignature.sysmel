@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 struct SamplingState definition: {
     public field sampler type: GPU Sampler.
@@ -31,4 +31,4 @@ class Scene2DShaderSignature definition: {
 
 }. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

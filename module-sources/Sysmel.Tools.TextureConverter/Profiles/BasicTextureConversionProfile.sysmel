@@ -2,7 +2,7 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace TextureConverter definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a texture converter.
@@ -67,7 +67,7 @@ class BasicTextureConversionProfile superclass: TextureConversionProfile; defini
             convertedTextureData := convertedTextureData _ clipMiplevelsToMinExtent: minMipLevelExtent maxExtent: maxMipLevelExtent
         }.
 
-        convertedTextureData _ flags: convertedTextureData _ flags | TextureDataFlags HasGeneratedMipmaps.
+        convertedTextureData _ header flags: convertedTextureData _ flags | TextureDataFlags HasGeneratedMipmaps.
 
         ## Convert the processed texture into the target format for storage.
         parameters usageType selectCase: #{

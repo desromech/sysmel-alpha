@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,10 +9,10 @@ struct CanvasDrawingState definition: {
     const inline method = (other: SelfType const ref) ::=> Boolean8
         := blendingMode = other blendingMode.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := blendingMode hash.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
     macro method restoreAfter: aBlock := {
         let oldState := __astBuilder gensym: #oldState.
@@ -28,4 +28,4 @@ struct CanvasDrawingState definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

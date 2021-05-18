@@ -1,15 +1,15 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 
-useNamespace: Stdn Serialization DOM.
+useNamespace: Std Serialization DOM.
 
 compileTime constant ValueParser := Parser(Value).
 
 class ValueParserCallback superclass: ValueParser Callback; definition: {
 
     override method beginArray ::=> Value
-        := List sharedNew.
+        := List rcNew.
 
     override method endArray: (theArray: Value ref) ::=> Void
         := void.
@@ -18,12 +18,12 @@ class ValueParserCallback superclass: ValueParser Callback; definition: {
         := (theArray get: ListPtr) _ elements add: theValue.
 
     override method beginObject ::=> Value
-        := Object sharedNew.
+        := Object rcNew.
 
     override method endObject: (theObject: Value ref) ::=> Void
         := void.
 
-    override method putKey: (key: Stdn String const ref) value: (theValue: Value const ref) onObject: (theObject: Value ref) ::=> Void
+    override method putKey: (key: Std String const ref) value: (theValue: Value const ref) onObject: (theObject: Value ref) ::=> Void
         := (theObject get: ObjectPtr) _ elements at: key put: theValue.
 
     override method onInteger: (value: Int64) ::=> Value
@@ -41,14 +41,14 @@ class ValueParserCallback superclass: ValueParser Callback; definition: {
     override method onFloat: (value: Float64) ::=> Value
         := value.
 
-    override method onString: (value: Stdn String const ref) ::=> Value
+    override method onString: (value: Std String const ref) ::=> Value
         := value.
 
 }.
 
 ValueParser definition: {
     meta definition: {
-        method parseString: (string: Stdn String const ref) ::=> Value := {
+        method parseString: (string: Std String const ref) ::=> Value := {
             let callback mutable type: ValueParserCallback.
             let parser mutable type: ValueParser.
             parser
@@ -57,7 +57,7 @@ ValueParser definition: {
                 parseNextValue
         }.
 
-        method parseStream: (stream: Stdn IO Stream pointer) ::=> Value := {
+        method parseStream: (stream: Std IO Stream pointer) ::=> Value := {
             let callback mutable type: ValueParserCallback.
             let parser mutable type: ValueParser.
             parser
@@ -70,4 +70,4 @@ ValueParser definition: {
 
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

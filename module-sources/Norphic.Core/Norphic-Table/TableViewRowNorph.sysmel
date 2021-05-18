@@ -1,18 +1,18 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a table row view norph. I am a container for a single row in the table.
  *#
 class TableViewRowNorph superclass: Norph; definition: {
     compileTime constant Columns := TableViewNorph Columns.
-    compileTime constant Cells := Stdn Collections Vector(Norph sharedPointer).
+    compileTime constant Cells := Std Collections Vector(Norph rcPointer).
 
     public field rowIndex type: UIntPointer.
     protected field cells type: Cells.
 
-    const method tableViewNorph => TableViewNorph sharedPointer
+    const method tableViewNorph => TableViewNorph rcPointer
         := self owner _ owner downCastFor: TableViewNorph.
 
     const method dataSource => DataSourcePtr const ref
@@ -92,6 +92,6 @@ class TableViewRowNorph superclass: Norph; definition: {
     }.
 }.
 
-compileTime constant TableViewRowNorphPtr := TableViewRowNorph sharedPointer.
+compileTime constant TableViewRowNorphPtr := TableViewRowNorph rcPointer.
 
 }. ## End of namespace Norphic

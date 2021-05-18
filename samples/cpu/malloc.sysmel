@@ -9,19 +9,19 @@ let allocationResults mutable type: (Void pointer array: AllocationCount).
 
 function freeAll() => Void := {
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        Stdn free(allocationResults[i])
+        Std free(allocationResults[i])
     } continueWith: (i := i + 1).
-    Stdn stdout << "================================================================"; nl
+    Std stdout << "================================================================"; nl
 }.
 
 
 #**
  * malloc benchmarking and testing.
  *#
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     ## First zmalloc - with some fixed size
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        allocationResults[i] := Stdn zmalloc(16)
+        allocationResults[i] := Std zmalloc(16)
     } continueWith: (i := i + 1).
 
     freeAll().
@@ -29,7 +29,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
     ## Second zmalloc - with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((i%31) + 1)*16 castTo: UIntPointer.
-        allocationResults[i] := Stdn zmalloc(size)
+        allocationResults[i] := Std zmalloc(size)
     } continueWith: (i := i + 1).
 
     freeAll().
@@ -37,18 +37,18 @@ Stdn MainEntryPoint: {:args :: Int32 |
     ## Second zmalloc - random with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((nextRandom() % 31) + 1)*16 castTo: UIntPointer.
-        allocationResults[i] := Stdn zmalloc(size)
+        allocationResults[i] := Std zmalloc(size)
     } continueWith: (i := i + 1).
 
     freeAll().
 
     ## Second, zmalloc - with random sizes
     #*for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        allocationResults[i] := Stdn zmalloc(nextRandom() % (2<<20))
+        allocationResults[i] := Std zmalloc(nextRandom() % (2<<20))
     } continueWith: (i := i + 1).
     freeAll().*#
 
-    Stdn stdout << "UInt32 basicNativeNew value " << UInt32 basicNativeNew value; nl.
+    Std stdout << "UInt32 basicNativeNew value " << UInt32 basicNativeNew value; nl.
     UInt32 basicNativeNew basicNativeDelete.
 
     0

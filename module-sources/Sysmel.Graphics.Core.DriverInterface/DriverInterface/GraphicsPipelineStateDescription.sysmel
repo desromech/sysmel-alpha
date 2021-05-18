@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -8,9 +8,9 @@ struct GraphicsPipelineStateColorAttachmentDescription definition: {
             colorMask = other colorMask &&
             blendingEnabled = other blendingEnabled &&
             blendingEquation = other blendingEquation.
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := format hash ^
             colorMask hash ^
             blendingEnabled hash ^
@@ -30,9 +30,9 @@ struct StencilFaceState definition: {
             depthFailOperation = other depthFailOperation &&
             depthPassOperation = other depthPassOperation &&
             compareFunction = other compareFunction.
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := stencilFailOperation hash ^
             depthFailOperation hash ^
             depthPassOperation hash ^
@@ -73,7 +73,7 @@ struct GraphicsPipelineStateDescription definition: {
     public field vertexLayout type: VertexLayoutPtr.
 
     ## Color attachments
-    public field colorAttachments type: Stdn Collections Vector(GraphicsPipelineStateColorAttachmentDescription).
+    public field colorAttachments type: Std Collections Vector(GraphicsPipelineStateColorAttachmentDescription).
 
     ## Depth buffer.
     public field depthTestingEnabled type: Boolean8.
@@ -140,9 +140,9 @@ struct GraphicsPipelineStateDescription definition: {
         stencilBackFaceState = other stencilBackFaceState
     }.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash := {
+    const inline method hash ::=> Std Hash := {
         shaderSignature hash ^
 
         ## Shader stages.
@@ -203,4 +203,4 @@ struct GraphicsPipelineStateDescription definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

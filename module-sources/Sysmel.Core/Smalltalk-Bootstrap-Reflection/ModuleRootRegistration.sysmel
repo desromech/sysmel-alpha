@@ -1,8 +1,8 @@
 namespace Smalltalk definition: {
 namespace Runtime definition: {
 
-useNamespace: Stdn GC.
-useNamespace: Stdn Reflection.
+useNamespace: Std GC.
+useNamespace: Std Reflection.
 
 let hasInitialSymbolDeduplication mutable type: Boolean8.
 
@@ -43,7 +43,7 @@ function registerModuleRoots(rootPointerDescriptors: GCRootPointersDescriptor po
 }.
 
 function unregisterModuleRoots(rootPointerDescriptors: GCRootPointersDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
-    ## Stdn stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
+    ## Std stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 }.
 
 Compiler compilationTarget managedObjectModel

@@ -4,7 +4,7 @@ namespace SysmelLanguage definition: {
 
 useNamespace: Sysmel Compiler Parsing.
 
-class ASTNode superclass: Stdn SharedObject; definition: {
+class ASTNode superclass: Std RCObject; definition: {
     public field sourcePosition type: SourceCodeRange.
     field tokenRange type: TokenizedSourceCodeRange.
 
@@ -23,8 +23,8 @@ class ASTNode superclass: Stdn SharedObject; definition: {
     abstract method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult.
 }.
 
-compileTime constant ASTNodePtr := ASTNode sharedPointer.
-compileTime constant ASTNodePtrList := Stdn Collections Vector(ASTNodePtr).
+compileTime constant ASTNodePtr := ASTNode rcPointer.
+compileTime constant ASTNodePtrList := Std Collections Vector(ASTNodePtr).
 
 }. ## End of namespace Compiler
 }. ## End of namespace Compiler

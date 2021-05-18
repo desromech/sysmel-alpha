@@ -1,0 +1,53 @@
+namespace Std definition: {
+compileTime if: Compiler compilationTarget isWindows then: {
+    macro method GenerateMainEntryPointInvokationSupportCode := `'{
+        Compiler addLinkerArguments: #("Shell32.lib"). ## For CommandLineToArgvW
+
+        function sysmel_win32_wmain(executablePath: Char16 const pointer, args: Char16 const pointer arraySlice) ::=> Int32 := {
+            let convertedArgsStrings mutable type: Std Collections Vector(Std String).
+            let convertedArgs mutable type: Std Collections Vector(Char8 const pointer).
+            convertedArgsStrings reserve: 1 + args size.
+            convertedArgs reserve: 1 + args size.
+
+            ## Add separately the executable path.
+            convertedArgsStrings add: (Std String fromUTF16: (executablePath until: Std cwstrlen(executablePath))).
+            convertedArgs add: convertedArgsStrings last asCString.
+
+            ## Add the remaining arguments.
+            args do: {:arg :: Void |
+                convertedArgsStrings add: (Std String fromUTF16: (arg until: Std cwstrlen(arg))).
+                convertedArgs add: convertedArgsStrings last asCString.
+            }.
+
+            sysmel_main(convertedArgs asArraySlice)
+        }.
+
+        function wmain externC(argc: Int32, wargv: Char16 const pointer pointer) ::=> Int32 := {
+            sysmel_win32_wmain(wargv[0], wargv[1] address until: argc - 1)
+        }.
+
+        function wWinMain apicall externC(hInstance: Win32 HINSTANCE, hPrevInstance: Win32 HINSTANCE, pCmdLine: Char16 const pointer, nCmdShow: Int32) ::=> Int32 := {
+            Win32 sysmel_connectOutputToWin32DebugStream().
+            let argc mutable type: Int32.
+            let wargv mutable type: Char16 pointer pointer.
+
+            let executableNameBuffer := Std zmalloc((Win32 MaxPath + 1)*2) reinterpretCastTo: Char16 pointer.
+            Win32 GetModuleFileNameW(nil, executableNameBuffer, Win32 MaxPath).
+
+            Std cwstrlen(pCmdLine) ~= 0 ifTrue: {
+                wargv := Win32 CommandLineToArgvW(pCmdLine, argc address).
+            }.
+            try: {
+                sysmel_win32_wmain(executableNameBuffer, wargv until: argc)
+            } finally: {
+                Std free(executableNameBuffer).
+                Win32 LocalFree(wargv).
+            }.
+        }.
+    }.
+} else: {
+    macro method GenerateMainEntryPointInvokationSupportCode := `'(
+        Compiler addNativeLibraryDependency: #SysmelUWPMain
+    )
+}.
+}.

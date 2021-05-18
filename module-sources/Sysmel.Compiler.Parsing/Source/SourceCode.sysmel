@@ -2,19 +2,19 @@ namespace Sysmel definition: {
 namespace Compiler definition: {
 namespace Parsing definition: {
 
-struct SourceCode definition: {
+class SourceCode superclass: Std RCObject; definition: {
     compileTime constant ValueType := Char8.
     compileTime constant PeekType := Int32.
 
-    field content type: Stdn String.
-    field lineStartTable type: Stdn Collections Vector(UIntPointer).
-    public field name type: Stdn String.
-    public field uri type: Stdn String.
+    field content type: Std String.
+    field lineStartTable type: Std Collections Vector(UIntPointer).
+    public field name type: Std String.
+    public field uri type: Std String.
 
-    const method content => Stdn String const ref
+    const method content => Std String const ref
         := content.
 
-    method content: (value: Stdn String const ref) ::=> Void := {
+    method content: (value: Std String const ref) ::=> Void := {
         content := value.
         self buildLineStartTable.
     }.
@@ -50,7 +50,7 @@ struct SourceCode definition: {
     const inline method eofValue => PeekType
         := -1.
 
-    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Stdn ImmutableString := {
+    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Std ImmutableString := {
         content isEmpty ifTrue: {
             return: ""
         }.
@@ -89,16 +89,15 @@ struct SourceCode definition: {
         UInt32x2(lineNumber castTo: UInt32, column + 1u)
     }.
 
-    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Std IO TextStreamWriter ref) ::=> Void := {
         let lineAndColumn := self sourcePositionIntoLineAndColumn: startPosition.
 
         out << name << ':' << lineAndColumn x << ":" << lineAndColumn y
     }.
 }.
 
-compileTime constant SourceCodePtr := SourceCode sharedPointer.
+compileTime constant SourceCodePtr := SourceCode rcPointer.
 compileTime constant SourceCodeRange := SourceCollectionRange(SourceCode).
-compileTime constant SourceCodeRangePtr := SourceCodeRange sharedPointer.
 
 }. ## End of namespace Compiler
 }. ## End of namespace Compiler

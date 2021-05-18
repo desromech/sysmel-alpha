@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ class ShaderSignature superclass: RenderingDriverObjectHandle; definition: {
     abstract method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr.
 }.
 
-compileTime constant ShaderSignaturePtr := ShaderSignature sharedPointer.
+compileTime constant ShaderSignaturePtr := ShaderSignature rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

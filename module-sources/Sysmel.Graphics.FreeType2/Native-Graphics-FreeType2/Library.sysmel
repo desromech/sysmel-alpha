@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace FT2Bindings definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 useNamespace: FreeType2.
 
 function convertError(error: FT_Error) => Boolean8 := {
@@ -22,14 +22,14 @@ function convert26d6(v: FT_Pos) => Float32
 #**
  * I represent a shared freetype library instance.
  *#
-class FT2Library definition: {
+class FT2Library superclass: Std RCObject; definition: {
     meta definition: {
-        let defaultInstance mutable type: FT2Library sharedPointer.
-        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let defaultInstance mutable type: FT2Library rcPointer.
+        let defaultInstanceOnceCreation mutable type: Std OnceFlag.
 
-        method defaultInstance => FT2Library sharedPointer const ref := {
+        method defaultInstance => FT2Library rcPointer const ref := {
             defaultInstanceOnceCreation do: {
-                defaultInstance := FT2Library sharedNew
+                defaultInstance := FT2Library rcNew
             }.
 
             defaultInstance
@@ -39,13 +39,13 @@ class FT2Library definition: {
     public field handle type: FT_Library.
     public field mutex type: Mutex.
 
-    method initialize => Void := {
+    override method initialize => Void := {
         let error := FT_Init_FreeType(handle address).
         convertError(error).
 
     }.
 
-    method finalize => Void := {
+    override method finalize => Void := {
         handle ifNotNil: {
             FT_Done_FreeType(handle).
         }
@@ -54,4 +54,4 @@ class FT2Library definition: {
 
 }. ## End of namespace Text
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

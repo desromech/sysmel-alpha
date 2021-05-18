@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU only implementation for a shader signature.
@@ -12,9 +12,9 @@ class SoftShaderStageHandle superclass: ShaderStageHandle; definition: {
     public field entryPointInfo type: GPU ShaderEntryPointInfo.
 }.
 
-compileTime constant SoftShaderStageHandlePtr := SoftShaderStageHandle sharedPointer.
+compileTime constant SoftShaderStageHandlePtr := SoftShaderStageHandle rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

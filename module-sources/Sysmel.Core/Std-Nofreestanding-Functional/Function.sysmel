@@ -1,0 +1,298 @@
+namespace Std definition: {
+
+struct _NativeStackBlockClosureHeader definition: {
+    public field vtable type: Std Reflection TypeInformation pointer pointer.
+    public field functionPointer type: (Void => Void) pointer.
+    public field captures type: Void pointer array.
+
+    inline method typeInfo => Std Reflection TypeInformation pointer
+        := vtable[-1].
+}.
+
+template Function(FT: Type)
+	:= struct definition: {
+    compileTime constant FunctionType := FT.
+    compileTime constant ArgumentTypesTuple := FunctionType argumentTypesTuple.
+    compileTime constant ReturnType := FunctionType returnType.
+
+    compileTime constant NativeStackBlockClosureType := FT nativeStackBlockClosure.
+    compileTime constant InlineStorageType := Void pointer array: 4.
+
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
+        compileTime constant GCBlockClosureType := FT gcBlockClosure.
+    }.
+
+    enum WrapperType valueType: UInt8; values: #{
+        Invalid: 0.
+        FunctionPointer: 1.
+        InlineNativeClosure: 2.
+        HeapNativeClosure: 3.
+        GCClosure: 4
+    }.
+
+    ## Inline storage for typical closures.
+    field type type: WrapperType.
+    field inlineStorage type: InlineStorageType.
+
+    meta definition: {
+        static inline method for: (blockClosure: NativeStackBlockClosureType) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                setNativeBlockClosure: blockClosure;
+                yourself
+        }.
+
+        static inline method for: (functionPointer: FunctionType pointer) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                setFunctionPointer: functionPointer;
+                yourself
+        }.
+
+        compileTime if: Compiler hasGarbageCollectedRuntime then: {
+            static inline method for: (blockClosure: GCBlockClosureType) ::=> InstanceType := {
+                <constructor>
+                InstanceType()
+                    setGCBlockClosure: blockClosure;
+                    yourself
+            }.
+        }.
+    }.
+
+    const inline method isValid => Boolean8
+        := type ~= WrapperType Invalid.
+
+    const inline method isInvalid => Boolean8
+        := type = WrapperType Invalid.
+
+    method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other.
+    }.
+
+    method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other.
+    }.
+
+    inline method setNativeBlockClosure: (blockClosure: NativeStackBlockClosureType) ::=> Void := {
+        self reset.
+
+        let blockClosureHeader := blockClosure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+        let typeInfo := blockClosureHeader _ typeInfo.
+        let instanceSize := typeInfo _ instanceDataSize.
+        let instanceAlignment := typeInfo _ instanceDataAlignment.
+        let storagePointer mutable type: Void pointer := inlineStorage [0] address.
+
+        instanceSize <= InlineStorageType instanceSize && instanceAlignment <= InlineStorageType instanceAlignment ifTrue: {
+            type := WrapperType InlineNativeClosure.
+        } ifFalse: {
+            type := WrapperType HeapNativeClosure.
+            storagePointer := Std malloc(instanceSize).
+            inlineStorage[0] := storagePointer.
+        }.
+
+        Std memset(storagePointer, 0, instanceSize).
+        typeInfo _ copyValue: blockClosureHeader intoRecentlyAllocatedStorage: storagePointer.
+    }.
+
+    inline method setFunctionPointer: (functionPointer: FunctionType pointer) ::=> Void := {
+        self reset.
+
+        type := WrapperType FunctionPointer.
+        inlineStorage[0] := functionPointer.
+    }.
+
+    (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
+        self setNativeBlockClosure: blockClosure.
+        self
+    }.
+
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
+        method setGCBlockClosure: (blockClosure: GCBlockClosureType) ::=> Void := {
+            let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
+            type = WrapperType GCClosure ifFalse: {
+                self reset.
+                rootBox initialize.
+                type := WrapperType GCClosure
+            }.
+            rootBox pointer: (blockClosure reinterpretCastTo: Std Reflection GCObjectHeader pointer).
+        }.
+
+        (method := (blockClosure: GCBlockClosureType)) => SelfType const ref := {
+            self setGCBlockClosure: blockClosure.
+
+            self
+        }.
+
+    }.
+
+    method finalize => Void := {
+        self reset.
+    }.
+
+    method reset => Void := {
+        type selectCase: #{
+        WrapperType InlineNativeClosure : {
+            let closure := inlineStorage[0] address reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+            let finalizerMethod := closure _ typeInfo _ finalizeFunctionPointer.
+            finalizerMethod ifNotNil: {
+                finalizerMethod(closure)
+            }.
+        }.
+
+        WrapperType HeapNativeClosure : {
+            let closure := inlineStorage[0] reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+            let finalizerMethod := closure _ typeInfo _ finalizeFunctionPointer.
+            finalizerMethod ifNotNil: {
+                finalizerMethod(closure)
+            }.
+
+            free(closure)
+        }.
+
+        WrapperType GCClosure : {
+            compileTime if: Compiler hasGarbageCollectedRuntime then: {
+                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
+                rootBox finalize
+            }.
+        }.
+        _ : {}
+        }.
+
+        type := WrapperType Invalid.
+    }.
+
+    (method := (functionPointer: FunctionType pointer)) ::=> SelfType const ref := {
+        self setFunctionPointer: functionPointer.
+        self
+    }.
+
+    (method := (other: SelfType const ref)) ::=> SelfType const ref := {
+        self address ~~ other address ifTrue: {
+            other __private type selectCase: #{
+            WrapperType Invalid : {
+                self reset.
+            }.
+
+            WrapperType FunctionPointer : {
+                let functionPointer := other __private inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+                self setFunctionPointer: functionPointer.
+            }.
+
+            WrapperType InlineNativeClosure : {
+                let closure := other __private inlineStorage[0] address reinterpretCastTo: NativeStackBlockClosureType.
+                self setNativeBlockClosure: closure.
+            }.
+
+            WrapperType HeapNativeClosure : {
+                let closure := other __private inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
+                self setNativeBlockClosure: closure.
+            }.
+
+            WrapperType GCClosure : {
+                compileTime if: Compiler hasGarbageCollectedRuntime then: {
+                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
+                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
+                    self setGCBlockClosure: closure.
+                } else: {
+                    error: "Unsupported function wrapper type for copy assignment."
+                }.
+            }.
+
+            _ : {
+                error: "Unsupported function wrapper type for copy assignment."
+            }
+            }.
+        }.
+
+        self
+    }.
+
+    (method := (other: SelfType tempRef)) ::=> SelfType const ref := {
+        self address ~~ other address ifTrue: {
+            self reset.
+            other __private type selectCase: #{
+            WrapperType Invalid : {
+            }.
+
+            WrapperType FunctionPointer : {
+                inlineStorage[0] := other __private inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+                other __private type := WrapperType Invalid.
+                type := WrapperType FunctionPointer.
+            }.
+
+            WrapperType InlineNativeClosure : {
+                let blockClosureHeader := other __private inlineStorage[0] address reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+
+                let typeInfo := blockClosureHeader _ typeInfo.
+                let instanceSize := typeInfo _ instanceDataSize.
+                let storagePointer mutable type: Void pointer := inlineStorage [0] address.
+                Std memset(storagePointer, 0, instanceSize).
+                typeInfo _ moveValue: blockClosureHeader intoRecentlyAllocatedStorage: storagePointer.
+                type := WrapperType InlineNativeClosure.
+                other reset
+            }.
+
+            WrapperType HeapNativeClosure : {
+                inlineStorage[0] := other __private inlineStorage[0].
+                other __private type := WrapperType Invalid.
+                type := WrapperType HeapNativeClosure.
+            }.
+
+            WrapperType GCClosure : {
+                compileTime if: Compiler hasGarbageCollectedRuntime then: {
+                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
+                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
+                    self setGCBlockClosure: closure.
+                    other reset.
+                } else: {
+                    error: "Unsupported function wrapper type for copy assignment."
+                }.
+            }.
+
+            _ : {
+                error: "Unsupported function wrapper type for copy assignment."
+            }
+            }.
+        }.
+
+        self
+    }.
+
+    const inline method applyWithArguments: (arguments: ArgumentTypesTuple) ::=> ReturnType := {
+        type selectCase: #{
+        WrapperType FunctionPointer : {
+            let fp := inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+            return: (fp applyWithArguments: arguments).
+        }.
+
+        WrapperType InlineNativeClosure : {
+            let closure := inlineStorage[0] address reinterpretCastTo: NativeStackBlockClosureType.
+            let blockClosureHeader := closure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+
+            return: (closure applyWithArguments: arguments).
+        }.
+
+        WrapperType HeapNativeClosure : {
+            let closure := inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
+            return: (closure applyWithArguments: arguments).
+        }.
+
+        WrapperType GCClosure : {
+            compileTime if: Compiler hasGarbageCollectedRuntime then: {
+                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
+                let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
+                return: (closure applyWithArguments: arguments).
+            }
+            else: {
+                error: "Trying to call invalid Std Function wrapper."
+            }
+        }.
+
+        _ : {
+            error: "Trying to call invalid Std Function wrapper."
+        }
+        }.
+    }.
+}.
+
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ class Fence superclass: RenderingDriverObjectHandle; definition: {
     abstract method wait => Void.
 }.
 
-compileTime constant FencePtr := Fence sharedPointer.
+compileTime constant FencePtr := Fence rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

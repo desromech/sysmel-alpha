@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 class SoftRenderPassExecutionContext definition: {
     compileTime constant MaxColorAttachmentCount := 16.
@@ -58,11 +58,11 @@ class SoftRenderPassExecutionContext definition: {
  * I am a CPU only implementation for a render pass.
  *#
 class SoftRenderPass superclass: RenderPass; definition: {
-    protected field colorAttachmentFormats type: Stdn Collections Vector(PixelFormat).
+    protected field colorAttachmentFormats type: Std Collections Vector(PixelFormat).
     protected field sampleCount type: UInt32.
     protected field sampleQuality type: UInt32.
 
-    public field colorAttachments type: Stdn Collections Vector(RenderPassColorAttachmentDescription).
+    public field colorAttachments type: Std Collections Vector(RenderPassColorAttachmentDescription).
     public field depthStencilAttachment type: RenderPassDepthStencilAttachmentDescription.
     public field hasDepthStencilAttachment type: Boolean8.
 
@@ -121,4 +121,4 @@ class SoftRenderPass superclass: RenderPass; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

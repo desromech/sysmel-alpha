@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a texture atlas font face size. I put a bunch font
@@ -14,9 +14,9 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
     private field device type: RenderingDeviceWeakPtr.
 
     private field hasConvertedLatin1Set type: Boolean8.
-    private field mutex type: Stdn Mutex.
-    private field codePointDictionary type: Stdn Collections Dictionary(Char32, GlyphPtr).
-    private field adaptedGlyphs type: Stdn Collections Dictionary(GlyphPtr, GlyphPtr).
+    private field mutex type: Std Mutex.
+    private field codePointDictionary type: Std Collections Dictionary(Char32, GlyphPtr).
+    private field adaptedGlyphs type: Std Collections Dictionary(GlyphPtr, GlyphPtr).
 
     private field fontFaceForm type: FormPtr.
     private field hasValidTexture type: Boolean8.
@@ -78,7 +78,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
 
         ## Invalidate the texture.
         hasValidTexture := false.
-        let result := TextureAtlasGlyph sharedNew.
+        let result := TextureAtlasGlyph rcNew.
         result _ initializeAdaptingFrom: originalGlyph _ inAtlasLocation: atlasRectangle.
         result upCastFor: Glyph
     }.
@@ -188,4 +188,4 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

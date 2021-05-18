@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -37,55 +37,55 @@ class SystemCursor superclass: Cursor; definition: {
         := name.
 
     meta definition: {
-        let singletons mutable type: (SystemCursor sharedPointer array: SystemCursorName Count value).
+        let singletons mutable type: (SystemCursor rcPointer array: SystemCursorName Count value).
 
-        method getWithName: (name: SystemCursorName) ::=> SystemCursor sharedPointer := {
+        method getWithName: (name: SystemCursorName) ::=> SystemCursor rcPointer := {
             let result ref := singletons[name value].
             result ifNil: {
-                singletons[name value] := SystemCursor sharedNew.
+                singletons[name value] := SystemCursor rcNew.
                 result _ initializeWithName: name.
             }.
 
             result
         }.
 
-        method none => SystemCursor sharedPointer
+        method none => SystemCursor rcPointer
             := self getWithName: SystemCursorName None.
 
-        method Ibeam => SystemCursor sharedPointer
+        method Ibeam => SystemCursor rcPointer
             := self getWithName: SystemCursorName IBeam.
 
-        method arrow => SystemCursor sharedPointer
+        method arrow => SystemCursor rcPointer
             := self getWithName: SystemCursorName Arrow.
 
-        method wait => SystemCursor sharedPointer
+        method wait => SystemCursor rcPointer
             := self getWithName: SystemCursorName Wait.
 
-        method crossHair => SystemCursor sharedPointer
+        method crossHair => SystemCursor rcPointer
             := self getWithName: SystemCursorName CrossHair.
 
-        method waitArrow => SystemCursor sharedPointer
+        method waitArrow => SystemCursor rcPointer
             := self getWithName: SystemCursorName WaitArrow.
 
-        method sizeNorthWestSouthEast => SystemCursor sharedPointer
+        method sizeNorthWestSouthEast => SystemCursor rcPointer
             := self getWithName: SystemCursorName SizeNorthWestSouthEast.
 
-        method sizeNorthEastSouthWest => SystemCursor sharedPointer
+        method sizeNorthEastSouthWest => SystemCursor rcPointer
             := self getWithName: SystemCursorName SizeNorthEastSouthWest.
 
-        method sizeWestEast => SystemCursor sharedPointer
+        method sizeWestEast => SystemCursor rcPointer
             := self getWithName: SystemCursorName SizeWestEast.
 
-        method sizeNorthSouth => SystemCursor sharedPointer
+        method sizeNorthSouth => SystemCursor rcPointer
             := self getWithName: SystemCursorName SizeNorthSouth.
 
-        method sizeAll => SystemCursor sharedPointer
+        method sizeAll => SystemCursor rcPointer
             := self getWithName: SystemCursorName SizeAll.
 
-        method no => SystemCursor sharedPointer
+        method no => SystemCursor rcPointer
             := self getWithName: SystemCursorName No.
 
-        method hand => SystemCursor sharedPointer
+        method hand => SystemCursor rcPointer
             := self getWithName: SystemCursorName Hand.
 
     }.
@@ -97,4 +97,4 @@ class SystemCursor superclass: Cursor; definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

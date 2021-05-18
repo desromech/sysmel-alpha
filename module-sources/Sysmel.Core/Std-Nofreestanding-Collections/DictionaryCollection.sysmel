@@ -1,0 +1,9 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+macro method DictionaryCollectionMixin := ``{
+    Std Collections HashedCollectionMixin.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Chrono definition: {
     function microsecondClockValue() => Time
         := 0.

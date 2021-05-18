@@ -1,0 +1,51 @@
+namespace Std definition: {
+namespace Chrono definition: {
+
+    let currentPerformanceCountFrequencyReaded mutable type: Std OnceFlag.
+    let currentPerformanceCountFrequency mutable type: Int64.
+
+    function getPerformanceCounterFrequency() => Int64 := {
+        currentPerformanceCountFrequencyReaded do: {
+            let frequency mutable type: Win32 LARGE_INTEGER.
+            Win32 QueryPerformanceFrequency(frequency address).
+            currentPerformanceCountFrequency := frequency QuadPart
+        }.
+
+        currentPerformanceCountFrequency
+    }.
+
+    function monotonicClockValue() => Time := {
+        let performanceCount mutable type: Win32 LARGE_INTEGER.
+
+        Win32 QueryPerformanceCounter(performanceCount address).
+
+        performanceCount QuadPart * TicksPerSecond / getPerformanceCounterFrequency().
+    }.
+
+    function microsecondClockValue() => Time
+        := monotonicClockValue().
+
+    function processClockValue() => Time
+        := monotonicClockValue().
+
+    function threadClockValue() => Time
+        := monotonicClockValue().
+
+    inline function sleepFor(time: Time) => Void := {
+        time > 0 ifTrue: {
+            let millisecondCount := (time + TicksPerMillisecond/2) / TicksPerMillisecond.
+            millisecondCount > 0 ifTrue: {
+                Win32 Sleep(millisecondCount castTo: Win32 DWORD)
+            }
+        }
+    }.
+
+    inline function sleepUntil(time: Time) => Void := {
+        let now := monotonicClockValue().
+        now < time ifTrue: {
+            sleepFor(time - now)
+        }
+    }.
+
+}.
+}.

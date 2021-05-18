@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a handle for a texture.
@@ -56,12 +56,12 @@ class SoftTexture superclass: Texture; definition: {
 
     override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
         sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) buffer: (buffer: Void pointer) ::=> Void := {
-        Stdn stdout << "TODO: readTextureLevel:"; nl.
+        Std stdout << "TODO: readTextureLevel:"; nl.
     }.
 
     override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
         sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void := {
-        Stdn stdout << "TODO: uploadTextureLevel:"; nl.
+        Std stdout << "TODO: uploadTextureLevel:"; nl.
     }.
 
     override method getFullViewDescription => TextureViewDescription := {
@@ -97,9 +97,9 @@ class SoftTexture superclass: Texture; definition: {
         let pitches := self computePitchesForLevel: viewDescription subresourceRange baseMipLevel.
 
         ## Create the view.
-        let view := SoftTextureView sharedNew.
+        let view := SoftTextureView rcNew.
         view _
-            texture: self asWeakPointer;
+            texture: self asWeakRCPointer;
             pixelsBlitter: (Blitter()
                 extent: levelExtent xy;
                 pixelFormat: viewDescription format;
@@ -122,9 +122,9 @@ class SoftTexture superclass: Texture; definition: {
     }.
 }.
 
-compileTime constant SoftTexturePtr := SoftTexture sharedPointer.
+compileTime constant SoftTexturePtr := SoftTexture rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

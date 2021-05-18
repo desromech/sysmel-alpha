@@ -1,0 +1,17 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+_ArrayType extend: {
+    Std Collections CollectionMacrosMixin.
+    Std Collections SequenceableCollectionMacrosMixin.
+    Std Collections ArrayedCollectionMacrosMixin.
+}.
+
+_ArraySliceType extend: {
+    Std Collections CollectionMacrosMixin.
+    Std Collections SequenceableCollectionMacrosMixin.
+    Std Collections ArrayedCollectionMacrosMixin.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

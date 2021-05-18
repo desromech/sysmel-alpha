@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a texture atlas glyph.
@@ -31,8 +31,8 @@ class TextureAtlasGlyph superclass: Glyph; definition: {
         := textureAtlasBounds.
 }.
 
-compileTime constant TextureAtlasGlyphPtr := TextureAtlasGlyph sharedPointer.
+compileTime constant TextureAtlasGlyphPtr := TextureAtlasGlyph rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

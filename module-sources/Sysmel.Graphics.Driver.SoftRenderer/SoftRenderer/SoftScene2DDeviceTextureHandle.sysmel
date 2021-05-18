@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a handle for a sampler.
@@ -16,9 +16,9 @@ class SoftScene2DDeviceTextureHandle superclass: TextureWithView; definition: {
     }
 }.
 
-compileTime constant SoftScene2DDeviceTextureHandlePtr := SoftScene2DDeviceTextureHandle sharedPointer.
+compileTime constant SoftScene2DDeviceTextureHandlePtr := SoftScene2DDeviceTextureHandle rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -4,7 +4,7 @@ namespace Norphic definition: {
  * I am a menu bar norph.
  *#
 class MenuBarNorph superclass: Norph; definition: {
-    protected field items type: Stdn Collections Vector(MenuBarItemNorph sharedPointer).
+    protected field items type: Std Collections Vector(MenuBarItemNorph rcPointer).
     protected field activeItem type: MenuBarItemNorph pointer.
     protected field changingActiveItem type: Boolean8.
 
@@ -13,19 +13,19 @@ class MenuBarNorph superclass: Norph; definition: {
 
     override method initialize => Void := {
         self
-            sizer: (HorizontalBoxSizer sharedNew upCastFor: Sizer);
+            sizer: (HorizontalBoxSizer rcNew upCastFor: Sizer);
             autolayout: true
     }.
 
-    override method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+    override method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
         changingActiveItem ifFalse: {
             self itemClicked: nil
         }
     }.
 
-    method addMenu: (label: Stdn String const ref) ::=> MenuNorph sharedPointer := {
+    method addMenu: (label: Std String const ref) ::=> MenuNorph rcPointer := {
         ## Create the menu item
-        let menuItem := MenuBarItemNorph sharedNew.
+        let menuItem := MenuBarItemNorph rcNew.
         menuItem _ label: label.
         self addSubnorph: (menuItem upCastFor: Norph).
         items add: menuItem.
@@ -35,7 +35,7 @@ class MenuBarNorph superclass: Norph; definition: {
             }.
 
         ## Create the menu itself.
-        let menu := MenuNorph sharedNew.
+        let menu := MenuNorph rcNew.
         menuItem _ menu: menu.
         menu
     }.
@@ -75,6 +75,6 @@ class MenuBarNorph superclass: Norph; definition: {
         ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
 }.
 
-compileTime constant MenuBarNorphPtr := MenuBarNorph sharedPointer.
+compileTime constant MenuBarNorphPtr := MenuBarNorph rcPointer.
 
 }. ## End of namespace Norphic

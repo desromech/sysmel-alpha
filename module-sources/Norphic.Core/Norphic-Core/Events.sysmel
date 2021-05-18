@@ -1,11 +1,11 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics GUI.
+useNamespace: Std Graphics GUI.
 
 class NorphEventHandler.
 class Norph.
 
-class NorphEvent superclass: Stdn Object; definition: {
+class NorphEvent superclass: Std RCObject; definition: {
     SelfType setRequiredRTTI.
 
     public field wasHandled type: Boolean8.
@@ -103,7 +103,7 @@ class NorphKeyReleasedEvent superclass: NorphKeyboardEvent; definition: {
 }.
 
 class NorphTextInputEvent superclass: NorphEvent; definition: {
-    public field text type: Stdn String.
+    public field text type: Std String.
 
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onTextInputEvent: self
@@ -114,7 +114,7 @@ class NorphTextInputEvent superclass: NorphEvent; definition: {
 }.
 
 class NorphMouseEvent superclass: NorphEvent; definition: {
-    public field targetNorph type: Norph sharedPointer.
+    public field targetNorph type: Norph rcPointer.
 
     public field mouseId type: UInt32.
     public field position type: Float32x2.

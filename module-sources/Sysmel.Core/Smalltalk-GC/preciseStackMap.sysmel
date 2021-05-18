@@ -37,10 +37,10 @@ method printStackMap => Void := {
 
     let start := __sysmel_gc_section_start address.
     let end := __sysmel_gc_section_end address.
-    Stdn stdout << "Stack map start " << start << " end " << end; nl.
+    Std stdout << "Stack map start " << start << " end " << end; nl.
 
     for: (let position mutable := start) while: (position ~~ end) do: {
-        Stdn stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
+        Std stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
     } continueWith: (position := position _ next).
 }.
 *#

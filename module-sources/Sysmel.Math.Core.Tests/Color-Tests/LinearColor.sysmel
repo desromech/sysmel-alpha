@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Color definition: {
 namespace Tests definition: {
 
-class LinearColorTest superclass: Stdn Testing TestCase; definition: {
+class LinearColorTest superclass: Std Testing TestCase; definition: {
 
     test: testNamedColors with: {
         self assert: Float32x4 transparent equals: Float32x4 zeros.
@@ -35,4 +35,4 @@ class LinearColorTest superclass: Stdn Testing TestCase; definition: {
 } ## End of namespace Tests
 } ## End of namespace Color
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

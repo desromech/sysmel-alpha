@@ -2,12 +2,12 @@ namespace Sysmel definition: {
 namespace Compiler definition: {
 namespace Parsing definition: {
 
-template SourceCollectionRange(SC: Stdn Concepts Copyable)
+template SourceCollectionRange(SC: Std Concepts Copyable)
     := struct definition: {
     compileTime constant SourceCollection := SC.
     compileTime constant ValueType := SourceCollection ValueType.
     compileTime constant PeekType := SourceCollection PeekType.
-    compileTime constant SourceCollectionPtr := SourceCollection sharedPointer.
+    compileTime constant SourceCollectionPtr := SourceCollection rcPointer.
 
     public field sourceCollection type: SourceCollectionPtr.
     public field startPosition type: UIntPointer.
@@ -23,7 +23,7 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
         }.
     }.
 
-    const method text => Stdn ImmutableString := {
+    const method text => Std ImmutableString := {
         self isEmpty ifTrue: {
             return: ""
         }.
@@ -100,7 +100,7 @@ template SourceCollectionRange(SC: Stdn Concepts Copyable)
     const method last => PeekType
         := self peek: self size - 1.
 
-    const method printOnNativeTextStreamWriter: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (out: Std IO TextStreamWriter ref) ::=> Void := {
         sourceCollection _ printRangeFrom: startPosition until: endPosition on: out
     }.
 }.

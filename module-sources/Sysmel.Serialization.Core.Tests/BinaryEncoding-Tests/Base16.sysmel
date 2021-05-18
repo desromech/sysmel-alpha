@@ -1,11 +1,11 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace BinaryEncoding definition: {
 namespace Tests definition: {
 
-class Base16Test superclass: Stdn Testing TestCase; definition: {
+class Base16Test superclass: Std Testing TestCase; definition: {
     test: testEmpty with: {
-        let binaryData mutable := Stdn ByteVector().
+        let binaryData mutable := Std ByteVector().
         let encodedString := encodeBase16String(binaryData).
         self assert: encodedString isEmpty.
 
@@ -14,7 +14,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector1 with: {
-        let binaryData mutable := Stdn ByteVector()
+        let binaryData mutable := Std ByteVector()
             add: 0;
             yourself.
         let encodedString := encodeBase16String(binaryData).
@@ -25,7 +25,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector2 with: {
-        let binaryData mutable := Stdn ByteVector()
+        let binaryData mutable := Std ByteVector()
             add: 0;
             add: 1;
             yourself.
@@ -37,7 +37,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector3 with: {
-        let binaryData mutable := Stdn ByteVector()
+        let binaryData mutable := Std ByteVector()
             add: 0;
             add: 1;
             add: 2;
@@ -50,7 +50,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector4 with: {
-        let binaryData mutable := Stdn ByteVector()
+        let binaryData mutable := Std ByteVector()
             add: 0;
             add: 1;
             add: 2;
@@ -64,7 +64,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector5 with: {
-        let binaryData mutable := Stdn ByteVector()
+        let binaryData mutable := Std ByteVector()
             add: 0;
             add: 1;
             add: 2;
@@ -79,7 +79,7 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
     }.
 
     test: testByteVector256 with: {
-        let binaryData mutable := Stdn ByteVector().
+        let binaryData mutable := Std ByteVector().
         0 until: 256 do: {:i :: Void |
             binaryData add: (i castTo: UInt8).
         }.
@@ -95,4 +95,4 @@ class Base16Test superclass: Stdn Testing TestCase; definition: {
 } ## End of namespace Tests
 }. ## End of namespace BinaryEncoding
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
  * I represent a specific sound device.
  *#
-class PlaybackDevice superclass: SharedObject; definition: {
+class PlaybackDevice superclass: Std RCObject; definition: {
     virtual method destroy => Void := {}.
 
     virtual method pause => Void := {}.
@@ -26,7 +26,7 @@ class PlaybackDevice superclass: SharedObject; definition: {
         := self newSoundSourceForStreamSource: (generator upCastFor: SoundStreamSource).
 }.
 
-compileTime constant PlaybackDevicePtr := PlaybackDevice sharedPointer.
+compileTime constant PlaybackDevicePtr := PlaybackDevice rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

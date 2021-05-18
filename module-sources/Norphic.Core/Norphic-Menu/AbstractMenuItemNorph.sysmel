@@ -1,25 +1,25 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a menu or menu bar item norph.
  *#
 class AbstractMenuItemNorph superclass: Norph; definition: {
-    public field menu type: MenuNorph sharedPointer.
+    public field menu type: MenuNorph rcPointer.
 
-    protected field label type: StringNorph sharedPointer.
+    protected field label type: StringNorph rcPointer.
 
     override method color => Float32x4
         := self theme _ activeMenuItemHighlightColor.
 
     method initialize => Void := {
-        label := StringNorph sharedNew.
+        label := StringNorph rcNew.
 
         let labelRef := label upCastFor: Norph.
         self addSubnorph: labelRef.
 
-        let sizer := HorizontalBoxSizer sharedNew.
+        let sizer := HorizontalBoxSizer rcNew.
         sizer _ element: label with: {:constraints :: Void |
             constraints centered; allBorders; borderSize: 3.
         }.
@@ -30,11 +30,11 @@ class AbstractMenuItemNorph superclass: Norph; definition: {
     virtual method isHighlighted => Boolean8
         := false.
 
-    method label => Stdn String const ref := {
+    method label => Std String const ref := {
         label _ text.
     }.
 
-    method label: (newLabel: Stdn String const ref) ::=> Void := {
+    method label: (newLabel: Std String const ref) ::=> Void := {
         label _ text: newLabel.
         self fit.
     }.

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
 	compileTime constant MaxColorAttachmentCount := SoftRenderPassExecutionContext MaxColorAttachmentCount.
@@ -158,4 +158,4 @@ class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,15 +1,15 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a agpu based shader signature builder.
  *#
 sealed class AgpuRenderPass superclass: RenderPass; definition: {
     public field handle type: AGPU RenderpassRef.
-    public field colorAttachmentFormats type: Stdn Collections Vector(PixelFormat).
+    public field colorAttachmentFormats type: Std Collections Vector(PixelFormat).
     public field theDepthStencilFormat type: PixelFormat.
     public field theSampleCount type: UInt32.
     public field theSampleQuality type: UInt32.
@@ -40,8 +40,8 @@ sealed class AgpuRenderPass superclass: RenderPass; definition: {
         := theSampleQuality.
 }.
 
-compileTime constant AgpuRenderPassPtr := AgpuRenderPass sharedPointer.
+compileTime constant AgpuRenderPassPtr := AgpuRenderPass rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

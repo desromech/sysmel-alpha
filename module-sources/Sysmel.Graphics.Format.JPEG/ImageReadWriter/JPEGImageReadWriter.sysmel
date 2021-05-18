@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace ImageFormats definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 useNamespace: LibJPEG.
 
 compileTime constant JPEGInputBufferSize := 4096.
@@ -21,7 +21,7 @@ function jpegErrorRaiseFunction(cinfo: j_common_ptr) => Void := {
 
 struct JPEGStreamSource definition: {
     public field pub type: jpeg_source_mgr.
-    public field stream type: Stdn IO Stream pointer.
+    public field stream type: Std IO Stream pointer.
     public field buffer type: UInt8 pointer.
     public field startOfFile type: Boolean8.
 }.
@@ -36,7 +36,7 @@ function jpegFillInputBuffer(cinfo: j_decompress_ptr) => Int32 := {
     let readedCount mutable := source _ stream _ read: source _ buffer size: JPEGInputBufferSize.
     readedCount <= 0 ifTrue: {
         source _ startOfFile ifTrue: {
-            Stdn stderr << "Empty jpeg file"; nl.
+            Std stderr << "Empty jpeg file"; nl.
             jpegErrorRaiseFunction(cinfo)
         }.
 
@@ -72,7 +72,7 @@ function jpegTermSource(cinfo: j_decompress_ptr) => Void := {
     ## Nothing is required here.
 }.
 
-function setJpegStreamSource(cinfo: j_decompress_ptr, stream: Stdn IO Stream pointer) => Void := {
+function setJpegStreamSource(cinfo: j_decompress_ptr, stream: Std IO Stream pointer) => Void := {
     let source := cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGStreamSource instanceSize) reinterpretCastTo: JPEGStreamSource pointer.
     source _
         stream: stream;
@@ -92,7 +92,7 @@ function setJpegStreamSource(cinfo: j_decompress_ptr, stream: Stdn IO Stream poi
 
 struct JPEGStreamDestination definition: {
     public field pub type: jpeg_destination_mgr.
-    public field stream type: Stdn IO Stream pointer.
+    public field stream type: Std IO Stream pointer.
     public field buffer type: UInt8 pointer.
 }.
 
@@ -129,7 +129,7 @@ function jpegTermDestination(cinfo: j_compress_ptr) => Void := {
     destination _ stream _ flush
 }.
 
-function setJpegStreamDestination(cinfo: j_compress_ptr, stream: Stdn IO Stream pointer) => Void := {
+function setJpegStreamDestination(cinfo: j_compress_ptr, stream: Std IO Stream pointer) => Void := {
     let destination := cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGStreamDestination instanceSize) reinterpretCastTo: JPEGStreamDestination pointer.
     destination _
         stream: stream;
@@ -149,7 +149,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/jpeg".
 
-    const override method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr := {
+    const override method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormPtr := {
         let cinfo mutable := jpeg_decompress_struct().
         let jerr mutable := jpeg_error_mgr().
 
@@ -182,18 +182,18 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
 
             let destPitch := width * pixelFormat bytesPerPixel.
 
-            result := Form sharedNew.
+            result := Form rcNew.
             result _
                 extent: UInt32x2(width, height);
                 pitch: destPitch;
                 pixelFormat: pixelFormat.
-            result _ pixels reset: (Stdn zmalloc(destPitch * height) reinterpretCastTo: UInt8 pointer).
+            result _ pixels reset: (Std zmalloc(destPitch * height) reinterpretCastTo: UInt8 pointer).
 
             let rowBuffer := cinfo mem _ alloc_sarray(cinfo address, JPOOL_PERMANENT, width * numComponents, 1).
             let destRow mutable := result _ pixels getPointer.
             0 until: height do: {:y :: Void |
                 jpeg_read_scanlines(cinfo address, rowBuffer, 1).
-                Stdn memcpy(destRow, rowBuffer[0], destPitch).
+                Std memcpy(destRow, rowBuffer[0], destPitch).
                 destRow := destRow + destPitch
             }.
 
@@ -207,7 +207,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
         result
     }.
 
-    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const override method putForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         let cinfo mutable := jpeg_compress_struct().
         let jerr mutable := jpeg_error_mgr().
 
@@ -248,7 +248,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
                 }.
             } ifFalse: {
                 let scanlineData mutable type: UInt8 uniquePointer.
-                scanlineData reset: (Stdn zmalloc((resultComponentCount castTo: UIntPointer) * form width) reinterpretCastTo: UInt8 pointer).
+                scanlineData reset: (Std zmalloc((resultComponentCount castTo: UIntPointer) * form width) reinterpretCastTo: UInt8 pointer).
 
                 while: cinfo next_scanline < cinfo image_height do: {
                     let sourcePixel mutable := form pixels getPointer + form pitch * cinfo next_scanline.
@@ -297,4 +297,4 @@ global JPEGImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(J
 
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

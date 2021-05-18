@@ -1,0 +1,237 @@
+namespace Std definition: {
+namespace IO definition: {
+
+#**
+ * Text stream reader
+ *#
+class TextStreamReader definition: {
+    compileTime constant AtomicTokenBufferCapacity := 256.
+
+    public field stream type: Stream pointer.
+    field characterBuffer type: Int32.
+
+    method initialize => Void := {
+        characterBuffer := -1
+    }.
+
+    meta method for: (stream: Stream pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            yourself.
+
+    method peekChar8 => Int32 := {
+        characterBuffer < 0 ifTrue: {
+            let fetchedCharacter mutable type: Char8.
+            (stream _ read: fetchedCharacter address size: 1) = 1 ifTrue: {
+                characterBuffer := fetchedCharacter
+            }.
+        }.
+
+        characterBuffer
+    }.
+
+    method atEnd => Boolean8
+        := self peekChar8 < 0.
+
+    method nextChar8 => Int32 := {
+        let result := self peekChar8.
+        characterBuffer := -1.
+        result.
+    }.
+
+    method skipWhite => Void := {
+        while: (self isWhite: self peekChar8) do: {
+            self nextChar8
+        }
+    }.
+
+    const inline method isWhite: (c: Int32) ::=> Boolean8
+        := 0 <= c && c <= ' '.
+
+    method nextTokenInto: (tokenBuffer: Char8 pointer) maxCapacity: (maxTokenSize: UIntPointer)  ::=> UIntPointer := {
+        self skipWhite.
+        0 until: maxTokenSize - 1 do: {:(UIntPointer)i ::  Void|
+            let c := self peekChar8.
+            c >= 0 && (self isWhite: c) not ifTrue: {
+                tokenBuffer[i] := c castTo: Char8.
+                self nextChar8
+            } ifFalse: {
+                tokenBuffer[i] := 0.
+                return: i
+            }
+        }.
+
+        tokenBuffer[maxTokenSize] := 0.
+        maxTokenSize
+    }.
+
+    method nextInt64 => Int64 := {
+        let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
+        let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
+
+        Std parseInt64(tokenBuffer[0] address, tokenSize)
+    }.
+
+    method nextUInt64 => UInt64 := {
+        let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
+        let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
+
+        Std parseUInt64(tokenBuffer[0] address, tokenSize)
+    }.
+
+    method nextFloat32 => Float32 := {
+        let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
+        let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
+
+         ## Parse the null terminator as part of the string, so that we can just use libc for this.
+        Std parseFloat32(tokenBuffer[0] address, tokenSize + 1)
+    }.
+
+    method nextFloat64 => Float64 := {
+        let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
+        let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
+
+         ## Parse the null terminator as part of the string, so that we can just use libc for this.
+        Std parseFloat64(tokenBuffer[0] address, tokenSize + 1)
+    }.
+
+    method nextLine => Std String := {
+        let line mutable := Std String().
+        while: {
+            let nextChar := self peekChar8.
+            nextChar >= 0 && nextChar ~= '\n' && nextChar ~= '\r'
+        } do: {
+            line add: (self nextChar8 castTo: Char8)
+        }.
+
+        let newline mutable := self peekChar8.
+        newline = '\r' ifTrue: {
+            self nextChar8.
+            newline := self peekChar8
+        }.
+        newline = '\n' ifTrue: {
+            self nextChar8
+        }.
+
+        line
+    }.
+
+    method nextBytes: (byteCount: UIntPointer) ::=> Std ByteVector := {
+        byteCount = 0 ifTrue: {
+            return: Std ByteVector()
+        }.
+
+        let result mutable := Std ByteVector().
+        result resizeTo: byteCount.
+
+        let destPosition mutable type: UIntPointer := 0.
+        characterBuffer >= 0 ifTrue: {
+            result[0] := characterBuffer castTo: UInt8.
+            destPosition := destPosition + 1.
+            characterBuffer := -1
+        }.
+
+        let remainingSize := byteCount - destPosition.
+        remainingSize > 0 ifTrue: {
+            let readedCount := stream _ read: result[destPosition] address size: remainingSize.
+            readedCount >= 0 ifTrue: {
+                destPosition := destPosition + (readedCount castTo: UIntPointer)
+            }.
+        }.
+
+        result resizeTo: destPosition.
+        return: result asMoveReference
+    }.
+
+    method nextString: (stringLength: UIntPointer) ::=> Std String := {
+        stringLength = 0 ifTrue: {
+            return: Std String()
+        }.
+
+        let result mutable := Std String().
+        result resizeTo: stringLength.
+
+        let destPosition mutable type: UIntPointer := 0.
+        characterBuffer >= 0 ifTrue: {
+            result[0] := characterBuffer castTo: Char8.
+            destPosition := destPosition + 1.
+            characterBuffer := -1
+        }.
+
+        let remainingSize := stringLength - destPosition.
+        remainingSize > 0 ifTrue: {
+            let readedCount := stream _ read: result[destPosition] address size: remainingSize.
+            readedCount >= 0 ifTrue: {
+                destPosition := destPosition + (readedCount castTo: UIntPointer)
+            }.
+        }.
+
+        result resizeTo: destPosition.
+        return: result asMoveReference
+    }.
+
+    method nextLineWithDelimiter: (delimiter: Std ImmutableString) ::=> Std String := {
+        let line mutable := Std String().
+        while: {
+            let nextChar := self peekChar8.
+            nextChar >= 0 && (line endsWith: delimiter) not
+        } do: {
+            line add: (self nextChar8 castTo: Char8)
+        }.
+
+        line
+    }.
+
+    method nextToken ::=> Std String := {
+        self skipWhite.
+        let result mutable := Std String().
+
+        while: {
+            let c := self peekChar8.
+            c >= 0 && (self isWhite: c) not
+        } do: {
+            result add: (self nextChar8 castTo: Char8)
+        }.
+
+        result
+    }.
+
+    method linesDo: (aBlock: (Std String const ref => Void) nativeStackBlockClosure) ::=> Void := {
+        until: self atEnd do: {
+            aBlock(self nextLine)
+        }
+    }.
+
+    method lines => Std Collections Vector(Std String) ::=> Void := {
+        let result mutable := Std Collections Vector(Std String)().
+        self linesDo: {:each :: Void |
+            result add: each
+        }.
+
+        result
+    }.
+
+    method readUntilEnd => Std String := {
+        let result mutable := Std String().
+        characterBuffer < 0 ifFalse: {
+            result add: (self nextChar8 castTo: Char8).
+        }.
+
+        let readBufferSize type: UIntPointer := 4096.
+        let readBuffer mutable type: Char8 uniquePointer.
+        readBuffer reset: (Std malloc(readBufferSize) reinterpretCastTo: Char8 pointer).
+
+        let lastReadCount mutable type: IntPointer.
+        do: {
+            lastReadCount := stream _ read: readBuffer getPointer size: readBufferSize.
+            lastReadCount > 0 ifTrue: {
+                result addAll: (readBuffer getPointer until: (lastReadCount castTo: UIntPointer))
+            }
+        } until: lastReadCount <= 0.
+
+        result asMoveReference
+    }.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace Std

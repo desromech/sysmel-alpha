@@ -1,0 +1,262 @@
+namespace Std definition: {
+useNamespace: Win32.
+
+namespace IO definition: {
+
+#**
+ * File stream class.
+ *#
+class UnbufferedFileStream superclass: Stream;
+definition: {
+    public field handle type: HANDLE.
+    public field isConsole type: Boolean8.
+    public field isOwner type: Boolean8.
+    public field openMode type: FileOpenMode.
+    private field eofDetected_ private type: Boolean8.
+
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) openMode: (openMode: FileOpenMode) ::=> SelfType
+        := SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            openMode: openMode;
+            setupConsoleMode;
+            yourself.
+
+    method setupConsoleMode => Void := {
+        isConsole ifFalse: { return: void }.
+
+        ## Use the UTF-8 codepage.
+        (openMode anyMask: FileOpenMode Read) ifTrue: {
+            Win32 SetConsoleCP(65001).
+        } ifFalse: {
+            Win32 SetConsoleOutputCP(65001).
+        }.
+
+        ## Enable the VT ANSI escape sequences.
+        let currentMode mutable type: DWORD.
+        Win32 GetConsoleMode(handle, currentMode address) ~= 0 ifTrue: {
+            (openMode anyMask: FileOpenMode Read) ifTrue: {
+                Win32 SetConsoleMode(handle, currentMode | Win32 ENABLE_VIRTUAL_TERMINAL_INPUT).
+            } ifFalse: {
+                Win32 SetConsoleMode(handle, currentMode | Win32 ENABLE_VIRTUAL_TERMINAL_PROCESSING).
+            }.
+        }.
+    }.
+
+    override method initialize => Void := {
+        self setupConsoleMode
+    }.
+
+    override method finalize => Void
+        := self close.
+
+    method close => Void := {
+        isOwner && handle isNotNil ifTrue: {
+            CloseHandle(handle).
+        }.
+        handle := nil.
+    }.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8 := {
+        let desiredAccess mutable type: DWORD := 0.
+        let creationDisposition mutable type: DWORD := 0.
+        let flagsAndAttributes mutable type: DWORD := 0.
+
+        (mode anyMask: FileOpenMode Write) || (mode anyMask: FileOpenMode Append) ifTrue: {
+            (mode anyMask: FileOpenMode Existent) ifTrue: {
+                (mode anyMask: FileOpenMode Truncate) ifTrue: {
+                    creationDisposition := TRUNCATE_EXISTING
+                } ifFalse: {
+                    creationDisposition := OPEN_EXISTING
+                }.
+            } ifFalse: {
+                (mode anyMask: FileOpenMode Truncate) ifTrue: {
+                    creationDisposition := CREATE_ALWAYS
+                } ifFalse: {
+                    creationDisposition := CREATE_NEW
+                }.
+            }.
+
+            desiredAccess := GENERIC_WRITE.
+            (mode anyMask: FileOpenMode Read) ifTrue: {
+                desiredAccess := desiredAccess | GENERIC_READ
+            }.
+        } ifFalse: {
+            (mode anyMask: FileOpenMode Read) ifFalse: {
+                return: false.
+            }.
+
+            desiredAccess := GENERIC_READ.
+            creationDisposition := OPEN_EXISTING.
+        }.
+
+        flagsAndAttributes := FILE_ATTRIBUTE_NORMAL.
+        (permissions anyMask: FilePermissions OwnerWrite) ifFalse: {
+            flagsAndAttributes := FILE_ATTRIBUTE_READONLY
+        }.
+
+        let pathUTF16 := Std WString fromUTF8: (path until: Std cstrlen(path)).
+        handle := CreateFileW(pathUTF16 asCString, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nil, creationDisposition, flagsAndAttributes, nil).
+        handle = Win32 INVALID_HANDLE_VALUE ifTrue: {return: false}.
+
+        isConsole := GetFileType(handle) = FILE_TYPE_CHAR.
+        isOwner := true.
+        openMode := mode.
+
+        ## If we are appending, move the cursor until the end.
+        (mode anyMask: FileOpenMode Append) ifTrue: {
+            SetFilePointerEx(handle, LARGE_INTEGER(), nil, FILE_END)
+        }.
+
+        true
+    }.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: permissions.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: permissions.
+
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method isValid => Boolean8
+        := handle ~= nil.
+
+    override method atEnd => Boolean8
+        := eofDetected_.
+
+    override method position => Int64 := {
+        let newFilePointer mutable type: LARGE_INTEGER.
+        SetFilePointerEx(handle, LARGE_INTEGER() QuadPart: 0; yourself, newFilePointer address, FILE_CURRENT) = 0 ifTrue: {
+            0
+        } ifFalse: {
+            newFilePointer QuadPart castTo: Int64
+        }
+    }.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        let mappedMode := mode selectCase: #{
+        SeekMode Set : FILE_BEGIN.
+        SeekMode Current : FILE_CURRENT.
+        SeekMode End : FILE_END.
+        _ : {return: false}.
+        }.
+
+        SetFilePointerEx(handle, LARGE_INTEGER() QuadPart: 0; yourself, nil, mappedMode castTo: DWORD) ~= 0
+    }.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let writtenBytes mutable type: DWORD.
+        let bytesToWrite := size castTo: DWORD.
+        isConsole ifTrue: {
+            WriteConsoleA(handle, buffer, bytesToWrite, writtenBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        } ifFalse: {
+            WriteFile(handle, buffer, bytesToWrite, writtenBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        }.
+
+        writtenBytes castTo: IntPointer.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let readBytes mutable type: DWORD.
+        let bytesToRead := size castTo: DWORD.
+
+        isConsole ifTrue: {
+            ReadConsoleA(handle, buffer, bytesToRead, readBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        } ifFalse: {
+            ReadFile(handle, buffer, bytesToRead, readBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        }.
+
+        eofDetected_ := readBytes = 0.
+        readBytes castTo: IntPointer.
+    }.
+}.
+
+class FileStream definition: {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) openMode: (openMode: FileOpenMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            openMode: openMode;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+class AtomicFileStream definition: {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) openMode: (openMode: FileOpenMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            openMode: openMode;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+global stdinFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block openMode: FileOpenMode Read.
+global stdoutFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block)
+         openMode: FileOpenMode Write.
+global stderrFile mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority
+    := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None openMode: FileOpenMode Write.
+
+}. ## End of namespace IO
+
+global stdin mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamReader for: IO stdinFile address.
+global stdout mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stderrFile address.
+}. ## End of namespace Std
+
+namespace Win32 definition: {
+
+class OutputDebugStream superclass: Std IO Stream; definition: {
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let stackBuffer mutable type: (Char8 array: 4096).
+        let remainingSize mutable := size.
+        let source mutable := buffer reinterpretCastTo: Char8 const pointer.
+        while: remainingSize > 0 do: {
+            let copySize := remainingSize min: 4095u.
+            Std memcpy(stackBuffer[0] address, source, copySize).
+            stackBuffer[copySize] = 0.
+            Win32 OutputDebugStringA(stackBuffer[0] address).
+
+            remainingSize := remainingSize - copySize.
+            source := source + copySize
+        }.
+
+        size castTo: IntPointer.
+    }.
+}.
+
+global outputDebugStream mutable type: OutputDebugStream.
+
+function sysmel_connectOutputToWin32DebugStream externC() => Void := {
+    Std stdout := Std IO TextStreamWriter for: outputDebugStream address.
+    Std stderr := Std IO TextStreamWriter for: outputDebugStream address.
+}
+
+}.

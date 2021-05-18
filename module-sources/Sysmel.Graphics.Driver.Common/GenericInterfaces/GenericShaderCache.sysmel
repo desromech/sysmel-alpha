@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -7,9 +7,9 @@ namespace Core definition: {
  *#
 class GenericShaderCache superclass: ShaderCache; definition: {
     public field device type: RenderingDeviceWeakPtr.
-    protected field mutex type: Stdn Mutex.
-    protected field shaderModuleCache type: Stdn Collections Dictionary(GPU ShaderModuleInfo const pointer, ShaderLibraryHandlePtr).
-    protected field shaderStageCache type: Stdn Collections Dictionary(GPU ShaderEntryPointInfo const pointer, ShaderStageHandlePtr).
+    protected field mutex type: Std Mutex.
+    protected field shaderModuleCache type: Std Collections Dictionary(GPU ShaderModuleInfo const pointer, ShaderLibraryHandlePtr).
+    protected field shaderStageCache type: Std Collections Dictionary(GPU ShaderEntryPointInfo const pointer, ShaderStageHandlePtr).
 
     override method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
         ## Find the stage in the cache.
@@ -54,8 +54,8 @@ class GenericShaderCache superclass: ShaderCache; definition: {
     }
 }.
 
-compileTime constant GenericShaderCachePtr := GenericShaderCache sharedPointer.
+compileTime constant GenericShaderCachePtr := GenericShaderCache rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

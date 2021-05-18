@@ -4,11 +4,11 @@ namespace Smalltalk definition: {
 gcclass Transcript definition: {
     meta definition: {
         method show: anObject
-            := {Stdn stdout << anObject . self}.
+            := {Std stdout << anObject . self}.
         method cr
-            := {Stdn stdout cr . self}.
+            := {Std stdout cr . self}.
         method nl
-            := {Stdn stdout nl . self}.
+            := {Std stdout nl . self}.
     }
 }.
 

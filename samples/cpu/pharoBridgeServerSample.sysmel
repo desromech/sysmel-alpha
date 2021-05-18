@@ -1,6 +1,6 @@
 Compiler importModuleNamed: #"Sysmel.Devel.PharoBridge".
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     let server := Smalltalk PharoBridgeServer new.
     server start.
 

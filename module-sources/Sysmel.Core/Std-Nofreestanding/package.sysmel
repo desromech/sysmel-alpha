@@ -1,0 +1,14 @@
+loadFileOnce: "declarations.sysmel".
+
+Compiler loadPackages: #(
+    #"Std-Nofreestanding-Collections"
+    #"Std-Nofreestanding-Runtime"
+    #"Std-Nofreestanding-IO"
+    #"Std-Nofreestanding-Memory"
+    #"Std-Nofreestanding-Functional"
+    #"Std-Nofreestanding-Threading"
+    #"Std-Nofreestanding-Exceptions"
+    #"Std-Nofreestanding-FileSystem"
+    #"Std-Nofreestanding-Time"
+    #"Std-Nofreestanding-Main"
+).

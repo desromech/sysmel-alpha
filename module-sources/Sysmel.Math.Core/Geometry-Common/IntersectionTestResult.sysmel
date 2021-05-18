@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
@@ -17,4 +17,4 @@ enum IntersectionTestResult valueType: UInt8; values: #{
 
 } ## End of namespace Geometry
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

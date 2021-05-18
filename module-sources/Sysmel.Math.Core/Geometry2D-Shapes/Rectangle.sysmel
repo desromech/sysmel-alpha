@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
@@ -33,7 +33,7 @@ sealed template GenericRectangle(ST: Type)
             := self min: thePoint max: thePoint.
     }.
 
-    const inline method hash => Stdn Hash
+    const inline method hash => Std Hash
         := min hash ^ max hash.
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
@@ -168,4 +168,4 @@ compileTime constant RectangleF64 := GenericRectangle(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

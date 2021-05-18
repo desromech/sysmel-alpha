@@ -192,7 +192,7 @@ Number extend: {
         := String streamContents: {:strm :: Void | self storeOn: strm base: base}.
 }.
 
-Stdn BasicValuePrinter extend: {
+Std BasicValuePrinter extend: {
     method printOn: (aStream: __global Smalltalk ProtoObject) ::=> Void := {
         0 until: bufferSize do: {:(UIntPointer)i :: Void |
             aStream nextPut: buffer[i]

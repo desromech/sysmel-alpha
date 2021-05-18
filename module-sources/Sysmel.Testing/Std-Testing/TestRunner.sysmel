@@ -1,0 +1,205 @@
+namespace Std definition: {
+namespace Testing definition: {
+
+class TestCaseTestFactory definition: {
+    abstract method name => ImmutableString.
+    abstract method execute => Void.
+}.
+
+class TestCaseFactory definition: {
+    public field testFactories type: Std Collections Vector(TestCaseTestFactory pointer).
+
+    method initialize => Void := {
+        TestRunner defaultInstance registerTestCaseFactory: self address
+    }.
+
+    method finalize => Void := {
+        TestRunner defaultInstance unregisterTestCaseFactory: self address
+    }.
+
+    abstract method name => ImmutableString.
+
+    method addTestFactory: (testFactory: TestCaseTestFactory pointer) ::=> Void := {
+        ## Assume this only happens in a single module, on module loading time
+        ## and that this does not produce a race condition.
+        testFactories add: testFactory.
+    }.
+}.
+
+template TestCaseInstanceFactory(TC: Type)
+    := sealed class superclass: TestCaseFactory; definition: {
+
+    compileTime constant TestCaseClass := TC.
+
+    global Factory mutable type: SelfType.
+
+    override method name => ImmutableString
+        := TestCaseClass qualifiedName.
+}.
+
+template TestCaseTestInstanceFactory(TC: Type, TS: _LiteralSymbol)
+    := sealed class superclass: TestCaseTestFactory; definition: {
+
+    compileTime constant TestCaseClass := TC.
+    compileTime constant TestSelector := TS.
+
+    global Factory mutable type: SelfType.
+
+    method initialize => Void := {
+        TestCaseInstanceFactory(TC) Factory addTestFactory: self address.
+    }.
+
+    override method name => ImmutableString
+        := TestSelector.
+
+    override method execute => Void := {
+        let testCase mutable := TestCaseClass rcNew.
+        testCase _ perform: TestSelector
+
+    }.
+}.
+
+#**
+ * I a class that takes care of running tests.
+ *#
+class TestRunner superclass: Object; definition: {
+    meta definition: {
+        let defaultInstance mutable type: TestRunner uniquePointer.
+        let defaultInstanceOnceCreation mutable type: Std OnceFlag.
+
+        method defaultInstance => TestRunner ref := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance reset: TestRunner nativeNew
+            }.
+
+            defaultInstance _
+        }.
+
+        macro method registerTestCase: TestCaseClass testNamed: testName := ``{
+            Std Testing TestCaseTestInstanceFactory(`,TestCaseClass, `,testName)
+        }.
+    }.
+
+    field testRunnerMutex type: Std Mutex.
+    field testCaseFactories type: Std Collections Vector(TestCaseFactory pointer).
+
+    public field errorTestCount type: UInt32.
+    public field failingTestCount type: UInt32.
+    public field passingTestCount type: UInt32.
+    public field skippedTestCount type: UInt32.
+    field isCurrentTestPassing type: Boolean8.
+
+    method runningTestCount => UInt32
+        := errorTestCount + failingTestCount + passingTestCount.
+
+    method registerTestCaseFactory: (factory: TestCaseFactory pointer) ::=> Void := {
+        testRunnerMutex withLock: {
+            testCaseFactories add: factory
+        }.
+    }.
+
+    method unregisterTestCaseFactory: (factory: TestCaseFactory pointer) ::=> Void := {
+        testRunnerMutex withLock: {
+            testCaseFactories remove: factory
+        }
+    }.
+
+    method printReport => Void := {
+        Std stdout << "==============================================="; nl.
+        Std stdout << "Native test execution report:"; nl.
+        Std stdout << "==============================================="; nl.
+        Std stdout << "Running test count: " << self runningTestCount; nl.
+        self skippedTestCount > 0 ifTrue: {
+            Std stdout << "Skipped test count: " << self skippedTestCount; nl.
+        }.
+        self failingTestCount > 0 ifTrue: {
+            Std stdout << "Failing test count: " << self failingTestCount; nl.
+        }.
+        self errorTestCount > 0 ifTrue: {
+            Std stdout << "Error test count: " << self errorTestCount; nl.
+        }.
+        Std stdout << "Passing test count: " << self passingTestCount; nl.
+    }.
+
+    method runAllTests => Boolean8 := {
+        let casesToRun mutable type: Std Collections Vector(TestCaseFactory pointer).
+        testRunnerMutex withLock: {
+            casesToRun := testCaseFactories
+        }.
+
+        casesToRun do: {:testCase :: Void |
+            self runTestCase: testCase
+        }.
+
+        self failingTestCount == 0 && self errorTestCount == 0.
+    }.
+
+    method runTestCase: (factory: TestCaseFactory pointer) ::=> Void := {
+        Std stdout << "--- Running test case " << factory _ name; nl.
+        factory _ testFactories do: {:testCaseTestFactory :: Void |
+            self runTestCaseTest: testCaseTestFactory
+        }
+    }.
+
+    method runTestCaseTest: (factory: TestCaseTestFactory pointer) ::=> Void := {
+        Std stdout << factory _ name << "... ".
+        Std stdout flush.
+
+        isCurrentTestPassing := true.
+        self runTestCaseCatchingSmalltalkExceptions: factory.
+        isCurrentTestPassing ifTrue: {
+            Std stdout << "Passing."; nl.
+        }.
+
+        self countPassingTest.
+    }.
+
+    method runTestCaseCatchingSmalltalkExceptions: (factory: TestCaseTestFactory pointer) ::=> Void := {
+        self runTestCaseCatchingNativeExceptions: factory.
+    }.
+
+    method runTestCaseCatchingNativeExceptions: (factory: TestCaseTestFactory pointer) ::=> Void := {
+        try: {
+            try: {
+                try: {
+                    factory _ execute
+                } catch: TestSkipException doing: {:exception :: Void |
+                    self countSkippedTest.
+                    Std stdout << "Skipped."; nl.
+                }
+            } catch: Std AssertionFailure doing: {:exception :: Void |
+                self countFailingTest.
+                Std stdout << "Failure:"; nl.
+                Std stdout << exception; nl.
+            }
+        } catch: Std Error doing: {:exception :: Void |
+            self countErrorTest.
+            Std stdout << "Error:"; nl.
+            Std stdout << exception; nl.
+        }
+    }.
+
+    method countPassingTest => Void := {
+        isCurrentTestPassing ifTrue: {
+            passingTestCount := passingTestCount + 1
+        }
+    }.
+
+    method countErrorTest => Void := {
+        errorTestCount := errorTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+
+    method countFailingTest => Void := {
+        failingTestCount := failingTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+
+    method countSkippedTest => Void := {
+        skippedTestCount := skippedTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+}.
+
+} ## End of namespace Testing
+} ## End of namespace Std

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 
 #**
@@ -18,7 +18,7 @@ class SoftRenderingDriver superclass: RenderingDriver; definition: {
         RenderingDriverRegistry default unregisterDriver: self address
     }.
 
-    field mainDevice type: SoftRenderingDevice sharedPointer.
+    field mainDevice type: SoftRenderingDevice rcPointer.
 
     meta definition: {
         global Singleton mutable type: SoftRenderingDriver.
@@ -27,9 +27,9 @@ class SoftRenderingDriver superclass: RenderingDriver; definition: {
     override const method isSoftRenderingDriver => Boolean8
         := true.
 
-    override method getMainDevice => RenderingDevice sharedPointer := {
+    override method getMainDevice => RenderingDevice rcPointer := {
         mainDevice ifNil: {
-            mainDevice := SoftRenderingDevice sharedNew.
+            mainDevice := SoftRenderingDevice rcNew.
         }.
 
         mainDevice upCastFor: RenderingDevice
@@ -39,4 +39,4 @@ class SoftRenderingDriver superclass: RenderingDriver; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

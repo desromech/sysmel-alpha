@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -9,8 +9,8 @@ namespace Core definition: {
 class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache; definition: {
     private field device type: RenderingDeviceWeakPtr.
 
-    private field cacheDictionary type: Stdn Collections Dictionary(FontFaceWithSizePtr, FontFaceWithSizePtr).
-    private field cacheDictionaryMutex type: Stdn Mutex.
+    private field cacheDictionary type: Std Collections Dictionary(FontFaceWithSizePtr, FontFaceWithSizePtr).
+    private field cacheDictionaryMutex type: Std Mutex.
 
     method initializeWithDevice: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
         device := theDevice.
@@ -23,7 +23,7 @@ class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache;
 
         cacheDictionaryMutex withLock: {
             cacheDictionary at: fontFaceWithSize ifAbsentPut: {:: FontFaceWithSizePtr |
-                let result := TextureAtlasFontFaceWithSize sharedNew.
+                let result := TextureAtlasFontFaceWithSize rcNew.
                 result _ initializeWith: fontFaceWithSize for: device.
                 result upCastFor: FontFaceWithSize
             }
@@ -33,4 +33,4 @@ class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache;
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

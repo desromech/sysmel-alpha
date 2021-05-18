@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a paint that works by assigning between two interpolated colors to the vertices of a mesh.
@@ -21,7 +21,7 @@ struct SimpleLinearGradientPaint definition: {
         := startColor a = 0 && endColor a = 0.
 
     inline method color: (srgbColor: UInt8x4) ::=> Void := {
-        self color: Stdn Math Color decodeSRGBUnorm8(srgbColor)
+        self color: Std Math Color decodeSRGBUnorm8(srgbColor)
     }.
 
     inline method color: (linearColor: Float32x4) ::=> Void := {
@@ -30,8 +30,8 @@ struct SimpleLinearGradientPaint definition: {
     }.
 
     inline method gradientStart: (theStartColor: UInt8x4) position: (theStartPosition: Float32x2) end: (theEndColor: UInt8x4) position: (theEndPosition: Float32x2) ::=> Void := {
-        self gradientStart: Stdn Math Color decodeSRGBUnorm8(theStartColor) position: theStartPosition
-            end: Stdn Math Color decodeSRGBUnorm8(theEndColor) position: theEndPosition
+        self gradientStart: Std Math Color decodeSRGBUnorm8(theStartColor) position: theStartPosition
+            end: Std Math Color decodeSRGBUnorm8(theEndColor) position: theEndPosition
     }.
 
     inline method gradientStart: (theStartColor: Float32x4) position: (theStartPosition: Float32x2) end: (theEndColor: Float32x4) position: (theEndPosition: Float32x2) ::=> Void := {
@@ -56,4 +56,4 @@ struct SimpleLinearGradientPaint definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

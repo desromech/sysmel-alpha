@@ -1,11 +1,11 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
 #**
  * I represent a cursor handle
  *#
-class Cursor superclass: Stdn SharedObject; definition: {
+class Cursor superclass: Std RCObject; definition: {
     virtual method isSystemCursor => Boolean8
         := false.
     virtual method isFullyTransparent => Boolean8
@@ -16,4 +16,4 @@ class Cursor superclass: Stdn SharedObject; definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

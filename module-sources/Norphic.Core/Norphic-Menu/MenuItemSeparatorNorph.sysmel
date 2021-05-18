@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a menu item separator norph.
@@ -13,7 +13,7 @@ class MenuItemSeparatorNorph superclass: Norph; definition: {
         := Float32x2(0, 1).
 }.
 
-compileTime constant MenuItemSeparatorNorphPtr := MenuItemSeparatorNorph sharedPointer.
+compileTime constant MenuItemSeparatorNorphPtr := MenuItemSeparatorNorph rcPointer.
 
 
 }. ## End of namespace Norphic

@@ -1,18 +1,18 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
-useNamespace: Stdn Serialization DOM.
+useNamespace: Std Serialization DOM.
 
 Encoder extend: {
-    method encodeString: (value: Stdn String const ref) ::=> Void := {
+    method encodeString: (value: Std String const ref) ::=> Void := {
         self encodeStringSize: (value size castTo: UInt32).
         value isNotEmpty ifTrue: {
             self writeBytes: value size from: value data
         }.
     }.
 
-    method encodeByteVector: (value: Stdn ByteVector const ref) ::=> Void := {
+    method encodeByteVector: (value: Std ByteVector const ref) ::=> Void := {
         self encodeByteArraySize: (value size castTo: UInt32).
         value isNotEmpty ifTrue: {
             self writeBytes: value size from: value data
@@ -26,8 +26,8 @@ Encoder extend: {
         (let x type: Int64) : (self encodeInteger: x).
         (let x type: UInt64) : (self encodeInteger: x).
         (let x type: Float64) : (self encodeFloat: x).
-        (let x type: Stdn String) : (self encodeString: x).
-        (let x type: Stdn ByteVector) : (self encodeByteVector: x).
+        (let x type: Std String) : (self encodeString: x).
+        (let x type: Std ByteVector) : (self encodeByteVector: x).
         (let list type: ListPtr) : {
             self encodeArraySize: (list _ size castTo: UInt32).
             list _ do: {:each :: Void |
@@ -36,7 +36,7 @@ Encoder extend: {
         }.
         (let object type: ObjectPtr) : {
             self encodeMapSize: (object _ size castTo: UInt32).
-            object _ keysAndValuesDo: {:(Stdn String const ref)key :(DOM Value const ref)value :: Void |
+            object _ keysAndValuesDo: {:(Std String const ref)key :(DOM Value const ref)value :: Void |
                 self encodeString: key.
                 self encodeValue: value
             }
@@ -45,8 +45,8 @@ Encoder extend: {
     }.
 
     meta definition: {
-        static method encodeValue: (value: Value const ref) onStream: (out: Stdn IO Stream ref) ::=> Void := {
-            let outTextStreamWriter mutable := Stdn IO TextStreamWriter for: out address.
+        static method encodeValue: (value: Value const ref) onStream: (out: Std IO Stream ref) ::=> Void := {
+            let outTextStreamWriter mutable := Std IO TextStreamWriter for: out address.
             Encoder()
                 beginEncodingIntoStream: out address;
                 encodeValue: value
@@ -57,4 +57,4 @@ Encoder extend: {
 
 }. ## End of namespace MessagePack
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU only implementation for a shader library handle.
@@ -16,15 +16,15 @@ class SoftShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
             return: ShaderStageHandlePtr nil
         }.
 
-        let result := SoftShaderStageHandle sharedNew.
+        let result := SoftShaderStageHandle rcNew.
         result _ entryPointInfo: entryPointInfo.
         result upCastFor: ShaderStageHandle
     }.
 }.
 
-compileTime constant SoftShaderLibraryHandlePtr := SoftShaderLibraryHandle sharedPointer.
+compileTime constant SoftShaderLibraryHandlePtr := SoftShaderLibraryHandle rcPointer.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

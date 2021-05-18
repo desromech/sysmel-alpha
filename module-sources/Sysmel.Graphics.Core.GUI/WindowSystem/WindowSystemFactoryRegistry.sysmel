@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-class WindowsSystemFactory superclass: Stdn Object; definition: {
+class WindowsSystemFactory superclass: Std Object; definition: {
     const virtual method isHeadless => Boolean8 := false.
     const virtual method isHeadfull => Boolean8 := false.
     const virtual method isNativeSystem => Boolean8 := false.
@@ -15,19 +15,19 @@ class WindowsSystemFactory superclass: Stdn Object; definition: {
         WindowSystemFactoryRegistry default unregisterFactory: self address
     }.
 
-    virtual method createWindowSystem => WindowSystem sharedPointer
-        := WindowSystem sharedPointer nil.
+    virtual method createWindowSystem => WindowSystem rcPointer
+        := WindowSystem rcPointer nil.
 }.
 
 #**
  * I am a registry for window system factories.
  *#
 class WindowSystemFactoryRegistry definition: {
-    protected field registeredFactories type: Stdn Collections Vector(WindowsSystemFactory pointer).
+    protected field registeredFactories type: Std Collections Vector(WindowsSystemFactory pointer).
 
     meta definition: {
         let defaultInstance mutable type: WindowSystemFactoryRegistry uniquePointer.
-        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let defaultInstanceOnceCreation mutable type: Std OnceFlag.
 
         method default => WindowSystemFactoryRegistry ref := {
             defaultInstanceOnceCreation do: {
@@ -46,7 +46,7 @@ class WindowSystemFactoryRegistry definition: {
         registeredFactories remove: factory
     }.
 
-    method createHeadlessWindowSystem => WindowSystem sharedPointer := {
+    method createHeadlessWindowSystem => WindowSystem rcPointer := {
         registeredFactories do: {:each :: Void |
             each _ isHeadless ifTrue: {
                 let result := each _ createWindowSystem.
@@ -54,10 +54,10 @@ class WindowSystemFactoryRegistry definition: {
             }
         }.
 
-        WindowSystem sharedPointer nil
+        WindowSystem rcPointer nil
     }.
 
-    method createHeadfullWindowSystem => WindowSystem sharedPointer := {
+    method createHeadfullWindowSystem => WindowSystem rcPointer := {
         registeredFactories do: {:each :: Void |
             each _ isHeadfull && each _ isNativeSystem ifTrue: {
                 let result := each _ createWindowSystem.
@@ -72,10 +72,10 @@ class WindowSystemFactoryRegistry definition: {
             }
         }.
 
-        WindowSystem sharedPointer nil
+        WindowSystem rcPointer nil
     }.
 
-    method createDefaultWindowSystem => WindowSystem sharedPointer := {
+    method createDefaultWindowSystem => WindowSystem rcPointer := {
         let result := self createHeadfullWindowSystem.
         result ifNotNil: {return: result}.
 
@@ -83,15 +83,15 @@ class WindowSystemFactoryRegistry definition: {
     }.
 }.
 
-function createDefaultWindowSystem() => WindowSystem sharedPointer
+function createDefaultWindowSystem() => WindowSystem rcPointer
     := WindowSystemFactoryRegistry default createDefaultWindowSystem.
 
-function createHeadlessWindowSystem() => WindowSystem sharedPointer
+function createHeadlessWindowSystem() => WindowSystem rcPointer
     := WindowSystemFactoryRegistry default createHeadlessWindowSystem.
 
-function createHeadfullWindowSystem() => WindowSystem sharedPointer
+function createHeadfullWindowSystem() => WindowSystem rcPointer
     := WindowSystemFactoryRegistry default createHeadfullWindowSystem.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

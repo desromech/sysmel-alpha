@@ -1,15 +1,15 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a agpu based shader signature builder.
  *#
 sealed class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     public field libraryHandle type: AGPU ShaderRef.
-    public field entryPointName type: Stdn String.
+    public field entryPointName type: Std String.
     public field stageType type: AGPU ShaderType.
 
     method attachTo: (builder: AGPU PipelineBuilderRef const ref) ::=> Void := {
@@ -21,8 +21,8 @@ sealed class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     }.
 }.
 
-compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle sharedPointer.
+compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

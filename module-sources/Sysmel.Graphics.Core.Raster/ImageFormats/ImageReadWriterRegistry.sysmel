@@ -1,13 +1,13 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace ImageFormats definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 class ImageReadWriterRegistry definition: {
     meta definition: {
         let singleton mutable type: ImageReadWriterRegistry uniquePointer.
-        let singletonOnceCreation mutable type: Stdn OnceFlag.
+        let singletonOnceCreation mutable type: Std OnceFlag.
 
         method uniqueInstance => ImageReadWriterRegistry ref := {
             singletonOnceCreation do: {
@@ -18,19 +18,19 @@ class ImageReadWriterRegistry definition: {
         }.
     }.
 
-    private field mutex type: Stdn Mutex.
-    private field registeredImageReadWriters type: Stdn Collections Vector(ImageReadWriter sharedPointer).
+    private field mutex type: Std Mutex.
+    private field registeredImageReadWriters type: Std Collections Vector(ImageReadWriter rcPointer).
 
-    method addImageReadWriter: (imageReadWriter: ImageReadWriter sharedPointer) ::=> Void := {
+    method addImageReadWriter: (imageReadWriter: ImageReadWriter rcPointer) ::=> Void := {
         mutex withLock: {
             registeredImageReadWriters add: imageReadWriter
         }
     }.
 
-    method findForFileName: (fileName: Stdn String const ref) ::=> ImageReadWriter pointer
+    method findForFileName: (fileName: Std String const ref) ::=> ImageReadWriter pointer
         := self findForFileReference: fileName asNativeFileReference.
 
-    method findForFileReference: (fileReference: Stdn FileReference const ref) ::=> ImageReadWriter pointer
+    method findForFileReference: (fileReference: Std FileReference const ref) ::=> ImageReadWriter pointer
         := self findWithExtension: fileReference extension.
 
     method findWithExtension: (extension: Char8 const arraySlice) ::=> ImageReadWriter pointer := {
@@ -63,34 +63,34 @@ template ImageReadWriterRegisterer(T: Type)
     := class definition: {
 
     method initialize => Void := {
-        ImageReadWriterRegistry uniqueInstance addImageReadWriter: (T sharedNew upCastFor: ImageReadWriter)
+        ImageReadWriterRegistry uniqueInstance addImageReadWriter: (T rcNew upCastFor: ImageReadWriter)
     }.
 }.
 
 
 Form extend: {
-    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr := {
+    meta method readFromFileNamed: (fileName: Std String const ref) ::=> FormPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: FormPtr nil}.
 
         readWriter _ readFormFromFileNamed: fileName.
     }.
 
-    meta method readFromStream: (stream: Stdn IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
         readWriter ifNil: {return: FormPtr nil}.
 
         readWriter _ readFormFromStream: stream.
     }.
 
-    meta method readFromStream: (stream: Stdn IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
         readWriter ifNil: {return: FormPtr nil}.
 
         readWriter _ readFormFromStream: stream.
     }.
 
-    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+    method writeToFileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: false}.
 
@@ -99,34 +99,34 @@ Form extend: {
 }.
 
 TextureData extend: {
-    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr
+    meta method readFromFileNamed: (fileName: Std String const ref) ::=> TextureDataPtr
         := self readFromFileReference: fileName asNativeFileReference.
 
-    meta method readFromFileReference: (fileReference: Stdn FileReference const ref) ::=> TextureDataPtr := {
+    meta method readFromFileReference: (fileReference: Std FileReference const ref) ::=> TextureDataPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: TextureDataPtr nil}.
 
         readWriter _ readTextureDataFromFileReference: fileReference.
     }.
 
-    meta method readFromStream: (stream: Stdn IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
         readWriter ifNil: {return: TextureDataPtr nil}.
 
         readWriter _ readTextureDataFromStream: stream.
     }.
 
-    meta method readFromStream: (stream: Stdn IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataPtr := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
         readWriter ifNil: {return: TextureDataPtr nil}.
 
         readWriter _ readTextureDataFromStream: stream.
     }.
 
-    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
+    method writeToFileNamed: (fileName: Std String const ref) ::=> Boolean8
         := self writeToFileReference: fileName asNativeFileReference.
 
-    method writeToFileReference: (fileReference: Stdn FileReference const ref) ::=> Boolean8 := {
+    method writeToFileReference: (fileReference: Std FileReference const ref) ::=> Boolean8 := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: false}.
 
@@ -136,4 +136,4 @@ TextureData extend: {
 
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

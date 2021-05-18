@@ -3,10 +3,10 @@ Compiler
     importModuleNamed: #"Sysmel.Devel.IDE";
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-Stdn MainEntryPoint: {:args :: Int32 |
-    Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createDefaultWindowSystem().
+Std MainEntryPoint: {:args :: Int32 |
+    Std Graphics GUI WindowSystem activeWindowSystem: Std Graphics GUI createDefaultWindowSystem().
 
-    let windowSystem := Stdn Graphics GUI WindowSystem activeWindowSystem.
+    let windowSystem := Std Graphics GUI WindowSystem activeWindowSystem.
     windowSystem ifNil: {
         return: 0
     }.

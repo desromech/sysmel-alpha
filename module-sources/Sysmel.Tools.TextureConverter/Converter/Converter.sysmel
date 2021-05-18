@@ -2,7 +2,7 @@ namespace Sysmel definition: {
 namespace Tools definition: {
 namespace TextureConverter definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a texture converter.
@@ -14,18 +14,18 @@ class Converter definition: {
     method validTargetProfile => TextureConversionProfilePtr := {
         targetProfile ifNil: {
             targetProfile := TextureConversionProfileRegistry uniqueInstance findNamed: parameters targetProfileName asArraySlice default:
-                (PCTextureConversionProfile sharedNew upCastFor: TextureConversionProfile)
+                (PCTextureConversionProfile rcNew upCastFor: TextureConversionProfile)
         }.
         targetProfile
     }.
 
-    method convertTextureFromFileNamed: (inputFileName: Stdn String const ref) into: (outputFileName: Stdn String const ref) ::=> Boolean8 := {
+    method convertTextureFromFileNamed: (inputFileName: Std String const ref) into: (outputFileName: Std String const ref) ::=> Boolean8 := {
         parameters
             inputFileName: inputFileName;
             outputFileName: outputFileName.
         let inputTextureData := TextureData readFromFileNamed: inputFileName.
         inputTextureData ifNil: {
-            Stdn stderr << "Failed to load input texture/image from file named: " << inputFileName; nl.
+            Std stderr << "Failed to load input texture/image from file named: " << inputFileName; nl.
             return: false.
         }.
 

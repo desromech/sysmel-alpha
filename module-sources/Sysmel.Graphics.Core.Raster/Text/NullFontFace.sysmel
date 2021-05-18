@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,16 +6,16 @@ namespace Core definition: {
  * I am a null font face.
  *#
 class NullFontFace superclass: FontFace; definition: {
-    protected field nullFaceWithSize type: FontFaceWithSize sharedPointer.
+    protected field nullFaceWithSize type: FontFaceWithSize rcPointer.
 
     override method initialize => Void := {
-        nullFaceWithSize := FontFaceWithSize sharedNew.
+        nullFaceWithSize := FontFaceWithSize rcNew.
     }.
 
-    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize sharedPointer
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize rcPointer
         := nullFaceWithSize.
 }.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,0 +1,88 @@
+namespace Std definition: {
+
+template UniquePointer(PT: Type)
+    := struct definition: {
+	compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+	compileTime constant SmartPointerType := SelfType.
+
+    SelfType makeNonCopyable.
+
+    private field pointer_ type: PointerType.
+
+    meta extend: {
+		inline method for: (pointer: PointerType) ::=> SmartPointerType
+			:= SmartPointerType basicNewValue initializeWith: pointer; yourself.
+		macro method nil := ``(`,self basicNewValue).
+	}.
+
+    inline method finalize => Void := {
+        let p := pointer_.
+        pointer_ := nil.
+		p ifNotNil: {
+			p nativeDelete.
+		}.
+	}.
+
+	inline method initializeWith: (pointer: PointerType) ::=> Void := {
+		pointer_ := pointer
+	}.
+
+    inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+		pointer_ := o __private pointer_.
+		o __private pointer_ := nil
+	}.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := pointer_ = other __private pointer_ .
+
+    const inline method hash ::=> Hash
+        := pointer_ hash.
+
+    inline const method _ => PointedType ref
+		:= pointer_ _.
+
+	inline const method getPointer => PointerType
+		:= pointer_.
+
+	inline method reset: (newPointer: PointerType) ::=> Void := {
+        let other mutable := SelfType for: newPointer.
+        self swapWith: other
+	}.
+
+    inline method reset => Void
+		:= self reset: nil.
+
+    inline method release => PointerType := {
+        let result := pointer_.
+        pointer_ := nil.
+        result.
+    }.
+
+    (inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
+		let newPointer := o __private pointer_.
+		o __private pointer_ := nil.
+		self reset: newPointer.
+		self
+	}.
+
+    ## TODO: Check whether the corresponding C++ operation is atomic or not.
+    inline method swapWith: (o: SelfType ref) ::=> Void := {
+        Std swapValue: pointer_ with: o __private pointer_.
+    }.
+
+	## Some convenience macros.
+	macro method isNil := ``(`,self getPointer isNil).
+	macro method isNotNil := ``(`,self getPointer isNotNil).
+
+	macro method ifNil: nilAction := ``(`,self getPointer ifNil: `,nilAction).
+	macro method ifNil: nilAction ifNotNil: notNilAction := ``(`,self getPointer ifNil: `,nilAction ifNotNil: `, notNilAction).
+	macro method ifNotNil: notNilAction := ``(`,self getPointer ifNotNil: `,notNilAction).
+	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
+}.
+
+_NativeType meta macro method uniquePointer := ``(Std UniquePointer(`,self)).
+
+_NativeType meta macro method uniqueNew := ``(`,self uniquePointer for: `,self nativeNew).
+
+}. ## End of namespace Std

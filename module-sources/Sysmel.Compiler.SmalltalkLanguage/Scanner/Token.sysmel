@@ -79,10 +79,10 @@ enum TokenType valueType: UInt8; values: #{
 }.
 
 compileTime constant Token := GenericToken(TokenType).
-compileTime constant TokenList := Stdn Collections Vector(Token).
+compileTime constant TokenList := Std Collections Vector(Token).
 
 compileTime constant TokenizedSourceCode := GenericTokenizedSourceCode(TokenType).
-compileTime constant TokenizedSourceCodePtr := TokenizedSourceCode sharedPointer.
+compileTime constant TokenizedSourceCodePtr := TokenizedSourceCode rcPointer.
 compileTime constant TokenizedSourceCodeRange := SourceCollectionRange(TokenizedSourceCode).
 
 }. ## End of namespace SmalltalkLanguage

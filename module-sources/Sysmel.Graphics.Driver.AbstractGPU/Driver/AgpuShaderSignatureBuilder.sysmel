@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace DriverAGPU definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a agpu based shader signature builder.
@@ -30,14 +30,14 @@ sealed class AgpuShaderSignatureBuilder superclass: ShaderSignatureBuilder; defi
             return: ShaderSignaturePtr nil.
         }.
 
-        let result := AgpuShaderSignature sharedNew.
+        let result := AgpuShaderSignature rcNew.
         result _ handle: signatureHandle.
         result upCastFor: ShaderSignature
     }.
 }.
 
-compileTime constant AgpuShaderSignatureBuilderPtr := AgpuShaderSignatureBuilder sharedPointer.
+compileTime constant AgpuShaderSignatureBuilderPtr := AgpuShaderSignatureBuilder rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

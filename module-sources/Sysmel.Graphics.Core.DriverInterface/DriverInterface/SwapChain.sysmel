@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -22,8 +22,8 @@ class SwapChain superclass: RenderingDriverObjectHandle; definition: {
     abstract method setOverlayPosition: (position: Int32x2) ::=> Void.
 }.
 
-compileTime constant SwapChainPtr := SwapChain sharedPointer.
+compileTime constant SwapChainPtr := SwapChain rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,9 +1,9 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 
 #**
@@ -18,7 +18,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     private field defaultFontCache type: RenderingDeviceFontCachePtr.
 
     override method initialize => Void := {
-        defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
+        defaultCommandQueue := SoftCommandQueue rcNew upCastFor: CommandQueue.
         defaultShaderSignatureCache := self createShaderSignatureCache.
         defaultVertexLayoutCache := self createVertexLayoutCache.
         defaultShaderCache := self createShaderCache.
@@ -30,14 +30,14 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         := true.
 
     override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr := {
-        let buffer := SoftBuffer sharedNew.
-        let memory := Stdn zmalloc(description size).
+        let buffer := SoftBuffer rcNew.
+        let memory := Std zmalloc(description size).
         memory ifNil: {
             return: BufferPtr nil.
         }.
 
         initialData ifNotNil: {
-            Stdn memcpy(memory, initialData, description size).
+            Std memcpy(memory, initialData, description size).
         }.
 
         buffer _ initializeWithDescription: description memory: memory.
@@ -45,7 +45,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
-        := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
+        := SoftShaderSignatureBuilder rcNew upCastFor: ShaderSignatureBuilder.
 
     override method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr
         := ShaderLibraryHandlePtr nil.
@@ -54,7 +54,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         := ShaderLibraryHandlePtr nil.
 
     override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
-        let result := SoftShaderLibraryHandle sharedNew.
+        let result := SoftShaderLibraryHandle rcNew.
         result _ moduleInfo: shaderModule address.
         result upCastFor: ShaderLibraryHandle
     }.
@@ -66,13 +66,13 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         := ShaderStageHandlePtr nil.
 
     override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
-        let result := SoftShaderStageHandle sharedNew.
+        let result := SoftShaderStageHandle rcNew.
         result _ entryPointInfo: entryPointInfo.
         result upCastFor: ShaderStageHandle
     }.
 
     override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
-        let result := SoftLinearTexture sharedNew.
+        let result := SoftLinearTexture rcNew.
         (result _ initializeWithDescription: description) ifFalse: {
             return: TexturePtr nil
         }.
@@ -81,7 +81,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
-        let result := SoftSampler sharedNew.
+        let result := SoftSampler rcNew.
         (result _ initializeWithDescription: description) ifFalse: {
             return: SamplerPtr nil
         }.
@@ -94,7 +94,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
-        let result := SoftGraphicsPipeline sharedNew.
+        let result := SoftGraphicsPipeline rcNew.
         result _ description := description.
         (result _ fetchCachedPipelineState) ifFalse: {
             return: PipelineStatePtr nil.
@@ -103,23 +103,23 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: PipelineState.
     }.
 
-    override method createVertexLayout => VertexLayout sharedPointer := {
-        SoftVertexLayout sharedNew upCastFor: VertexLayout
+    override method createVertexLayout => VertexLayout rcPointer := {
+        SoftVertexLayout rcNew upCastFor: VertexLayout
     }.
 
-    override method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBinding sharedPointer := {
+    override method createVertexBindingFor: (layout: VertexLayout rcPointer const ref) ::=> VertexBinding rcPointer := {
         layout ifNil: {
-            return: VertexBinding sharedPointer nil.
+            return: VertexBinding rcPointer nil.
         }.
 
         let softwareLayout := layout downCastFor: SoftVertexLayout.
-        let result := SoftVertexBinding sharedNew.
+        let result := SoftVertexBinding rcNew.
         result _ initializeWithLayout: softwareLayout.
         result upCastFor: VertexBinding
     }.
 
     override method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr := {
-        let result := SoftCommandListAllocator sharedNew.
+        let result := SoftCommandListAllocator rcNew.
         result _
             commandListType: type.
         result upCastFor: CommandListAllocator
@@ -135,7 +135,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
             return: CommandListPtr nil
         }.
 
-        let result := SoftCommandList sharedNew.
+        let result := SoftCommandList rcNew.
         result _
             commandListType: type.
         result upCastFor: CommandList
@@ -147,7 +147,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
             return: StateTrackerPtr nil.
         }.
 
-        let result := GenericStateTracker sharedNew.
+        let result := GenericStateTracker rcNew.
         result _
             commandList: commandList;
             shaderCache: self getDefaultShaderCache;
@@ -157,7 +157,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
-        let result := SoftFramebuffer sharedNew.
+        let result := SoftFramebuffer rcNew.
 
         result _ colorAttachments reserve: colorViews size.
         result _ attachmentTextures reserve: colorViews size + (depthStencilView ifNil: 0u ifNotNil: 1u).
@@ -183,7 +183,7 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthStencilAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
-        let result := SoftRenderPass sharedNew.
+        let result := SoftRenderPass rcNew.
         result _ colorAttachments addAll: colorAttachments.
         depthStencilAttachment ifNil: {
             result _ hasDepthStencilAttachment: false.
@@ -203,11 +203,11 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         := defaultCommandQueue.
 
     override method createFence => FencePtr := {
-        SoftFence sharedNew upCastFor: Fence
+        SoftFence rcNew upCastFor: Fence
     }.
 
     override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
-        let result := SoftSwapChain sharedNew.
+        let result := SoftSwapChain rcNew.
         (result _ initializeWith: swapChainCreationInfo for: renderingQueue on: self) ifFalse: {
             return: SwapChainPtr nil
         }.
@@ -226,34 +226,34 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         := false.
 
     override method createFontCache => RenderingDeviceFontCachePtr
-        := NullRenderingDeviceFontCache sharedNew upCastFor: RenderingDeviceFontCache.
+        := NullRenderingDeviceFontCache rcNew upCastFor: RenderingDeviceFontCache.
 
     override method createShaderSignatureCache => ShaderSignatureCachePtr := {
-        let result := GenericShaderSignatureCache sharedNew.
-        result _ device: (self asWeakPointer upCastFor: RenderingDevice).
+        let result := GenericShaderSignatureCache rcNew.
+        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
         result upCastFor: ShaderSignatureCache
     }.
 
     override method createVertexLayoutCache => VertexLayoutCachePtr := {
-        let result := GenericVertexLayoutCache sharedNew.
-        result _ device: (self asWeakPointer upCastFor: RenderingDevice).
+        let result := GenericVertexLayoutCache rcNew.
+        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
         result upCastFor: VertexLayoutCache
     }.
 
     override method createPipelineStateCache => PipelineStateCachePtr := {
-        let result := GenericPipelineStateCache sharedNew.
-        result _ device: (self asWeakPointer upCastFor: RenderingDevice).
+        let result := GenericPipelineStateCache rcNew.
+        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
         result upCastFor: PipelineStateCache
     }.
 
     override method createShaderCache => ShaderCachePtr := {
-        let result := GenericShaderCache sharedNew.
-        result _ device: (self asWeakPointer upCastFor: RenderingDevice).
+        let result := GenericShaderCache rcNew.
+        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
         result upCastFor: ShaderCache
     }.
 
     override method createScene2DBuilder => Scene2D BuilderPtr
-        := SoftScene2DBuilder sharedNew upCastFor: Scene2D Builder.
+        := SoftScene2DBuilder rcNew upCastFor: Scene2D Builder.
 
     override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref
         := defaultShaderSignatureCache.
@@ -274,4 +274,4 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

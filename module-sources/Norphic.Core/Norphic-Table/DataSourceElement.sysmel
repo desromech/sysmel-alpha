@@ -3,9 +3,9 @@ namespace Norphic definition: {
 #**
  * I am an abstract table data source element.
  *#
-class DataSourceElement superclass: Stdn SharedObject; definition: {
+class DataSourceElement superclass: Std RCObject; definition: {
 }.
 
-compileTime constant DataSourceElementPtr := DataSourceElement sharedPointer.
+compileTime constant DataSourceElementPtr := DataSourceElement rcPointer.
 
 }. ## End of namespace Norphic

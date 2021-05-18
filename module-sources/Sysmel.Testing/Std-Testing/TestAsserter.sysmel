@@ -1,0 +1,90 @@
+namespace Std definition: {
+namespace Testing definition: {
+
+#**
+ * I am a class that provides useful macros that help on writing assertions for tests.
+ *#
+class TestAsserter superclass: Std RCObject; definition: {
+    macro method assert: condition := {
+        let position := condition asSourcePositionString.
+        let expression := condition originalSourceCode.
+        let errorMessage := position -- ": Expression (" -- expression -- ") value is not true.".
+        let messageNode := __astBuilder literalString: errorMessage position: condition position.
+
+        ``(`,condition ifFalse: {
+            Std raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method deny: condition := {
+        let position := condition asSourcePositionString.
+        let expression := condition originalSourceCode.
+        let errorMessage := position -- ": Expression (" -- expression -- ") value is not false.".
+        let messageNode := __astBuilder literalString: errorMessage position: condition position.
+
+        ``(`,condition ifTrue: {
+            Std raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method assert: expression equals: expectedValueExpression := {
+        let position := __astBuilder literalString: expression asSourcePositionString position: expression position.
+
+        ``(`,expression = `,expectedValueExpression ifFalse: {
+            Std raiseAssertionFailure((Std String textStreamContents: {:out :: Void |
+                out << `,position << ": value (" <<  `,expression << ") is not equal to the expected value (" << `,expectedValueExpression << ")."
+            }) asArraySlice)
+        })
+    }.
+
+    macro method assert: expression notEquals: unexpectedValueExpression := {
+        let position := __astBuilder literalString: expression asSourcePositionString position: expression position.
+
+        ``(`,expression ~= `,unexpectedValueExpression ifFalse: {
+            Std raiseAssertionFailure((Std String textStreamContents: {:out :: Void |
+                out << `,position << ": value (" <<  `,expression << ") is equal to the unexpected value (" << `,unexpectedValueExpression << ")."
+            }) asArraySlice)
+        })
+    }.
+
+    macro method assert: expression closeTo: expectedValueExpression := {
+        let position := __astBuilder literalString: expression asSourcePositionString position: expression position.
+
+        ``((`,expression closeTo: `,expectedValueExpression) ifFalse: {
+            Std raiseAssertionFailure((Std String textStreamContents: {:out :: Void |
+                out << `,position << ": value (" <<  `,expression << ") is not close to to the expected value (" << `,expectedValueExpression << ")."
+            }) asArraySlice)
+        })
+    }.
+
+    macro method assert: expression notCloseTo: unexpectedValueExpression := {
+        let position := __astBuilder literalString: expression asSourcePositionString position: expression position.
+
+        ``((`,expression closeTo: `,unexpectedValueExpression) ifTrue: {
+            Std raiseAssertionFailure((Std String textStreamContents: {:out :: Void |
+                out << `,position << ": value (" <<  `,expression << ") is close to to the unexpected value (" << `,unexpectedValueExpression << ")."
+            }) asArraySlice)
+        })
+    }.
+
+    macro method should: expression raise: exceptionClass := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") did not raise expected exception of class (" -- exceptionClass originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+        let exceptionRaised := __astBuilder gensym: #exceptionRaised.
+
+        ``{
+            let `,exceptionRaised mutable := false.
+            try: `,expression catch: `,exceptionClass doing: {:e :: Void |
+                `,exceptionRaised := true
+            }.
+            `,exceptionRaised ifFalse: {
+                Std raiseAssertionFailure(`,messageNode)
+            }.
+        }
+    }.
+
+}.
+
+} ## End of namespace Testing
+} ## End of namespace Std

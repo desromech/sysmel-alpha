@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a state tracker that works by delegating its work into a command list,
@@ -383,7 +383,7 @@ class GenericStateTracker superclass: StateTracker; definition: {
         commandList _ setStencilReference: reference
     }.
 
-    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+    override method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void := {
         commandList _ executeBundle: bundle.
     }.
 
@@ -488,8 +488,8 @@ class GenericStateTracker superclass: StateTracker; definition: {
     }.
 }.
 
-compileTime constant GenericStateTrackerPtr := GenericStateTracker sharedPointer.
+compileTime constant GenericStateTrackerPtr := GenericStateTracker rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

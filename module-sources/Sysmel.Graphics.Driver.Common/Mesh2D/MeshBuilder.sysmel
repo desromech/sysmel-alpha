@@ -1,14 +1,14 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
-useNamespace: Stdn Math Geometry.
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Math Geometry.
+useNamespace: Std Graphics Core.
 
 struct MeshBuilder definition: {
-    public field vertices type: Stdn Collections Vector(MeshVertex).
-    public field indices type: Stdn Collections Vector(UInt16).
-    public field submeshes type: Stdn Collections Vector(Submesh).
+    public field vertices type: Std Collections Vector(MeshVertex).
+    public field indices type: Std Collections Vector(UInt16).
+    public field submeshes type: Std Collections Vector(Submesh).
 
     protected field currentClipSubmesh type: Int32.
     protected field logicalBaseVertex type: UInt32.
@@ -112,4 +112,4 @@ struct MeshBuilder definition: {
 
 }. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

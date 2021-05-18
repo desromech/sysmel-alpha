@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 useNamespace: SDL2.
@@ -15,8 +15,8 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
         SoundDriverRegistry default unregisterDriver: self address
     }.
 
-    field mutex type: Stdn Mutex.
-    field mainDevice type: SDL2PlaybackDevice weakPointer.
+    field mutex type: Std Mutex.
+    field mainDevice type: SDL2PlaybackDevice weakRCPointer.
 
     meta definition: {
         global Singleton mutable type: SDL2SoundDriver.
@@ -25,7 +25,7 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
     method createDefaultPlaybackDevice => SDL2PlaybackDevicePtr := {
         SDL2InitState uniqueInstance increaseAudioUserCount.
 
-        let result := SDL2PlaybackDevice sharedNew.
+        let result := SDL2PlaybackDevice rcNew.
 
         let audioDeviceSpec mutable := SDL_AudioSpec().
         let desiredAudioSpec mutable := SDL_AudioSpec()
@@ -64,7 +64,7 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
     }.
 }.
 
-compileTime constant SDL2SoundDriverPtr := SDL2SoundDriver sharedPointer.
+compileTime constant SDL2SoundDriverPtr := SDL2SoundDriver rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
@@ -6,15 +6,15 @@ namespace Core definition: {
  * Vertex layout description.
  *#
 struct VertexLayoutDescription definition: {
-    public field attributes type: Stdn Collections Vector(VertexAttributeDescription).
-    public field strides type: Stdn Collections Vector(UInt32).
+    public field attributes type: Std Collections Vector(VertexAttributeDescription).
+    public field strides type: Std Collections Vector(UInt32).
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
         := attributes = other attributes && strides = other strides.
 
-    Stdn Utility NotEqualsMethodMixin.
+    Std Utility NotEqualsMethodMixin.
 
-    const inline method hash ::=> Stdn Hash
+    const inline method hash ::=> Std Hash
         := attributes hash ^ strides hash.
 
     const method applyToLayout: (vertexLayout: VertexLayout ref) ::=> Void := {
@@ -32,4 +32,4 @@ struct VertexLayoutDescription definition: {
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

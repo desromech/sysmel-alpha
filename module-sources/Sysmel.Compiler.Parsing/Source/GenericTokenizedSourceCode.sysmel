@@ -2,8 +2,8 @@ namespace Sysmel definition: {
 namespace Compiler definition: {
 namespace Parsing definition: {
 
-template GenericTokenizedSourceCode(TT: Stdn Concepts Copyable)
-    := struct definition: {
+template GenericTokenizedSourceCode(TT: Std Concepts Copyable)
+    := class superclass: Std RCObject; definition: {
     compileTime constant TokenType := TT.
     compileTime constant Token := GenericToken(TokenType).
 
@@ -11,7 +11,7 @@ template GenericTokenizedSourceCode(TT: Stdn Concepts Copyable)
     compileTime constant PeekType := Token.
 
     public field sourceCode type: SourceCodePtr.
-    public field tokens type: Stdn Collections Vector(Token).
+    public field tokens type: Std Collections Vector(Token).
 
     macro method size := ``(`,self tokens size).
     macro method data := ``(`,self tokens data).
@@ -20,10 +20,10 @@ template GenericTokenizedSourceCode(TT: Stdn Concepts Copyable)
     const inline method eofValue => PeekType
         := Token().
 
-    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Stdn ImmutableString
+    const method textFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) ::=> Std ImmutableString
         := "".
 
-    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Stdn IO TextStreamWriter ref) ::=> Void := {
+    const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Std IO TextStreamWriter ref) ::=> Void := {
         let sourceStartPosition := tokens[startPosition min: self size - 1] position startPosition.
         let sourceEndPosition := tokens[endPosition min: self size - 1] position endPosition.
         sourceCode _ printRangeFrom: sourceStartPosition until: sourceEndPosition on: out

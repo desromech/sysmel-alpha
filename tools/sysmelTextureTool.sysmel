@@ -4,20 +4,20 @@ Compiler importModulesNamed: #(
 
 useNamespace: Sysmel Tools TextureConverter.
 
-Stdn MainEntryPoint: {:args :: Int32 |
+Std MainEntryPoint: {:args :: Int32 |
     let parameters mutable type: Parameters.
     args size <= 1 ifTrue: {
-        parameters printHelpOnto: Stdn stdout.
+        parameters printHelpOnto: Std stdout.
         return: 0
     }.
 
     (parameters parseFromCommandLine: (args elements from: 1 until: args size)) ifFalse: {
-        parameters printHelpOnto: Stdn stderr.
+        parameters printHelpOnto: Std stderr.
         return: 1
     }.
 
     parameters inputFileName isEmpty || parameters outputFileName isEmpty ifTrue: {
-        parameters printHelpOnto: Stdn stderr.
+        parameters printHelpOnto: Std stderr.
         return: 1
     }.
 

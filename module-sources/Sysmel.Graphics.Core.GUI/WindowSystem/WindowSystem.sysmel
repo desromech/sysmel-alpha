@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
@@ -8,21 +8,21 @@ class WindowCreationInfo.
 #**
  * I represent an interface into a window system window.
  *#
-class WindowSystem superclass: SharedObject; definition: {
-    protected field globalEventHandlers type: Stdn Collections Vector(EventHandlerPtr).
+class WindowSystem superclass: Std RCObject; definition: {
+    protected field globalEventHandlers type: Std Collections Vector(EventHandlerPtr).
 
     meta definition: {
-        global MainWindowSystem mutable type: WindowSystemRef.
+        global MainWindowSystem mutable type: WindowSystemPtr.
 
-        method activeWindowSystem: (aWindowSystem: WindowSystemRef const ref) ::=> Void
+        method activeWindowSystem: (aWindowSystem: WindowSystemPtr const ref) ::=> Void
             := MainWindowSystem := aWindowSystem.
 
-        method activeWindowSystem => WindowSystemRef
+        method activeWindowSystem => WindowSystemPtr
             := MainWindowSystem.
 
         method mainLoopOfStarted: (windowSystem: WindowSystem ref) ::=> Void := {
             MainWindowSystem ifNil: {
-                MainWindowSystem := windowSystem asSharedPointer
+                MainWindowSystem := windowSystem asRCPointer
             }
         }.
 
@@ -41,10 +41,10 @@ class WindowSystem superclass: SharedObject; definition: {
         globalEventHandlers remove: globalHandler
     }.
 
-    virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window sharedPointer
-        := Window sharedPointer nil.
+    virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window rcPointer
+        := Window rcPointer nil.
 
-    virtual method createWindowWithTitle: (title: Stdn String const ref) extent: (extent: Int32x2) ::=> Window sharedPointer := {
+    virtual method createWindowWithTitle: (title: Std String const ref) extent: (extent: Int32x2) ::=> Window rcPointer := {
         let creationInfo mutable type: WindowCreationInfo.
         creationInfo
             title: title;
@@ -53,7 +53,7 @@ class WindowSystem superclass: SharedObject; definition: {
         self createWindow: creationInfo.
     }.
 
-    virtual method createWindowWithTitle: (title: Stdn String const ref) position: (position: Int32x2) extent: (extent: Int32x2) ::=> Window sharedPointer := {
+    virtual method createWindowWithTitle: (title: Std String const ref) position: (position: Int32x2) extent: (extent: Int32x2) ::=> Window rcPointer := {
         let creationInfo mutable type: WindowCreationInfo.
         creationInfo
             title: title;
@@ -67,11 +67,11 @@ class WindowSystem superclass: SharedObject; definition: {
     virtual method isQuitting => Boolean8
         := false.
 
-    protected field mainLoopOldTicks type: Stdn Chrono Time.
-    protected field mainLoopAccumulatedTicks type: Stdn Chrono Time.
-    protected field mainLoopFrameStartTicks type: Stdn Chrono Time.
-    protected field mainLoopStartTicks type: Stdn Chrono Time.
-    protected field mainLoopDeterministicsTicks type: Stdn Chrono Time.
+    protected field mainLoopOldTicks type: Std Chrono Time.
+    protected field mainLoopAccumulatedTicks type: Std Chrono Time.
+    protected field mainLoopFrameStartTicks type: Std Chrono Time.
+    protected field mainLoopStartTicks type: Std Chrono Time.
+    protected field mainLoopDeterministicsTicks type: Std Chrono Time.
     protected field mainLoopFrameCount type: UInt32.
 
     const method mainLoopFrameCount => UInt32
@@ -81,9 +81,9 @@ class WindowSystem superclass: SharedObject; definition: {
     virtual method runMainLoop => Int32 := {
         try: {
             SelfType mainLoopOfStarted: self.
-            mainLoopOldTicks := Stdn Chrono now().
+            mainLoopOldTicks := Std Chrono now().
             mainLoopAccumulatedTicks := 0.
-            mainLoopStartTicks := Stdn Chrono now().
+            mainLoopStartTicks := Std Chrono now().
 
             compileTime if: Compiler compilationTarget isWebAssembly then: {
                 Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, 0, 1).
@@ -118,7 +118,7 @@ class WindowSystem superclass: SharedObject; definition: {
      * A single iteration of the main loop.
      *#
     virtual method mainLoopIteration => Void := {
-        mainLoopFrameStartTicks := Stdn Chrono now().
+        mainLoopFrameStartTicks := Std Chrono now().
         self pollAndPumpEvents.
 
         let deltaTicks mutable := mainLoopFrameStartTicks - mainLoopOldTicks.
@@ -174,11 +174,11 @@ function windowSystemMainLoopCallback(windowSystemPointer: Void pointer) => Void
 }.
 }.
 
-compileTime constant WindowSystemRef := WindowSystem sharedPointer.
-compileTime constant WindowSystemWeakRef := WindowSystem weakPointer.
+compileTime constant WindowSystemPtr := WindowSystem rcPointer.
+compileTime constant WindowSystemWeakPtr := WindowSystem weakRCPointer.
 
 ## The main global window system. This one is used by the Smalltalk style IDE tools.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

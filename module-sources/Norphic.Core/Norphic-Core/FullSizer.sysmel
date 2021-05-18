@@ -1,6 +1,6 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Math Geometry.
 
 #**
  * I am sizer that gives the full extent to all the elements.

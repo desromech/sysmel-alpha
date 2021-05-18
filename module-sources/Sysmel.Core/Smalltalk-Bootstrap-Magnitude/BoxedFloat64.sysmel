@@ -225,14 +225,14 @@ BoxedFloat64 extend: {
     }.
 
 	method printOn: aStream := {
-        let floatPrinter mutable type: Stdn BasicValueFloatPrinter.
+        let floatPrinter mutable type: Std BasicValueFloatPrinter.
         floatPrinter nextPutDouble: self __float64Value.
         floatPrinter printOn: aStream.
 
         self
     }.
 
-    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Std IO TextStreamWriter ref) := {
         writer << self __float64Value.
 		self
     }.

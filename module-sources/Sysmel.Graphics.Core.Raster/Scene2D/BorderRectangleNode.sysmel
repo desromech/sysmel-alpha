@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
@@ -27,8 +27,8 @@ class BorderRectangleNode superclass: RectangularShapeNode; definition: {
         := visitor visitBorderRectangleNode: self
 }.
 
-compileTime constant BorderRectangleNodePtr := BorderRectangleNode sharedPointer.
+compileTime constant BorderRectangleNodePtr := BorderRectangleNode rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

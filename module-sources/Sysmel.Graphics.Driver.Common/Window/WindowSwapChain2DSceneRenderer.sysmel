@@ -1,27 +1,27 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
  * I work by delegating my job into an actual SwapChainSurface
  *#
 class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
-    protected field window type: WindowRef.
+    protected field window type: WindowPtr.
     protected field swapChain2DSceneRenderer type: SwapChain2DSceneRendererPtr.
     protected field currentClearColor type: Float32x4.
 
     meta definition: {
-        method for: (window: WindowRef const ref) ::=> WindowSwapChain2DSceneRenderer sharedPointer := {
-            let result := WindowSwapChain2DSceneRenderer sharedNew.
+        method for: (window: WindowPtr const ref) ::=> WindowSwapChain2DSceneRenderer rcPointer := {
+            let result := WindowSwapChain2DSceneRenderer rcNew.
             result _ initializeWithWindow: window.
             result
         }.
     }.
 
-    method initializeWithWindow: (theWindow: WindowRef const ref) ::=> Void := {
+    method initializeWithWindow: (theWindow: WindowPtr const ref) ::=> Void := {
         window := theWindow.
     }.
 
@@ -84,4 +84,4 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

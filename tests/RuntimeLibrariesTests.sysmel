@@ -32,4 +32,4 @@ compileTime if: OnlyRuntimeCoreTests not then: {
 	}.
 }.
 
-Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".
+Std Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

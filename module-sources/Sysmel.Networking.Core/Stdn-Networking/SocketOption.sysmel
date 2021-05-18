@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace IO definition: {
 
 enum SocketOption valueType: Int32; values: #{
@@ -8,4 +8,4 @@ enum SocketOption valueType: Int32; values: #{
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace Stdn
+}. ## End of namespace Std

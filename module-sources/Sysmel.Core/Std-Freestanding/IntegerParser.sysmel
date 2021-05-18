@@ -1,0 +1,127 @@
+namespace Std definition: {
+
+function parseInt64(string: Char8 const pointer, stringSize: UIntPointer) => Int64 := {
+    stringSize = 0 ifTrue: {
+        return: 0.
+    }.
+
+    string[0] = '-' ifTrue: {
+        (parseUInt64(string[1] address, stringSize - 1) castTo: Int64) negated
+    } ifFalse: {
+        parseUInt64(string, stringSize) castTo: Int64
+    }
+}.
+
+function parseHexDigit(digit: Char8) => Int32 := {
+    digit selectCase: #{
+    ('0' to: '9') : (digit - '0').
+    ('a' to: 'f') : (digit - 'a' + 10).
+    ('A' to: 'F') : (digit - 'A' + 10).
+    _ : -1.
+    }.
+}.
+
+function parseHexUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UInt64 := {
+    let result mutable type: UInt64 := 0.
+    0 until: stringSize do: {:(UIntPointer)i :: Void |
+        let c := string[i].
+
+        let digit := parseHexDigit(c).
+        digit < 0 ifTrue: {return: result}.
+        let newResult := result * 16u + (digit castTo: UInt64).
+
+        ## Integer overflow protection.
+        newResult >= result ifTrue: {
+            result := newResult
+        } ifFalse: {
+            result := UInt64 maxValue
+        }
+    }.
+
+    result
+}.
+
+function parseOctalUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UInt64 := {
+    let result mutable type: UInt64 := 0.
+    0 until: stringSize do: {:(UIntPointer)i :: Void |
+        let c := string[i].
+        let newResult := c selectCase: #{
+        ('0' to: '7') : {
+             result * 8u + (c - '0' castTo: UInt64).
+        }.
+        _ : {
+            return: result
+        }.
+        }.
+
+        ## Integer overflow protection.
+        newResult >= result ifTrue: {
+            result := newResult
+        } ifFalse: {
+            result := UInt64 maxValue
+        }
+    }.
+
+    result
+}.
+
+function parseDecimalUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UInt64 := {
+    let result mutable type: UInt64 := 0.
+    0 until: stringSize do: {:(UIntPointer)i :: Void |
+        let c := string[i].
+        let newResult := c selectCase: #{
+        ('0' to: '9') : {
+             result * 10u + (c - '0' castTo: UInt64).
+        }.
+        _ : {
+            return: result
+        }.
+        }.
+
+        ## Integer overflow protection.
+        newResult >= result ifTrue: {
+            result := newResult
+        } ifFalse: {
+            result := UInt64 maxValue
+        }
+    }.
+
+    result
+}.
+
+function parseUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UInt64 := {
+    stringSize = 0 ifTrue: {
+        return: 0.
+    }.
+
+    stringSize >= 1 && string[0] == '+' ifTrue: {
+        return: parseUInt64(string[1] address, stringSize - 1)
+    }.
+
+    (stringSize > 2 && string[0] == '0' && (string[1] == 'x' || string[1] == 'X')) ifTrue: {
+        return: parseHexUInt64(string[2] address, stringSize - 2)
+    }.
+
+    (stringSize > 1 && string[0] == '0') ifTrue: {
+        return: parseOctalUInt64(string, stringSize)
+    }.
+
+    return: parseDecimalUInt64(string, stringSize)
+}.
+
+
+(Char8 arraySlice | Char8 const arraySlice) definition: {
+    const method parseInt64 => Int64
+        := Std parseInt64(self elements, self size).
+
+    const method parseUInt64 => UInt64
+        := Std parseUInt64(self elements, self size).
+
+    const method parseInt32 => Int32
+        := self parseInt64 castTo: Int32.
+
+    const method parseUInt32 => UInt32
+        := self parseUInt64 castTo: UInt32.
+}.
+
+}. ## End of namespace Std

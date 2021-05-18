@@ -1,22 +1,22 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 #**
  * I am a CPU only implementation for a framebuffer.
  *#
 class SoftFramebuffer superclass: Framebuffer; definition: {
     public field extent type: UInt32x2.
-    public field colorAttachments type: Stdn Collections Vector(SoftTextureViewPtr).
+    public field colorAttachments type: Std Collections Vector(SoftTextureViewPtr).
     public field depthStencilAttachment type: SoftTextureViewPtr.
 
-    public field attachmentTextures type: Stdn Collections Vector(SoftTexturePtr).
+    public field attachmentTextures type: Std Collections Vector(SoftTexturePtr).
 }.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

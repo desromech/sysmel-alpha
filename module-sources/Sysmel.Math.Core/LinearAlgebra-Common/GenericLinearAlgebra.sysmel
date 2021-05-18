@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
@@ -28,4 +28,4 @@ sealed template GenericLinearAlgebra(ST: Type)
 
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math
-} ## End of namespace Stdn
+} ## End of namespace Std

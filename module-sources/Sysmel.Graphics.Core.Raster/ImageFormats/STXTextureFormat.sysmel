@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace ImageFormats definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 class STXTextureFormat superclass: ImageReadWriter; definition: {
     override const method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
@@ -11,7 +11,7 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/vnd-sysmel.stx".
 
-    override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         ## File header.
         {
             let textureFileHeader mutable := TextureFileHeader()
@@ -21,13 +21,10 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
         }.
 
         ## Texture data header.
-        {
-            let textureDataHeader type: TextureDataHeader pointer := textureData address.
-            outputStream write: textureDataHeader size: TextureDataHeader instanceSize.
-        }.
+        outputStream write: textureData header address size: TextureDataHeader instanceSize.
 
         ## Write the different levels.
-        Stdn assert: textureData levelsData size = textureData miplevels * textureData layers.
+        Std assert: textureData levelsData size = textureData miplevels * textureData layers.
         let levelDataSize := textureData levelsData size * TextureLevelData instanceSize.
         outputStream write: textureData levelsData data size: levelDataSize.
 
@@ -35,7 +32,7 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
         outputStream write: textureData pixels getPointer size: textureData linearDataSize.
     }.
 
-    override const method readTextureDataFromStream: (inputStream: Stdn IO Stream ref) ::=> TextureDataPtr := {
+    override const method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataPtr := {
         ## Check the file header.
         {
             let fileHeader mutable type: TextureFileHeader.
@@ -45,14 +42,11 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
         }.
 
         ## Create the texture data result.
-        let result := TextureData sharedNew.
+        let result := TextureData rcNew.
 
         ## Read the texture data header.
-        {
-            let textureDataHeader type: TextureDataHeader pointer := result getPointer.
-            (inputStream read: textureDataHeader size: TextureDataHeader instanceSize) = TextureDataHeader instanceSize ifFalse: {
-                return: TextureDataPtr nil
-            }.
+        (inputStream read: result _ header address size: TextureDataHeader instanceSize) = TextureDataHeader instanceSize ifFalse: {
+            return: TextureDataPtr nil
         }.
 
         ## Read the levels data.
@@ -63,7 +57,7 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
         }.
 
         ## Read the pixel data.
-        result _ pixels reset: (Stdn malloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+        result _ pixels reset: (Std malloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
         (inputStream read: result _ pixels getPointer size: result _ linearDataSize) = result _ linearDataSize ifFalse: {
             return: TextureDataPtr nil
         }.
@@ -75,7 +69,7 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
 global STXTextureFormatRegistration mutable type: ImageReadWriterRegisterer(STXTextureFormat).
 
 Form extend: {
-    method writeSTXfileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+    method writeSTXfileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := STXTextureFormat().
         readWriter putForm: self onFileNamed: fileName.
     }.
@@ -83,4 +77,4 @@ Form extend: {
 
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

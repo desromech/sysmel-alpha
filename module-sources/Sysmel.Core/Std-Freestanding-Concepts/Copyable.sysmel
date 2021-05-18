@@ -1,0 +1,15 @@
+namespace Std definition: {
+namespace Concepts definition: {
+
+#**
+ * Can the type be copyable?
+ *#
+concept Copyable := {:type | type isCopyable }.
+
+#**
+ * Can the type be moveable?
+ *#
+concept Moveable := {:type | type isMoveable }.
+
+}. ## End of namespace Concepts
+}. ## End of namespace Std

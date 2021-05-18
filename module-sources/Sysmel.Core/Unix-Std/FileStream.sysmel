@@ -1,0 +1,146 @@
+namespace Std definition: {
+namespace IO definition: {
+
+
+#**
+ * File stream class.
+ *#
+class UnbufferedFileStream superclass: Stream;
+definition: {
+    public field fd type: Int32.
+    private field eofDetected_ private type: Boolean8.
+
+    meta method fromFD: (handle: Int32) ::=> SelfType
+        := SelfType basicNewValue
+            fd: handle;
+            yourself.
+
+    override method finalize => Void
+        := self close.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8 := {
+        let convertedMode mutable type: Int32 := Unix O_RDONLY.
+        (mode value anyMask: FileOpenMode Write value) ifTrue: {
+            (mode value anyMask: FileOpenMode Read value) ifTrue: {
+                convertedMode := Unix O_RDWR.
+            } ifFalse: {
+                convertedMode := Unix O_WRONLY.
+            }.
+
+            (mode value anyMask: FileOpenMode Existent value) ifFalse: {
+                convertedMode := convertedMode | Unix O_CREAT
+            }.
+
+            (mode value anyMask: FileOpenMode Append value) ifTrue: {
+                convertedMode := convertedMode | Unix O_APPEND
+            }.
+
+            (mode value anyMask: FileOpenMode Truncate value) ifTrue: {
+                convertedMode := convertedMode | Unix O_TRUNC
+            }.
+        } ifFalse: {
+            convertedMode := Unix O_RDONLY.
+        }.
+
+        (mode value anyMask: FileOpenMode AsyncIO value) ifTrue: {
+            convertedMode := convertedMode | Unix O_NONBLOCK
+        }.
+
+        fd := Unix open(path, convertedMode, permissions value).
+        return: fd >= 0
+    }.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: permissions.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: permissions.
+
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method close => Void := {
+        self isValid ifTrue: {
+            Unix close(fd).
+            fd := -1
+        }.
+    }.
+
+    method isValid => Boolean8
+        := fd >= 0.
+
+    override method atEnd => Boolean8
+        := eofDetected_.
+
+    override method position => Int64
+        := Unix lseek64(fd, 0, LibC SEEK_CUR).
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        let nativeSeekMode mutable := LibC SEEK_SET.
+        mode selectCase: #{
+        SeekMode Set : nativeSeekMode := LibC SEEK_SET.
+        SeekMode Current : nativeSeekMode := LibC SEEK_CUR.
+        SeekMode End : nativeSeekMode := LibC SEEK_END.
+        }.
+
+        eofDetected_ := false.
+        Unix lseek64(fd, offset, nativeSeekMode) ~= (-1 castTo: Unix OFF_T)
+    }.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        eofDetected_ := false.
+        Unix write(fd, buffer, size) castTo: IntPointer.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let result := Unix read(fd, buffer, size) castTo: IntPointer.
+        eofDetected_ := result = 0.
+        result
+    }.
+}.
+
+class FileStream definition: {
+    meta method fromFD: (handle: Int32) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            fd: handle;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+class AtomicFileStream definition: {
+    meta method fromFD: (handle: Int32) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            fd: handle;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+global stdinFile mutable;
+    constructionPriority: Compiler compilationTarget coreRuntimeInitializationPriority
+    := AtomicFileStream fromFD: Unix STDIN_FILENO bufferingMode: StreamBufferingMode Block.
+global stdoutFile mutable;
+    constructionPriority: Compiler compilationTarget coreRuntimeInitializationPriority
+     := AtomicFileStream fromFD: Unix STDOUT_FILENO
+        bufferingMode: (if: Unix isatty(Unix STDOUT_FILENO) == 1 then: StreamBufferingMode Line else: StreamBufferingMode Block).
+global stderrFile mutable;
+    constructionPriority: Compiler compilationTarget coreRuntimeInitializationPriority
+    := AtomicFileStream fromFD: Unix STDERR_FILENO bufferingMode: StreamBufferingMode None.
+
+}. ## End of namespace IO
+
+global stdin mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamReader for: IO stdinFile address.
+global stdout mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable constructionPriority: Compiler compilationTarget runtimeInitializationPriority := IO TextStreamWriter for: IO stderrFile address.
+}. ## End of namespace Std

@@ -1,0 +1,151 @@
+namespace Std definition: {
+namespace Collections definition: {
+namespace Tests definition: {
+
+class VectorTestCase superclass: Std Testing TestCase; definition: {
+    test: testEmptyVector with: {
+        let vector mutable type: Vector(Int32).
+        self assert: vector size equals: 0.
+        self assert: vector isEmpty.
+        self deny: vector isNotEmpty.
+    }.
+
+    test: testVectorAddOne with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 1.
+        self deny: vector isEmpty.
+        self assert: vector isNotEmpty.
+
+        self assert: vector size equals: 1.
+        self assert: vector first equals: 1.
+        self assert: vector last equals: 1.
+        self assert: vector[0] equals: 1.
+        self assert: (vector at: 1) equals: 1.
+    }.
+
+    test: testVectorAddTwo with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 1.
+        vector add: 2.
+        self deny: vector isEmpty.
+        self assert: vector isNotEmpty.
+
+        self assert: vector size equals: 2.
+        self assert: vector first equals: 1.
+        self assert: vector last equals: 2.
+
+        self assert: vector[0] equals: 1.
+        self assert: (vector at: 1) equals: 1.
+
+        self assert: vector second equals: 2.
+        self assert: vector[1] equals: 2.
+        self assert: (vector at: 2) equals: 2.
+    }.
+
+    test: testVectorOrdinals with: {
+        let vector mutable type: Vector(Int32).
+        1 to: 10 do: {:(Int32)i :: Void |
+            vector add: i.
+        }.
+
+        self assert: vector isNotEmpty.
+        self assert: vector size equals: 10.
+
+        self assert: vector first equals: 1.
+        self assert: vector second equals: 2.
+        self assert: vector third equals: 3.
+        self assert: vector fourth equals: 4.
+        self assert: vector fifth equals: 5.
+        self assert: vector sixth equals: 6.
+        self assert: vector seventh equals: 7.
+        self assert: vector eighth equals: 8.
+        self assert: vector ninth equals: 9.
+        self assert: vector tenth equals: 10.
+    }.
+
+    test: testVectorEquals with: {
+        let emptyVector mutable type: Vector(Int32).
+
+        let firstVector mutable type: Vector(Int32).
+        firstVector add: 1; add: 2.
+
+        let secondVector mutable type: Vector(Int32).
+        secondVector add: 1; add: 2.
+
+        let thirdVector mutable type: Vector(Int32).
+        thirdVector add: 1; add: 2.
+
+        let fourthVector mutable type: Vector(Int32).
+        fourthVector add: 1; add: 3.
+
+        ## Sanity check.
+        self assert: emptyVector notEquals: firstVector.
+        self assert: emptyVector notEquals: secondVector.
+        self assert: emptyVector notEquals: thirdVector.
+        self assert: emptyVector notEquals: fourthVector.
+
+        ## Reflexivity
+        self assert: emptyVector equals: emptyVector.
+        self assert: firstVector equals: firstVector.
+        self assert: secondVector equals: secondVector.
+        self assert: thirdVector equals: thirdVector.
+
+        ## Transitivity
+        self assert: firstVector equals: secondVector.
+        self assert: secondVector equals: thirdVector.
+        self assert: firstVector equals: thirdVector.
+
+        ## A different vector
+        self assert: fourthVector notEquals: firstVector.
+        self assert: fourthVector notEquals: secondVector.
+        self assert: fourthVector notEquals: thirdVector.
+        self assert: fourthVector notEquals: emptyVector.
+
+        ## A copiedVector
+        let copiedVector mutable := secondVector.
+        self assert: copiedVector notEquals: emptyVector.
+        self assert: copiedVector equals: secondVector.
+        self assert: copiedVector equals: firstVector.
+        self assert: copiedVector equals: thirdVector.
+        self assert: copiedVector notEquals: fourthVector.
+
+    }.
+
+    test: testVectorDo with: {
+        let vector mutable type: Vector(Int32).
+        1 to: 10 do: {:(Int32)i :: Void |
+            vector add: i.
+        }.
+
+        let copiedVector mutable type: Vector(Int32).
+        vector do: {:each :: Void |
+            copiedVector add: each
+        }.
+
+        self assert: copiedVector equals: vector.
+    }.
+
+    test: testIndexOf with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 0; add: 1; add: 1; add: 1; add: 2.
+
+        self assert: (vector indexOf: 0) equals: 0.
+        self assert: (vector indexOf: 1) equals: 1.
+        self assert: (vector indexOf: 2) equals: 4.
+        self assert: (vector indexOf: -1) equals: PositionNotFoundIndex.
+    }.
+
+    test: testLastIndexOf with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 0; add: 1; add: 1; add: 1; add: 2.
+
+        self assert: (vector lastIndexOf: 0) equals: 0.
+        self assert: (vector lastIndexOf: 1) equals: 3.
+        self assert: (vector lastIndexOf: 2) equals: 4.
+        self assert: (vector lastIndexOf: -1) equals: PositionNotFoundIndex.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Std

@@ -1,0 +1,282 @@
+namespace Std definition: {
+namespace Collections definition: {
+
+Char8 definition: {
+    const inline method isASCIICode => Boolean8
+        := self <= 16r7f.
+
+    const inline method isUTF8MultiStart => Boolean8
+        := self isASCIICode not && self isUTF8MiddleCode not.
+
+    const inline method isUTF8MiddleCode => Boolean8
+        := ((self & 2r11000000u) = 16r80u).
+}.
+
+Char32 definition: {
+    const inline method isSurrogateHigh => Boolean8
+        := 16rD800 <= self && self < 16rDC00.
+
+    const inline method isSurrogateLow => Boolean8
+        := 16rDC00 <= self && self <= 16rDFFF.
+
+    const inline method isSurrogate => Boolean8
+        := 16rD800 <= self && self < 16rDFFF.
+}.
+
+struct UTF8CodePointEncoder definition: {
+    public field encodedData type: (Char8 array: 4).
+    public field encodedDataSize type: UInt32.
+
+    meta definition: {
+        method for: (codePoint: Char32) ::=> UTF8CodePointEncoder
+            := UTF8CodePointEncoder()
+                encodeCodePoint: codePoint;
+                yourself
+    }.
+
+    method encodeCodePoint: (codePoint: Char32) ::=> Void := {
+        ## 1 Byte
+        codePoint < 16r80 ifTrue: {
+            encodedData[0] := codePoint castTo: Char8.
+            encodedDataSize := 1.
+            return: void
+        }.
+
+        ## 2 bytes
+        codePoint < 16r07FF ifTrue: {
+            encodedData[0] := 2r11000000u | (codePoint >> 6) castTo: Char8.
+            encodedData[1] := 16r80u | (codePoint & 16r3f) castTo: Char8.
+            encodedDataSize := 2.
+            return: void
+        }.
+
+        ## 3 bytes
+        codePoint < 16rFFFF ifTrue: {
+            encodedData[0] := 2r11100000u | (codePoint >> 12) castTo: Char8.
+            encodedData[1] := 16r80u | ((codePoint >> 6) & 16r3f) castTo: Char8.
+            encodedData[2] := 16r80u | (codePoint & 16r3f) castTo: Char8.
+            encodedDataSize := 3.
+            return: void
+        }.
+
+        ## 4 bytes
+        codePoint < 16r10FFFF ifTrue: {
+            encodedData[0] := 2r11110000u | (codePoint >> 18u) castTo: Char8.
+            encodedData[1] := 16r80u | ((codePoint >> 12) & 16r3fu) castTo: Char8.
+            encodedData[2] := 16r80u | ((codePoint >> 6) & 16r3fu) castTo: Char8.
+            encodedData[3] := 16r80u | (codePoint & 16r3fu) castTo: Char8.
+            encodedDataSize := 3.
+            return: void
+        }.
+    }.
+
+    macro method do: aBlock := {
+        let encoder := __astBuilder gensym: #iterator.
+        ``{
+            let `,encoder mutable := `,self.
+            0 until: `,encoder encodedDataSize do: {:i :: Void |
+                `,aBlock __macroInlineBlock: `,encoder encodedData[i]
+            }
+        }
+    }.
+
+}.
+
+struct UTF16CodePointEncoder definition: {
+    public field encodedData type: (Char16 array: 2).
+    public field encodedDataSize type: UInt32.
+
+    meta definition: {
+        method for: (codePoint: Char32) ::=> UTF16CodePointEncoder
+            := UTF16CodePointEncoder()
+                encodeCodePoint: codePoint;
+                yourself
+    }.
+
+    method encodeCodePoint: (codePoint: Char32) ::=> Void := {
+        codePoint isSurrogate ifTrue: {
+            encodedData[0] = '?'.
+            encodedDataSize := 1.
+            return: void.
+        }.
+
+        codePoint <= 16rFFFF ifTrue: {
+            encodedData[0] = codePoint castTo: Char16.
+            encodedDataSize := 1.
+            return: void
+        }.
+
+        let pairContent := codePoint - 16r10000u.
+        encodedData[0] := ((pairContent >> 10u) & 16r0x3ffu) + 16rD800u castTo: Char16.
+        encodedData[1] := (pairContent & 16r0x3ffu) + 16rDC00u castTo: Char16.
+        encodedDataSize := 2
+    }.
+
+    macro method do: aBlock := {
+        let encoder := __astBuilder gensym: #iterator.
+        ``{
+            let `,encoder mutable := `,self.
+            0 until: `,encoder encodedDataSize do: {:i :: Void |
+                `,aBlock __macroInlineBlock: `,encoder encodedData[i]
+            }
+        }
+    }.
+
+}.
+
+struct UTF8CodePointsIterator definition: {
+    public field encodedString type: Char8 const arraySlice.
+    public field invalidCharacter type: Char32.
+
+    meta definition: {
+        method for: (string: Char8 const arraySlice) ::=> UTF8CodePointsIterator
+            := UTF8CodePointsIterator()
+                encodedString: string;
+                invalidCharacter: '?';
+                yourself
+    }.
+
+    const method atEnd => Boolean8
+        := encodedString isEmpty.
+
+    const method isMiddleCode => Boolean8
+        := encodedString isNotEmpty && encodedString first isUTF8MiddleCode.
+
+    method advance: (count: UIntPointer) ::=> Void := {
+        let advanceCount := encodedString size min: count.
+        encodedString := encodedString elements[advanceCount] address until: encodedString size - advanceCount
+    }.
+
+    method next => Char32 := {
+        self atEnd ifTrue: {return: invalidCharacter}.
+
+        ## If we start with a middle code, then we have an invalid character.
+        self isMiddleCode ifTrue: {
+            while: self isMiddleCode do: {
+                self advance: 1
+            }.
+
+            return: invalidCharacter
+        }.
+
+        ## Get the first character.
+        let b := encodedString[0].
+
+        ## Is this an ASCII character?
+        b <= 16r7F ifTrue: {
+            self advance: 1.
+            return: b
+        }.
+
+        ## How many bytes does it have?
+        let zeroBitIndex := (b | 16rFFFFFF00 castTo: UInt32) bitInvert highBit.
+
+        ## Support up to 6 bytes. It is only required to support up to 4.
+        let leadingOnes := 8 - zeroBitIndex castTo: UIntPointer.
+        encodedString size < leadingOnes ifTrue: {
+            encodedString := Char8 const arraySlice().
+            return: invalidCharacter
+        }.
+
+        leadingOnes > 6 ifTrue: {
+            self advance: 1.
+            while: self isMiddleCode do: {
+                self advance: 1
+            }.
+
+            return: invalidCharacter
+        }.
+
+        let result mutable := b & (1 << (zeroBitIndex - 1)) - 1 castTo: UInt32.
+        1 until: leadingOnes do: {:i :: Void |
+            ## This must be a middle code.
+            let middleCode := encodedString[i].
+            middleCode isUTF8MiddleCode ifFalse: {
+                self advance: i.
+                return: invalidCharacter
+            }.
+
+            result := (result << 6) | (middleCode & 16r3f castTo: UInt32)
+        }.
+
+        self advance: leadingOnes.
+        result castTo: Char32
+    }.
+
+    macro method do: aBlock := {
+        let iterator := __astBuilder gensym: #iterator.
+        ``{
+            let `,iterator mutable := `,self.
+            until: `,iterator atEnd do: {
+                `,aBlock __macroInlineBlock: `,iterator next
+            }
+        }
+    }.
+}.
+
+struct UTF16CodePointsIterator definition: {
+    meta definition: {
+        method for: (string: Char16 const arraySlice) ::=> UTF16CodePointsIterator
+            := UTF16CodePointsIterator()
+                encodedString: string;
+                invalidCharacter: '?';
+                yourself
+    }.
+
+    public field encodedString type: Char16 const arraySlice.
+    public field invalidCharacter type: Char32.
+
+    method atEnd => Boolean8
+        := encodedString isEmpty.
+
+    method advance: (count: UIntPointer) ::=> Void := {
+        let advanceCount := encodedString size min: count.
+        encodedString := encodedString elements[advanceCount] address until: encodedString size - advanceCount
+    }.
+
+    method next => Char32 := {
+        self atEnd ifTrue: {return: invalidCharacter}.
+
+        let result mutable := encodedString first castTo: Char32.
+
+        ## Check for surrogate pair.
+        result isSurrogateHigh ifTrue: {
+            let surrogateHigh := result.
+            self advance: 1.
+            encodedString size < 1 ifTrue: {
+                return: invalidCharacter.
+            }.
+
+            ## Read surrogate low.
+            let surrogateLow := encodedString first castTo: Char32.
+            self advance: 1.
+            surrogateLow isSurrogateHigh ifFalse: {
+                return: invalidCharacter.
+            }.
+
+            ## Build the result.
+            result := 16r10000u + ((surrogateHigh - 16rD800u) << 10u) | (surrogateLow - 16rDC00u) castTo: Char32.
+        } ifFalse: {
+            self advance: 1.
+            ## Is this a surrogate low?
+            result isSurrogateLow ifTrue: {
+                return: invalidCharacter
+            }.
+        }.
+
+        result castTo: Char32
+    }.
+
+    macro method do: aBlock := {
+        let iterator := __astBuilder gensym: #iterator.
+        ``{
+            let `,iterator mutable := `,self.
+            until: `,iterator atEnd do: {
+                `,aBlock __macroInlineBlock: `,iterator next
+            }
+        }
+    }.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Std

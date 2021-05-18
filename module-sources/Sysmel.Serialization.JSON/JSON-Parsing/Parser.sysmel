@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Serialization definition: {
 namespace JSON definition: {
 
@@ -23,7 +23,7 @@ template Parser(RT: Type)
         virtual method endObject: (theObject: ResultType ref) ::=> Void
             := void.
 
-        virtual method putKey: (key: Stdn String const ref) value: (theValue: ResultType const ref) onObject: (theObject: ResultType ref) ::=> Void
+        virtual method putKey: (key: Std String const ref) value: (theValue: ResultType const ref) onObject: (theObject: ResultType ref) ::=> Void
             := void.
 
         virtual method onInteger: (value: Int64) ::=> ResultType
@@ -41,11 +41,11 @@ template Parser(RT: Type)
         virtual method onFloat: (value: Float64) ::=> ResultType
             := DefaultResult.
 
-        virtual method onString: (string: Stdn String const ref) ::=> ResultType
+        virtual method onString: (string: Std String const ref) ::=> ResultType
             := DefaultResult.
 
         virtual method onError ::=> ResultType
-            := Stdn raiseError("JSON parse error").
+            := Std raiseError("JSON parse error").
 
     }.
 
@@ -53,7 +53,7 @@ template Parser(RT: Type)
     public field tokenStream type: TokenStream.
     field currentToken type: TokenType.
 
-    method beginReadingStream: (stream: Stdn IO Stream pointer) ::=> Void := {
+    method beginReadingStream: (stream: Std IO Stream pointer) ::=> Void := {
         tokenStream := TokenStream for: stream.
     }.
 
@@ -150,18 +150,18 @@ template Parser(RT: Type)
         self nextToken selectCase: #{
         (TokenType Integer , TokenType HexInteger) asValueInSetPattern : {
             tokenStream text first = '-' ifTrue: {
-                let value := Stdn parseInt64(tokenStream text data, tokenStream text size).
+                let value := Std parseInt64(tokenStream text data, tokenStream text size).
                 self advanceToken.
                 callback _ onInteger: value
             } ifFalse: {
-                let value := Stdn parseUInt64(tokenStream text data, tokenStream text size).
+                let value := Std parseUInt64(tokenStream text data, tokenStream text size).
                 self advanceToken.
                 callback _ onUnsignedInteger: value
             }
         }.
 
         TokenType Float : {
-            let value := Stdn parseFloat64(tokenStream text data, tokenStream text size).
+            let value := Std parseFloat64(tokenStream text data, tokenStream text size).
             self advanceToken.
             callback _ onFloat: value
         }.
@@ -208,4 +208,4 @@ template Parser(RT: Type)
 
 }. ## End of namespace JSON
 }. ## End of namespace Serialization
-}. ## End of namespace Stdn
+}. ## End of namespace Std

@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace IO definition: {
 
 enum EndpointType valueType: UInt8; values: #{
@@ -86,4 +86,4 @@ struct Endpoint definition: {
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace Stdn
+}. ## End of namespace Std

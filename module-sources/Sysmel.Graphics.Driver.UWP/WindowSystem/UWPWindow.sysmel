@@ -1,8 +1,8 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace GUI definition: {
 
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Graphics Core.
 
 function sysmel_uwp_getExtent externC(windowHandle: Void pointer, outWidth: UInt32 pointer, outHeight: UInt32 pointer) => Boolean8.
 
@@ -35,7 +35,7 @@ class UWPWindow superclass: Window; definition: {
         }.
     }.
 
-    override method renderingDevice => RenderingDevice sharedPointer := {
+    override method renderingDevice => RenderingDevice rcPointer := {
         renderingDevice ifNil: {
             renderingDevice := RenderingDriverRegistry defaultDriver _ getMainDevice
         }.
@@ -43,7 +43,7 @@ class UWPWindow superclass: Window; definition: {
         renderingDevice
     }.
 
-    override method renderingDevice: (theRenderingDevice: RenderingDevice sharedPointer) ::=> Void := {
+    override method renderingDevice: (theRenderingDevice: RenderingDevice rcPointer) ::=> Void := {
         renderingDevice := theRenderingDevice
     }.
 
@@ -91,11 +91,11 @@ class UWPWindow superclass: Window; definition: {
     }.
 
     override method createScene2DRenderer => WindowScene2DRendererPtr := {
-        (WindowSwapChain2DSceneRenderer for: (self asSharedPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
+        (WindowSwapChain2DSceneRenderer for: (self asRCPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
     }.
 
 }.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

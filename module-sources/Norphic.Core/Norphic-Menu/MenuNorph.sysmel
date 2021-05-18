@@ -4,7 +4,7 @@ namespace Norphic definition: {
  * I am a menu popup norph.
  *#
 class MenuNorph superclass: PopupNorph; definition: {
-    protected field items type: Stdn Collections Vector(MenuItemNorph sharedPointer).
+    protected field items type: Std Collections Vector(MenuItemNorph rcPointer).
     protected field activeItem type: MenuItemNorph pointer.
     protected field changingActiveItem type: Boolean8.
 
@@ -13,31 +13,31 @@ class MenuNorph superclass: PopupNorph; definition: {
 
     override method initialize => Void := {
         self
-            sizer: (VerticalBoxSizer sharedNew upCastFor: Sizer);
+            sizer: (VerticalBoxSizer rcNew upCastFor: Sizer);
             autolayout: true
     }.
 
     method activeItem => MenuItemNorph pointer
         := activeItem.
 
-    override method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+    override method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
         changingActiveItem ifFalse: {
             self itemActivate: nil
         }
     }.
 
-    method addMenu: (label: Stdn String const ref) ::=> MenuNorph sharedPointer := {
+    method addMenu: (label: Std String const ref) ::=> MenuNorph rcPointer := {
         let menuItem := self addItem: label.
 
         ## Create the menu itself.
-        let menu := MenuNorph sharedNew.
+        let menu := MenuNorph rcNew.
         menuItem _ menu: menu.
         menu
     }.
 
-    method addItem: (label: Stdn String const ref) ::=> MenuItemNorphPtr := {
+    method addItem: (label: Std String const ref) ::=> MenuItemNorphPtr := {
         ## Create the menu item
-        let menuItem := MenuItemNorph sharedNew.
+        let menuItem := MenuItemNorph rcNew.
         menuItem _ label: label.
         self addSubnorph: (menuItem upCastFor: Norph).
         items add: menuItem.
@@ -52,7 +52,7 @@ class MenuNorph superclass: PopupNorph; definition: {
     }.
 
     method addSeparator => Void := {
-        let separator := MenuItemSeparatorNorph sharedNew.
+        let separator := MenuItemSeparatorNorph rcNew.
         self addSubnorph: (separator upCastFor: Norph).
 
         self sizer _
@@ -115,6 +115,6 @@ class MenuNorph superclass: PopupNorph; definition: {
         ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
 }.
 
-compileTime constant MenuNorphPtr := MenuNorph sharedPointer.
+compileTime constant MenuNorphPtr := MenuNorph rcPointer.
 
 }. ## End of namespace Norphic

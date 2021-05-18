@@ -1,16 +1,16 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 #**
  * I am a root norph that roughly corresponds to a window in a Window system.
  *#
 class RootNorph superclass: Norph; definition: {
-    protected field mouseFocusNorph type: Norph sharedPointer.
-    protected field mouseCaptureNorph type: Norph sharedPointer.
-    protected field keyboardFocusNorph type: Norph sharedPointer.
-    protected field activePopupLeaf type: PopupNorph sharedPointer.
+    protected field mouseFocusNorph type: Norph rcPointer.
+    protected field mouseCaptureNorph type: Norph rcPointer.
+    protected field keyboardFocusNorph type: Norph rcPointer.
+    protected field activePopupLeaf type: PopupNorph rcPointer.
 
     const override method mouseFocusNorph => Norph pointer
         := mouseFocusNorph getPointer.
@@ -84,7 +84,7 @@ class RootNorph superclass: Norph; definition: {
         norph ifNil: {
             mouseCaptureNorph reset
         } ifNotNil: {
-            mouseCaptureNorph := norph _ asSharedPointer
+            mouseCaptureNorph := norph _ asRCPointer
         }
     }.
 
@@ -92,7 +92,7 @@ class RootNorph superclass: Norph; definition: {
 
     }.
 
-    virtual method mouseFocusNorphCursor => Cursor sharedPointer := {
+    virtual method mouseFocusNorphCursor => Cursor rcPointer := {
         mouseFocusNorph ifNotNil: {
             mouseFocusNorph _ currentMouseCursor
         } ifNil: {
@@ -147,7 +147,7 @@ class RootNorph superclass: Norph; definition: {
             keyboardFocusNorph _ processEvent: lostFocusEvent
         }.
 
-        keyboardFocusNorph := newKeyboardFocus _ asSharedPointer.
+        keyboardFocusNorph := newKeyboardFocus _ asRCPointer.
 
         keyboardFocusNorph ifNotNil: {
             let gotFocusEvent mutable type: NorphGotFocusEvent.
@@ -182,6 +182,6 @@ class RootNorph superclass: Norph; definition: {
     }.
 }.
 
-compileTime constant RootNorphPtr := RootNorph sharedPointer.
+compileTime constant RootNorphPtr := RootNorph rcPointer.
 
 }. ## End of namespace Norphic

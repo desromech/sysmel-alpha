@@ -1,8 +1,8 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 #**
  * I am an abstract button widget norph.
@@ -101,7 +101,7 @@ class AbstractButtonNorph superclass: BorderedNorph; definition: {
         let topColor mutable := baseColor.
         let bottomColor mutable := baseColor muchDarker.
         isDown ifTrue: {
-            Stdn swapValue: topColor with: bottomColor
+            Std swapValue: topColor with: bottomColor
         }.
 
         let localBounds := self localBounds.

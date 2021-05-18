@@ -1,27 +1,27 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Scene2D definition: {
 
-useNamespace: Stdn Math LinearAlgebra.
-useNamespace: Stdn Math Geometry.
-useNamespace: Stdn Graphics Core.
+useNamespace: Std Math LinearAlgebra.
+useNamespace: Std Math Geometry.
+useNamespace: Std Graphics Core.
 
 #**
  * I am an scene graph builder that allows keeping track of a clipping rectangle
  * in order to allow a front-end to reduce the number of required nodes that it actually needs.
  *#
-class Builder definition: {
+class Builder superclass: RCObject; definition: {
     method container => ContainerNodePtr
-        := ContainerNode sharedNew.
+        := ContainerNode rcNew.
 
-    virtual method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (view: SharedObjectPtr const ref) ::=> StrongTextureHandlePtr
+    virtual method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (view: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr
         := StrongTextureHandlePtr nil.
 
     virtual method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr
         := StrongTextureHandlePtr nil.
 
     method texture: (textureHandle: StrongTextureHandlePtr const ref) rectangle: (rectangle: RectangleF32) ::=> TextureNodePtr := {
-        let result := TextureNode sharedNew.
+        let result := TextureNode rcNew.
         result _
             rectangle: rectangle;
             textureHandle: textureHandle.
@@ -29,7 +29,7 @@ class Builder definition: {
     }.
 
     method fillTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) color: (color: Float32x4) ::=> FilledTriangleNodePtr := {
-        let result := FilledTriangleNode sharedNew.
+        let result := FilledTriangleNode rcNew.
         result _
             rectangle: (((RectangleF32 point: p1) unionWith: p2) unionWith: p3);
             p1: p1;
@@ -40,7 +40,7 @@ class Builder definition: {
     }.
 
     method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) p2: (p2: Float32x2) color: (c2: Float32x4) p3: (p3: Float32x2) color: (c3: Float32x4) ::=> FilledTriangleNodePtr := {
-        let result := FilledTriangleNode sharedNew.
+        let result := FilledTriangleNode rcNew.
         result _
             rectangle: (((RectangleF32 point: p1) unionWith: p2) unionWith: p3);
             p1: p1;
@@ -53,13 +53,13 @@ class Builder definition: {
     }.
 
     method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode sharedNew.
+        let result := FilledRectangleNode rcNew.
         result _ rectangle: rectangle; color: color.
         result
     }.
 
     method fillRectangle: (rectangle: RectangleF32) verticalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode sharedNew.
+        let result := FilledRectangleNode rcNew.
         result _
             rectangle: rectangle;
             verticalGradientStart: startColor end: endColor.
@@ -67,7 +67,7 @@ class Builder definition: {
     }.
 
     method fillRectangle: (rectangle: RectangleF32) horizontalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode sharedNew.
+        let result := FilledRectangleNode rcNew.
         result _
             rectangle: rectangle;
             horizontalGradientStart: startColor end: endColor.
@@ -75,7 +75,7 @@ class Builder definition: {
     }.
 
     method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) width: (borderWidth: Float32) ::=> BorderRectangleNodePtr := {
-        let result := BorderRectangleNode sharedNew.
+        let result := BorderRectangleNode rcNew.
         result _
             rectangle: rectangle;
             color: color;
@@ -87,7 +87,7 @@ class Builder definition: {
         := self borderRectangle: rectangle color: color width: 1.
 
     method clipRectangle: (rectangle: RectangleF32) node: (node: NodePtr const ref) ::=> ClippedRectangleNodePtr := {
-        let result := ClippedRectangleNode sharedNew.
+        let result := ClippedRectangleNode rcNew.
         result _
             rectangle: rectangle;
             child: node.
@@ -95,7 +95,7 @@ class Builder definition: {
     }.
 
     method blendingMode: (blendingMode: BlendingMode) node: (node: NodePtr const ref) ::=> BlendingModeNodePtr := {
-        let result := BlendingModeNode sharedNew.
+        let result := BlendingModeNode rcNew.
         result _
             blendingMode: blendingMode;
             child: node.
@@ -103,7 +103,7 @@ class Builder definition: {
     }.
 
     method transform: (transform: AffinePostTransform2dF32) node: (node: NodePtr const ref) ::=> TransformNodePtr := {
-        let result := TransformNode sharedNew.
+        let result := TransformNode rcNew.
         result _
             transform: transform;
             child: node.
@@ -127,7 +127,7 @@ class Builder definition: {
 
     method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32)
         font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
-        let result := TextNode sharedNew.
+        let result := TextNode rcNew.
         result _
             rectangle: rectangle;
             string: encodedString;
@@ -143,8 +143,8 @@ class Builder definition: {
 
 }.
 
-compileTime constant BuilderPtr := Builder sharedPointer.
+compileTime constant BuilderPtr := Builder rcPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
-} ## End of namespace Stdn
+} ## End of namespace Std

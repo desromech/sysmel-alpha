@@ -1,16 +1,16 @@
-Stdn MainEntryPoint: {:args :: Int32 |
-    Stdn stdout << "Hello World " << 42 << " " << 42.5f; nl.
+Std MainEntryPoint: {:args :: Int32 |
+    Std stdout << "Hello World " << 42 << " " << 42.5f; nl.
     {
         let v := 0.0f.
-        Stdn stdout << v cos << " " << v sin; nl.
+        Std stdout << v cos << " " << v sin; nl.
         let v2 := Float32x2 zeros.
-        Stdn stdout << v2 cos; nl.
-        Stdn stdout << v2 sin; nl.
+        Std stdout << v2 cos; nl.
+        Std stdout << v2 sin; nl.
     }.
 
-    Stdn stdout << "Argument count " << args size; nl.
+    Std stdout << "Argument count " << args size; nl.
     args doWithIndex: {:arg :i :: Void |
-        Stdn stdout << "args[" << i << "] := " << arg; nl.
+        Std stdout << "args[" << i << "] := " << arg; nl.
     }.
 
     0

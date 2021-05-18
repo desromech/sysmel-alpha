@@ -1,10 +1,10 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Graphics definition: {
 namespace Driver definition: {
 namespace SoftRenderer definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 struct SoftCommandListExecutionState definition: {
 
@@ -62,7 +62,7 @@ struct SoftCommandListExecutionState definition: {
         graphicsPipelineState ifNil: {return: void}.
         graphicsPipelineState _ vertexShader ifNil: {return: void}.
 
-        Stdn stdout << "TODO: drawArrays"; nl.
+        Std stdout << "TODO: drawArrays"; nl.
     }.
 
     const inline method invokeVertexShaderOn: (vertex: GPU NativeVertexShaderIOInterface ref) ::=> Void := {
@@ -70,7 +70,7 @@ struct SoftCommandListExecutionState definition: {
 	}.
 
     method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstIndex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
-        ## Stdn stdout << "drawElements: " << graphicsPipelineState << " " << vertexBinding << " " << indexCount << " " << instanceCount; nl.
+        ## Std stdout << "drawElements: " << graphicsPipelineState << " " << vertexBinding << " " << indexCount << " " << instanceCount; nl.
         graphicsPipelineState ifNil: {return: void}.
         graphicsPipelineState _ vertexShader ifNil: {return: void}.
         vertexBinding ifNil: {return: void}.
@@ -118,9 +118,9 @@ struct SoftCommandListExecutionState definition: {
  * I am a CPU only implementation for a graphics list.
  *#
 class SoftCommandList superclass: CommandList; definition: {
-    compileTime constant QueuedCommandFunction := Stdn Function(SoftCommandListExecutionState ref => Void).
+    compileTime constant QueuedCommandFunction := Std Function(SoftCommandListExecutionState ref => Void).
     public field commandListType type: CommandListType.
-    protected field commands type: Stdn Collections Vector(QueuedCommandFunction).
+    protected field commands type: Std Collections Vector(QueuedCommandFunction).
 
     override method asRenderingDeviceCommandList => CommandList pointer
         := self address.
@@ -249,7 +249,7 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+    override method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void := {
 
     }.
 
@@ -342,4 +342,4 @@ class SoftCommandList superclass: CommandList; definition: {
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics
-}. ## End of namespace Stdn
+}. ## End of namespace Std

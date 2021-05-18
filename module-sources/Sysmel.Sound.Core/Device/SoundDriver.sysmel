@@ -1,15 +1,15 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace Sound definition: {
 
 #**
  * I represent a particular sound driver.
  *#
-class SoundDriver superclass: Object; definition: {
+class SoundDriver superclass: Std RCObject; definition: {
     virtual method getOrCreateDefaultPlaybackDevice => PlaybackDevicePtr
         := PlaybackDevicePtr nil.
 }.
 
-compileTime constant SoundDriverPtr := SoundDriver sharedPointer.
+compileTime constant SoundDriverPtr := SoundDriver rcPointer.
 
 } ## End of namespace Sound
-} ## End of namespace Stdn
+} ## End of namespace Std

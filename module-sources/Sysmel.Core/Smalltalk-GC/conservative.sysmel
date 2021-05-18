@@ -1,4 +1,4 @@
-namespace Stdn definition: {
+namespace Std definition: {
 namespace GC definition: {
 
 Compiler addLinkerArguments: #("-lgc").
@@ -38,13 +38,13 @@ class NativeCollector definition: {
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
-        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
-          ::=> Stdn Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: Std Reflection BasicInitializeFunctionPointerType)
+          ::=> Std Reflection GCObjectHeader pointer := {
         <nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
-        Stdn memset(allocatedObject, 0, objectSize).
+        let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
+        Std memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
         allocatedObject value
@@ -61,14 +61,14 @@ class NativeCollector definition: {
 
 	method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
 		copyingFromPrototype: (prototype: Void pointer)
-		  ::=> Stdn Reflection GCObjectHeader pointer := {
+		  ::=> Std Reflection GCObjectHeader pointer := {
 		<nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := BoehmGC GC_malloc(instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        let allocatedObject := BoehmGC GC_malloc(instanceSize) reinterpretCastTo: Std Reflection GCObjectHeader pointer.
 
 		## Copy the data from the prototype
-        Stdn memcpy(allocatedObject, prototype, instanceSize).
+        Std memcpy(allocatedObject, prototype, instanceSize).
 
         ## Set the finalizer.
         BoehmGC GC_register_finalizer_no_order(allocatedObject, sysmel_boehm_finalizer address, nil, nil, nil).
@@ -76,8 +76,8 @@ class NativeCollector definition: {
         return: allocatedObject
 	}.
 
-    field rootRegistrationMutex type: Stdn Mutex.
-    field moduleRootPointers type: Stdn Collections Vector(GCRootPointersDescriptor).
+    field rootRegistrationMutex type: Std Mutex.
+    field moduleRootPointers type: Std Collections Vector(GCRootPointersDescriptor).
 
     method registerModuleRoots: (descriptors: GCRootPointersDescriptor const arraySlice) ::=> Void := {
         <nogc>
@@ -104,4 +104,4 @@ class NativeCollector definition: {
 }.
 
 }. ## End of namespace GC
-}. ## End of namespace Stdn
+}. ## End of namespace Std

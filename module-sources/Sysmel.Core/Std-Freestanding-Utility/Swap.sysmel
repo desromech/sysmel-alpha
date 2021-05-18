@@ -1,0 +1,13 @@
+namespace Std definition: {
+
+
+macro method swapValue: left with: right := {
+    let temp := __astBuilder gensym: #temp.
+    ``{
+        let `,temp mutable := `,left asMoveReference.
+        `,left := `,right.
+        `,right := `,temp asMoveReference.
+    }
+}.
+
+}. ## End of namespace Std

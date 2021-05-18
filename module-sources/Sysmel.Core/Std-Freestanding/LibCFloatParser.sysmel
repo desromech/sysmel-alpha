@@ -1,0 +1,49 @@
+namespace Std definition: {
+
+function parseFloat64(string: Char8 const pointer, stringSize: UIntPointer) => Float64 := {
+    ## Do we have a null terminator?
+    0 until: stringSize do: {:(UIntPointer)i :: Void |
+        string[i] == 0 ifTrue: {
+            return: LibC strtod(string, nil)
+        }.
+    }.
+
+    ## No null terminator, make a copy for libc.
+    let copy := LibC malloc(stringSize + 1) reinterpretCastTo: Char8 pointer.
+    LibC memcpy(copy, string, stringSize).
+    copy[stringSize] := 0.
+
+    let result := LibC strtod(copy, nil).
+    LibC free(copy).
+
+    result
+}.
+
+function parseFloat32(string: Char8 const pointer, stringSize: UIntPointer) => Float32 := {
+    ## Do we have a null terminator?
+    0 until: stringSize do: {:(UIntPointer)i :: Void |
+        string[i] == 0 ifTrue: {
+            return: LibC strtof(string, nil)
+        }.
+    }.
+
+    ## No null terminator, make a copy for libc.
+    let copy := LibC malloc(stringSize + 1) reinterpretCastTo: Char8 pointer.
+    LibC memcpy(copy, string, stringSize).
+    copy[stringSize] := 0.
+
+    let result := LibC strtof(copy, nil).
+    LibC free(copy).
+
+    result
+}.
+
+(Char8 arraySlice | Char8 const arraySlice) definition: {
+    const method parseFloat32 => Float32
+        := Std parseFloat32(self elements, self size).
+
+    const method parseFloat64 => Float64
+        := Std parseFloat64(self elements, self size).
+}.
+
+}. ## End of namespace Std

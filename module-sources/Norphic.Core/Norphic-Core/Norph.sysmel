@@ -1,33 +1,33 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Math Geometry.
 
 class Sizer.
 class SizerElement.
 
 compileTime constant EventHandlerFunctionType := (NorphEvent ref) => Void.
-compileTime constant NorphSceneNode := Stdn Graphics Scene2D Node.
-compileTime constant NorphSceneNodePtr := Stdn Graphics Scene2D NodePtr.
-compileTime constant NorphSceneBuilder := Stdn Graphics Scene2D Builder.
+compileTime constant NorphSceneNode := Std Graphics Scene2D Node.
+compileTime constant NorphSceneNodePtr := Std Graphics Scene2D NodePtr.
+compileTime constant NorphSceneBuilder := Std Graphics Scene2D Builder.
 
 #**
  * I am a norph, my name comes from Native (M)orph in honor to the old
  * Smalltalk morph.
  *#
 class Norph superclass: NorphEventHandler; definition: {
-    compileTime constant Subnorphs := Stdn Collections Vector(Norph sharedPointer).
+    compileTime constant Subnorphs := Std Collections Vector(Norph rcPointer).
     protected field bounds type: RectangleF32.
     protected field color type: Float32x4.
 
-    protected field owner type: Norph weakPointer.
+    protected field owner type: Norph weakRCPointer.
     protected field subnorphs type: Subnorphs.
-    protected field eventSubscriptions type: Stdn Collections Vector(NorphEventSubscription sharedPointer).
+    protected field eventSubscriptions type: Std Collections Vector(NorphEventSubscription rcPointer).
 
     private field isDirtyInThisFrame type: Boolean8.
     private field isUpdatingLayout type: Boolean8.
 
-    public field sizer type: Sizer sharedPointer.
+    public field sizer type: Sizer rcPointer.
     public field autolayout type: Boolean8.
 
     inline method extent => Float32x2
@@ -241,7 +241,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method destroy ::=> Void := {
         self owner ifNotNil: { :o :: Void |
-            o _ removeSubnorph: self asSharedPointer
+            o _ removeSubnorph: self asRCPointer
         }.
     }.
 
@@ -249,14 +249,14 @@ class Norph superclass: NorphEventHandler; definition: {
         := subnorphs.
 
     virtual method addedToOwner: (newOwner: Norph ref) ::=> Void := {
-        owner := newOwner asWeakPointer.
+        owner := newOwner asWeakRCPointer.
     }.
 
     virtual method removedFromOwner: (oldOwner: Norph ref) ::=> Void := {
         owner reset
     }.
 
-    virtual method removeSubnorph: (childSubnorph: Norph sharedPointer const ref) ::=> Void := {
+    virtual method removeSubnorph: (childSubnorph: Norph rcPointer const ref) ::=> Void := {
         childSubnorph ifNil: { return: void }.
 
         subnorphs remove: childSubnorph.
@@ -264,7 +264,7 @@ class Norph superclass: NorphEventHandler; definition: {
         self changed.
     }.
 
-    virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
+    virtual method addSubnorph: (newSubnorph: Norph rcPointer const ref) ::=> Void := {
         newSubnorph ifNil: { return: void }.
 
         subnorphs add: newSubnorph.
@@ -328,7 +328,7 @@ class Norph superclass: NorphEventHandler; definition: {
         }
     }.
 
-    const inline method owner => Norph sharedPointer
+    const inline method owner => Norph rcPointer
         := owner lock.
 
     virtual method handlesKeyboardEvents => Boolean8
@@ -357,10 +357,10 @@ class Norph superclass: NorphEventHandler; definition: {
         }
     }.
 
-    inline method theme => Theme sharedPointer const ref
+    inline method theme => Theme rcPointer const ref
         := ThemeRegistry uniqueInstance defaultTheme.
 
-    inline method asSizerElement => SizerElement sharedPointer
+    inline method asSizerElement => SizerElement rcPointer
         := (SizerNorphElement for: self) upCastFor: SizerElement.
 
     const inline method hasMouseFocus => Boolean8
@@ -372,7 +372,7 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method handlesMouseEvents => Boolean8
         := true.
 
-    virtual method currentMouseCursor => Cursor sharedPointer := {
+    virtual method currentMouseCursor => Cursor rcPointer := {
         self owner ifNotNil: {:owner :: Void |
             return: owner _ currentMouseCursor
         }.
@@ -416,7 +416,7 @@ class Norph superclass: NorphEventHandler; definition: {
         self dispatchMouseEventToChildren: event.
 
         event targetNorph ifNil: {
-            event targetNorph: self asSharedPointer.
+            event targetNorph: self asRCPointer.
 
             self rootNorph ifNotNil: {:rootNorph :: Void |
                 rootNorph _ mouseEventHasFoundItsTarget: event
@@ -511,12 +511,12 @@ class Norph superclass: NorphEventHandler; definition: {
     const inline method hasKeyboardFocus => Boolean8
         := self keyboardFocusNorph == self address.
 
-    method addEventSubscription: (subscription: NorphEventSubscription sharedPointer const ref) ::=> Void := {
+    method addEventSubscription: (subscription: NorphEventSubscription rcPointer const ref) ::=> Void := {
         eventSubscriptions add: subscription
     }.
 
-    method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Stdn Reflection TypeInformation const pointer) ::=> Void := {
-        let subscription := NorphEventFunctionSubscription sharedNew.
+    method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformation const pointer) ::=> Void := {
+        let subscription := NorphEventFunctionSubscription rcNew.
         subscription _
             handlingFunction: eventHandler;
             expectedEventTypeInfo: eventClassInfo.
@@ -525,8 +525,8 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        method registerEventHandler: (eventHandler: EventHandlerFunctionType gcBlockClosure) forClassInfo: (eventClassInfo: Stdn Reflection TypeInformation const pointer) ::=> Void := {
-            let subscription := NorphEventFunctionSubscription sharedNew.
+        method registerEventHandler: (eventHandler: EventHandlerFunctionType gcBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformation const pointer) ::=> Void := {
+            let subscription := NorphEventFunctionSubscription rcNew.
             subscription _
                 handlingFunction: eventHandler;
                 expectedEventTypeInfo: eventClassInfo.
@@ -539,7 +539,7 @@ class Norph superclass: NorphEventHandler; definition: {
         := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformation)
     ).
 
-    method raiseEvent: (event: NorphEvent sharedPointer) ::=> Void := {
+    method raiseEvent: (event: NorphEvent rcPointer) ::=> Void := {
         self processEvent: event _.
 
         eventSubscriptions do: {:each :: Void |
@@ -550,14 +550,14 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     method raiseActivatedEvent => Void := {
-        self raiseEvent: (NorphActivatedEvent sharedNew upCastFor: NorphEvent).
+        self raiseEvent: (NorphActivatedEvent rcNew upCastFor: NorphEvent).
     }.
 
-    virtual method ownedPopupCreated: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+    virtual method ownedPopupCreated: (popup: PopupNorph rcPointer const ref) ::=> Void := {
 
     }.
 
-    virtual method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+    virtual method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
 
     }.
 
@@ -565,6 +565,6 @@ class Norph superclass: NorphEventHandler; definition: {
         := false.
 }.
 
-compileTime constant NorphPtr := Norph sharedPointer.
+compileTime constant NorphPtr := Norph rcPointer.
 
 }. ## End of namespace Norphic

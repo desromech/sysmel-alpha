@@ -1,8 +1,8 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
+useNamespace: Std Graphics Core.
+useNamespace: Std Graphics GUI.
+useNamespace: Std Math Geometry.
 
 struct PanedNorphElement definition: {
     public field element type: NorphPtr.
@@ -10,8 +10,8 @@ struct PanedNorphElement definition: {
 }.
 
 class PanedNorph superclass: Norph; definition: {
-    field elements type: Stdn Collections Vector(PanedNorphElement).
-    field splitters type: Stdn Collections Vector(PanelSplitterNorphPtr).
+    field elements type: Std Collections Vector(PanedNorphElement).
+    field splitters type: Std Collections Vector(PanelSplitterNorphPtr).
 
     abstract method splitDirection => Float32x2.
     abstract method newPanelSplitterNorph => PanelSplitterNorphPtr.
@@ -116,6 +116,6 @@ class PanedNorph superclass: Norph; definition: {
     }.
 }.
 
-compileTime constant PanedNorphPtr := PanedNorph sharedPointer.
+compileTime constant PanedNorphPtr := PanedNorph rcPointer.
 
 }. ## End of namespace Norphic

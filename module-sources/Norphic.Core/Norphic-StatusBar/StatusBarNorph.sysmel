@@ -11,6 +11,6 @@ class StatusBarNorph superclass: Norph; definition: {
         := Float32x2(0.0f, 10.0f).
 }.
 
-compileTime constant StatusBarNorphPtr := StatusBarNorph sharedPointer.
+compileTime constant StatusBarNorphPtr := StatusBarNorph rcPointer.
 
 }. ## End of namespace Norphic
