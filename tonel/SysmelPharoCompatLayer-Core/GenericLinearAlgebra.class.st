@@ -10,7 +10,8 @@ Class {
 		'matrix4x4Type',
 		'reversibleAffineTransform3dType',
 		'complexType',
-		'quaternionType'
+		'quaternionType',
+		'decomposedTransform3dType'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-Math'
 }
@@ -18,6 +19,11 @@ Class {
 { #category : #accessing }
 GenericLinearAlgebra class >> complexType [
 	^ complexType ifNil: [ complexType := self environment at: (#Complex , self scalarType shortCapitalTypeSuffix) asSymbol ]
+]
+
+{ #category : #accessing }
+GenericLinearAlgebra class >> decomposedTransform3dType [
+	^ decomposedTransform3dType ifNil: [ decomposedTransform3dType := self environment at: (#DecomposedTransform3d , self scalarType shortCapitalTypeSuffix) asSymbol ]
 ]
 
 { #category : #testing }

@@ -279,6 +279,11 @@ SysmelPrimitiveVectorType >> readBytesFrom: aByteArray position: byteArrayPositi
 ]
 
 { #category : #arithmetic }
+SysmelPrimitiveVectorType >> roundTo: quantum [
+	^ self collect: [ :each | each roundTo: quantum ]
+]
+
+{ #category : #arithmetic }
 SysmelPrimitiveVectorType >> sign [
 	^ self collect: [ :each | each sign ]
 ]

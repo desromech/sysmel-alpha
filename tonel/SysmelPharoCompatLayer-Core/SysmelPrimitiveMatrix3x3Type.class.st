@@ -266,6 +266,24 @@ SysmelPrimitiveMatrix3x3Type >> asFloat64x3x3 [
 		yourself
 ]
 
+{ #category : #converting }
+SysmelPrimitiveMatrix3x3Type >> asQuaternion [
+	| diag signs xyzw |
+	"Matrix to quaternion conversion algorithm from: https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/"
+	diag := self diagonal.
+	signs := self class vector3Type
+		x: (self secondColumn z - self thirdColumn y) sign
+      y: (self thirdColumn x - self firstColumn z) sign
+      z: (self firstColumn y - self secondColumn x) sign.
+
+	xyzw := self class vector4Type
+		x: (1 + diag x - diag y - diag z max: 0.0) sqrt * 0.5 * signs x
+		y: (1 - diag x + diag y - diag z max: 0.0) sqrt * 0.5 * signs y
+		z: (1 - diag x - diag y + diag z max: 0.0) sqrt * 0.5 * signs z
+		w: (1 + diag x + diag y + diag z max: 0.0) sqrt * 0.5.
+	^ self class quaternionType xyzw: xyzw
+]
+
 { #category : #accessing }
 SysmelPrimitiveMatrix3x3Type >> at: column [
 	column = 1 ifTrue: [
@@ -319,6 +337,14 @@ SysmelPrimitiveMatrix3x3Type >> collect: aBlock as: matrixType [
 { #category : #'as yet unclassified' }
 SysmelPrimitiveMatrix3x3Type >> determinant [
 	^ firstColumn dot: (secondColumn cross: thirdColumn)
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrix3x3Type >> diagonal [
+	^ self class vector3Type
+		x: self firstColumn x
+		y: self secondColumn y
+		z: self thirdColumn z
 ]
 
 { #category : #accessing }

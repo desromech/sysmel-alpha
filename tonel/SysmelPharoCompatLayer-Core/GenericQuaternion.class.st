@@ -105,6 +105,11 @@ GenericQuaternion class >> xRotation: angle [
 ]
 
 { #category : #accessing }
+GenericQuaternion class >> xyz: xyz [
+	^ self xyzw: (self vector4Type xyz: xyz w: 0.0)
+]
+
+{ #category : #accessing }
 GenericQuaternion class >> xyz: xyz w: w [
 	^ self xyzw: (self vector4Type xyz: xyz w: w)
 ]
@@ -289,6 +294,11 @@ GenericQuaternion >> inverse [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+GenericQuaternion >> inverseRotateVector: vector [
+	^ ((self conjugated * (self class xyz: vector)) * self) xyz
+]
+
 { #category : #accessing }
 GenericQuaternion >> j [
 	^ xyzw y
@@ -337,6 +347,11 @@ GenericQuaternion >> r [
 { #category : #accessing }
 GenericQuaternion >> rijk [
 	^ xyzw wxyz
+]
+
+{ #category : #'as yet unclassified' }
+GenericQuaternion >> rotateVector: vector [
+	^ ((self * (self class xyz: vector)) * self conjugated) xyz
 ]
 
 { #category : #accessing }

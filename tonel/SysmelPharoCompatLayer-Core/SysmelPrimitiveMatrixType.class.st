@@ -9,7 +9,8 @@ Class {
 		'vector4Type',
 		'matrix3x3Type',
 		'matrix4x4Type',
-		'matrix2x2Type'
+		'matrix2x2Type',
+		'quaternionType'
 	],
 	#category : #'SysmelPharoCompatLayer-Core-PrimitiveTypes'
 }
@@ -72,6 +73,11 @@ SysmelPrimitiveMatrixType class >> new [
 { #category : #construction }
 SysmelPrimitiveMatrixType class >> ones [
 	^ self withAll: self elementType one
+]
+
+{ #category : #accessing }
+SysmelPrimitiveMatrixType class >> quaternionType [
+	^ quaternionType ifNil: [ quaternionType := self environment at: (#Quaternion , self elementType shortCapitalTypeSuffix) asSymbol ]
 ]
 
 { #category : #accessing }

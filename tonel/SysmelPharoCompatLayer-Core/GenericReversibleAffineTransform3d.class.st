@@ -72,6 +72,19 @@ GenericReversibleAffineTransform3d >> applyOrthonormalMatrix: orthonormal [
 ]
 
 { #category : #converting }
+GenericReversibleAffineTransform3d >> asDecomposedTransform3d [	
+	^ self class decomposedTransform3dType basicNew
+		matrix: self matrix;
+		translation: self translation;
+		yourself
+]
+
+{ #category : #converting }
+GenericReversibleAffineTransform3d >> asReversibleAffineTransform3d [
+	^ self
+]
+
+{ #category : #converting }
 GenericReversibleAffineTransform3d >> asReversibleAffineTransform3dF32 [
 	^ ReversibleAffineTransform3dF32 basicNew matrix: matrix asFloat32x3x3 inverseMatrix: inverseMatrix asFloat32x3x3 translation: translation asFloat32x3
 ]
