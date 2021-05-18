@@ -93,7 +93,12 @@ MbndStandaloneModule >> activePackageName [
 ]
 
 { #category : #adding }
-MbndStandaloneModule >> addImportedIndirectModule: extraModules [
+MbndStandaloneModule >> addImportedIndirectModule: extraModule [
+	self addImportedIndirectModules: { extraModule }
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addImportedIndirectModules: extraModules [
 	importedIndirectModules := self importedIndirectModules , (extraModules asArray collect: [:each | each asFileReference basenameWithoutExtension ])
 ]
 
