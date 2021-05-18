@@ -1,0 +1,309 @@
+namespace Stdn definition: {
+
+template RCPointer(PT: Type)
+    := struct definition: {
+    compileTime constant PointedType := PT.
+    compileTime constant PointerType := PointedType pointer.
+	compileTime constant SmartPointerType := SelfType.
+	compileTime constant WeakPointerType := WeakRCPointer(PT).
+
+    meta extend: {
+        inline method forNew: (pointer: PointerType) ::=> SmartPointerType
+            := SmartPointerType basicNewValue initializeWithNewPointer: pointer; yourself.
+
+        inline method for: (pointer: PointerType) ::=> SmartPointerType
+            := SmartPointerType basicNewValue initializeWithPointer: pointer; yourself.
+
+        inline method forNewInstance ::=> SmartPointerType
+            := self forNew: PointedType nativeNew.
+
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    private field pointer_ type: PointerType.
+
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := pointer_ == other getPointer.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := pointer_ ~~ other getPointer.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := pointer_ = other __private pointer_ .
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := pointer_ ~= other __private pointer_ .
+    const inline method hash ::=> Hash
+        := pointer_ hash.
+
+    inline method finalize => Void := {
+       self reset
+    }.
+
+    inline method initializeWithNewPointer: (pointer: PointerType) ::=> Void := {
+        pointer_ := pointer.
+    }.
+
+    inline method initializeWithPointer: (pointer: PointerType) ::=> Void := {
+        pointer_ := pointer.
+        pointer_ ifNotNil: {
+            pointer_ _ strongRetain
+        }
+    }.
+
+    inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
+        self initializeWithPointer: o __private pointer_
+	}.
+
+	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+        pointer_ := o __private pointer_.
+        o __private pointer_ := nil.
+	}.
+
+    inline const method _ => PointedType ref
+        := pointer_ _.
+
+    inline const method getPointer => PointerType
+        := pointer_.
+
+	inline method reset: (pointer: PointerType) ::=> Void := {
+        let c := pointer_.
+        pointer_ := pointer.
+        c ifNotNil: {
+            c _ strongRelease.
+        }.
+    }.
+
+	inline method reset => Void := {
+        self reset: nil
+    }.
+
+    (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
+        self address ~~ o address ifTrue: {
+            let newrcPointer mutable := o.
+            self swapWith: newrcPointer
+        }.
+		self
+	}.
+
+	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
+        self address ~~ o address ifTrue: {
+            let newrcPointer mutable := o.
+    		o __private pointer_ := nil.
+            self swapWith: newrcPointer
+        }.
+
+		self
+	}.
+
+    inline method swapWith: (o: SelfType ref) ::=> Void := {
+        Stdn swapValue: pointer_ with: o __private pointer_.
+    }.
+
+    const inline method asWeakPointer => WeakPointerType
+        := WeakPointerType for: pointer_.
+
+    macro method upCastFor: targetType
+        := ``(Stdn RCPointer(`,targetType) for: `,self __private pointer_).
+
+    macro method downCastFor: targetType
+        := ``(Stdn RCPointer(`,targetType) for: (`,self __private pointer_ castTo: `,targetType pointer)).
+
+    ## Some convenience macros.
+	macro method isNil := ``(`,self getPointer isNil).
+	macro method isNotNil := ``(`,self getPointer isNotNil).
+
+	macro method ifNil: nilAction := ``(`,self getPointer ifNil: `,nilAction).
+	macro method ifNil: nilAction ifNotNil: notNilAction := ``(`,self getPointer ifNil: `,nilAction ifNotNil: `, notNilAction).
+	macro method ifNotNil: notNilAction := ``(`,self getPointer ifNotNil: `,notNilAction).
+	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
+}.
+
+template WeakRCPointer(PT: Type)
+    := struct definition: {
+    compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+	compileTime constant WeakPointerType := SelfType.
+	compileTime constant StrongPointerType := RCPointer(PT).
+
+    private field pointer_ type: PointerType.
+
+    meta extend: {
+        inline method for: (intrusivePointer: PointerType) ::=> WeakPointerType
+            := WeakPointerType basicNewValue initializeWithPointer: intrusivePointer; yourself.
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    inline method finalize => Void := {
+        self reset.
+    }.
+
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := pointer_ == other __private pointer_.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := pointer_ ~~ other __private pointer_.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := pointer_ = other __private pointer_ .
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := pointer_ ~= other __private pointer_ .
+    const inline method hash ::=> Hash
+        := pointer_ hash.
+
+    inline method reset => Void := {
+        let c := pointer_.
+        pointer_ := nil.
+
+        c ifNotNil: {
+            c _ weakRelease.
+        }.
+    }.
+
+    inline method initializeWithPointer: (thePointer: PointerType) ::=> Void := {
+        pointer_ := thePointer.
+        pointer_ ifNotNil: {
+            pointer_ _ weakRetain.
+        }.
+    }.
+
+    inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
+		self initializeWithPointer: o __private pointer_.
+	}.
+
+	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+        pointer_ := o __private pointer_.
+        o __private pointer_ := nil.
+	}.
+
+    (inline method := (o: StrongPointerType const ref)) ::=> SelfType const ref := {
+        let newPointer := o __private pointer_.
+        let oldPointer := pointer_.
+        pointer_ := newPointer.
+
+		newPointer ifNotNil: {
+			newPointer _ weakRetain
+		}.
+        oldPointer ifNotNil: {
+			oldPointer _ weakRelease
+		}.
+
+		self
+	}.
+
+    (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
+        self address ~~ o address ifTrue: {
+            let copy mutable := o.
+            self swapWith: copy.
+        }.
+		self
+	}.
+
+	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
+        self address ~~ o address ifTrue: {
+            let copy mutable := o.
+    		o __private pointer_ := nil.
+            self swapWith: copy.
+        }.
+		self
+	}.
+
+    inline method lock => StrongPointerType := {
+        pointer_ isNotNil && pointer_ _ weakLock ifTrue: {
+            return: (StrongPointerType forNew: pointer_)
+        }.
+
+        return: StrongPointerType nil
+    }.
+
+    inline method swapWith: (o: SelfType ref) ::=> Void := {
+        Stdn swapValue: pointer_ with: o __private pointer_.
+    }.
+
+    macro method upCastFor: targetType
+        := ``(Stdn WeakRCPointer(`,targetType) for: `,self __private pointer_).
+
+    macro method downCastFor: targetType
+        := ``(Stdn WeakRCPointer(`,targetType) for: (`,self __private pointer_ castTo: `,targetType pointer)).
+}.
+
+#**
+ * I am an that holds a pointer into its reference counter.
+ *#
+class RCObject superclass: Object; definition: {
+    private field strongCounter_ type: AtomicUIntPointer.
+    private field weakCounter_ type: AtomicUIntPointer.
+
+    override method initialize => Void := {
+        strongCounter_ store: 1 with: MemoryOrder Release.
+        weakCounter_ store: 1 with: MemoryOrder Release.
+    }.
+
+    inline method strongRetain => Void := {
+        strongCounter_ fetchAndAdd: 1 with: MemoryOrder AcquireAndRelease
+    }.
+
+    inline method strongRelease => Void := {
+        let oldCount := strongCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
+        ##Stdn stdout << self address << " old strong release count " << oldCount; nl.
+        oldCount == 1 ifTrue: {
+            ##Stdn stdout << "No more strong counts finalize the shared object " << self address ; nl.
+            self
+                finalize;
+                weakRelease.
+        }.
+
+    }.
+
+    inline method weakRetain => Void := {
+        weakCounter_ fetchAndAdd: 1 with: MemoryOrder AcquireAndRelease.
+    }.
+
+    inline method weakRelease => Void := {
+        let oldCount := weakCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
+        ##Stdn stdout << self address << " old weak release count " << oldCount; nl.
+        oldCount == 1 ifTrue: {
+            ##Stdn stdout << "No more weak count, delete the memory for shared object " << self address; nl.
+            self address basicNativeDelete
+        }
+    }.
+
+    inline method weakLock => Boolean8 := {
+        let oldCount mutable type: UIntPointer.
+        while: (oldCount := strongCounter_ loadWith: MemoryOrder Acquire) ~= 0 do: {
+            (strongCounter_ atomicCompare: oldCount andSet: oldCount + 1 with: MemoryOrder AcquireAndRelease) ifTrue: {
+                return: true
+            }
+        }.
+
+        return: false
+    }.
+
+
+    method asRCObjectWeakPointer => Stdn WeakRCPointer(SelfType)
+        := Stdn WeakRCPointer(SelfType) for: self address.
+
+    method asRCObjectPointer => Stdn RCPointer(SelfType)
+        := Stdn RCPointer(SelfType) for: self address.
+
+    macro method asWeakPointer := ``(`,self asRCObjectWeakPointer downCastFor: `,SelfType).
+    macro method asrcPointer := ``(`,self asRCObjectPointer downCastFor: `,SelfType).
+
+    (inline method := (other: SelfType const ref)) => SelfType ref := {
+        ## internalSelfWeakPointer should not be modified.
+        self
+    }.
+
+    (inline method := (other: SelfType tempRef)) => SelfType ref := {
+        ## internalSelfWeakPointer should not be modified.
+        self
+    }.
+
+}.
+
+_ClassType meta macro method rcPointer := ``(Stdn RCPointer(`,self)).
+_ClassType meta macro method weakRCPointer := ``(Stdn WeakRCPointer(`,self)).
+
+_ClassType meta macro method rcNew := ``(`,self rcPointer forNewInstance).
+
+compileTime constant RCObjectPtr := RCObject rcPointer.
+compileTime constant RCObjectWeakPtr := RCObject weakRCPointer.
+
+}. ## End of namespace Stdn

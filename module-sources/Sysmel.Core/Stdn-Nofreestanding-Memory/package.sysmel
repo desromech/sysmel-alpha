@@ -20,3 +20,4 @@ loadFileOnce: "nativeNew.sysmel".
 ## Smart pointers
 loadFileOnce: "UniquePointer.sysmel".
 loadFileOnce: "SharedPointer.sysmel".
+loadFileOnce: "RCObject.sysmel".

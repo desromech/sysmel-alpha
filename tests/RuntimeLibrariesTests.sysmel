@@ -1,7 +1,8 @@
 compileTime constant OnlyRuntimeCoreTests := false.
 
 Compiler
-	importModuleNamed: #"Sysmel.Core.Tests".
+	importModuleNamed: #"Sysmel.Testing";
+	importIndirectModuleNamed: #"Sysmel.Core.Tests".
 
 compileTime if: Compiler hasGarbageCollectedRuntime then: {
 	Compiler importIndirectModulesNamed: #(

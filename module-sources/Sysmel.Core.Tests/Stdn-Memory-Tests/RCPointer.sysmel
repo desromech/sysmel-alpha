@@ -1,0 +1,195 @@
+namespace Stdn definition: {
+namespace Memory definition: {
+namespace Tests definition: {
+
+class RCBinaryTreeNode superclass: Stdn RCObject; definition: {
+    field counter type: ConstructionDestructionCounter.
+    protected field parent type: RCBinaryTreeNode weakRCPointer.
+    protected field left type: RCBinaryTreeNode rcPointer.
+    protected field right type: RCBinaryTreeNode rcPointer.
+
+    method parent => RCBinaryTreeNode rcPointer
+        := parent lock.
+
+    method parent: (theParent: RCBinaryTreeNode weakRCPointer const ref) ::=> Void
+        := parent := theParent.
+
+    method left => RCBinaryTreeNode rcPointer const ref
+        := left.
+
+    method left: (child: RCBinaryTreeNode rcPointer const ref) ::=> Void := {
+        left ifNotNil: {
+            left _ parent reset.
+        }.
+
+        child _ parent: self asWeakPointer.
+        left := child.
+    }.
+
+    method right => RCBinaryTreeNode rcPointer const ref
+        := right.
+
+    method right: (child: RCBinaryTreeNode rcPointer const ref) ::=> Void := {
+        right ifNotNil: {
+            right _ parent reset.
+        }.
+
+        child _ parent: self asWeakPointer.
+        right := child.
+    }.
+
+    method destroy => Void := {
+        self parent ifNotNil: {:p :: Void |
+            p _ removeChild: self address
+        }
+    }.
+
+    method removedFromParent: (aParent: RCBinaryTreeNode pointer) ::=> Void := {
+        self parent getPointer == aParent ifTrue: {
+            parent reset.
+        }
+    }.
+
+    method removeChild: (aChild: RCBinaryTreeNode pointer) ::=> Void := {
+        left getPointer == aChild ifTrue: {
+            left _ removedFromParent: self address.
+            left reset.
+        }.
+
+        right getPointer == aChild ifTrue: {
+            right _ removedFromParent: self address.
+            right reset.
+        }.
+    }.
+}.
+
+class RCPointerTest superclass: Stdn Testing TestCase; definition: {
+    override method setUp => Void := {
+        ConstructionDestructionCounter resetTotalCount.
+    }.
+
+    test: testNil with: {
+        let pointer := Stdn RCObject rcPointer nil.
+        self assert: pointer getPointer equals: nil.
+        self assert: pointer isNil.
+        self deny: pointer isNotNil.
+    }.
+
+    test: testRCNew with: {
+        {
+            let pointer := RCBinaryTreeNode rcNew.
+            self assert: ConstructionDestructionCounter totalCount equals: 1.
+            self assert: pointer isNotNil.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+
+    test: testReset with: {
+        {
+            let pointer mutable := RCBinaryTreeNode rcNew.
+            self assert: ConstructionDestructionCounter totalCount equals: 1.
+            self assert: pointer isNotNil.
+
+            let other := RCBinaryTreeNode nativeNew.
+            self assert: ConstructionDestructionCounter totalCount equals: 2.
+
+            pointer reset: other.
+            self assert: ConstructionDestructionCounter totalCount equals: 1.
+
+            pointer reset.
+            self assert: ConstructionDestructionCounter totalCount equals: 0.
+
+            pointer reset: RCBinaryTreeNode nativeNew.
+            self assert: ConstructionDestructionCounter totalCount equals: 1.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+
+
+    test: testTwoLevelTree with: {
+        {
+            let three := {
+                let root := RCBinaryTreeNode rcNew.
+                root _ left: RCBinaryTreeNode rcNew.
+
+                self assert: ConstructionDestructionCounter totalCount equals: 2.
+                root.
+            }.
+            self assert: ConstructionDestructionCounter totalCount equals: 2.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+
+    test: testChildSelfDestroy with: {
+        {
+            let three := {
+                let root := RCBinaryTreeNode rcNew.
+                root _ left: RCBinaryTreeNode rcNew.
+
+                self assert: ConstructionDestructionCounter totalCount equals: 2.
+                root.
+            }.
+            self assert: ConstructionDestructionCounter totalCount equals: 2.
+
+            three _ left _ destroy.
+            self assert: ConstructionDestructionCounter totalCount equals: 1.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+
+    test: testDeepThreeChildSelfDestroy with: {
+        {
+            let three := {
+                let root := RCBinaryTreeNode rcNew.
+                let child := RCBinaryTreeNode rcNew.
+                child _
+                    left: RCBinaryTreeNode rcNew;
+                    right: RCBinaryTreeNode rcNew.
+                root _
+                    left: child;
+                    right: RCBinaryTreeNode rcNew.
+
+                self assert: ConstructionDestructionCounter totalCount equals: 5.
+                root.
+            }.
+            self assert: ConstructionDestructionCounter totalCount equals: 5.
+
+            three _ left _ destroy.
+            self assert: ConstructionDestructionCounter totalCount equals: 2.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+
+    test: testDeepChildSelfDestroy with: {
+        {
+            let three := {
+                let root := RCBinaryTreeNode rcNew.
+                let child := RCBinaryTreeNode rcNew.
+                child _
+                    left: RCBinaryTreeNode rcNew;
+                    right: RCBinaryTreeNode rcNew.
+                root _
+                    left: child;
+                    right: RCBinaryTreeNode rcNew.
+
+                self assert: ConstructionDestructionCounter totalCount equals: 5.
+                root.
+            }.
+            self assert: ConstructionDestructionCounter totalCount equals: 5.
+
+            three _ left _ left _ destroy.
+            self assert: ConstructionDestructionCounter totalCount equals: 4.
+        }.
+
+        self assert: ConstructionDestructionCounter totalCount equals: 0.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Memory
+}. ## namespace Stdn
