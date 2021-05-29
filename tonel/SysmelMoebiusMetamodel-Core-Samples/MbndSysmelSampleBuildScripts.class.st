@@ -126,7 +126,7 @@ MbndSysmelSampleBuildScripts class >> sysmelSmalltalkParserTool [
 	<example>
 	self newNativeBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'tools/sysmelSmalltalkParserTool.sysmel'
+			packageScript programWithSource: 'tools/sysmelSmalltalkParser.sysmel'
 		].
 ]
 

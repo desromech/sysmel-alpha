@@ -32,7 +32,7 @@ MbndCompilationEnvironment class >> compilationTarget: aCompilationTarget [
 
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> coreModuleName [
-	^ #'Sysmel.Core'
+	^ #'Std.Core'
 ]
 
 { #category : #'as yet unclassified' }
