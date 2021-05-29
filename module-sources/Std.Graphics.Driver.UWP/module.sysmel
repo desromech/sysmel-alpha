@@ -1,0 +1,9 @@
+Compiler
+    addNativeLibraryDependency: #SysmelUWPWindowSystem;
+    importModulesNamed: #(
+        #"Std.Graphics.Core.GUI"
+        #"Std.Graphics.Driver.Common"
+    );
+    loadPackages: #(
+        #"WindowSystem"
+    ).

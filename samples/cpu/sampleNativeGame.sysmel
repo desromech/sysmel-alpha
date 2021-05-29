@@ -1,6 +1,6 @@
 Compiler importModulesNamed: #(
-	#"Sysmel.Graphics.Headfull"
-	#"Sysmel.Sound.Headfull"
+	#"Std.Graphics.Headfull"
+	#"Std.Sound.Headfull"
 ).
 
 useNamespace: Std Graphics Core.

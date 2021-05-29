@@ -1,0 +1,8 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Sound.Core"
+        #"Std.Sound.Driver.SoftAudio"
+    );
+    loadPackages: #(
+        #"SoundDriver"
+    ).

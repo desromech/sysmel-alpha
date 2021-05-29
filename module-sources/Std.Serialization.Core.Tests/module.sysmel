@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Std.Testing";
+    importModuleNamed: #"Std.Serialization.Core";
+    loadPackages: #(
+        #"BinaryEncoding-Tests"
+    ).

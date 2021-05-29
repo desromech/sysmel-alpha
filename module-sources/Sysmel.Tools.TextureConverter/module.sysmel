@@ -1,8 +1,8 @@
 Compiler
     importModulesNamed: #(
-        #"Sysmel.Graphics.Core.Raster"
-        #"Sysmel.Graphics.Format.PNG"
-        #"Sysmel.Graphics.Format.JPEG"
+        #"Std.Graphics.Core.Raster"
+        #"Std.Graphics.Format.PNG"
+        #"Std.Graphics.Format.JPEG"
     );
     loadPackages: #(
         Converter

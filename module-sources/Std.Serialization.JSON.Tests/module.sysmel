@@ -1,0 +1,7 @@
+Compiler
+    importModuleNamed: #"Std.Testing";
+    importModuleNamed: #"Std.Serialization.JSON";
+    loadPackages: #(
+        #"JSON-Parsing-Tests"
+        #"JSON-Writing-Tests"
+    ).

@@ -1,0 +1,8 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Math.Core"
+        #"Std.Graphics.Core.Raster"
+    );
+    loadPackages: #(
+        #"DriverInterface"
+    ).

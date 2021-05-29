@@ -1,0 +1,6 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Graphics.Core.Raster"
+        #"Std.Graphics.Core.DriverInterface"
+        #"Std.Graphics.Core.GUI"
+    )

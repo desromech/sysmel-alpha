@@ -1,0 +1,8 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Graphics.Core.DriverInterface"
+        #"Std.Graphics.Driver.Common"
+    );
+    loadPackages: #(
+        #"SoftRenderer"
+    ).

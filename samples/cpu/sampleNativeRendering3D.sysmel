@@ -1,4 +1,4 @@
-Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
+Compiler importModuleNamed: #"Std.Graphics.Headfull".
 
 useNamespace: Std Graphics Core.
 useNamespace: Std Graphics GUI.

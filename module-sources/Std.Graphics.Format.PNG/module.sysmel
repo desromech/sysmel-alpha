@@ -1,0 +1,10 @@
+Compiler addThirdPartyLibraryDependency: #libpng.
+
+Compiler
+    importModulesNamed: #(
+        #"Std.Graphics.Core.Raster"
+    );
+    loadPackages: #(
+        #"Bindings"
+        #"ImageReadWriter"
+    ).

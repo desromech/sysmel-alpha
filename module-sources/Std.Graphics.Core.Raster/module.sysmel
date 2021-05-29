@@ -1,0 +1,9 @@
+Compiler
+    importModuleNamed: #"Std.Math.Core";
+    loadPackages: #(
+        #"Raster"
+        #"Text"
+        #"Canvas2D"
+        #"Scene2D"
+        #"ImageFormats"
+    ).

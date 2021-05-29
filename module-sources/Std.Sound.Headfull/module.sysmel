@@ -1,0 +1,18 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Sound.Core"
+    ).
+
+compileTime if: Compiler compilationTarget isDesktopPC then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Std.Sound.Driver.SDL2"
+        )
+}.
+
+compileTime if: Compiler compilationTarget isWebAssembly then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Std.Sound.Driver.SDL2"
+        )
+}.

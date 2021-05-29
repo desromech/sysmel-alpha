@@ -1,6 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Sysmel.Graphics.Core.Raster"
-        #"Sysmel.Graphics.Core.DriverInterface"
-        #"Sysmel.Graphics.Core.GUI"
-    )

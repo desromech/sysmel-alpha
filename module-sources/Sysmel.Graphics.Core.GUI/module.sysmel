@@ -1,8 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Sysmel.Math.Core"
-        #"Sysmel.Graphics.Core.DriverInterface"
-    );
-    loadPackages: #(
-        #"WindowSystem"
-    ).

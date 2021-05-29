@@ -1,0 +1,10 @@
+Compiler
+    importModulesNamed: #(
+        #"Bindings.SDL2"
+        #"Std.Graphics.Core.GUI"
+        #"Std.Graphics.Driver.Common"
+        #"Std.Graphics.Driver.SoftRenderer"
+    );
+    loadPackages: #(
+        #"WindowSystem"
+    ).

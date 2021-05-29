@@ -1,6 +1,0 @@
-Compiler
-    importModuleNamed: #"Sysmel.Testing";
-    importModuleNamed: #"Sysmel.Serialization.Core";
-    loadPackages: #(
-        #"BinaryEncoding-Tests"
-    ).

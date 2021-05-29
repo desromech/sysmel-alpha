@@ -1,7 +1,7 @@
 Compiler
     importModuleNamed: #"Norphic.Core";
-    importModuleNamed: #"Sysmel.Devel.IDE";
-	importModuleNamed: #"Sysmel.Graphics.Headfull".
+    importModuleNamed: #"Std.Devel.IDE";
+	importModuleNamed: #"Std.Graphics.Headfull".
 
 Std MainEntryPoint: {:args :: Int32 |
     Std Graphics GUI WindowSystem activeWindowSystem: Std Graphics GUI createDefaultWindowSystem().

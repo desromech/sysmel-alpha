@@ -1,9 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Bindings.SDL2"
-        #"Sysmel.Sound.Core"
-        #"Sysmel.Sound.Driver.SoftAudio"
-    );
-    loadPackages: #(
-        #"SoundDriver"
-    ).

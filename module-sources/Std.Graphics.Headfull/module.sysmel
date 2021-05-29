@@ -1,0 +1,31 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Graphics.Core"
+    ).
+
+compileTime if: Compiler compilationTarget isDesktopPC then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Std.Graphics.FreeType2"
+            #"Std.Graphics.Driver.AbstractGPU"
+            #"Std.Graphics.Driver.SDL2"
+            #"Std.Graphics.Format.PNG"
+            #"Std.Graphics.Format.JPEG"
+        )
+}.
+
+compileTime if: Compiler compilationTarget isWindowsStore then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Std.Graphics.FreeType2"
+            #"Std.Graphics.Driver.AbstractGPU"
+            #"Std.Graphics.Driver.UWP"
+        )
+}.
+
+compileTime if: Compiler compilationTarget isWebAssembly then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Std.Graphics.Driver.SDL2"
+        )
+}.

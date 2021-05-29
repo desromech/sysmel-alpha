@@ -1,5 +1,5 @@
 Compiler importModulesNamed: #(
-    #"Sysmel.Serialization.JSON"
+    #"Std.Serialization.JSON"
 ); loadPackages: #(
     Protocol
     Server

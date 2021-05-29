@@ -1,8 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Sysmel.Sound.Core"
-        #"Sysmel.Sound.Driver.SoftAudio"
-    );
-    loadPackages: #(
-        #"SoundDriver"
-    ).

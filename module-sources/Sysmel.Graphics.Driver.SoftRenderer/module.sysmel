@@ -1,8 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Sysmel.Graphics.Core.DriverInterface"
-        #"Sysmel.Graphics.Driver.Common"
-    );
-    loadPackages: #(
-        #"SoftRenderer"
-    ).

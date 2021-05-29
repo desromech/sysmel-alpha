@@ -1,8 +1,8 @@
 compileTime constant OnlyRuntimeCoreTests := false.
 
 Compiler
-	importModuleNamed: #"Sysmel.Testing";
-	importIndirectModuleNamed: #"Sysmel.Core.Tests".
+	importModuleNamed: #"Std.Testing";
+	importIndirectModuleNamed: #"Std.Core.Tests".
 
 compileTime if: Compiler hasGarbageCollectedRuntime then: {
 	Compiler importIndirectModulesNamed: #(
@@ -13,19 +13,19 @@ compileTime if: Compiler hasGarbageCollectedRuntime then: {
 compileTime if: OnlyRuntimeCoreTests not then: {
 	Compiler
 		importIndirectModulesNamed: #(
-			#"Sysmel.Serialization.Core.Tests"
-			#"Sysmel.Serialization.JSON.Tests"
-			#"Sysmel.Serialization.MessagePack.Tests"
+			#"Std.Serialization.Core.Tests"
+			#"Std.Serialization.JSON.Tests"
+			#"Std.Serialization.MessagePack.Tests"
 
-			#"Sysmel.Math.Core.Tests"
+			#"Std.Math.Core.Tests"
 			#"Norphic.Core.Tests"
-			#"Sysmel.Graphics.Core.Raster.Tests"
+			#"Std.Graphics.Core.Raster.Tests"
 		).
 
 	compileTime if: Compiler compilationTarget isDesktopPC then: {
 		Compiler
 			importIndirectModulesNamed: #(
-				#"Sysmel.Networking.Core.Tests"
+				#"Std.Networking.Core.Tests"
 				#"Sysmel.Compiler.SysmelLanguage.Tests"
 				#"Sysmel.Compiler.SmalltalkLanguage.Tests"
 			).

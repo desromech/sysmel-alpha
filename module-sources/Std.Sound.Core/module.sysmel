@@ -1,0 +1,8 @@
+Compiler
+    ##importModuleNamed: #"Std.Math.Core";
+    loadPackages: #(
+        #"Device"
+        #"AudioFormats"
+        #"Synthesis"
+        #"NullDevice"
+    ).

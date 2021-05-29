@@ -1,0 +1,9 @@
+Compiler
+    importModulesNamed: #(
+        #"Bindings.SDL2"
+        #"Std.Sound.Core"
+        #"Std.Sound.Driver.SoftAudio"
+    );
+    loadPackages: #(
+        #"SoundDriver"
+    ).

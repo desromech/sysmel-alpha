@@ -1,0 +1,5 @@
+Compiler
+    importModuleNamed: #"Bindings.FreeType2";
+    importModuleNamed: #"Std.Graphics.Core.Raster";
+    addResourcesDirectory: #Resources; 
+    loadPackage: #"Native-Graphics-FreeType2".

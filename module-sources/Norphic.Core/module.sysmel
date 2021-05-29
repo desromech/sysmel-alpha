@@ -1,7 +1,7 @@
 Compiler
     importModulesNamed: #(
-        #"Sysmel.Graphics.Core.Raster"
-        #"Sysmel.Graphics.Core.GUI"
+        #"Std.Graphics.Core.Raster"
+        #"Std.Graphics.Core.GUI"
     );
     loadPackages: #(
         #"Norphic-Core"

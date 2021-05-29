@@ -1,4 +1,4 @@
-Compiler importModuleNamed: #"Sysmel.Networking.Core".
+Compiler importModuleNamed: #"Std.Networking.Core".
 
 class ClientProcessor definition: {
     field clientSocket type: Std IO Socket.

@@ -1,0 +1,13 @@
+Compiler
+    importModuleNamed: #"Std.Serialization.Core";
+    loadPackages: #(
+        #"MessagePack-Codec"
+        #"MessagePack-DOM"
+    ).
+
+if: Compiler hasGarbageCollectedRuntime then: {
+    Compiler
+        loadPackages: #(
+            #"MessagePack-GCObjectCodec"
+        ).
+}.

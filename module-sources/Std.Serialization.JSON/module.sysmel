@@ -1,0 +1,7 @@
+Compiler
+    importModuleNamed: #"Std.Serialization.Core";
+    loadPackages: #(
+        #"JSON-Parsing"
+        #"JSON-Writing"
+        #"JSON-DOM"
+    ).

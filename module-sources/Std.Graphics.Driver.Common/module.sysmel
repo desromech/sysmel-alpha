@@ -1,0 +1,13 @@
+Compiler
+    importModulesNamed: #(
+        #"Std.Graphics.Core.DriverInterface"
+        #"Std.Graphics.Core.GUI"
+    );
+    loadPackages: #(
+        #"GenericInterfaces"
+        #"Text"
+
+        #"Mesh2D"
+        #"CommandListBuilderScene2DRenderer"
+        #"Window"
+    ).

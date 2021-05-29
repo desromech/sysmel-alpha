@@ -1,9 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Bindings.AbstractGPU"
-        #"Sysmel.Graphics.Core.DriverInterface"
-        #"Sysmel.Graphics.Driver.Common"
-    );
-    loadPackages: #(
-        #"Driver"
-    ).

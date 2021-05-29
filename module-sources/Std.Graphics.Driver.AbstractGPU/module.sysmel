@@ -1,0 +1,9 @@
+Compiler
+    importModulesNamed: #(
+        #"Bindings.AbstractGPU"
+        #"Std.Graphics.Core.DriverInterface"
+        #"Std.Graphics.Driver.Common"
+    );
+    loadPackages: #(
+        #"Driver"
+    ).

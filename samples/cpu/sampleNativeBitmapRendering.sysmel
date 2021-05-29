@@ -1,5 +1,5 @@
 Compiler
-	importModuleNamed: #"Sysmel.Graphics.Core.Raster".
+	importModuleNamed: #"Std.Graphics.Core.Raster".
 
 useNamespace: Std Graphics Core.
 
