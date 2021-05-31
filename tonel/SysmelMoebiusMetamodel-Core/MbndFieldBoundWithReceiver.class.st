@@ -9,9 +9,10 @@ Class {
 
 { #category : #'semantic analysis' }
 MbndFieldBoundWithReceiver >> analyzeReferenceNode: referenceNode with: analyzer [
-	| receiverReference getterClass getterNode result |
+	| receiverReference receiverReferenceType getterClass getterNode result |
 	receiverReference := receiver analyzeReferenceNode: referenceNode with: analyzer.
-	getterClass := (receiverReference type withoutTopDecorations isReferenceLikeValueType and: [ field bits isNil ])
+	receiverReferenceType := receiverReference type withoutTopDecorations.
+	getterClass := ((receiverReferenceType isReferenceLikeValueType or: [ receiverReferenceType isTypePassedByReference ]) and: [ field bits isNil ])
 		ifTrue: [ MbndAstGetFieldReferenceNode ]
 		ifFalse: [ MbndAstGetFieldValueNode ].
 		

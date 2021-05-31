@@ -12,19 +12,13 @@ MbndSpillValueInReferenceTypeConversionRule >> canBeUsedToConvertNode: node from
 { #category : #'as yet unclassified' }
 MbndSpillValueInReferenceTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	self assert: node isGenericCastNode.
+	self assert: node targetType isReferenceType.
 	^ analyzer visitNode: (node copy
 		expression: (MbndAstCopyIntoTemporaryVariableNode new
 			position: node;
 			value: node expression;
+			avoidCopy: node targetType baseType isConstantType;
 			yourself);
 		type: nil)
 		
-	"| localNode |
-	localNode := (analyzer astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: node expression)
-		position: node;
-		tempRef.
-	self assert: node isGenericCastNode.
-	^ analyzer visitNode: (node copy
-		expression: localNode;
-		type: nil)"
 ]

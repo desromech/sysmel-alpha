@@ -43,6 +43,12 @@ MbndDecoratedType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyze
 	^ baseType analyzeUnexpandedMessageSendNode: node with: analyzer
 ]
 
+{ #category : #'semantic analysis' }
+MbndDecoratedType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer [
+	"Try to delegate to the base type."
+	^ baseType analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
+]
+
 { #category : #converting }
 MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position

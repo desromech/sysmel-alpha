@@ -576,6 +576,14 @@ MbndAstTransformVisitor >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitMacroSendMessageNode: node [
+	^ node copy
+		receiver: (self visitNode: node receiver);
+		message: (self visitNode: node message);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 	^ node copy
 		selector: (self visitNode: node selector);

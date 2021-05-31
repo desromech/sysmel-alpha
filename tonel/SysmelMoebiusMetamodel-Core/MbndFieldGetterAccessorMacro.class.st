@@ -38,7 +38,8 @@ MbndFieldGetterAccessorMacro >> encodeFieldsForMessagePackWith: graphEncoder [
 MbndFieldGetterAccessorMacro >> expandMessageNode: node with: analyzer [
 	| receiverType |
 	receiverType := node receiver type withoutTopDecorations.
-	(receiverType isReferenceLikeValueType and: [ field bits isNil ]) ifTrue: [
+	((receiverType isReferenceLikeValueType or: [ receiverType isTypePassedByReference ])
+		and: [ field bits isNil ]) ifTrue: [
 		^ analyzer visitNode: (MbndAstGetFieldReferenceNode new
 			position: node;
 			aggregate: node receiver;

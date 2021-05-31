@@ -816,6 +816,11 @@ MbndSlovimSymbolNameMangler >> visitTupleType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitUndefinedType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitUnionType: type [
 	^ self visitGenericType: type
 ]

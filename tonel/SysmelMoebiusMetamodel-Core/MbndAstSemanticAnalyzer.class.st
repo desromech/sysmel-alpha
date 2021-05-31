@@ -1167,7 +1167,13 @@ MbndAstSemanticAnalyzer >> visitCopyIntoTemporaryVariableNode: node [
 	result := node copy
 		value: (self analyzeNodeIfNeeded: node value);
 		yourself.
+
 	valueType := result value type withoutReferences withoutTopDecorations.
+	(node avoidCopy and: [ result value type isTypePassedByReference ]) ifTrue: [ 
+		result type: valueType const ref.
+		^ result
+	].
+
 	valueType hasTrivialFinalization ifFalse: [ 
 		self addNodeWithImplicitFinalization: result
 	].

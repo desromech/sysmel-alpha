@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'value',
-		'storageCreationNode'
+		'storageCreationNode',
+		'avoidCopy'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -13,12 +14,31 @@ MbndAstCopyIntoTemporaryVariableNode >> accept: aVisitor [
 	^ aVisitor visitCopyIntoTemporaryVariableNode: self
 ]
 
+{ #category : #accessing }
+MbndAstCopyIntoTemporaryVariableNode >> avoidCopy [
+
+	^ avoidCopy
+]
+
+{ #category : #accessing }
+MbndAstCopyIntoTemporaryVariableNode >> avoidCopy: anObject [
+
+	avoidCopy := anObject
+]
+
 { #category : #serialization }
 MbndAstCopyIntoTemporaryVariableNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#value . value encodeGraphForMessagePackWith: graphEncoder.
 		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
+		#avoidCopy . avoidCopy.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
+{ #category : #initialization }
+MbndAstCopyIntoTemporaryVariableNode >> initialize [
+	super initialize.
+	avoidCopy := false.
 ]
 
 { #category : #testing }
@@ -36,6 +56,7 @@ MbndAstCopyIntoTemporaryVariableNode >> materializeWithGraphDecoder: graphDecode
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	value := encodedFields at: #value.
 	storageCreationNode := encodedFields at: #storageCreationNode.
+	avoidCopy := encodedFields at: #avoidCopy.
 ]
 
 { #category : #accessing }

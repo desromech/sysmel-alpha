@@ -556,6 +556,11 @@ MbndAstNode >> isMacroMessageMethodPrototypeNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMacroSendMessageNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMacroSendMessageWithArgumentsNode [
 	^ false
 ]

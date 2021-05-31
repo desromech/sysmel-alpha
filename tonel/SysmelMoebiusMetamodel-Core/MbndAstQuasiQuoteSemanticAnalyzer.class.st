@@ -44,7 +44,21 @@ MbndAstQuasiQuoteSemanticAnalyzer >> processMacroMessageSendNode: node withSelec
 		^ self processMacroSendMessageWithArguments: node
 	].
 
-	self halt
+	selector = #__macroSendMessage: ifTrue: [
+		^ self processMacroSendMessage: node
+	].
+
+	self error: 'Unsupported macro expansion message with selector {1}. ' format: { selector printString } at: node
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteSemanticAnalyzer >> processMacroSendMessage: node [
+	^ self visitNode: (MbndAstMacroSendMessageNode new
+		position: node;
+		receiver: node receiver;
+		message: node arguments first;
+		yourself)
+
 ]
 
 { #category : #visiting }

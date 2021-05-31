@@ -21,6 +21,9 @@ class RefCounted definition: {
 	}.
 	method release => Void := { 
 	}.
+	
+	method sideEffect => Void := {
+	}.
 }.
 
 compileTime constant RefCountedPtr := IntrusivePointer(RefCounted).
@@ -100,6 +103,33 @@ template IntrusivePointer(PT: Type)
 		pointer_ := newPointer.
 		self
 	}.
+}.
+
+'
+	
+]
+
+{ #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateIntrusiveRefClass [
+	self evaluateIntrusiveRefTemplate.
+	^ self evaluateSource: '
+compileTime constant RefCountedRef := IntrusiveRef(RefCounted).
+'
+	
+]
+
+{ #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateIntrusiveRefTemplate [
+	^ self evaluateSource: '
+template IntrusiveRef(PT: Type)
+	:= struct definition: {
+	compileTime constant PointedType := PT.
+	compileTime constant IntrusivePointerType := IntrusivePointer(PointedType).
+
+	public field __intrusivePointer__ type: IntrusivePointerType.
+	
+	macro method doesNotUnderstand: aMessage
+		:= ``(`,self __intrusivePointer__ _ __macroSendMessage: `,aMessage)
 }.
 
 '

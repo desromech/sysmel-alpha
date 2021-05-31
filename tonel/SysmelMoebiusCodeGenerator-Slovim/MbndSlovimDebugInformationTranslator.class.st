@@ -569,7 +569,7 @@ MbndSlovimDebugInformationTranslator >> visitNativeBlockClosureType: blockClosur
 ]
 
 { #category : #visiting }
-MbndSlovimDebugInformationTranslator >> visitOpaqueHandlerType: opaqueHandlerType [
+MbndSlovimDebugInformationTranslator >> visitOpaqueHandleType: opaqueHandlerType [
 	| debugType opaqueHandlerPointerType |
 	opaqueHandlerType isTrait ifTrue: [ ^ self visitTraitType: opaqueHandlerType ].
 	
@@ -734,7 +734,7 @@ MbndSlovimDebugInformationTranslator >> visitReferenceType: referenceType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitSamplerType: samplerType [
-	^ self visitOpaqueHandlerType: samplerType
+	^ self visitOpaqueHandleType: samplerType
 ]
 
 { #category : #visiting }
@@ -801,7 +801,7 @@ MbndSlovimDebugInformationTranslator >> visitTemporaryReferenceType: referenceTy
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitTextureType: textureType [
-	^ self visitOpaqueHandlerType: textureType
+	^ self visitOpaqueHandleType: textureType
 ]
 
 { #category : #visiting }
@@ -831,6 +831,11 @@ MbndSlovimDebugInformationTranslator >> visitTupleType: tupleType [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitUndefinedType: undefinedType [
+	^ self visitOpaqueHandleType: undefinedType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 	| debugType |
 	unionType isTrait ifTrue: [ ^ self visitTraitType: unionType ].
@@ -851,7 +856,7 @@ MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitVAListType: type [
-	^ self visitOpaqueHandlerType: type
+	^ self visitOpaqueHandleType: type
 ]
 
 { #category : #visiting }

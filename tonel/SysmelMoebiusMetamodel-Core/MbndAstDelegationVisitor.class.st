@@ -413,6 +413,11 @@ MbndAstDelegationVisitor >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMacroSendMessageNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 	^ self delegateNodeVisit: node
 ]

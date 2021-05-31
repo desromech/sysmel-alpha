@@ -95,6 +95,23 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 ]
 
 { #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitMacroSendMessageNode: node [
+	| receiver messageNode |
+	receiver := self visitNode: node receiver.
+	messageNode := self visitNode: node message.
+	messageNode isMessageChainMessageNode ifFalse: [ 
+		self error: 'Expected a message chain message node describing a message to send during a macro expansion.' at: node
+	].
+
+	^ MbndAstUnexpandedMessageSendNode new
+		position: messageNode position;
+		receiver: receiver;
+		selector: messageNode selector;
+		arguments: messageNode arguments;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitMacroSendMessageWithArgumentsNode: node [
 	| basicExpansion |
 	basicExpansion := super visitMacroSendMessageWithArgumentsNode: node.

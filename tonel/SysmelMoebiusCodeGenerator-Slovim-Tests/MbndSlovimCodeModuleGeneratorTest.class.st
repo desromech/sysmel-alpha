@@ -11655,6 +11655,45 @@ function cstringFunction cdecl (pointer u32 generic)
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testMacroDoesNotUnderstand [
+	| proxy |
+	self
+		evaluateSysmelSource: '
+
+struct Proxy definition: { 
+	public field x type: Int32.
+	
+	macro method doesNotUnderstand: aMessage
+		:= ``(`,self x __macroSendMessage: `,aMessage)
+}.
+
+function proxyPlusOne externC(p: Proxy) => Int32
+	:= p + 1';
+		generateSSAModule.
+
+	proxy := ssaModule globalNamed: #proxyPlusOne.
+	self assert: proxy asFullSExpressionForTesting equals: #(
+function proxyPlusOne cdecl i32
+	arguments (
+		(p (struct 'struct.TestModule::Proxy') ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil extractValue i32 () ((local 0 p)) (0))
+			(nil add i32 () ((local 2 nil) (const i32 1)))
+			(nil return void () ((local 3 nil)))
+		)
+	)
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testMainPutsCFunction [
 	| function |
 	self
@@ -15467,6 +15506,724 @@ function assignRefCountedPtr externC(variable: RefCountedPtr ref, value: RefCoun
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefDispatchMessage [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function dispatchMessage externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #dispatchMessage.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function dispatchMessage cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getElementPointer (pointer (struct 'struct.TestModule::IntrusivePointer(RefCounted)') generic) () ((local 0 ref) (const i32 0) (const i32 0)))
+			(nil call (pointer (struct 'class.TestModule::RefCounted') generic) () ((global 8 '_ZN10TestModule16IntrusivePointerINS_10RefCountedEE2._ERNS1_E') (local 2 nil)))
+			(nil call void () ((global 14 '_ZN10TestModule10RefCounted11.sideEffectERNS0_E') (local 3 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefDispatchMessage2 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function dispatchMessage externC(ref: RefCountedRef ref) => Void
+	:= ref sideEffect.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #dispatchMessage.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function dispatchMessage cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getElementPointer (pointer (struct 'struct.TestModule::IntrusivePointer(RefCounted)') generic) () ((local 0 ref) (const i32 0) (const i32 0)))
+			(nil call (pointer (struct 'class.TestModule::RefCounted') generic) () ((global 8 '_ZN10TestModule16IntrusivePointerINS_10RefCountedEE2._ERNS1_E') (local 2 nil)))
+			(nil call void () ((global 14 '_ZN10TestModule10RefCounted11.sideEffectERNS0_E') (local 3 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefDispatchMessage3 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function dispatchMessage externC(ref: RefCountedRef const ref) => Void
+	:= ref sideEffect.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #dispatchMessage.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function dispatchMessage cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getElementPointer (pointer (struct 'struct.TestModule::IntrusivePointer(RefCounted)') generic) () ((local 0 ref) (const i32 0) (const i32 0)))
+			(nil call (pointer (struct 'class.TestModule::RefCounted') generic) () ((global 8 '_ZN10TestModule16IntrusivePointerINS_10RefCountedEE2._ERNS1_E') (local 2 nil)))
+			(nil call void () ((global 14 '_ZN10TestModule10RefCounted11.sideEffectERNS0_E') (local 3 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefPassArgument [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function called externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+
+function caller externC(ref: RefCountedRef) => Void
+	:= called(ref).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call void () ((global 21 called) (local 0 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefPassArgument2 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function called externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+
+function caller externC(ref: RefCountedRef ref) => Void
+	:= called(ref).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 false) (local 2 nil)))
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 1 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 1 nil) (local 0 ref)))
+			(nil store void () ((const b8 true) (local 2 nil)))
+			(nil call void () ((global 21 called) (local 1 nil)))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 11 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 13 nil)) (0))
+			(nil store void () ((local 14 nil) (local 3 exceptionPointer)))
+			(nil extractValue i32 () ((local 13 nil)) (1))
+			(nil store void () ((local 16 nil) (local 4 exceptionSelector)))
+			(nil jump void () () (block 6 unwindCleanUp))
+		)
+		(()
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 5 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 22 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 24 nil)) (0))
+			(nil call void () ((global 24 __sysmel_eh_handleForbiddenException) (local 25 nil)))
+			(nil unreachable void () ())
+		)
+		((unwind (block 7 forbiddenExceptionTarget))
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 9 implicitCleanUpMerge))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 3 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 30 nil)) (0))
+			(nil load i32 () ((local 4 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 31 nil) (local 32 nil)) (1))
+			(nil resumeException void () ((local 33 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefPassArgument2NoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function called externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+
+function caller externC(ref: RefCountedRef ref) => Void
+	:= called(ref).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 4 implicitCleanUpMerge))
+			(nil store void () ((const b8 false) (local 2 nil)))
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 1 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 1 nil) (local 0 ref)))
+			(nil store void () ((const b8 true) (local 2 nil)))
+			(nil call void () ((global 21 called) (local 1 nil)))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 9 nil)) ((block 3 implicitCleanUpAction) (block 4 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 4 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefPassArgument3 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function called externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+
+function caller externC(ref: RefCountedRef const ref) => Void
+	:= called(ref).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 false) (local 2 nil)))
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 1 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 1 nil) (local 0 ref)))
+			(nil store void () ((const b8 true) (local 2 nil)))
+			(nil call void () ((global 21 called) (local 1 nil)))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 11 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 13 nil)) (0))
+			(nil store void () ((local 14 nil) (local 3 exceptionPointer)))
+			(nil extractValue i32 () ((local 13 nil)) (1))
+			(nil store void () ((local 16 nil) (local 4 exceptionSelector)))
+			(nil jump void () () (block 6 unwindCleanUp))
+		)
+		(()
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 5 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 22 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 24 nil)) (0))
+			(nil call void () ((global 24 __sysmel_eh_handleForbiddenException) (local 25 nil)))
+			(nil unreachable void () ())
+		)
+		((unwind (block 7 forbiddenExceptionTarget))
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 9 implicitCleanUpMerge))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 3 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 30 nil)) (0))
+			(nil load i32 () ((local 4 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 31 nil) (local 32 nil)) (1))
+			(nil resumeException void () ((local 33 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefPassArgument3NoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function called externC(ref: RefCountedRef) => Void
+	:= ref sideEffect.
+
+function caller externC(ref: RefCountedRef const ref) => Void
+	:= called(ref).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 4 implicitCleanUpMerge))
+			(nil store void () ((const b8 false) (local 2 nil)))
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 1 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 1 nil) (local 0 ref)))
+			(nil store void () ((const b8 true) (local 2 nil)))
+			(nil call void () ((global 21 called) (local 1 nil)))
+			(nil load b8 () ((local 2 nil)))
+			(nil branch void () ((local 9 nil)) ((block 3 implicitCleanUpAction) (block 4 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 18 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE9.finalizeERNS1_E') (local 1 nil)))
+			(nil jump void () () (block 4 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefReturn [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function returner externC(ref: RefCountedRef) => RefCountedRef
+	:= ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returner.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function returner cdecl void
+	arguments (
+		(nil (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) (sret))
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 0 nil)))
+			(nil call void () ((global 17 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE22.initializeMovingFrom.ERNS1_EONS1_E') (local 0 nil) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefReturn2 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function returner externC(ref: RefCountedRef ref) => RefCountedRef
+	:= ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returner.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function returner cdecl void
+	arguments (
+		(nil (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) (sret))
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 0 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 0 nil) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefReturn3 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function returner externC(ref: RefCountedRef const ref) => RefCountedRef
+	:= ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returner.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function returner cdecl void
+	arguments (
+		(nil (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) (sret))
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'struct.TestModule::IntrusiveRef(RefCounted)') ((constStruct (struct 'struct.TestModule::IntrusivePointer(RefCounted)') ((const (pointer (struct 'class.TestModule::RefCounted') generic) nil))))) (local 0 nil)))
+			(nil call void () ((global 16 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E') (local 0 nil) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStore [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStore2 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef ref) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStore2NoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef ref) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStore3 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef const ref) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStore3NoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef const ref) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedRefStoreNoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateIntrusiveRefClass;
+		evaluateSysmelSource: '
+function caller externC(field: RefCountedRef ref, ref: RefCountedRef) => Void
+	:= field := ref.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function asFullSExpressionForTesting equals: #(
+function caller cdecl void
+	arguments (
+		(field (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+		(ref (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (pointer (struct 'struct.TestModule::IntrusiveRef(RefCounted)') generic) () ((global 19 '_ZN10TestModule12IntrusiveRefINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E') (local 0 field) (local 1 ref)))
+			(nil returnVoid void () ())
+		)
+	)
+
 	).
 ]
 

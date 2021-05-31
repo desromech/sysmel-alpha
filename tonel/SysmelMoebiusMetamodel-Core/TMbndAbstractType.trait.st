@@ -290,6 +290,18 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer [
+	(self lookupMacroSelector: #doesNotUnderstand:) ifNotNil: [ :macroMethod |
+		^ macroMethod expandMessageNode: ((analyzer astBuilder
+			unexpandedSend: ((analyzer astBuilder literalSymbol: #doesNotUnderstand:)
+				position: node)
+			to: node receiver withArguments: { MbndAstMessageChainMessageNode new
+				position: node;
+				selector: node selector;
+				arguments: node arguments;
+				yourself})
+				position: node) with: analyzer
+	].
+
 	self supertype ifNotNil: [:st |
 		^ st analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
 	].

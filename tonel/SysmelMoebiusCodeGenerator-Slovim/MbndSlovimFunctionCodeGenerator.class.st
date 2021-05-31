@@ -2250,7 +2250,15 @@ MbndSlovimFunctionCodeGenerator >> visitConvertToCompilerObjectCastNode: node [
 MbndSlovimFunctionCodeGenerator >> visitCopyIntoTemporaryVariableNode: node [
 	| value valueType tempVar |
 	value := self visitNode: node value.
+
+	node type isReferenceType ifTrue: [ 
+		self assert: (node avoidCopy and: [ node value type isTypePassedByReference ]).
+		self assert: value type isPointerType.
+		^ value
+	].
+
 	self assert: node type isTemporaryReferenceType. 
+	
 	valueType := node type baseType.
 	tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
 	
