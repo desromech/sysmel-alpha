@@ -20,15 +20,6 @@ jobs:
             - name: Image loading
               run: ./newImageForCI.sh
 
-            - name: Package artifacts
-              run: scripts/packageArtifacts.sh
-
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v1
-              with:
-                  name: build-${{ env.PLATFORM_NAME }}
-                  path: artifacts/dist/${{ env.PLATFORM_NAME }}
-
             - name: Run image tests
               continue-on-error: true
               run: scripts/runImageTests.sh
@@ -53,15 +44,6 @@ jobs:
 
             - name: Image loading
               run: ./newImage.ps1
-
-            - name: Package artifacts
-              run: scripts/packageArtifacts.ps1
-
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v1
-              with:
-                  name: build-${{ env.PLATFORM_NAME }}
-                  path: artifacts/dist/${{ env.PLATFORM_NAME }}
 
             - name: Run image tests
               continue-on-error: true
