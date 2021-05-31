@@ -80,10 +80,6 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(#'SysmelGPUBlocks-Core-Tests')
 			].
 		spec
-			package: #'SysmelCalypso' with: [
-				spec requires: #(#'SysmelMoebiusMetamodel-Core' #'SysmelLanguage-Pharo')
-			].
-		spec
 			package: #'SysmelPharoCompatLayer-Core' with: [].
 		spec
 			package: #'SysmelPharoCompatLayer-Core-Tests' with: [

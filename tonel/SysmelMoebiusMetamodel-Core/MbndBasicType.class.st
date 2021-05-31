@@ -329,6 +329,14 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBasicType >> ensureRingDefinitionIn: aRGEnvironment [
+	name isMbndAnonymousSymbol ifTrue: [ ^ nil ].
+	^ aRGEnvironment backend definitionFor: self ifAbsentRegister: [
+		self buildRingDefinitionFor: aRGEnvironment
+	]
+]
+
 { #category : #'semantic analysis' }
 MbndBasicType >> ensureSemanticAnalysis [
 	self evaluateAllPendingDefinitionFragments.
