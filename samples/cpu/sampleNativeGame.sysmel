@@ -29,7 +29,11 @@ global jumpSound mutable type: SoundSourcePtr.
 global dashSound mutable type: SoundSourcePtr.
 global shootSound mutable type: SoundSourcePtr.
 
-class Entity definition: {
+class Entity.
+compileTime constant EntityRef := Entity rcRef.
+compileTime constant EntityWeakRef := Entity weakRCRef.
+
+class Entity superclass: Std RCObject; definition: {
 	public field position type: Float32x2.
 	public field halfExtent type: Float32x2.
 	public field color type: Float32x4.
@@ -108,14 +112,14 @@ class Character superclass: Entity; definition: {
 
 		## Perform Minkowski difference based collision detection with the boxes.
 		let bestCollisionAlpha mutable := ray tmax.
-		let bestCollisionEntity mutable type: Entity pointer := nil.
+		let bestCollisionEntity mutable type: Entity rcRef.
 		let bestCollisionExpandedBound mutable type: RectangleF32.
 
 		entities do: {:entity :: Void |
-			entity ~~ self address &&
-			entity _ isDead not &&
-			entity _ hasCollisionResponse ifTrue: {
-				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
+			entity ~~ self &&
+			entity isDead not &&
+			entity hasCollisionResponse ifTrue: {
+				let entityExpandedBoundingBox mutable := entity boundingBoxExpandedWith: halfExtent.
 				let intersectionResult mutable := entityExpandedBoundingBox intersectionWithRay: ray.
 				intersectionResult isPresent ifTrue: {
 					let intersectionAlpha := intersectionResult _.
@@ -165,7 +169,7 @@ class Character superclass: Entity; definition: {
 
 class Bullet superclass: Entity; definition: {
 	public field velocity type: Float32x2.
-	public field shooter type: Entity pointer.
+	public field shooter type: Entity weakRCRef.
 	public field maxFlyingTime type: Float32.
 	public field damage type: Float32.
 
@@ -186,14 +190,14 @@ class Bullet superclass: Entity; definition: {
 		## Perform Minkowski difference based collision detection with the boxes.
 		let ray := Ray2dF32 from: oldPosition to: targetPosition.
 		let bestCollisionAlpha mutable := ray tmax.
-		let bestCollisionEntity mutable type: Entity pointer := nil.
+		let bestCollisionEntity mutable type: Entity rcRef.
 
 		entities do: {:entity :: Void |
 			entity ~~ shooter &&
-			entity ~~ self address &&
-			entity _ isDead not &&
-			entity _ canBeShot ifTrue: {
-				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
+			entity ~~ self &&
+			entity isDead not &&
+			entity canBeShot ifTrue: {
+				let entityExpandedBoundingBox mutable := entity boundingBoxExpandedWith: halfExtent.
 				let intersectionResult mutable := entityExpandedBoundingBox intersectionWithRay: ray.
 				intersectionResult isPresent ifTrue: {
 					let intersectionAlpha := intersectionResult _.
@@ -207,7 +211,7 @@ class Bullet superclass: Entity; definition: {
 
 		bestCollisionEntity ifNotNil: {
 			hasHitTarget := true.
-			bestCollisionEntity _ shotAt: (ray pointAtDistance: bestCollisionAlpha) withDamage: damage.
+			bestCollisionEntity shotAt: (ray pointAtDistance: bestCollisionAlpha) withDamage: damage.
 			return: nil
 		}.
 
@@ -280,16 +284,15 @@ class Player superclass: Character; definition: {
 	method shoot => Void := {
 		shootSound _ play.
 
-		let bullet mutable := Bullet nativeNew.
-		bullet _
+		entities add: (Bullet new
 			color: Float32x4(0.8, 0.8, 0.8, 1.0);
 			halfExtent: 0.2;
-			shooter: self address;
+			shooter: self;
 			position: position;
 			velocity: Float32x2(velocity x, 0.0f) + 10.0f*lookDirection;
 			damage: 20.0f;
-			maxFlyingTime: 0.5f.
-		entities add: bullet
+			maxFlyingTime: 0.5f;
+			upCastFor: Entity)
 	}.
 
 	override method update: (delta: Float32) ::=> Void := {
@@ -310,9 +313,9 @@ class Player superclass: Character; definition: {
 	}.
 }.
 
-global entities mutable type: (Std Collections Vector(Entity pointer)).
+global entities mutable type: (Std Collections Vector(Entity rcRef)).
 
-global player mutable type: Player pointer.
+global player mutable type: Player rcRef.
 global viewMatrix mutable type: Float32x2x3.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
@@ -329,13 +332,13 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 			scaleBy: 0.2f;
 
 			## Set the camera position.
-			translateBy: player _ position negated + Float32x2(-2.0f, -2.0f);
+			translateBy: player position negated + Float32x2(-2.0f, -2.0f);
 			yourself.
 
 		let container := builder container.
 		## Draw the entities.
 		entities do: {:entity :: Void |
-			container _ add: (entity _ buildSceneNodeWith: builder).
+			container _ add: (entity buildSceneNodeWith: builder).
 		}.
 
 		(builder transform: viewTranform node: (container upCastFor: Node2D)) upCastFor: Node2D
@@ -345,7 +348,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		## Red border
 		let fullHealthRect := RectangleF32 min: Float32x2(20, 20) extent: Float32x2(250, 15).
 
-		let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
+		let healthPercentage := player hitPoints / 100.0f clampMin: 0.0f max: 1.0.
 		let currentHealthRect := RectangleF32 min: fullHealthRect min extent: fullHealthRect extent * Float32x2(healthPercentage, 1.0f).
 
 		(builder fillRectangle: fullHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) _ --
@@ -423,11 +426,11 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
 		event symbol selectCase: #{
 		KeySymbol Escape : {mainWindow _ close}.
-		KeySymbol A : {player _ moveLeftInput: true}.
-		KeySymbol D : {player _ moveRightInput: true}.
-		KeySymbol W : {player _ jump}.
-		KeySymbol Space : {player _ shoot}.
-		KeySymbol LShift : {player _ dash}.
+		KeySymbol A : {player moveLeftInput: true}.
+		KeySymbol D : {player moveRightInput: true}.
+		KeySymbol W : {player jump}.
+		KeySymbol Space : {player shoot}.
+		KeySymbol LShift : {player dash}.
 		_ : {}.
 		}
 	}.
@@ -436,27 +439,27 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		event isRepeat ifTrue: {return: void}.
 
 		event symbol selectCase: #{
-		KeySymbol A : {player _ moveLeftInput: false}.
-		KeySymbol D : {player _ moveRightInput: false}.
+		KeySymbol A : {player moveLeftInput: false}.
+		KeySymbol D : {player moveRightInput: false}.
 		_ : {}.
 		}
 	}.
 
 	override method onGameControllerButtonPressedEvent: (event: GameControllerButtonPressedEvent ref) ::=> Void := {
 		event button selectCase: #{
-		GameControllerButton DPadLeft : {player _ moveLeftInput: true}.
-		GameControllerButton DPadRight : {player _ moveRightInput: true}.
-		GameControllerButton ButtonLeft : {player _ shoot}.
-		GameControllerButton ButtonDown : {player _ jump}.
-		GameControllerButton RightShoulder : {player _ dash}.
+		GameControllerButton DPadLeft : {player moveLeftInput: true}.
+		GameControllerButton DPadRight : {player moveRightInput: true}.
+		GameControllerButton ButtonLeft : {player shoot}.
+		GameControllerButton ButtonDown : {player jump}.
+		GameControllerButton RightShoulder : {player dash}.
 		_ : {}.
 		}.
 	}.
 
 	override method onGameControllerButtonReleasedEvent: (event: GameControllerButtonReleasedEvent ref) ::=> Void := {
 		event button selectCase: #{
-		GameControllerButton DPadLeft : {player _ moveLeftInput: false}.
-		GameControllerButton DPadRight : {player _ moveRightInput: false}.
+		GameControllerButton DPadLeft : {player moveLeftInput: false}.
+		GameControllerButton DPadRight : {player moveRightInput: false}.
 		_ : {}.
 		}.
 	}.
@@ -464,30 +467,28 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
 function update(delta: Float32) => Void := {
 	entities do: {:entity :: Void |
-		entity _ update: delta.
+		entity update: delta.
 	}.
 
 	## Remove the dead entities
 	let destIndex mutable type: UIntPointer := 0.
 	0 until: entities size do: {:i :: Void |
 		let entity := entities[i].
-		entity _ shouldBeRemoved ifTrue: {
-			entity nativeDelete
-		} ifFalse: {
+		entity shouldBeRemoved ifFalse: {
 			entities[destIndex] := entity.
 			destIndex := destIndex + 1
 		}.
 	}.
+
 	entities resizeTo: destIndex.
 }.
 
 method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Float32x4) ::=> Void := {
-	let wall mutable := Wall nativeNew.
-	wall _
+	entities add: (Wall new
 		position: (max + min) *0.5f;
 		halfExtent: (max - min) *0.5f;
-		color: color.
-	entities add: wall.
+		color: color;
+		upCastFor: Entity).
 }.
 
 Std MainEntryPoint: {:args :: Int32 |
@@ -545,20 +546,20 @@ Std MainEntryPoint: {:args :: Int32 |
 	}.
 
 	{
-		player := Player nativeNew.
-		entities add: player.
+		player := Player new.
+		entities add: (player upCastFor: Entity).
 	}.
 
 	{
-		let enemy mutable := Enemy nativeNew.
-		enemy _ position: Float32x2(4.0, 2.0).
-		entities add: enemy.
+		let enemy := Enemy new.
+		enemy position: Float32x2(4.0, 2.0).
+		entities add: (enemy upCastFor: Entity).
 	}.
 
 	{
-		let enemy mutable := Enemy nativeNew.
-		enemy _ position: Float32x2(15.0, 0.0).
-		entities add: enemy.
+		let enemy := Enemy new.
+		enemy position: Float32x2(15.0, 0.0).
+		entities add: (enemy upCastFor: Entity).
 	}.
 
 	## Shoot sound.
@@ -612,8 +613,6 @@ Std MainEntryPoint: {:args :: Int32 |
 	windowSystem _ runMainLoop.
 
 	playbackDevice _ destroy.
-
-	entities do: #nativeDelete.
 
     return: 0.
 }.
