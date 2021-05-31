@@ -4,12 +4,6 @@ Compiler
 	importModuleNamed: #"Std.Testing";
 	importIndirectModuleNamed: #"Std.Core.Tests".
 
-compileTime if: Compiler hasGarbageCollectedRuntime then: {
-	Compiler importIndirectModulesNamed: #(
-		#"Smalltalk.Runtime.Core.Tests"
-	).
-}.
-
 compileTime if: OnlyRuntimeCoreTests not then: {
 	Compiler
 		importIndirectModulesNamed: #(

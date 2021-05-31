@@ -3,3 +3,4 @@ loadFileOnce: "NativeMemoryHeap.sysmel".
 loadFileOnce: "UniquePointer.sysmel".
 loadFileOnce: "SharedPointer.sysmel".
 loadFileOnce: "RCPointer.sysmel".
+loadFileOnce: "RCRef.sysmel".

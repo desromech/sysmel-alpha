@@ -7,6 +7,9 @@ template RCPointer(PT: Type)
 	compileTime constant SmartPointerType := SelfType.
 	compileTime constant WeakPointerType := WeakRCPointer(PT).
 
+    compileTime constant RCRefType := Std RCRef(PT).
+    compileTime constant WeakRCRefType := Std WeakRCRef(PT).
+
     meta extend: {
         inline method forNew: (pointer: PointerType) ::=> SmartPointerType
             := SmartPointerType basicNewValue initializeWithNewPointer: pointer; yourself.
@@ -101,6 +104,12 @@ template RCPointer(PT: Type)
     const inline method asWeakRCPointer => WeakPointerType
         := WeakPointerType for: pointer_.
 
+    const inline method asRCRef => RCRefType
+        := RCRefType for: self.
+
+    const inline method asWeakRCRef => WeakRCRefType
+        := WeakRCRefType for: self asWeakRCPointer.
+
     macro method upCastFor: targetType
         := ``(Std RCPointer(`,targetType) for: `,self __private pointer_).
 
@@ -115,6 +124,8 @@ template RCPointer(PT: Type)
 	macro method ifNil: nilAction ifNotNil: notNilAction := ``(`,self getPointer ifNil: `,nilAction ifNotNil: `, notNilAction).
 	macro method ifNotNil: notNilAction := ``(`,self getPointer ifNotNil: `,notNilAction).
 	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
+
+    macro method printOnNativeTextStreamWriter: out := ``(`,self __private pointer_ printOnNativeTextStreamWriter: `,out).
 }.
 
 template WeakRCPointer(PT: Type)
@@ -123,6 +134,8 @@ template WeakRCPointer(PT: Type)
 	compileTime constant PointerType := PointedType pointer.
 	compileTime constant WeakPointerType := SelfType.
 	compileTime constant StrongPointerType := RCPointer(PT).
+
+    compileTime constant WeakRCRefType := Std WeakRCRef(PT).
 
     private field pointer_ type: PointerType.
 
@@ -217,6 +230,10 @@ template WeakRCPointer(PT: Type)
         Std swapValue: pointer_ with: o __private pointer_.
     }.
 
+    macro method asWeakRCPointer := self.
+    const inline method asWeakRCRef => WeakRCRefType
+        := WeakRCRefType for: self.
+
     macro method upCastFor: targetType
         := ``(Std WeakRCPointer(`,targetType) for: `,self __private pointer_).
 
@@ -225,11 +242,162 @@ template WeakRCPointer(PT: Type)
 }.
 
 #**
+ * Transparent RC counted reference.
+ *#
+template RCRef(PT: Type)
+    := struct definition: {
+    compileTime constant PointedType := PT.
+    compileTime constant DoesNotUnderstandProxyType := PointedType.
+    
+    compileTime constant RCPointerType := Std RCPointer(PT).
+    compileTime constant WeakRCPointerType := Std WeakRCPointer(PT).
+
+    compileTime constant WeakRCRefType := Std WeakRCRef(PT).
+
+    public field __rcPointer__ type: RCPointerType.
+
+    meta extend: {
+        inline method for: (rcPointer: RCPointerType) ::=> InstanceType
+            := InstanceType basicNewValue __rcPointer__: rcPointer; yourself.
+
+        inline method for: (pointer: PT pointer) ::=> InstanceType
+            := self for: (RCPointerType for: pointer).
+
+        inline method forNewInstance ::=> InstanceType
+            := self for: RCPointerType forNewInstance.
+
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    macro method asRCPointer := ``(`,self __rcPointer__).
+    macro method asWeakRCPointer := ``(`,self __rcPointer__ asWeakRCPointer).
+
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := __rcPointer__ == other __rcPointer__.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := __rcPointer__ ~~ other __rcPointer__.
+    const inline method == (other: PointedType const ref) ::=> Boolean8
+        := __rcPointer__ getPointer == other address.
+    const inline method ~~ (other: PointedType const ref) ::=> Boolean8
+        := __rcPointer__ getPointer ~~ other address.
+
+    (inline method := (o: _UndefinedType)) ::=> SelfType const ref := {
+        __rcPointer__ reset.
+		self
+	}.
+
+    (inline method := (o: PointedType ref)) ::=> SelfType const ref := {
+        __rcPointer__ := RCPointerType for: o address.
+		self
+	}.
+
+    (inline method := (o: WeakRCRefType ref)) ::=> SelfType const ref := {
+        __rcPointer__ := o __weakRCPointer__ lock.
+		self
+	}.
+
+    const inline method asWeakRCRef => WeakRCRefType
+        := WeakRCRefType for: __rcPointer__ asWeakRCPointer.
+    macro method asRCRef := self.
+
+	macro method isNil := ``(`,self __rcPointer__ isNil).
+	macro method isNotNil := ``(`,self __rcPointer__ isNotNil).
+
+    ## ifNil:ifNotNil
+	macro method ifNil: nilAction := ``(`,self __rcPointer__ ifNil: `,nilAction).
+    macro method ifNil: nilAction ifNotNil: notNilAction := {
+        let ref := __astBuilder gensym: #ref.
+        ``{
+            let `,ref ref := `,self.
+            `,ref __rcPointer__ getPointer ifNil: `,nilAction ifNotNil: (`,notNilAction __macroInlineBlock: `,ref)
+        } asSequenceWithoutLexicalScope
+    }.
+
+	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self ifNil: `,nilAction ifNotNil: `,notNilAction).
+	macro method ifNotNil: notNilAction  := ``(`,self ifNil: void ifNotNil: `,notNilAction).
+
+    macro method printOnNativeTextStreamWriter: out
+        := ``(`,self __rcPointer__ _ printOnNativeTextStreamWriter: `,out).
+
+    macro method doesNotUnderstand: aMessage
+        := ``(`,self __rcPointer__ _ __macroSendMessage: `,aMessage).
+}.
+
+#**
+ * Transparent Weak RC counted reference.
+ *#
+template WeakRCRef(PT: Type)
+    := struct definition: {
+    compileTime constant PointedType := PT.
+    compileTime constant DoesNotUnderstandProxyType := PointedType.
+
+    compileTime constant RCPointerType := Std RCPointer(PT).
+    compileTime constant WeakRCPointerType := Std WeakRCPointer(PT).
+
+    compileTime constant RCRefType := Std RCRef(PT).
+
+    public field __weakRCPointer__ type: WeakRCPointerType.
+
+    meta extend: {
+        inline method for: (rcPointer: WeakRCPointerType) ::=> InstanceType
+            := InstanceType basicNewValue __weakRCPointer__: rcPointer; yourself.
+
+        inline method for: (pointer: PT pointer) ::=> InstanceType
+            := self for: (WeakRCPointerType for: pointer).
+
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := __weakRCPointer__ == other __weakRCPointer__.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := __weakRCPointer__ ~~ other __weakRCPointer__.
+
+    (inline method := (o: _UndefinedType)) ::=> SelfType const ref := {
+        __weakRCPointer__ reset.
+		self
+	}.
+    
+    (inline method := (o: PointedType ref)) ::=> SelfType const ref := {
+        __weakRCPointer__ := WeakRCPointerType for: o address.
+		self
+	}.
+
+    (inline method := (o: RCRefType ref)) ::=> SelfType const ref := {
+        __weakRCPointer__ := o __rcPointer__.
+		self
+	}.
+
+    macro method asRCPointer := ``(`,self __weakRCPointer__ lock).
+    macro method asWeakRCPointer := ``(`,self __weakRCPointer__).
+
+    macro method asWeakRCRef := self.
+    const inline method asRCRef => RCRefType
+        := RCRefType for: __weakRCPointer__ lock.
+
+	macro method isNil := ``(`,self asRCPointer isNil).
+	macro method isNotNil := ``(`,self asRCPointer isNotNil).
+
+	macro method ifNil: nilAction := ``(`,self asRCRef ifNil: `,nilAction).
+	macro method ifNil: nilAction ifNotNil: notNilAction := ``(`,self asRCRef ifNil: `,nilAction ifNotNil: `, notNilAction).
+	macro method ifNotNil: notNilAction := ``(`,self asRCRef ifNotNil: `,notNilAction).
+	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self asRCRef ifNotNil: `,notNilAction ifNil: `,nilAction).
+
+    macro method doesNotUnderstand: aMessage
+        := ``(`,self __weakRCPointer__ lock _ __macroSendMessage: `,aMessage).
+}.
+
+#**
  * I am an that holds a pointer into its reference counter.
  *#
 class RCObject superclass: Object; definition: {
     private field strongCounter_ type: AtomicUIntPointer.
     private field weakCounter_ type: AtomicUIntPointer.
+
+    meta definition: {
+        macro method rcNew := ``(`,self rcPointer forNewInstance).
+        macro method new := ``(`,self rcRef forNewInstance).
+    }.
 
     override method initialize => Void := {
         strongCounter_ store: 1 with: MemoryOrder Release.
@@ -244,7 +412,7 @@ class RCObject superclass: Object; definition: {
         let oldCount := strongCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
         ##Std stdout << self address << " old strong release count " << oldCount; nl.
         oldCount == 1 ifTrue: {
-            ##Std stdout << "No more strong counts finalize the shared object " << self address ; nl.
+            ##Std stdout << "No more strong counts finalize the ref counted object " << self address ; nl.
             self
                 finalize;
                 weakRelease.
@@ -276,14 +444,23 @@ class RCObject superclass: Object; definition: {
     }.
 
 
-    method asRCObjectWeakPointer => Std WeakRCPointer(SelfType)
+    inline method asRCObjectWeakPointer => Std WeakRCPointer(SelfType)
         := Std WeakRCPointer(SelfType) for: self address.
 
-    method asRCObjectPointer => Std RCPointer(SelfType)
+    inline method asRCObjectPointer => Std RCPointer(SelfType)
         := Std RCPointer(SelfType) for: self address.
 
-    macro method asWeakRCPointer := ``(`,self asRCObjectWeakPointer downCastFor: `,SelfType).
-    macro method asRCPointer := ``(`,self asRCObjectPointer downCastFor: `,SelfType).
+    inline method asRCObjectRef => Std RCRef(SelfType)
+        := Std RCRef(SelfType) for: self asRCObjectPointer.
+
+    inline method asRCObjectWeakRef => Std WeakRCRef(SelfType)
+        := Std WeakRCRef(SelfType) for: self asRCObjectWeakPointer.
+
+    macro method asWeakRCPointer := ``(Std WeakRCPointer(`,SelfType) for: `,self address).
+    macro method asRCPointer := ``(Std RCPointer(`,SelfType) for: `,self address).
+
+    macro method asWeakRCRef := ``(Std WeakRCRef(SelfType) for: `,self address).
+    macro method asRCRef := ``(Std RCRef(SelfType) for: `,self address).
 
     (inline method := (other: SelfType const ref)) => SelfType ref := {
         ## internalSelfWeakPointer should not be modified.
@@ -300,9 +477,12 @@ class RCObject superclass: Object; definition: {
 _ClassType meta macro method rcPointer := ``(Std RCPointer(`,self)).
 _ClassType meta macro method weakRCPointer := ``(Std WeakRCPointer(`,self)).
 
-_ClassType meta macro method rcNew := ``(`,self rcPointer forNewInstance).
+_ClassType meta macro method rcRef := ``(Std RCRef(`,self)).
+_ClassType meta macro method weakRCRef := ``(Std WeakRCRef(`,self)).
 
 compileTime constant RCObjectPtr := RCObject rcPointer.
 compileTime constant RCObjectWeakPtr := RCObject weakRCPointer.
+compileTime constant RCObjectRef := RCObject rcRef.
+compileTime constant RCObjectWeakRef := RCObject weakRCRef.
 
 }. ## End of namespace Std

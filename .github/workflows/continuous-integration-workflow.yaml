@@ -36,11 +36,7 @@ jobs:
             - name: Run native runtime libraries tests
               continue-on-error: true
               run: scripts/runNativeRuntimeTests.sh
-
-            - name: Run GC runtime libraries tests
-              continue-on-error: true
-              run: scripts/runGCRuntimeTests.sh
-
+              
             - name: Upload test results
               continue-on-error: true
               uses: actions/upload-artifact@v1
