@@ -16,16 +16,16 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
     }.
 
     field mutex type: Std Mutex.
-    field mainDevice type: SDL2PlaybackDevice weakRCPointer.
+    field mainDevice type: SDL2PlaybackDevice weakRCRef.
 
     meta definition: {
         global Singleton mutable type: SDL2SoundDriver.
     }.
 
-    method createDefaultPlaybackDevice => SDL2PlaybackDevicePtr := {
+    method createDefaultPlaybackDevice => SDL2PlaybackDeviceRef := {
         SDL2InitState uniqueInstance increaseAudioUserCount.
 
-        let result := SDL2PlaybackDevice rcNew.
+        let result := SDL2PlaybackDevice new.
 
         let audioDeviceSpec mutable := SDL_AudioSpec().
         let desiredAudioSpec mutable := SDL_AudioSpec()
@@ -34,25 +34,24 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
             channels: 2;
             samples: 2048;
             callback: sdl2PlaybackDeviceAudioCallback address;
-            userdata: result getPointer;
+            userdata: result __rcPointer__ getPointer;
             yourself.
         let audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
         audioDeviceID = 0 ifTrue: {
             SDL2InitState uniqueInstance decreaseAudioUserCount.
-            return: SDL2PlaybackDevicePtr nil
+            return: SDL2PlaybackDeviceRef nil
         }.
 
-        result _
-            initializeWithAudioDevice: audioDeviceID audioSpec: audioDeviceSpec.
+        result initializeWithAudioDevice: audioDeviceID audioSpec: audioDeviceSpec.
         result
     }.
 
-    override method getOrCreateDefaultPlaybackDevice => PlaybackDevicePtr := {
-        let result mutable := mainDevice lock.
+    override method getOrCreateDefaultPlaybackDevice => PlaybackDeviceRef := {
+        let result mutable := mainDevice asRCRef.
         result ifNotNil: {return: (result upCastFor: PlaybackDevice)}.
 
         mutex withLock: {
-            result := mainDevice lock.
+            result := mainDevice asRCRef.
             result ifNotNil: {return: (result upCastFor: PlaybackDevice)}.
 
             result := self createDefaultPlaybackDevice.
@@ -60,11 +59,11 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
             return: (result upCastFor: PlaybackDevice)
         }.
 
-        PlaybackDevicePtr nil.
+        PlaybackDeviceRef nil.
     }.
 }.
 
-compileTime constant SDL2SoundDriverPtr := SDL2SoundDriver rcPointer.
+compileTime constant SDL2SoundDriverRef := SDL2SoundDriver rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

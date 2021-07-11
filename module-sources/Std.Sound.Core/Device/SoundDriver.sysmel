@@ -5,8 +5,8 @@ namespace Sound definition: {
  * I represent a particular sound driver.
  *#
 class SoundDriver superclass: Std RCObject; definition: {
-    virtual method getOrCreateDefaultPlaybackDevice => PlaybackDevicePtr
-        := PlaybackDevicePtr nil.
+    virtual method getOrCreateDefaultPlaybackDevice => PlaybackDeviceRef
+        := PlaybackDeviceRef nil.
 }.
 
 compileTime constant SoundDriverPtr := SoundDriver rcPointer.

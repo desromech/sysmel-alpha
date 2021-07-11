@@ -33,7 +33,7 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
         }.
     }.
 
-    method activateSoundSource: (soundSource: SoftSoundSourcePtr) ::=> Void := {
+    method activateSoundSource: (soundSource: SoftSoundSourcePtr const ref) ::=> Void := {
         mixerMutex withLock: {
             (activeSoundSources includes: soundSource) ifFalse: {
                 activeSoundSources add: soundSource
@@ -41,30 +41,31 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
         }.
     }.
 
-    override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferPtr := {
-        let result := SoftSoundBuffer rcNew.
-        result _ initializeWithDescription: description.
+    override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferRef := {
+        let result := SoftSoundBuffer new
+            initializeWithDescription: description;
+            yourself.
         initialData ifNotNil: {
-            result _ upload: initialData size: description bufferByteSize offset: 0
+            result upload: initialData size: description bufferByteSize offset: 0
         }.
 
         result upCastFor: SoundBuffer
     }.
 
-    override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr := {
-        let result := SoftSoundSource rcNew.
-        result _ initializeWith: description playbackDevice: self asRCPointer.
-        result upCastFor: SoundSource.
+    override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourceRef := {
+        SoftSoundSource new
+            initializeWith: description playbackDevice: self asRCRef;
+            upCastFor: SoundSource.
     }.
 
-    override method newSoundSourceForStreamSource: (generator: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr := {
-        let result := SoftSoundSource rcNew.
-        result _ initializeWithStreamSource: generator playbackDevice: self asRCPointer.
-        result upCastFor: SoundSource
+    override method newSoundSourceForStreamSource: (generator: SoundStreamSourceRef const ref) ::=> SoundSourceRef := {
+        SoftSoundSource new
+            initializeWithStreamSource: generator playbackDevice: self asRCRef;
+            upCastFor: SoundSource
     }.
 }.
 
-compileTime constant SoftPlaybackDevicePtr := SoftPlaybackDevice rcPointer.
+compileTime constant SoftPlaybackDeviceRef := SoftPlaybackDevice rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

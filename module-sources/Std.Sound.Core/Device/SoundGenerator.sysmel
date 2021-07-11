@@ -68,7 +68,7 @@ class SoundGenerator superclass: SoundStreamSource; definition: {
     }.
 }.
 
-compileTime constant SoundGeneratorPtr := SoundGenerator rcPointer.
+compileTime constant SoundGeneratorRef := SoundGenerator rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

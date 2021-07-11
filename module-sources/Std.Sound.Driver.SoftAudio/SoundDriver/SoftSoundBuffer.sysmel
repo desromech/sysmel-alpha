@@ -21,7 +21,7 @@ class SoftSoundBuffer superclass: SoundBuffer; definition: {
     }.
 }.
 
-compileTime constant SoftSoundBufferPtr := SoftSoundBuffer rcPointer.
+compileTime constant SoftSoundBufferRef := SoftSoundBuffer rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

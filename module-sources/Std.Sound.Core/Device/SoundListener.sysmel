@@ -8,7 +8,7 @@ class SoundListener superclass: Std RCObject; definition: {
 
 }.
 
-compileTime constant SoundListenerPtr := SoundListener rcPointer.
+compileTime constant SoundListenerRef := SoundListener rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

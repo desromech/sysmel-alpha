@@ -6,18 +6,18 @@ namespace Sound definition: {
  *#
 class SoftSoundSource superclass: SoundSource; definition: {
     field description type: SoundSourceDescription.
-    field soundBuffer type: SoftSoundBufferPtr.
-    field streamSource type: SoundStreamSourcePtr.
-    field playbackDevice type: SoftPlaybackDevicePtr.
+    field soundBuffer type: SoftSoundBufferRef.
+    field streamSource type: SoundStreamSourceRef.
+    field playbackDevice type: SoftPlaybackDeviceRef.
     field isPlaying type: Boolean8.
     field playbackPosition type: UIntPointer.
 
-    method initializeWith: (theDescription: SoundSourceDescription const ref) playbackDevice: (theDevice: SoftPlaybackDevicePtr const ref) ::=> Void := {
+    method initializeWith: (theDescription: SoundSourceDescription const ref) playbackDevice: (theDevice: SoftPlaybackDeviceRef const ref) ::=> Void := {
         description := theDescription.
         playbackDevice := theDevice.
     }.
 
-    method initializeWithStreamSource: (theStreamSource: SoundStreamSourcePtr const ref) playbackDevice: (theDevice: SoftPlaybackDevicePtr const ref) ::=> Void := {
+    method initializeWithStreamSource: (theStreamSource: SoundStreamSourceRef const ref) playbackDevice: (theDevice: SoftPlaybackDeviceRef const ref) ::=> Void := {
         streamSource := theStreamSource.
         playbackDevice := theDevice.
     }.
@@ -25,7 +25,7 @@ class SoftSoundSource superclass: SoundSource; definition: {
     method resetPlaybackPosition => Void := {
         playbackPosition := 0.
         streamSource ifNotNil: {
-            streamSource _ resetState.
+            streamSource resetState.
         }.
     }.
 
@@ -36,7 +36,7 @@ class SoftSoundSource superclass: SoundSource; definition: {
 
     override method resume => Void := {
         isPlaying := true.
-        playbackDevice _ activateSoundSource: self asRCPointer.
+        playbackDevice activateSoundSource: self asRCPointer.
     }.
 
     override method stop => Void := {
@@ -54,27 +54,28 @@ class SoftSoundSource superclass: SoundSource; definition: {
         streamSource ifNil: {
             true
         } ifNotNil: {
-            streamSource _ mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer pitch: 1 gain: 1.
-            streamSource _ atEnd not
+            streamSource mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer pitch: 1 gain: 1.
+            streamSource atEnd not
         }.
     }.
 
-    override method soundBuffer: (theSoundBuffer: SoundBufferPtr const ref) ::=> Void := {
+    override method soundBuffer: (theSoundBuffer: SoundBufferRef const ref) ::=> Void := {
         soundBuffer := theSoundBuffer downCastFor: SoftSoundBuffer
     }.
 
-    override method soundBuffer ::=> SoundBufferPtr
+    override method soundBuffer ::=> SoundBufferRef
         := soundBuffer upCastFor: SoundBuffer.
 
-    override method soundStreamSource: (theSoundStreamSource: SoundStreamSourcePtr const ref) ::=> Void := {
+    override method soundStreamSource: (theSoundStreamSource: SoundStreamSourceRef const ref) ::=> Void := {
         streamSource := theSoundStreamSource
     }.
 
-    override method soundStreamSource ::=> SoundStreamSourcePtr
+    override method soundStreamSource ::=> SoundStreamSourceRef
         := streamSource.
 }.
 
 compileTime constant SoftSoundSourcePtr := SoftSoundSource rcPointer.
+compileTime constant SoftSoundSourceRef := SoftSoundSource rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

@@ -85,7 +85,7 @@ function sdl2PlaybackDeviceAudioCallback(userdata: Void pointer, stream: UInt8 p
         onAudioCallback: stream len: len
 }.
 
-compileTime constant SDL2PlaybackDevicePtr := SDL2PlaybackDevice rcPointer.
+compileTime constant SDL2PlaybackDeviceRef := SDL2PlaybackDevice rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

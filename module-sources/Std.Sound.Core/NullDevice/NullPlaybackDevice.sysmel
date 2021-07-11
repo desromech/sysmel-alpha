@@ -5,17 +5,17 @@ namespace Sound definition: {
  * I am a null playback device.
  *#
 class NullPlaybackDevice superclass: PlaybackDevice; definition: {
-    override method newSoundBuffer: (description: SoundBufferDescription const ref) ::=> SoundBufferPtr
-        := SoundBuffer rcNew.
+    override method newSoundBuffer: (description: SoundBufferDescription const ref) ::=> SoundBufferRef
+        := SoundBuffer new.
 
-    override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferPtr
-        := SoundBuffer rcNew.
+    override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferRef
+        := SoundBuffer new.
 
-    override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr
-        := SoundSource rcNew.
+    override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourceRef
+        := SoundSource new.
 
-    override method newSoundSourceForStreamSource: (streamSource: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr
-        := SoundSource rcNew.
+    override method newSoundSourceForStreamSource: (streamSource: SoundStreamSourceRef const ref) ::=> SoundSourceRef
+        := SoundSource new.
 }.
 
 compileTime constant NullPlaybackDevicePtr := NullPlaybackDevice rcPointer.

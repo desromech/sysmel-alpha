@@ -22,10 +22,10 @@ class SoundDriverRegistry definition: {
         method defaultDriver => SoundDriver pointer
             := self default defaultDriver.
 
-        method defaultPlaybackDevice => PlaybackDevicePtr
+        method defaultPlaybackDevice => PlaybackDeviceRef
             := self default defaultPlaybackDevice.
 
-        method validDefaultPlaybackDevice => PlaybackDevicePtr
+        method validDefaultPlaybackDevice => PlaybackDeviceRef
             := self default validDefaultPlaybackDevice.
     }.
 
@@ -45,18 +45,18 @@ class SoundDriverRegistry definition: {
         return: nil
     }.
 
-    method defaultPlaybackDevice => PlaybackDevicePtr := {
+    method defaultPlaybackDevice => PlaybackDeviceRef := {
         let soundDriver := self defaultDriver.
-        soundDriver ifNil: {return: PlaybackDevicePtr nil}.
+        soundDriver ifNil: {return: PlaybackDeviceRef nil}.
 
         soundDriver _ getOrCreateDefaultPlaybackDevice
     }.
 
-    method validDefaultPlaybackDevice => PlaybackDevicePtr := {
+    method validDefaultPlaybackDevice => PlaybackDeviceRef := {
         let result := self defaultPlaybackDevice.
         result ifNotNil: {return: result}.
 
-        (NullPlaybackDevice rcNew) upCastFor: PlaybackDevice
+        NullPlaybackDevice new upCastFor: PlaybackDevice
     }.
 }.
 

@@ -11,14 +11,14 @@ class SoundSource superclass: Std RCObject; definition: {
     virtual method resume => Void := {}.
     virtual method stop => Void := {}.
 
-    virtual method soundBuffer: (theSoundBuffer: SoundBufferPtr const ref) ::=> Void := {}.
-    virtual method soundBuffer ::=> SoundBufferPtr := SoundBufferPtr nil.
+    virtual method soundBuffer: (theSoundBuffer: SoundBufferRef const ref) ::=> Void := {}.
+    virtual method soundBuffer ::=> SoundBufferRef := SoundBufferRef nil.
 
-    virtual method soundStreamSource: (theSoundStreamSource: SoundStreamSourcePtr const ref) ::=> Void := {}.
-    virtual method soundStreamSource ::=> SoundStreamSourcePtr := SoundStreamSourcePtr nil.
+    virtual method soundStreamSource: (theSoundStreamSource: SoundStreamSourceRef const ref) ::=> Void := {}.
+    virtual method soundStreamSource ::=> SoundStreamSourceRef := SoundStreamSourceRef nil.
 }.
 
-compileTime constant SoundSourcePtr := SoundSource rcPointer.
+compileTime constant SoundSourceRef := SoundSource rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

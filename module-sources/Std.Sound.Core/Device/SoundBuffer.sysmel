@@ -8,7 +8,7 @@ class SoundBuffer superclass: Std RCObject; definition: {
     virtual method upload: (data: Void const pointer) size: (size: UIntPointer) offset: (offset: UIntPointer) ::=> Void := {}
 }.
 
-compileTime constant SoundBufferPtr := SoundBuffer rcPointer.
+compileTime constant SoundBufferRef := SoundBuffer rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

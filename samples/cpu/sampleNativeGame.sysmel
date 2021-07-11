@@ -23,11 +23,11 @@ let lastFrameTime mutable type: Float32.
 let accumulatedUpdateTime mutable type: Float32.
 let updateStepTime type: Float32 := 1.0f / 60.0f.
 
-global playbackDevice mutable type: Std Sound PlaybackDevicePtr.
+global playbackDevice mutable type: Std Sound PlaybackDeviceRef.
 
-global jumpSound mutable type: SoundSourcePtr.
-global dashSound mutable type: SoundSourcePtr.
-global shootSound mutable type: SoundSourcePtr.
+global jumpSound mutable type: SoundSourceRef.
+global dashSound mutable type: SoundSourceRef.
+global shootSound mutable type: SoundSourceRef.
 
 class Entity.
 compileTime constant EntityRef := Entity rcRef.
@@ -247,7 +247,7 @@ class Player superclass: Character; definition: {
 			remainingDashTime := 0.35f.
 			dashDirection := Float32x2(lookDirection x, 0.0f).
 			speed := 10.0f.
-			dashSound _ play
+			dashSound play
 		}.
 	}.
 
@@ -277,12 +277,12 @@ class Player superclass: Character; definition: {
 		isOnFloor ifTrue: {
 			velocity y: 10.0.
 			remainingDashTime := 0.0f.
-			jumpSound _ play
+			jumpSound play
 		}.
 	}.
 
 	method shoot => Void := {
-		shootSound _ play.
+		shootSound play.
 
 		entities add: (Bullet new
 			color: Float32x4(0.8, 0.8, 0.8, 1.0);
@@ -564,8 +564,7 @@ Std MainEntryPoint: {:args :: Int32 |
 
 	## Shoot sound.
 	{
-		let pulseChannel mutable := PulseToneGenerator rcNew.
-		pulseChannel _
+		let pulseChannel := PulseToneGenerator new
 			frequency: 150.0;
 			amplitude: 0.1;
 			pulseWidth: 0.15;
@@ -574,45 +573,46 @@ Std MainEntryPoint: {:args :: Int32 |
 			decayTime: 0.025;
 			sustainLevel: 0.4;
 			sustainTime: 0.1;
-			releaseTime: 0.3.
+			releaseTime: 0.3;
+			yourself.
 
-		shootSound := playbackDevice _ newSoundSourceForStaticGenerator: (pulseChannel upCastFor: SoundGenerator)
+		shootSound := playbackDevice newSoundSourceForStaticGenerator: (pulseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Jump sound.
 	{
-		let noiseChannel mutable := NoiseSoundGenerator rcNew.
-		noiseChannel _
+		let noiseChannel := NoiseSoundGenerator new
 			amplitude: 0.1;
 
 			attackTime: 0.015f;
 			decayTime: 0.015f;
 			sustainLevel: 0.2f;
 			sustainTime: 0.05f;
-			releaseTime: 0.1f.
-		jumpSound := playbackDevice _ newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
+			releaseTime: 0.1f;
+			yourself.
+		jumpSound := playbackDevice newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Dash sound.
 	{
-		let noiseChannel mutable := NoiseSoundGenerator rcNew.
-		noiseChannel _
+		let noiseChannel := NoiseSoundGenerator new
 			amplitude: 0.1;
 
 			attackTime: 0.025f;
 			decayTime: 0.02f;
 			sustainLevel: 0.2f;
 			sustainTime: 0.1f;
-			releaseTime: 0.2f.
-		dashSound := playbackDevice _ newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
+			releaseTime: 0.2f;
+			yourself.
+		dashSound := playbackDevice newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
-	playbackDevice _ resume.
+	playbackDevice resume.
 
 	## Enter into the main loop.
 	windowSystem _ runMainLoop.
 
-	playbackDevice _ destroy.
+	playbackDevice destroy.
 
     return: 0.
 }.
