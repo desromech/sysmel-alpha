@@ -98,10 +98,19 @@ definition: {
         Unix write(fd, buffer, size) castTo: IntPointer.
     }.
 
+    override method write: (buffer: Void const pointer) at: (offset: UInt64) size: (size: UIntPointer) ::=> IntPointer := {
+        Unix pwrite(fd, buffer, size, offset castTo: Unix OFF_T) castTo: IntPointer.
+    }.
+
+
     override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
         let result := Unix read(fd, buffer, size) castTo: IntPointer.
         eofDetected_ := result = 0.
         result
+    }.
+
+    override method read: (buffer: Void pointer) at: (offset: UInt64) size: (size: UIntPointer) ::=> IntPointer := {
+        Unix pread(fd, buffer, size, offset castTo: Unix OFF_T) castTo: IntPointer
     }.
 }.
 
