@@ -15,7 +15,7 @@ class SDL2Window superclass: Window; definition: {
     protected field currentCursor type: Cursor rcPointer.
     protected field renderingDevice type: RenderingDevicePtr.
     protected field activeSwapChain type: SwapChainPtr.
-    protected field softSceneRenderer type: WindowScene2DRendererPtr.
+    protected field softSceneRenderer type: WindowScene2DRendererRef.
 
     override method initialize => Void := {
         currentCursor := SystemCursor arrow upCastFor: Cursor.
@@ -53,8 +53,8 @@ class SDL2Window superclass: Window; definition: {
 
         ## Destroy the active soft scene renderer.
         softSceneRenderer ifNotNil: {
-            softSceneRenderer _ destroy.
-            softSceneRenderer reset.
+            softSceneRenderer destroy.
+            softSceneRenderer := nil.
         }.
 
         handle ifNotNil: {
@@ -157,11 +157,11 @@ class SDL2Window superclass: Window; definition: {
         activeSwapChain := newActiveSwapChain
     }.
 
-    override method createScene2DRenderer => WindowScene2DRendererPtr := {
+    override method createScene2DRenderer => WindowScene2DRendererRef := {
         self renderingDevice _ isSoftRenderingDevice ifTrue: {
             softSceneRenderer ifNotNil: {
-                softSceneRenderer _ destroy.
-                softSceneRenderer reset
+                softSceneRenderer destroy.
+                softSceneRenderer := nil
             }.
 
             softSceneRenderer := (SDL2Software2DSceneRenderer for: self) upCastFor: WindowScene2DRenderer.

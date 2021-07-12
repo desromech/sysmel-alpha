@@ -32,7 +32,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
     private field currentActiveClipSubmesh type: Int32.
     private field lastActiveTextureView type: TextureViewPtr.
 
-    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+    override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         rootNode ifNil: { return: void }.
 
         super renderScene: rootNode.

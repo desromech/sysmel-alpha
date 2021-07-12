@@ -27,7 +27,7 @@ class BorderRectangleNode superclass: RectangularShapeNode; definition: {
         := visitor visitBorderRectangleNode: self
 }.
 
-compileTime constant BorderRectangleNodePtr := BorderRectangleNode rcPointer.
+compileTime constant BorderRectangleNodeRef := BorderRectangleNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

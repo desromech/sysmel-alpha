@@ -24,10 +24,10 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     protected field isOutOfDate type: Boolean8.
 
     meta definition: {
-        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer rcPointer := {
-            let result := SwapChain2DSceneRenderer rcNew.
-            result _ initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent.
-            result
+        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer rcRef := {
+            SwapChain2DSceneRenderer new
+                initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent;
+                yourself
         }.
     }.
 
@@ -89,14 +89,14 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     const method isOutOfDate => Boolean8
         := isOutOfDate.
 
-    override method newSceneBuilder => Scene2D BuilderPtr
+    override method newSceneBuilder => Scene2D BuilderRef
         := device _ createScene2DBuilder.
 
     override method clearColor: (color: Float32x4) ::=> Void := {
         currentClearColor := color.
     }.
 
-    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+    override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         isOutOfDate ifTrue: {return: void}.
 
         let backBuffer := swapChain _ getCurrentBackBuffer.
@@ -152,7 +152,7 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     }.
 }.
 
-compileTime constant SwapChain2DSceneRendererPtr := SwapChain2DSceneRenderer rcPointer.
+compileTime constant SwapChain2DSceneRendererRef := SwapChain2DSceneRenderer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

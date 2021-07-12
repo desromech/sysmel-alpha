@@ -4,9 +4,9 @@ useNamespace: Std Graphics Core.
 useNamespace: Std Graphics GUI.
 useNamespace: Std Math Geometry.
 
-compileTime constant Texture2DPtr := StrongTextureHandlePtr.
+compileTime constant Texture2DRef := StrongTextureHandleRef.
 compileTime constant Node2D := Std Graphics Scene2D Node.
-compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
+compileTime constant Node2DRef := Std Graphics Scene2D NodeRef.
 
 struct SimpleVertex definition: {
 	public field position type: Float32x4.
@@ -176,7 +176,7 @@ class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
 	field renderingDevice type: RenderingDevicePtr.
 	field mainWindow type: WindowRef.
-	field mainWindowRenderer type: WindowScene2DRendererPtr.
+	field mainWindowRenderer type: WindowScene2DRendererRef.
 	field fontFaceWithSize type: FontFaceWithSizeRef.
 
 	field shaderSignature type: ShaderSignaturePtr.
@@ -189,7 +189,7 @@ class Sample definition: {
 	field commandListAllocator type: CommandListAllocatorPtr.
 	field commandList type: CommandListPtr.
 
-	field colorBufferTextureHandle type: Texture2DPtr.
+	field colorBufferTextureHandle type: Texture2DRef.
 	field mainFrameBufferExtent type: UInt32x2.
 	field mainFrameBuffer type: FramebufferPtr.
 	field mainRenderPass type: RenderPassPtr.
@@ -261,17 +261,17 @@ class Sample definition: {
 			waitForIdle.
 	}.
 
-	method buildRenderScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildRenderScene2D: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let rendering3DTime := (Std Chrono profileTimeToRun: {
 			self doRender3D.
 		}) castTo: Float32.
 
 		let scene3DResult :=
-			builder blendingMode: BlendingMode Copy node: ((
+			builder blendingMode: BlendingMode Copy node: (
 				builder texture: colorBufferTextureHandle rectangle: (RectangleF32 extent: (mainFrameBufferExtent castTo: Float32x2))
-			) upCastFor: Node2D).
+			) asNode.
 
-		let scene2D mutable := scene3DResult upCastFor: Node2D.
+		let scene2D mutable := scene3DResult asNode.
 
 		{
 			let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
@@ -283,7 +283,7 @@ class Sample definition: {
 			}.
 
 			let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
-			scene2D := scene2D _ -- frameTimeNode
+			scene2D := scene2D -- frameTimeNode
 		}.
 
 		scene2D
@@ -293,9 +293,9 @@ class Sample definition: {
 		(self setMainFramebufferWithExtent: mainWindow extent) ifFalse: {return: void}.
 
 		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
-			mainWindowRenderer _
+			mainWindowRenderer
 				clearColor: Float32x4 zeros;
-				renderScene: (self buildRenderScene2D: mainWindowRenderer _ newSceneBuilder _);
+				renderScene: (self buildRenderScene2D: mainWindowRenderer newSceneBuilder);
 				present
 		}) castTo: Float32.
     }.
@@ -352,7 +352,7 @@ class Sample definition: {
 			yourself).
 		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
 
-		colorBufferTextureHandle := mainWindowRenderer _ newSceneBuilder _
+		colorBufferTextureHandle := mainWindowRenderer newSceneBuilder
 			createTextureHandleFor: (colorBuffer upCastFor: Std RCObject) view: (colorBufferTextureView upCastFor: Std RCObject).
 
 		let depthBuffer := renderingDevice _ createTexture: (TextureDescription()

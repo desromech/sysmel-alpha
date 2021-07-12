@@ -7,12 +7,12 @@ useNamespace: Std Math Geometry.
 useNamespace: Std Math LinearAlgebra.
 
 compileTime constant Node2D := Std Graphics Scene2D Node.
-compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
+compileTime constant Node2DRef := Std Graphics Scene2D NodeRef.
 
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
 	public field mainWindow type: WindowRef.
-	public field mainWindowRenderer type: WindowScene2DRendererPtr.
+	public field mainWindowRenderer type: WindowScene2DRendererRef.
 	public field fontFaceWithSize type: FontFaceWithSizeRef.
 
 	public field mainRectangle type: RectangleF32.
@@ -33,16 +33,14 @@ class Sample definition: {
 		mainRectangleColor := mainRectangleNormalColor.
 	}.
 
-	method buildRenderScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildRenderScene2D: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let scene2D mutable :=
-			(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
-			((builder borderRectangle: mainRectangle color: Float32x4 black width: 4.0f) upCastFor: Node2D).
-		scene2D := scene2D _ --
-			((builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
+			(builder fillRectangle: mainRectangle color: mainRectangleColor)
+			-- (builder borderRectangle: mainRectangle color: Float32x4 black width: 4.0f)
+			-- (builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
 				p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
-				p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0)) upCastFor: Node2D).
-		scene2D := scene2D _ --
-			((builder text: "Hello World" at: Float32x2(80.0f, 128.0f) font: fontFaceWithSize color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f)) upCastFor: Node2D).
+				p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0))
+			-- (builder text: "Hello World" at: Float32x2(80.0f, 128.0f) font: fontFaceWithSize color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f)).
 
 		scene2D := (builder transform: currentTransform node: scene2D) upCastFor: Node2D.
 
@@ -55,8 +53,8 @@ class Sample definition: {
 				out << "Rendering time " << frameRenderingCommandListTime << " ms".
 			}.
 
-			let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
-			scene2D := scene2D _ -- frameTimeNode
+			let frameTimeNode := builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green.
+			scene2D := scene2D -- frameTimeNode
 		}.
 
 		(builder transform: windowScaleTransform node: scene2D) upCastFor: Node2D.
@@ -104,9 +102,9 @@ class Sample definition: {
 
 	method render ::=> Void := {
 		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
-		mainWindowRenderer _
+		mainWindowRenderer
 			clearColor: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
-			renderScene: (self buildRenderScene2D: (mainWindowRenderer _ newSceneBuilder _));
+			renderScene: (self buildRenderScene2D: (mainWindowRenderer newSceneBuilder ));
 			present
 		}) castTo: Float32.
     }.

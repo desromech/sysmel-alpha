@@ -10,7 +10,7 @@ useNamespace: Std Math Geometry.
 class SystemWindowNorph superclass: RootNorph; definition: {
     protected field windowSystem type: WindowSystemRef.
     protected field window type: WindowRef.
-    protected field sceneRenderer type: WindowScene2DRenderer rcPointer.
+    protected field sceneRenderer type: WindowScene2DRendererRef.
     protected field hasChanged type: Boolean8.
 
     override method defaultColor => Float32x4
@@ -57,7 +57,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
 
     inline method initializeWithWindowSystem: (theWindowSystem: WindowSystemRef const ref)
         window: (theWindow: WindowRef const ref)
-        renderer: (theRenderer: WindowScene2DRenderer rcPointer const ref) ::=> Void := {
+        renderer: (theRenderer: WindowScene2DRendererRef const ref) ::=> Void := {
 
         windowSystem := theWindowSystem.
         window := theWindow.
@@ -65,9 +65,9 @@ class SystemWindowNorph superclass: RootNorph; definition: {
     }.
 
     method render => Void := {
-        sceneRenderer _
+        sceneRenderer
             clearColor: self color;
-            renderScene: (self buildContentSceneGraphWith: sceneRenderer _ newSceneBuilder _);
+            renderScene: (self buildContentSceneGraphWith: sceneRenderer newSceneBuilder);
             present
     }.
 

@@ -6,13 +6,13 @@ useNamespace: Std Math LinearAlgebra.
 useNamespace: Std Graphics Core.
 
 class TextureNode superclass: RectangularShapeNode; definition: {
-    public field textureHandle type: StrongTextureHandlePtr.
+    public field textureHandle type: StrongTextureHandleRef.
     
     override method accept: (visitor: Visitor ref) ::=> Void
         := visitor visitTextureNode: self
 }.
 
-compileTime constant TextureNodePtr := TextureNode rcPointer.
+compileTime constant TextureNodeRef := TextureNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

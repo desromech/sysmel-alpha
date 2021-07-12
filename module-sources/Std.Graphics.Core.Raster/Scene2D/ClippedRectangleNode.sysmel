@@ -6,13 +6,13 @@ useNamespace: Std Math Geometry.
 
 class ClippedRectangleNode superclass: Node; definition: {
     public field rectangle type: RectangleF32.
-    public field child type: NodePtr.
+    public field child type: NodeRef.
 
     override method accept: (visitor: Visitor ref) ::=> Void
         := visitor visitClippedRectangleNode: self
 }.
 
-compileTime constant ClippedRectangleNodePtr := ClippedRectangleNode rcPointer.
+compileTime constant ClippedRectangleNodeRef := ClippedRectangleNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

@@ -22,8 +22,8 @@ class TextModelNorph superclass: Norph; definition: {
         self changed.
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
-        textModel ifNil: { return: NorphSceneNodePtr nil }.
+    override method buildSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
+        textModel ifNil: { return: NorphSceneNodeRef nil }.
 
         let container := builder container.
 
@@ -31,10 +31,10 @@ class TextModelNorph superclass: Norph; definition: {
             textSpansInRectangle: self localBounds do: {:(TextModelSpan ref)span :: Void |
                 let spanNode := builder text: span utf8String in: span rectangle
                     font: span fontFaceWithSize color: span color drawingState: span textDrawingState.
-                container _ add: (spanNode upCastFor: NorphSceneNode)
+                container add: spanNode asNode
             }.
 
-        container upCastFor: NorphSceneNode
+        container asNode
     }.
 }.
 

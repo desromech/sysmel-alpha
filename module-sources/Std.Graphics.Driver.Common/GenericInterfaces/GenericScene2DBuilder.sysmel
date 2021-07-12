@@ -8,17 +8,15 @@ namespace Core definition: {
 class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
     public field device type: RenderingDeviceWeakPtr.
 
-    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr := {
-        let result := TextureWithView rcNew.
-        result _
+    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandleRef := {
+        TextureWithView new
             texture: (texture downCastFor: Texture);
-            textureView: (textureView downCastFor: TextureView).
-
-        result upCastFor: StrongTextureHandle
+            textureView: (textureView downCastFor: TextureView);
+            upCastFor: StrongTextureHandle
     }.
 
-    override method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandlePtr := {
-        StrongTextureHandlePtr nil
+    override method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandleRef := {
+        StrongTextureHandleRef nil
     }.
 }.
 

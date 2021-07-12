@@ -12,10 +12,10 @@ useNamespace: Std Math LinearAlgebra.
 let Gravity := Float32x2(0.0, -9.8).
 
 compileTime constant Node2D := Std Graphics Scene2D Node.
-compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
+compileTime constant Node2DRef := Std Graphics Scene2D NodeRef.
 
 global mainWindow mutable type: WindowRef.
-let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
+let mainWindowRenderer mutable type: WindowScene2DRendererRef.
 let fontFaceWithSize mutable type: FontFaceWithSizeRef.
 let lastFrameRenderingTime mutable type: Float32.
 let lastFrameUpdateTime mutable type: Float32.
@@ -63,8 +63,8 @@ class Entity superclass: Std RCObject; definition: {
 		## By default do nothing when shot.
 	}.
 
-	virtual method buildSceneNodeWith: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
-		(builder fillRectangle: self boundingBox color: self currentColor) upCastFor: Node2D
+	virtual method buildSceneNodeWith: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
+		(builder fillRectangle: self boundingBox color: self currentColor) asNode
 	}.
 
 	virtual method update: (delta: Float32) ::=> Void := {
@@ -319,7 +319,7 @@ global player mutable type: Player rcRef.
 global viewMatrix mutable type: Float32x2x3.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
-	method buildEntitiesScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildEntitiesScene2D: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let screenExtent := mainWindow extent castTo: Float32x2.
 		let viewTranform := AffinePostTransform2dF32()
 			setIdentity;
@@ -338,24 +338,24 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		let container := builder container.
 		## Draw the entities.
 		entities do: {:entity :: Void |
-			container _ add: (entity buildSceneNodeWith: builder).
+			container add: (entity buildSceneNodeWith: builder).
 		}.
 
-		(builder transform: viewTranform node: (container upCastFor: Node2D)) upCastFor: Node2D
+		(builder transform: viewTranform node: container asNode) asNode
 	}.
 
-	method buildHealthIndicatorWith: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildHealthIndicatorWith: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		## Red border
 		let fullHealthRect := RectangleF32 min: Float32x2(20, 20) extent: Float32x2(250, 15).
 
 		let healthPercentage := player hitPoints / 100.0f clampMin: 0.0f max: 1.0.
 		let currentHealthRect := RectangleF32 min: fullHealthRect min extent: fullHealthRect extent * Float32x2(healthPercentage, 1.0f).
 
-		(builder fillRectangle: fullHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) _ --
-		((builder fillRectangle: currentHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) upCastFor: Node2D)
+		(builder fillRectangle: fullHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) --
+		(builder fillRectangle: currentHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f))
 	}.
 
-	method buildProfilingData: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildProfilingData: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let updateTime := lastFrameUpdateTime * 1000.0f.
 		let frameRenderingCommandListTime := lastFrameRenderingTime * 1000.0f.
 		let frameTimeString := Std String textStreamContents: {:out :: Void |
@@ -365,10 +365,10 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 			out << "CPU Rendering time " << frameRenderingCommandListTime << " ms"
 		}.
 
-		(builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
+		(builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) asNode.
 	}.
 
-	method buildHudScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildHudScene2D: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let screenExtent := mainWindow extent castTo: Float32x2.
 		let windowScaleTransform := AffinePostTransform2dF32()
 			setIdentity;
@@ -377,24 +377,24 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 			scaleBy: screenExtent y / 480.0f;
 			yourself.
 
-		let result := builder container.
-		result _
+		let result := builder container
 			add: (self buildHealthIndicatorWith: builder);
-			add: (self buildProfilingData: builder).
-		(builder transform: windowScaleTransform node: (result upCastFor: Node2D)) upCastFor: Node2D
+			add: (self buildProfilingData: builder);
+			yourself.
+		(builder transform: windowScaleTransform node: result asNode) asNode
 	}.
 
-	method buildRenderScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+	method buildRenderScene2D: (builder: Std Graphics Scene2D BuilderRef const ref) ::=> Node2DRef := {
 		let entities := self buildEntitiesScene2D: builder.
 		let hud := self buildHudScene2D: builder.
-		entities _ -- (hud upCastFor: Node2D)
+		entities -- hud
 	}.
 
 	method render => Void := {
 		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
-		mainWindowRenderer _
+		mainWindowRenderer
 			clearColor: Float32x4(0.1f, 0.4f, 0.4f, 1.0f);
-			renderScene: (self buildRenderScene2D: mainWindowRenderer _ newSceneBuilder _);
+			renderScene: (self buildRenderScene2D: mainWindowRenderer newSceneBuilder);
 			present
 		}) castTo: Float32.
 	}.

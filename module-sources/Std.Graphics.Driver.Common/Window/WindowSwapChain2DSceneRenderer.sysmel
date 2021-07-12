@@ -10,14 +10,14 @@ useNamespace: Std Graphics Core.
  *#
 class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
     protected field window type: WindowRef.
-    protected field swapChain2DSceneRenderer type: SwapChain2DSceneRendererPtr.
+    protected field swapChain2DSceneRenderer type: SwapChain2DSceneRendererRef.
     protected field currentClearColor type: Float32x4.
 
     meta definition: {
-        method for: (window: WindowRef const ref) ::=> WindowSwapChain2DSceneRenderer rcPointer := {
-            let result := WindowSwapChain2DSceneRenderer rcNew.
-            result _ initializeWithWindow: window.
-            result
+        method for: (window: WindowRef const ref) ::=> WindowSwapChain2DSceneRenderer rcRef := {
+            WindowSwapChain2DSceneRenderer new
+                initializeWithWindow: window;
+                yourself
         }.
     }.
 
@@ -28,25 +28,25 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
     override method clearColor: (color: Float32x4) ::=> Void := {
         currentClearColor := color.
         swapChain2DSceneRenderer ifNotNil: {
-            swapChain2DSceneRenderer _ clearColor: currentClearColor
+            swapChain2DSceneRenderer clearColor: currentClearColor
         }
     }.
 
-    override method newSceneBuilder => Scene2D BuilderPtr
+    override method newSceneBuilder => Scene2D BuilderRef
         := window renderingDevice _ createScene2DBuilder.
 
-    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+    override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         self validateSwapChain ifFalse: {
             return: void
         }.
 
-        swapChain2DSceneRenderer _ renderScene: rootNode
+        swapChain2DSceneRenderer renderScene: rootNode
     }.
 
     override method present => Void := {
         swapChain2DSceneRenderer ifNil: { return: void }.
 
-        swapChain2DSceneRenderer _ present
+        swapChain2DSceneRenderer present
     }.
 
     method validateSwapChain => Boolean8 := {
@@ -56,8 +56,8 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
         let currentExtent := window extent.
         (swapChain2DSceneRenderer isNil ||
-        swapChain2DSceneRenderer _ isOutOfDate ||
-        swapChain2DSceneRenderer _ extent ~= currentExtent) ifTrue: {
+        swapChain2DSceneRenderer isOutOfDate ||
+        swapChain2DSceneRenderer extent ~= currentExtent) ifTrue: {
 
             let renderingDevice := window renderingDevice.
             let swapChainCreationInfo mutable := SwapChainCreationInfo()
@@ -70,12 +70,12 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
             let newSwapChain := window createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
             newSwapChain ifNil: {
-                swapChain2DSceneRenderer reset.
+                swapChain2DSceneRenderer := nil.
                 return: false.
             }.
 
             swapChain2DSceneRenderer := SwapChain2DSceneRenderer for: newSwapChain on: defaultCommandQueue on: renderingDevice withExtent: currentExtent.
-            swapChain2DSceneRenderer _ clearColor: currentClearColor.
+            swapChain2DSceneRenderer clearColor: currentClearColor.
         }.
 
         return: true.

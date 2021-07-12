@@ -11,139 +11,130 @@ useNamespace: Std Graphics Core.
  * in order to allow a front-end to reduce the number of required nodes that it actually needs.
  *#
 class Builder superclass: RCObject; definition: {
-    method container => ContainerNodePtr
-        := ContainerNode rcNew.
+    method container => ContainerNodeRef
+        := ContainerNode new.
 
-    virtual method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (view: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr
-        := StrongTextureHandlePtr nil.
+    virtual method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (view: Std RCObjectPtr const ref) ::=> StrongTextureHandleRef
+        := StrongTextureHandleRef nil.
 
-    virtual method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandlePtr
-        := StrongTextureHandlePtr nil.
+    virtual method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandleRef
+        := StrongTextureHandleRef nil.
 
-    method texture: (textureHandle: StrongTextureHandlePtr const ref) rectangle: (rectangle: RectangleF32) ::=> TextureNodePtr := {
-        let result := TextureNode rcNew.
-        result _
+    method texture: (textureHandle: StrongTextureHandleRef const ref) rectangle: (rectangle: RectangleF32) ::=> TextureNodeRef := {
+        TextureNode new
             rectangle: rectangle;
-            textureHandle: textureHandle.
-        result
+            textureHandle: textureHandle;
+            yourself
     }.
 
-    method fillTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) color: (color: Float32x4) ::=> FilledTriangleNodePtr := {
-        let result := FilledTriangleNode rcNew.
-        result _
+    method fillTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) color: (color: Float32x4) ::=> FilledTriangleNodeRef := {
+        FilledTriangleNode new
             rectangle: (((RectangleF32 point: p1) unionWith: p2) unionWith: p3);
             p1: p1;
             p2: p2;
             p3: p3;
-            color: color.
-        result
+            color: color;
+            yourself
     }.
 
-    method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) p2: (p2: Float32x2) color: (c2: Float32x4) p3: (p3: Float32x2) color: (c3: Float32x4) ::=> FilledTriangleNodePtr := {
-        let result := FilledTriangleNode rcNew.
-        result _
+    method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) p2: (p2: Float32x2) color: (c2: Float32x4) p3: (p3: Float32x2) color: (c3: Float32x4) ::=> FilledTriangleNodeRef := {
+        FilledTriangleNode new
             rectangle: (((RectangleF32 point: p1) unionWith: p2) unionWith: p3);
             p1: p1;
             c1: c1;
             p2: p2;
             c2: c2;
             p3: p3;
-            c3: c3.
-        result
+            c3: c3;
+            yourself
     }.
 
-    method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode rcNew.
-        result _ rectangle: rectangle; color: color.
-        result
-    }.
-
-    method fillRectangle: (rectangle: RectangleF32) verticalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode rcNew.
-        result _
-            rectangle: rectangle;
-            verticalGradientStart: startColor end: endColor.
-        result
-    }.
-
-    method fillRectangle: (rectangle: RectangleF32) horizontalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
-        let result := FilledRectangleNode rcNew.
-        result _
-            rectangle: rectangle;
-            horizontalGradientStart: startColor end: endColor.
-        result
-    }.
-
-    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) width: (borderWidth: Float32) ::=> BorderRectangleNodePtr := {
-        let result := BorderRectangleNode rcNew.
-        result _
+    method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodeRef := {
+        FilledRectangleNode new
             rectangle: rectangle;
             color: color;
-            borderSize: borderWidth.
-        result
+            yourself
     }.
 
-    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> BorderRectangleNodePtr
+    method fillRectangle: (rectangle: RectangleF32) verticalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodeRef := {
+        FilledRectangleNode new
+            rectangle: rectangle;
+            verticalGradientStart: startColor end: endColor;
+            yourself
+    }.
+
+    method fillRectangle: (rectangle: RectangleF32) horizontalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodeRef := {
+        FilledRectangleNode new
+            rectangle: rectangle;
+            horizontalGradientStart: startColor end: endColor;
+            yourself
+    }.
+
+    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) width: (borderWidth: Float32) ::=> BorderRectangleNodeRef := {
+        BorderRectangleNode new
+            rectangle: rectangle;
+            color: color;
+            borderSize: borderWidth;
+            yourself
+    }.
+
+    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> BorderRectangleNodeRef
         := self borderRectangle: rectangle color: color width: 1.
 
-    method clipRectangle: (rectangle: RectangleF32) node: (node: NodePtr const ref) ::=> ClippedRectangleNodePtr := {
-        let result := ClippedRectangleNode rcNew.
-        result _
+    method clipRectangle: (rectangle: RectangleF32) node: (node: NodeRef const ref) ::=> ClippedRectangleNodeRef := {
+        ClippedRectangleNode new
             rectangle: rectangle;
-            child: node.
-        result
+            child: node;
+            yourself
     }.
 
-    method blendingMode: (blendingMode: BlendingMode) node: (node: NodePtr const ref) ::=> BlendingModeNodePtr := {
-        let result := BlendingModeNode rcNew.
-        result _
+    method blendingMode: (blendingMode: BlendingMode) node: (node: NodeRef const ref) ::=> BlendingModeNodeRef := {
+        BlendingModeNode new
             blendingMode: blendingMode;
-            child: node.
-        result
+            child: node;
+            yourself
     }.
 
-    method transform: (transform: AffinePostTransform2dF32) node: (node: NodePtr const ref) ::=> TransformNodePtr := {
-        let result := TransformNode rcNew.
-        result _
+    method transform: (transform: AffinePostTransform2dF32) node: (node: NodeRef const ref) ::=> TransformNodeRef := {
+        TransformNode new
             transform: transform;
-            child: node.
-        result
+            child: node;
+            yourself
     }.
 
-    method translate: (translation: Float32x2) node: (node: NodePtr const ref) ::=> TransformNodePtr
+    method translate: (translation: Float32x2) node: (node: NodeRef const ref) ::=> TransformNodeRef
         := self transform: (AffinePostTransform2dF32()
             setIdentity;
             translation: translation;
             yourself) node: node.
 
-    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodePtr := {
-        font ifNil: {return: TextNodePtr nil}.
+    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodeRef := {
+        font ifNil: {return: TextNodeRef nil}.
         let baseline := Float32x2(0.0f, font ascender).
         self text: encodedString in: rectangle font: font color: color drawingState: (TextDrawingState position: rectangle min + baseline)
     }.
 
-    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodePtr
+    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodeRef
         := self text: encodedString in: (RectangleF32 point: position) font: font color: color.
 
     method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32)
-        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
-        let result := TextNode rcNew.
-        result _
+        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodeRef := {
+        TextNode new
             rectangle: rectangle;
             string: encodedString;
             fontFaceWithSize: font;
             color: color;
-            drawingState: drawingState.
-        result
+            drawingState: drawingState;
+            yourself
     }.
 
     method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2)
-        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr
+        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodeRef
         := self text: encodedString in: (RectangleF32 point: position) font: font color: color drawingState: drawingState.
 
 }.
 
-compileTime constant BuilderPtr := Builder rcPointer.
+compileTime constant BuilderRef := Builder rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

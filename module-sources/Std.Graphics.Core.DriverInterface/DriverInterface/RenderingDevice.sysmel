@@ -115,7 +115,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     abstract method createPipelineStateCache => PipelineStateCachePtr.
     abstract method createShaderCache => ShaderCachePtr.
     abstract method createFontCache => RenderingDeviceFontCachePtr.
-    abstract method createScene2DBuilder => Scene2D BuilderPtr.
+    abstract method createScene2DBuilder => Scene2D BuilderRef.
 
     abstract method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref.
     abstract method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref.

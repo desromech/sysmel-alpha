@@ -19,7 +19,7 @@ class StrongTextureHandle superclass: Std RCObject; definition: {
         := Blitter().
 }.
 
-compileTime constant StrongTextureHandlePtr := StrongTextureHandle rcPointer.
+compileTime constant StrongTextureHandleRef := StrongTextureHandle rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

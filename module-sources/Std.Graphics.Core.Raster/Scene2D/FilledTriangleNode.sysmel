@@ -19,7 +19,7 @@ class FilledTriangleNode superclass: RectangularShapeNode; definition: {
 
 }.
 
-compileTime constant FilledTriangleNodePtr := FilledTriangleNode rcPointer.
+compileTime constant FilledTriangleNodeRef := FilledTriangleNode rcRef.
 
 
 } ## End of namespace Scene2D

@@ -108,12 +108,12 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         }
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
         let textNode := super buildSceneGraphWith: builder.
         let result mutable := textNode.
         self canReceiveKeyboardEvents && textCursor isNotNil && textModel isNotNil ifTrue: {
             let caret := builder fillRectangle: (RectangleF32 min: textCursor _ drawingPosition extent: Float32x2(1.0f, textCursor _ drawingHeight)) color: Float32x4 blue.
-            result := caret _ -- textNode
+            result := caret -- textNode
         }.
 
         result.

@@ -14,7 +14,7 @@ class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
     public field meshBuilder type: MeshBuilder.
     public field device type: RenderingDevicePtr.
 
-    override method newSceneBuilder => Scene2D BuilderPtr := {
+    override method newSceneBuilder => Scene2D BuilderRef := {
         device _ createScene2DBuilder
     }.
 
@@ -22,7 +22,7 @@ class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
         ## The clear color is ignored here.
     }.
 
-    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+    override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         meshBuilder clear.
 
         rootNode ifNotNil: {
@@ -48,9 +48,9 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
     public field currentBlendingMode type: BlendingMode.
     public field currentTransform type: AffinePostTransform2dF32.
 
-    method render: (node: Scene2D NodePtr const ref) ::=> Void := {
+    method render: (node: Scene2D NodeRef const ref) ::=> Void := {
         node ifNotNil: {
-            node _ accept: self
+            node accept: self
         }.
     }.
 
@@ -244,7 +244,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
     }.
 
     override method visitTextureNode: (node: Scene2D TextureNode const ref) ::=> Void := {
-        node textureHandle isNil || node textureHandle _ isTextureWithView not ifTrue: {return: void}.
+        node textureHandle isNil || node textureHandle isTextureWithView not ifTrue: {return: void}.
 
         let deviceHandle := node textureHandle downCastFor: TextureWithView.
         let rectangle := node rectangle.
@@ -262,7 +262,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: deviceHandle _ texture textureView: deviceHandle _ textureView fontFaceWithSize: FontFaceWithSizeRef nil;
+                texture: deviceHandle texture textureView: deviceHandle textureView fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: color;

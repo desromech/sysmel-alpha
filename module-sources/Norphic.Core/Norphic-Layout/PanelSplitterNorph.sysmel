@@ -68,11 +68,11 @@ class PanelSplitterNorph superclass: Norph; definition: {
         }
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
         let backgroundRect := self localBounds.
         let directionLineRect := RectangleF32 min: backgroundRect min + 2.0 max: backgroundRect max - 2.0.
-        (builder fillRectangle: backgroundRect color: self currentColor) _
-        -- ((builder fillRectangle: directionLineRect color: self directionColor) upCastFor: NorphSceneNode).
+        (builder fillRectangle: backgroundRect color: self currentColor)
+        -- (builder fillRectangle: directionLineRect color: self directionColor).
     }
 }.
 

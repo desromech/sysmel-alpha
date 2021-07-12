@@ -5,20 +5,25 @@ namespace Scene2D definition: {
 class Node superclass: Std RCObject; definition: {
     abstract method accept: (visitor: Visitor ref) ::=> Void.
 
-    virtual method -- (other: NodePtr const ref) ::=> NodePtr := {
+    virtual method withNextNode: (other: NodeRef const ref) ::=> NodeRef := {
         other ifNil: {
-            return: self asRCPointer
+            return: self asRCRef
         }.
 
-        let result := ContainerNode rcNew.
-        result _
-            add: self asRCPointer;
-            add: other.
-        result upCastFor: Node
+        ContainerNode new
+            add: self asRCRef;
+            add: other;
+            upCastFor: Node
     }.
+
+    macro method asNode
+        := ``(`,self asRCRef upCastFor: `,Node).
+
+    macro method -- otherNode
+        := ``(`,self withNextNode: (`,otherNode upCastFor: `,Node)).
 }.
 
-compileTime constant NodePtr := Node rcPointer.
+compileTime constant NodeRef := Node rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

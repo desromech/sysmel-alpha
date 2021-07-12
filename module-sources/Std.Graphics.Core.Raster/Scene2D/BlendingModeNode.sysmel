@@ -11,7 +11,7 @@ class BlendingModeNode superclass: ParameterChangeNode; definition: {
         := visitor visitBlendingModeNode: self.
 }.
 
-compileTime constant BlendingModeNodePtr := BlendingModeNode rcPointer.
+compileTime constant BlendingModeNodeRef := BlendingModeNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

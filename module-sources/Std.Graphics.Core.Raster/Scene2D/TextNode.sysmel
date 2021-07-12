@@ -15,7 +15,7 @@ class TextNode superclass: RectangularShapeNode; definition: {
         := visitor visitTextNode: self
 }.
 
-compileTime constant TextNodePtr := TextNode rcPointer.
+compileTime constant TextNodeRef := TextNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

@@ -55,7 +55,7 @@ class Window superclass: Std RCObject; definition: {
      * This method creates a scene 2D graph renderer specific for this window.
      * The windowing backend will choose a backend that is compatible with the current window rendering device.
      *#
-    abstract method createScene2DRenderer => WindowScene2DRendererPtr.
+    abstract method createScene2DRenderer => WindowScene2DRendererRef.
 
     #**
      * This method takes capture of grabbing a mouse capture.

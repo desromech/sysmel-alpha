@@ -4,7 +4,7 @@ namespace Core definition: {
 
 struct CanvasPaintState definition: {
     public field simplePaint type: SimpleLinearGradientPaint.
-    public field texture type: StrongTextureHandlePtr.
+    public field texture type: StrongTextureHandleRef.
 
     method reset => Void := {
         self := SelfType()
@@ -40,7 +40,7 @@ struct CanvasPaintState definition: {
 
     ## This method clear the current texture.
     inline method noTexture => Void := {
-        texture := StrongTextureHandlePtr nil.
+        texture := StrongTextureHandleRef nil.
     }.
 
     const inline method evaluateVertexColorAtPoint: (position: Float32x2) ::=> Float32x4

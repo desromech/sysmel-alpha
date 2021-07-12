@@ -82,7 +82,7 @@ class SoftCanvas superclass: Canvas; definition: {
                 return: void
             }.
 
-            let sourceBlitter := paintState texture _ softPixelsBlitter.
+            let sourceBlitter := paintState texture softPixelsBlitter.
             sourceBlitter extent = (convertedRectangle extent castTo: UInt32x2) ifTrue: {
                 drawingState blendingMode selectCase: #{
                 BlendingMode Copy : {

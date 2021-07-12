@@ -3,9 +3,9 @@ namespace Graphics definition: {
 namespace Scene2D definition: {
 
 class ContainerNode superclass: Node; definition: {
-    public field children type: Std Collections Vector(NodePtr).
+    public field children type: Std Collections Vector(NodeRef).
 
-    method add: (child: NodePtr const ref) ::=> Void := {
+    method add: (child: NodeRef const ref) ::=> Void := {
         child ifNotNil: {
             children add: child.
         }.
@@ -14,17 +14,17 @@ class ContainerNode superclass: Node; definition: {
     override method accept: (visitor: Visitor ref) ::=> Void
         := visitor visitContainerNode: self.
 
-    override method -- (other: NodePtr const ref) ::=> NodePtr := {
+    override method withNextNode: (other: NodeRef const ref) ::=> NodeRef := {
         other ifNotNil: {
             children add: other.
         }.
         
-        self asRCPointer upCastFor: Node
+        self asRCRef upCastFor: Node
     }.
 
 }.
 
-compileTime constant ContainerNodePtr := ContainerNode rcPointer.
+compileTime constant ContainerNodeRef := ContainerNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

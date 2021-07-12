@@ -8,8 +8,9 @@ class SizerElement.
 
 compileTime constant EventHandlerFunctionType := (NorphEvent ref) => Void.
 compileTime constant NorphSceneNode := Std Graphics Scene2D Node.
-compileTime constant NorphSceneNodePtr := Std Graphics Scene2D NodePtr.
+compileTime constant NorphSceneNodeRef := Std Graphics Scene2D NodeRef.
 compileTime constant NorphSceneBuilder := Std Graphics Scene2D Builder.
+compileTime constant NorphSceneBuilderRef := Std Graphics Scene2D BuilderRef.
 
 #**
  * I am a norph, my name comes from Native (M)orph in honor to the old
@@ -128,40 +129,40 @@ class Norph superclass: NorphEventHandler; definition: {
         self changed.
     }.
 
-    virtual method buildFullSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
+    virtual method buildFullSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
         let content := self buildContentSceneGraphWith: builder.
         let clippedContent mutable := content.
         self isClipped ifTrue: {
-            clippedContent := (builder clipRectangle: self localBounds node: content) upCastFor: NorphSceneNode
+            clippedContent := (builder clipRectangle: self localBounds node: content) asNode
         }.
 
-        (builder translate: bounds min node: clippedContent) upCastFor: NorphSceneNode
+        (builder translate: bounds min node: clippedContent) asNode
     }.
 
-    virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
+    virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
         let myNode := self buildSceneGraphWith: builder.
         let myPostChildrenNode := self buildPostChildrenSceneGraphWith: builder.
         self validSubnorphs ifEmpty: {
-            return: myNode _ -- myPostChildrenNode
+            return: myNode -- myPostChildrenNode
         }.
 
         let result := builder container.
-        result _ add: myNode.
+        result add: myNode.
 
         self validSubnorphs do: {:child :: Void |
-            result _ add: (child _ buildFullSceneGraphWith: builder)
+            result add: (child _ buildFullSceneGraphWith: builder)
         }.
 
-        result _ add: myPostChildrenNode.
+        result add: myPostChildrenNode.
 
         result upCastFor: NorphSceneNode
     }.
 
-    virtual method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
-        := (builder fillRectangle: self localBounds color: self color) upCastFor: NorphSceneNode.
+    virtual method buildSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef
+        := (builder fillRectangle: self localBounds color: self color) asNode.
 
-    virtual method buildPostChildrenSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
-        := NorphSceneNodePtr nil.
+    virtual method buildPostChildrenSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef
+        := NorphSceneNodeRef nil.
 
     virtual method childChanged ::=> Void := {
         self changed

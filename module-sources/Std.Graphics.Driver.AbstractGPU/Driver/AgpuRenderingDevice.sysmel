@@ -620,10 +620,10 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: RenderingDeviceFontCache
     }.
 
-    override method createScene2DBuilder => Scene2D BuilderPtr := {
-        let result := GenericScene2DBuilder rcNew.
-        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: Scene2D Builder
+    override method createScene2DBuilder => Scene2D BuilderRef := {
+        GenericScene2DBuilder new
+            device: (self asWeakRCPointer upCastFor: RenderingDevice);
+            upCastFor: Scene2D Builder
     }.
 
     override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref

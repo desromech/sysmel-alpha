@@ -13,15 +13,15 @@ class SDL2Software2DSceneRenderer superclass: WindowScene2DRenderer; definition:
     protected field textureExtent type: UInt32x2.
     protected field currentClearColor type: Float32x4.
 
-    meta method for: (window: SDL2Window ref) ::=> SDL2Software2DSceneRenderer rcPointer := {
+    meta method for: (window: SDL2Window ref) ::=> SDL2Software2DSceneRenderer rcRef := {
         let renderer := SDL_CreateRenderer(window handle, -1, SDL_RENDERER_PRESENTVSYNC).
         renderer ifNil: {
-            return: SDL2Software2DSceneRenderer rcPointer nil
+            return: SDL2Software2DSceneRenderer rcRef nil
         }.
 
-        let result := SDL2Software2DSceneRenderer rcNew.
-        result _ initializeWithWindow: window address handle: renderer.
-        result.
+        SDL2Software2DSceneRenderer new
+            initializeWithWindow: window address handle: renderer;
+            yourself
     }.
 
     method initializeWithWindow: (theWindow: SDL2Window pointer) handle: (theRenderer: SDL_Renderer pointer) ::=> Void := {
@@ -47,14 +47,14 @@ class SDL2Software2DSceneRenderer superclass: WindowScene2DRenderer; definition:
         window := nil.
     }.
 
-    override method newSceneBuilder => Std Graphics Scene2D BuilderPtr
-        := SoftScene2DBuilder rcNew upCastFor: Std Graphics Scene2D Builder.
+    override method newSceneBuilder => Std Graphics Scene2D BuilderRef
+        := SoftScene2DBuilder new upCastFor: Std Graphics Scene2D Builder.
 
     override method clearColor: (color: Float32x4) ::=> Void := {
         currentClearColor := color.
     }.
 
-    override method renderScene: (rootNode: Std Graphics Scene2D NodePtr const ref) ::=> Void := {
+    override method renderScene: (rootNode: Std Graphics Scene2D NodeRef const ref) ::=> Void := {
         ## Apply the clear color.
         let convertedClearColor := Std Math Color encodeSRGBUnorm8(currentClearColor).
         SDL_SetRenderDrawColor(rendererHandle, convertedClearColor r, convertedClearColor g, convertedClearColor b, convertedClearColor a).
@@ -66,7 +66,7 @@ class SDL2Software2DSceneRenderer superclass: WindowScene2DRenderer; definition:
         }.
     }.
 
-    method doSceneRendering: (rootNode: Std Graphics Scene2D NodePtr const ref) ::=> Void := {
+    method doSceneRendering: (rootNode: Std Graphics Scene2D NodeRef const ref) ::=> Void := {
         self validateTexture ifFalse: {
             return: void.
         }.

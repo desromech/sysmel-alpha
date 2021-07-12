@@ -6,8 +6,8 @@ useNamespace: Std Graphics Core.
 useNamespace: Std Graphics Scene2D.
 
 compileTime constant WindowScene2DRenderer := Scene2DRenderer.
-compileTime constant WindowScene2DRendererPtr := Scene2DRenderer rcPointer.
-compileTime constant WindowScene2DRendererWeakPtr := Scene2DRenderer weakRCPointer.
+compileTime constant WindowScene2DRendererRef := Scene2DRenderer rcRef.
+compileTime constant WindowScene2DRendererWeakRef := Scene2DRenderer weakRCRef.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics

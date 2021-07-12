@@ -5,10 +5,10 @@ namespace Scene2D definition: {
 useNamespace: Std Math Geometry.
 
 class ParameterChangeNode superclass: Node; definition: {
-    public field child type: NodePtr.
+    public field child type: NodeRef.
 }.
 
-compileTime constant ParameterChangeNodePtr := ParameterChangeNode rcPointer.
+compileTime constant ParameterChangeNodeRef := ParameterChangeNode rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

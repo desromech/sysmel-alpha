@@ -4,15 +4,15 @@ namespace Scene2D definition: {
 
 class Scene2DRenderer superclass: Std RCObject; definition: {
     virtual method destroy => Void := {}.
-    abstract method newSceneBuilder => BuilderPtr.
+    abstract method newSceneBuilder => BuilderRef.
 
     abstract method clearColor: (color: Float32x4) ::=> Void.
-    abstract method renderScene: (rootNode: NodePtr const ref) ::=> Void.
+    abstract method renderScene: (rootNode: NodeRef const ref) ::=> Void.
     virtual method present => Void := {}.
 
 }.
 
-compileTime constant Scene2DRendererPtr := Scene2DRenderer rcPointer.
+compileTime constant Scene2DRendererRef := Scene2DRenderer rcRef.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics
