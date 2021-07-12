@@ -40,7 +40,7 @@ sealed class AgpuRenderPass superclass: RenderPass; definition: {
         := theSampleQuality.
 }.
 
-compileTime constant AgpuRenderPassPtr := AgpuRenderPass rcPointer.
+compileTime constant AgpuRenderPassRef := AgpuRenderPass rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

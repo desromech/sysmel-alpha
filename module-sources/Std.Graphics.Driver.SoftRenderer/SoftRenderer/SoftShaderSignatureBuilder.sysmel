@@ -29,10 +29,10 @@ class SoftShaderSignatureBuilder superclass: ShaderSignatureBuilder; definition:
         description pushConstantsSize: description pushConstantsSize + size
     }.
 
-    override method build => ShaderSignaturePtr := {
-        let result := SoftShaderSignature rcNew.
-        result _ description: description.
-        result upCastFor: ShaderSignature
+    override method build => ShaderSignatureRef := {
+        SoftShaderSignature new
+            description: description;
+            upCastFor: ShaderSignature
     }.
 
 }.

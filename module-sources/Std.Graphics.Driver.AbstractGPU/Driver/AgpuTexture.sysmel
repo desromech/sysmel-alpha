@@ -13,7 +13,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
     public field creationDescription type: TextureDescription.
     public field creationAspect type: TextureAspect.
 
-    protected field fullTextureView type: TextureViewPtr.
+    protected field fullTextureView type: TextureViewRef.
     protected field fullTextureViewOnceFlag type: Std OnceFlag.
 
     method inferCreationAspect => Void := {
@@ -74,7 +74,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
             yourself
     }.
 
-    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr := {
+    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewRef := {
         let convertedViewDescription mutable := AGPU TextureViewDescription()
             type: (viewDescription type castTo: AGPU TextureType);
             format: (viewDescription format castTo: AGPU TextureFormat);
@@ -98,15 +98,15 @@ sealed class AgpuTexture superclass: Texture; definition: {
 
         let viewHandle := handle _ createView: convertedViewDescription address.
         viewHandle ifNil: {
-            return: TextureViewPtr nil
+            return: TextureViewRef nil
         }.
 
-        let result := AgpuTextureView rcNew.
-        result _ handle: viewHandle.
-        result upCastFor: TextureView
+        AgpuTextureView new
+            handle: viewHandle;
+            upCastFor: TextureView
     }.
 
-    override method getOrCreateFullView => TextureViewPtr := {
+    override method getOrCreateFullView => TextureViewRef := {
         fullTextureViewOnceFlag do: {
             fullTextureView := self createView: self getFullViewDescription
         }.
@@ -115,7 +115,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
     }.
 }.
 
-compileTime constant AgpuTexturePtr := AgpuTexture rcPointer.
+compileTime constant AgpuTextureRef := AgpuTexture rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

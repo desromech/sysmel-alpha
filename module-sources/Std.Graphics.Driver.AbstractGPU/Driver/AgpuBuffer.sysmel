@@ -48,7 +48,7 @@ sealed class AgpuBuffer superclass: Buffer; definition: {
 
 }.
 
-compileTime constant AgpuBufferPtr := AgpuBuffer rcPointer.
+compileTime constant AgpuBufferRef := AgpuBuffer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

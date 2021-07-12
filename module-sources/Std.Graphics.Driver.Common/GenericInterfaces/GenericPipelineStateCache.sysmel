@@ -6,24 +6,24 @@ namespace Core definition: {
  * I am a generic implementation for a pipeline state cache
  *#
 class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
-    public field device type: RenderingDeviceWeakPtr.
+    public field device type: RenderingDeviceWeakRef.
     protected field mutex type: Std Mutex.
-    protected field graphicsPipelineStates type: Std Collections Dictionary(GraphicsPipelineStateDescription, PipelineStatePtr).
-    protected field computePipelineStates type: Std Collections Dictionary(ComputePipelineStateDescription, PipelineStatePtr).
+    protected field graphicsPipelineStates type: Std Collections Dictionary(GraphicsPipelineStateDescription, PipelineStateRef).
+    protected field computePipelineStates type: Std Collections Dictionary(ComputePipelineStateDescription, PipelineStateRef).
 
-    override method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
+    override method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStateRef := {
         mutex withLock: {
-            graphicsPipelineStates at: description ifPresent: {:(PipelineStatePtr ref)existent :: Void |
+            graphicsPipelineStates at: description ifPresent: {:(PipelineStateRef ref)existent :: Void |
                 return: existent
             }
         }.
 
-        let strongDevice := device lock.
+        let strongDevice := device asRCRef.
         strongDevice ifNil: {
-            return: PipelineStatePtr nil.
+            return: PipelineStateRef nil.
         }.
 
-        let result mutable := strongDevice _ createGraphicsPipelineState: description.
+        let result mutable := strongDevice createGraphicsPipelineState: description.
         mutex withLock: {
             graphicsPipelineStates at: description put: result
         }.
@@ -31,19 +31,19 @@ class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
         result
     }.
 
-    override method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
+    override method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStateRef := {
         mutex withLock: {
-            computePipelineStates at: description ifPresent: {:(PipelineStatePtr ref)existent :: Void |
+            computePipelineStates at: description ifPresent: {:(PipelineStateRef ref)existent :: Void |
                 return: existent
             }
         }.
 
-        let strongDevice := device lock.
+        let strongDevice := device asRCRef.
         strongDevice ifNil: {
-            return: PipelineStatePtr nil.
+            return: PipelineStateRef nil.
         }.
 
-        let result := strongDevice _ createComputePipelineState: description.
+        let result := strongDevice createComputePipelineState: description.
         mutex withLock: {
             computePipelineStates at: description put: result
         }.
@@ -52,7 +52,7 @@ class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
     }.
 }.
 
-compileTime constant GenericPipelineStateCachePtr := GenericPipelineStateCache rcPointer.
+compileTime constant GenericPipelineStateCacheRef := GenericPipelineStateCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

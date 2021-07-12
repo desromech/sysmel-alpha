@@ -13,12 +13,12 @@ useNamespace: Std Math Geometry.
 class StateTracker superclass: CommandList; definition: {
     abstract method resetState => Void.
 
-    abstract method vertexShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
-    abstract method fragmentShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
-    abstract method geometryShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
-    abstract method tessellationControlShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
-    abstract method tessellationEvaluationShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
-    abstract method computeShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method vertexShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
+    abstract method fragmentShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
+    abstract method geometryShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
+    abstract method tessellationControlShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
+    abstract method tessellationEvaluationShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
+    abstract method computeShader: (shaderStage: ShaderStageHandleRef const ref) ::=> Void.
 
     abstract method vertexShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
     abstract method fragmentShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
@@ -43,7 +43,7 @@ class StateTracker superclass: CommandList; definition: {
     abstract method depthBiasClamp: (factor: Float32) ::=> Void.
 }.
 
-compileTime constant StateTrackerPtr := StateTracker rcPointer.
+compileTime constant StateTrackerRef := StateTracker rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

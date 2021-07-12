@@ -11,7 +11,7 @@ class RenderingDeviceFontCache superclass: RenderingDriverObjectHandle; definiti
     abstract method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizeRef const ref) ::=> FontFaceWithSizeRef.
 }.
 
-compileTime constant RenderingDeviceFontCachePtr := RenderingDeviceFontCache rcPointer.
+compileTime constant RenderingDeviceFontCacheRef := RenderingDeviceFontCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

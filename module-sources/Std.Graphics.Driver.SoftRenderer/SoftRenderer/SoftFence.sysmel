@@ -15,7 +15,7 @@ class SoftFence superclass: Fence; definition: {
 
 }.
 
-compileTime constant SoftFencePtr := SoftFence rcPointer.
+compileTime constant SoftFenceRef := SoftFence rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

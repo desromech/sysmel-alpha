@@ -14,20 +14,20 @@ class AgpuCommandList superclass: CommandList; definition: {
     override method asRenderingDeviceCommandList => CommandList pointer
         := self address.
 
-    override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
-        let agpuAllocator := allocator getPointer castTo: AgpuCommandListAllocator pointer.
+    override method resetFor: (allocator: CommandListAllocatorRef const ref) initialPipelineState: (initialPipeline: PipelineStateRef const ref) ::=> Void := {
+        let agpuAllocator := allocator rcObjectAddress castTo: AgpuCommandListAllocator pointer.
         agpuAllocator ifNil: {
             return: void
         }.
 
         let agpuInitialPipeline mutable := AGPU PipelineStateRef().
         initialPipeline ifNotNil: {
-            initialPipeline _ isGraphicsPipelineState ifTrue: {
-                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            initialPipeline isGraphicsPipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline rcObjectAddress castTo: AgpuGraphicsPipelineState pointer) _ handle
             }.
 
-            initialPipeline _ isComputePipelineState ifTrue: {
-                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            initialPipeline isComputePipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline rcObjectAddress castTo: AgpuGraphicsPipelineState pointer) _ handle
             }.
         }.
 
@@ -38,8 +38,8 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ close
     }.
 
-    override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
-         let agpuShaderSignature := shaderSignature getPointer castTo: AgpuShaderSignature pointer.
+    override method useShaderSignature: (shaderSignature: ShaderSignatureRef const ref) ::=> Void := {
+         let agpuShaderSignature := shaderSignature rcObjectAddress castTo: AgpuShaderSignature pointer.
          agpuShaderSignature ifNotNil: {
             handle _ setShaderSignature: agpuShaderSignature _ handle.
          }
@@ -55,61 +55,61 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ setScissor: rectangle min x y: rectangle min y w: extent x h: extent y
     }.
 
-    override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+    override method usePipelineState: (pipelineState: PipelineStateRef const ref) ::=> Void := {
         pipelineState ifNil: {
             return: void
         }.
 
-        pipelineState _ isGraphicsPipelineState ifTrue: {
-            handle _ usePipelineState: (pipelineState getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle.
+        pipelineState isGraphicsPipelineState ifTrue: {
+            handle _ usePipelineState: (pipelineState rcObjectAddress castTo: AgpuGraphicsPipelineState pointer) _ handle.
             return: void.
         }.
 
-        pipelineState _ isComputePipelineState ifTrue: {
-            handle _ usePipelineState: (pipelineState getPointer castTo: AgpuComputePipelineState pointer) _ handle.
+        pipelineState isComputePipelineState ifTrue: {
+            handle _ usePipelineState: (pipelineState rcObjectAddress castTo: AgpuComputePipelineState pointer) _ handle.
             return: void.
         }.
     }.
 
-    override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
-        let agpuVertexBinding := vertexBinding getPointer castTo: AgpuVertexBinding pointer.
+    override method useVertexBinding: (vertexBinding: VertexBindingRef const ref) ::=> Void := {
+        let agpuVertexBinding := vertexBinding rcObjectAddress castTo: AgpuVertexBinding pointer.
         agpuVertexBinding ifNotNil: {
             handle _ useVertexBinding: agpuVertexBinding _ handle
         }.
     }.
 
-    override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-        let agpuIndexBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method useIndexBuffer: (buffer: BufferRef  const ref) ::=> Void := {
+        let agpuIndexBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuIndexBuffer ifNotNil: {
             handle _ useIndexBuffer: agpuIndexBuffer _ handle
         }.
 
     }.
 
-    override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
-        let agpuIndexBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method useIndexBuffer: (buffer: BufferRef  const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+        let agpuIndexBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuIndexBuffer ifNotNil: {
             handle _ useIndexBufferAt: agpuIndexBuffer _ handle offset: (offset castTo: UInt32) indexSize: (stride castTo: UInt32)
         }.
     }.
 
-    override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+    override method useDrawIndirectBuffer: (buffer: BufferRef const ref) ::=> Void := {
 
     }.
 
-    override method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+    override method useComputeDispatchIndirectBuffer: (buffer: BufferRef const ref) ::=> Void := {
 
     }.
 
-    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-        let agpuShaderResourceBindings := resourcesBinding getPointer castTo: AgpuShaderResourceBindings pointer.
+    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsRef const ref) ::=> Void := {
+        let agpuShaderResourceBindings := resourcesBinding rcObjectAddress castTo: AgpuShaderResourceBindings pointer.
         agpuShaderResourceBindings ifNotNil: {
             handle _ useShaderResources: agpuShaderResourceBindings _ handle.
         }.
     }.
 
-    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-        let agpuShaderResourceBindings := resourcesBinding getPointer castTo: AgpuShaderResourceBindings pointer.
+    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsRef const ref) ::=> Void := {
+        let agpuShaderResourceBindings := resourcesBinding rcObjectAddress castTo: AgpuShaderResourceBindings pointer.
         agpuShaderResourceBindings ifNotNil: {
             handle _ useComputeShaderResources: agpuShaderResourceBindings _ handle.
         }.
@@ -143,13 +143,13 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ setStencilReference: reference
     }.
 
-    override method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void := {
+    override method executeBundle: (bundle: CommandListRef const ref) ::=> Void := {
 
     }.
 
-    override method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
-        let agpuRenderPass := renderPass getPointer castTo: AgpuRenderPass pointer.
-        let agpuFramebuffer := framebuffer getPointer castTo: AgpuFramebuffer pointer.
+    override method beginRenderPass: (renderPass: RenderPassRef const ref) on: (framebuffer: FramebufferRef const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
+        let agpuRenderPass := renderPass rcObjectAddress castTo: AgpuRenderPass pointer.
+        let agpuFramebuffer := framebuffer rcObjectAddress castTo: AgpuFramebuffer pointer.
         agpuRenderPass isNil || agpuFramebuffer isNil ifTrue: {
             return: void
         }.
@@ -161,9 +161,9 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ endRenderPass
     }.
 
-    override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
-        let agpuSourceFramebuffer := source getPointer castTo: AgpuFramebuffer pointer.
-        let agpuDestFramebuffer := destination getPointer castTo: AgpuFramebuffer pointer.
+    override method resolveFramebuffer: (source: FramebufferRef const ref) into: (destination: FramebufferRef const ref) ::=> Void := {
+        let agpuSourceFramebuffer := source rcObjectAddress castTo: AgpuFramebuffer pointer.
+        let agpuDestFramebuffer := destination rcObjectAddress castTo: AgpuFramebuffer pointer.
         agpuSourceFramebuffer isNil || agpuDestFramebuffer isNil ifTrue: {
             return: void
         }.
@@ -171,11 +171,11 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ resolveFramebuffer: agpuDestFramebuffer _ handle sourceFramebuffer: agpuSourceFramebuffer _ handle
     }.
 
-    override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
-        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+    override method resolveTexture: (source: TextureRef const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TextureRef const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
         levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32) aspect: (aspect: TextureAspect) ::=> Void := {
-        let agpuSourceTexture := source getPointer castTo: AgpuTexture pointer.
-        let agpuDestTexture := destination getPointer castTo: AgpuTexture pointer.
+        let agpuSourceTexture := source rcObjectAddress castTo: AgpuTexture pointer.
+        let agpuDestTexture := destination rcObjectAddress castTo: AgpuTexture pointer.
         agpuSourceTexture isNil || agpuSourceTexture isNil ifTrue: {
             return: void
         }.
@@ -194,15 +194,15 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ memoryBarrier: (sourceStage castTo: AGPU PipelineStageFlags) destStage: (destStage castTo: AGPU PipelineStageFlags) sourceAccesses: (sourceAccesses castTo: AGPU AccessFlags) destAccesses: (destAccesses castTo: AGPU AccessFlags)
     }.
 
-    override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method buffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ bufferMemoryBarrier: (agpuBuffer _ handle) sourceStage: (sourceStage castTo: AGPU PipelineStageFlags) destStage: (destStage castTo: AGPU PipelineStageFlags) sourceAccesses: (sourceAccesses castTo: AGPU AccessFlags) destAccesses: (destAccesses castTo: AGPU AccessFlags) offset: (offset castTo: UInt32) size: (size castTo: UInt32)
         }.
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
-        let agpuTexture := texture getPointer castTo: AgpuTexture pointer.
+    override method texture: (texture: TextureRef const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+        let agpuTexture := texture rcObjectAddress castTo: AgpuTexture pointer.
         agpuTexture ifNotNil: {
             let subresourceRange mutable := AGPU TextureSubresourceRange()
 	            aspect: (subresourceRange aspect castTo: AGPU TextureAspect);
@@ -218,15 +218,15 @@ class AgpuCommandList superclass: CommandList; definition: {
         }.
     }.
 
-    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method pushBuffer: (buffer: BufferRef const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ pushBufferTransitionBarrier: agpuBuffer _ handle oldUsage: (oldUsageMode castTo: AGPU BufferUsageMask) newUsage: (newUsageMode castTo: AGPU BufferUsageMask)
         }.
     }.
 
-    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
-        let agpuTexture := texture getPointer castTo: AgpuTexture pointer.
+    override method pushTexture: (texture: TextureRef const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+        let agpuTexture := texture rcObjectAddress castTo: AgpuTexture pointer.
         agpuTexture ifNotNil: {
             let subresourceRange mutable := AGPU TextureSubresourceRange()
 	            aspect: (subresourceRange aspect castTo: AGPU TextureAspect);
@@ -247,18 +247,18 @@ class AgpuCommandList superclass: CommandList; definition: {
         handle _ popTextureTransitionBarrier
     }.
 
-    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
-        let agpuSourceBuffer := sourceBuffer getPointer castTo: AgpuBuffer pointer.
-        let agpuDestBuffer := destBuffer getPointer castTo: AgpuBuffer pointer.
+    override method copyFromBuffer: (sourceBuffer: BufferRef const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferRef const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
+        let agpuSourceBuffer := sourceBuffer rcObjectAddress castTo: AgpuBuffer pointer.
+        let agpuDestBuffer := destBuffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuSourceBuffer isNotNil && agpuDestBuffer isNotNil ifTrue: {
             handle _ copyBuffer: agpuSourceBuffer _ handle  sourceOffset: (sourceOffset castTo: UInt32)
                 destBuffer: agpuDestBuffer _ handle destOffset: (destOffset castTo: UInt32) copySize: (copySize castTo: UInt32)
         }.
     }.
 
-    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
-        let agpuDestTexture := destTexture getPointer castTo: AgpuTexture pointer.
-        let agpuSourceBuffer := sourceBuffer getPointer castTo: AgpuBuffer pointer.
+    override method copyFromBuffer: (sourceBuffer: BufferRef const ref) intoTexture: (destTexture: TextureRef const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
+        let agpuDestTexture := destTexture rcObjectAddress castTo: AgpuTexture pointer.
+        let agpuSourceBuffer := sourceBuffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuSourceBuffer isNotNil && agpuDestTexture isNotNil ifTrue: {
             let copyRegion mutable := AGPU BufferImageCopyRegion()
                 buffer_offset: (copyRegion bufferOffset castTo: UInt32);
@@ -284,9 +284,9 @@ class AgpuCommandList superclass: CommandList; definition: {
         }
     }.
 
-    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
-        let agpuSourceTexture := sourceTexture getPointer castTo: AgpuTexture pointer.
-        let agpuDestBuffer := destBuffer getPointer castTo: AgpuBuffer pointer.
+    override method copyFromTexture: (sourceTexture: TextureRef const ref) intoBuffer: (destBuffer: BufferRef const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
+        let agpuSourceTexture := sourceTexture rcObjectAddress castTo: AgpuTexture pointer.
+        let agpuDestBuffer := destBuffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuSourceTexture isNotNil && agpuDestBuffer isNotNil ifTrue: {
             let copyRegion mutable := AGPU BufferImageCopyRegion()
                 buffer_offset: (copyRegion bufferOffset castTo: UInt32);
@@ -312,9 +312,9 @@ class AgpuCommandList superclass: CommandList; definition: {
         }
     }.
 
-    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
-        let agpuSourceTexture := sourceTexture getPointer castTo: AgpuTexture pointer.
-        let agpuDestTexture := destTexture getPointer castTo: AgpuTexture pointer.
+    override method copyFromTexture: (sourceTexture: TextureRef const ref) intoTexture: (destTexture: TextureRef const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
+        let agpuSourceTexture := sourceTexture rcObjectAddress castTo: AgpuTexture pointer.
+        let agpuDestTexture := destTexture rcObjectAddress castTo: AgpuTexture pointer.
         agpuSourceTexture isNotNil && agpuSourceTexture isNotNil ifTrue: {
             let copyRegion mutable := AGPU ImageCopyRegion()
                 source_usage_mode: (copyRegion sourceUsageMode castTo: AGPU TextureUsageModeMask);
@@ -354,7 +354,7 @@ class AgpuCommandList superclass: CommandList; definition: {
 
 }.
 
-compileTime constant AgpuCommandListPtr := AgpuCommandList rcPointer.
+compileTime constant AgpuCommandListRef := AgpuCommandList rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

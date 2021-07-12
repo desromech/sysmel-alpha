@@ -8,7 +8,7 @@ namespace Core definition: {
 class Sampler superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant SamplerPtr := Sampler rcPointer.
+compileTime constant SamplerRef := Sampler rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

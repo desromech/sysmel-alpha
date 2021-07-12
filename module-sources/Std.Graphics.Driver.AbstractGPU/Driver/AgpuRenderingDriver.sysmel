@@ -17,19 +17,19 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
     }.
 
     field mutex type: Std Mutex.
-    field mainDevice type: AgpuRenderingDevice weakRCPointer.
+    field mainDevice type: AgpuRenderingDevice weakRCRef.
 
     meta definition: {
         global Singleton mutable type: AgpuRenderingDriver.
     }.
 
-    method createDefaultDevice => AgpuRenderingDevicePtr := {
+    method createDefaultDevice => AgpuRenderingDeviceRef := {
         ## Find the platform.
         let agpuPlatform mutable type: AGPU Platform pointer.
         AGPU agpuGetPlatforms(1, agpuPlatform address, nil).
         agpuPlatform ifNil: {
             Std stderr << "Failed to get AGPU platform"; nl.
-            return: AgpuRenderingDevicePtr nil.
+            return: AgpuRenderingDeviceRef nil.
         }.
 
         let debugLayerEnabledVariable := LibC getenv("AGPU_DEBUG").
@@ -45,22 +45,22 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
         let deviceHandle := agpuPlatform _ openDevice: deviceOpenInfo address.
         deviceHandle ifNil: {
             Std stderr << "Failed to open the device"; nl.
-            return: AgpuRenderingDevicePtr nil.
+            return: AgpuRenderingDeviceRef nil.
         }.
 
-        let result := AgpuRenderingDevice rcNew.
-        result _ initializeWithHandle: deviceHandle platformHandle: agpuPlatform.
-        result
+        AgpuRenderingDevice new
+            initializeWithHandle: deviceHandle platformHandle: agpuPlatform;
+            yourself
     }.
 
     const override method isHardwareRenderingDriver => Boolean8
         := true.
 
-    override method getMainDevice => RenderingDevice rcPointer := {
-        let strongMainDevice mutable := mainDevice lock.
+    override method getMainDevice => RenderingDeviceRef := {
+        let strongMainDevice mutable := mainDevice asRCRef.
         strongMainDevice ifNil: {
-            strongMainDevice := mainDevice lock.
             mutex withLock: {
+                strongMainDevice := mainDevice asRCRef.
                 strongMainDevice ifNil: {
                     strongMainDevice := self createDefaultDevice.
                     mainDevice := strongMainDevice.

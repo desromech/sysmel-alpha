@@ -12,11 +12,11 @@ class SoftFormTextureView superclass: SoftTextureView; definition: {
     public field form type: FormRef.
 
     meta definition: {
-        method for: (form: FormRef const ref) ::=> TextureView rcPointer
-        := TextureView rcPointer for: (SoftFormTextureView nativeNew _
-            form: form;
-            pixelsBlitter: form makeBlitter;
-            address).
+        method for: (form: FormRef const ref) ::=> TextureViewRef
+            := SoftFormTextureView new
+                form: form;
+                pixelsBlitter: form makeBlitter;
+                upCastFor: TextureView.
     }.
 
 }.

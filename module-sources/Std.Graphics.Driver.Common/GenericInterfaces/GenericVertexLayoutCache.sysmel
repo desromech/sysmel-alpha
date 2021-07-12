@@ -6,23 +6,23 @@ namespace Core definition: {
  * I am a generic implementation for a vertex layout cache
  *#
 class GenericVertexLayoutCache superclass: VertexLayoutCache; definition: {
-    public field device type: RenderingDeviceWeakPtr.
+    public field device type: RenderingDeviceWeakRef.
     protected field mutex type: Std Mutex.
-    protected field vertexLayouts type: Std Collections Dictionary(VertexLayoutDescription, VertexLayoutPtr).
+    protected field vertexLayouts type: Std Collections Dictionary(VertexLayoutDescription, VertexLayoutRef).
 
-    override method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
+    override method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutRef := {
         mutex withLock: {
-            vertexLayouts at: description ifPresent: {:(VertexLayoutPtr ref)existent :: Void |
+            vertexLayouts at: description ifPresent: {:(VertexLayoutRef ref)existent :: Void |
                 return: existent
             }
         }.
 
-        let strongDevice := device lock.
+        let strongDevice := device asRCRef.
         strongDevice ifNil: {
-            return: VertexLayoutPtr nil.
+            return: VertexLayoutRef nil.
         }.
 
-        let result mutable := strongDevice _ createVertexLayoutWithDescription: description.
+        let result mutable := strongDevice createVertexLayoutWithDescription: description.
         mutex withLock: {
             vertexLayouts at: description put: result
         }.
@@ -31,7 +31,7 @@ class GenericVertexLayoutCache superclass: VertexLayoutCache; definition: {
     }.
 }.
 
-compileTime constant GenericVertexLayoutCachePtr := GenericVertexLayoutCache rcPointer.
+compileTime constant GenericVertexLayoutCacheRef := GenericVertexLayoutCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

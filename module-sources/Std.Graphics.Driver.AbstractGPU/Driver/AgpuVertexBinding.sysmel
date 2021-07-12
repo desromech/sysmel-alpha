@@ -8,17 +8,17 @@ useNamespace: Std Graphics Core.
  * I am a agpu based device.
  *#
 sealed class AgpuVertexBinding superclass: VertexBinding; definition: {
-    public field vertexLayout type: VertexLayoutPtr.
+    public field vertexLayout type: VertexLayoutRef.
     public field handle type: AGPU VertexBindingRef.
 
-    override method getVertexLayout => VertexLayoutPtr
+    override method getVertexLayout => VertexLayoutRef
         := vertexLayout.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
         let convertedBuffers mutable type: Std Collections Vector(AGPU BufferRef).
         convertedBuffers reserve: theVertexBuffers size.
         theVertexBuffers do: {:each :: Void |
-            (each getPointer castTo: AgpuBuffer pointer) ifNil: {
+            (each rcObjectAddress castTo: AgpuBuffer pointer) ifNil: {
                 convertedBuffers add: AGPU BufferRef()
             } ifNotNil: {:bufferPointer :: Void |
                 convertedBuffers add: bufferPointer _ handle
@@ -34,7 +34,7 @@ sealed class AgpuVertexBinding superclass: VertexBinding; definition: {
         let convertedBuffers mutable type: Std Collections Vector(AGPU BufferRef).
         convertedBuffers reserve: theVertexBuffers size.
         theVertexBuffers do: {:each :: Void |
-            (each getPointer castTo: AgpuBuffer pointer) ifNil: {
+            (each rcObjectAddress castTo: AgpuBuffer pointer) ifNil: {
                 convertedBuffers add: AGPU BufferRef()
             } ifNotNil: {:bufferPointer :: Void |
                 convertedBuffers add: bufferPointer _ handle
@@ -46,7 +46,7 @@ sealed class AgpuVertexBinding superclass: VertexBinding; definition: {
     }.
 }.
 
-compileTime constant AgpuVertexBindingPtr := AgpuVertexBinding rcPointer.
+compileTime constant AgpuVertexBindingRef := AgpuVertexBinding rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

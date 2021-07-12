@@ -12,7 +12,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
     protected field textureHandle type: SDL_Texture pointer.
     protected field textureExtent type: UInt32x2.
 
-    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain rcPointer := {
+    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain rcRef := {
         let flags mutable type: UInt32 := SDL_RENDERER_PRESENTVSYNC.
         window vsyncDisabled ifTrue: {
             flags := 0
@@ -20,12 +20,12 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
 
         let renderer := SDL_CreateRenderer(window handle, -1, flags).
         renderer ifNil: {
-            return: SDL2SoftwareRendererSwapChain rcPointer nil
+            return: SDL2SoftwareRendererSwapChain rcRef nil
         }.
 
-        let result := SDL2SoftwareRendererSwapChain rcNew.
-        result _ initializeWithWindow: window address handle: renderer.
-        result.
+        SDL2SoftwareRendererSwapChain new
+            initializeWithWindow: window address handle: renderer;
+            yourself
     }.
 
     method initializeWithWindow: (theWindow: SDL2Window pointer) handle: (theRenderer: SDL_Renderer pointer) ::=> Void := {
@@ -33,7 +33,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
         rendererHandle := theRenderer.
     }.
 
-    override method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> SwapChainPresentationError := {
+    override method presentColorbuffer: (colorBuffer: SoftTextureViewRef const ref) ::=> SwapChainPresentationError := {
         self validateTexture.
 
         ## Copy the pixels.
@@ -53,7 +53,7 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
                 applyFullClippingBounds;
                 initializeCachedState;
                 yourself.
-            let sourceBlitter ref := colorBuffer _ pixelsBlitter.
+            let sourceBlitter ref := colorBuffer pixelsBlitter.
             destBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: Int32x2 zeros.
             SDL_UnlockTexture(textureHandle).
         }.

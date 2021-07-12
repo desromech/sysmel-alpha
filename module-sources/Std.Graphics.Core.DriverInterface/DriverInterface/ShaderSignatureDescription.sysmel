@@ -17,7 +17,7 @@ struct ShaderSignatureDescription definition: {
     const inline method hash ::=> Std Hash
         := banks hash ^ pushConstantsSize hash.
 
-    const method applyToBuilder: (builder: ShaderSignatureBuilder ref) ::=> Void := {
+    const method applyToBuilder: (builder: ShaderSignatureBuilderRef const ref) ::=> Void := {
         banks do: {:each :: Void |
             each applyToBuilder: builder
         }.

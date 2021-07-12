@@ -11,7 +11,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
     compileTime constant FontTextureWidth := 2048.
 
     private field originalFontFace type: FontFaceWithSizeRef.
-    private field device type: RenderingDeviceWeakPtr.
+    private field device type: RenderingDeviceWeakRef.
 
     private field hasConvertedLatin1Set type: Boolean8.
     private field mutex type: Std Mutex.
@@ -20,8 +20,8 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
 
     private field fontFaceForm type: FormRef.
     private field hasValidTexture type: Boolean8.
-    private field texture type: TexturePtr.
-    private field textureView type: TextureViewPtr.
+    private field texture type: TextureRef.
+    private field textureView type: TextureViewRef.
 
     private field destinationPosition type: UInt32x2.
 	private field currentRowMaxHeight type: UInt32.
@@ -38,8 +38,8 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         }.
 
         fontFaceForm := newFontFaceForm.
-        texture reset.
-        textureView reset.
+        texture := nil.
+        textureView := nil.
     }.
 
     method ensureSpaceFor: (glyphExtent: UInt32x2) ::=> Void := {
@@ -127,7 +127,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         adaptedGlyph
     }.
 
-    method initializeWith: (theOriginalFontFace: FontFaceWithSizeRef) for: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
+    method initializeWith: (theOriginalFontFace: FontFaceWithSizeRef) for: (theDevice: RenderingDeviceWeakRef const ref) ::=> Void := {
         originalFontFace := theOriginalFontFace.
         device := theDevice.
 
@@ -143,9 +143,9 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         fontFaceForm ifNil: {return: void}.
 
         texture ifNil: {
-            let strongDevice := device lock.
+            let strongDevice := device asRCRef.
             strongDevice ifNotNil: {
-                texture := strongDevice _ createTexture: (TextureDescription()
+                texture := strongDevice createTexture: (TextureDescription()
                     type: TextureType Texture2D;
                     width: fontFaceForm extent x;
                     height: fontFaceForm extent y;
@@ -160,13 +160,13 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
                     sampleQuality: 0;
                     yourself).
                 texture ifNotNil: {
-                    textureView := texture _ getOrCreateFullView
+                    textureView := texture getOrCreateFullView
                 }.
             }.
         }.
 
         texture ifNotNil: {
-            texture _ uploadTextureLevel: 0 layer: 0
+            texture uploadTextureLevel: 0 layer: 0
                 pitch: (fontFaceForm pitch castTo: Int32) slicePitch: (fontFaceForm pitch * fontFaceForm extent y castTo: Int32)
                 data: fontFaceForm pixels getPointer
         }.
@@ -174,7 +174,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         hasValidTexture := true.
     }.
 
-    override method validRenderingTextureAndView => (TexturePtr -- TextureViewPtr) := {
+    override method validRenderingTextureAndView => (TextureRef -- TextureViewRef) := {
 
         mutex withLock: {
             hasValidTexture ifFalse: {

@@ -6,25 +6,25 @@ namespace Core definition: {
  * I am a handle for a shader cache.
  *#
 class GenericShaderCache superclass: ShaderCache; definition: {
-    public field device type: RenderingDeviceWeakPtr.
+    public field device type: RenderingDeviceWeakRef.
     protected field mutex type: Std Mutex.
-    protected field shaderModuleCache type: Std Collections Dictionary(GPU ShaderModuleInfo const pointer, ShaderLibraryHandlePtr).
-    protected field shaderStageCache type: Std Collections Dictionary(GPU ShaderEntryPointInfo const pointer, ShaderStageHandlePtr).
+    protected field shaderModuleCache type: Std Collections Dictionary(GPU ShaderModuleInfo const pointer, ShaderLibraryHandleRef).
+    protected field shaderStageCache type: Std Collections Dictionary(GPU ShaderEntryPointInfo const pointer, ShaderStageHandleRef).
 
-    override method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
+    override method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandleRef := {
         ## Find the stage in the cache.
         mutex withLock: {
-            shaderModuleCache at: shaderModule address ifPresent: {:(ShaderLibraryHandlePtr ref)cached :: Void |
+            shaderModuleCache at: shaderModule address ifPresent: {:(ShaderLibraryHandleRef ref)cached :: Void |
                 return: cached
             }.
         }.
 
-        let strongDevice := device lock.
+        let strongDevice := device asRCRef.
         strongDevice ifNil: {
-            return: ShaderLibraryHandlePtr nil
+            return: ShaderLibraryHandleRef nil
         }.
 
-        let libraryHandle := strongDevice _ createShaderLibraryFromModule: shaderModule.
+        let libraryHandle := strongDevice createShaderLibraryFromModule: shaderModule.
         mutex withLock: {
             shaderModuleCache at: shaderModule address put: libraryHandle
         }.
@@ -32,20 +32,20 @@ class GenericShaderCache superclass: ShaderCache; definition: {
         return: libraryHandle
     }.
 
-    override method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+    override method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef := {
         ## Find the stage in the cache.
         mutex withLock: {
-            shaderStageCache at: entryPointInfo address ifPresent: {:(ShaderStageHandlePtr ref)cached :: Void |
+            shaderStageCache at: entryPointInfo address ifPresent: {:(ShaderStageHandleRef ref)cached :: Void |
                 return: cached
             }.
         }.
 
         let shaderLibrary := self getOrCreateShaderLibraryFromModule: entryPointInfo moduleInfo _.
         shaderLibrary ifNil: {
-            return: ShaderStageHandlePtr nil
+            return: ShaderStageHandleRef nil
         }.
 
-        let shaderStageHandle := shaderLibrary _ createHandleForEntryPoint: entryPointInfo.
+        let shaderStageHandle := shaderLibrary createHandleForEntryPoint: entryPointInfo.
         mutex withLock: {
             shaderStageCache at: entryPointInfo address put: shaderStageHandle
         }.
@@ -54,7 +54,7 @@ class GenericShaderCache superclass: ShaderCache; definition: {
     }
 }.
 
-compileTime constant GenericShaderCachePtr := GenericShaderCache rcPointer.
+compileTime constant GenericShaderCacheRef := GenericShaderCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

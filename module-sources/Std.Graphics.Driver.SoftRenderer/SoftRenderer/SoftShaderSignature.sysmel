@@ -11,22 +11,19 @@ useNamespace: Std Graphics Core.
 class SoftShaderSignature superclass: ShaderSignature; definition: {
     public field description type: ShaderSignatureDescription.
 
-    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
+    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsRef := {
         Std assert: elementIndex < description banks size.
 
-        let result := SoftShaderResourceBindings rcNew.
-        result _
-            shaderSignature: self asRCPointer;
+        SoftShaderResourceBindings new
+            shaderSignature: self asRCRef;
             bankIndex: elementIndex;
             bankDescription: description banks[elementIndex] address;
             createBindingTable;
-            yourself.
-
-        result upCastFor: ShaderResourceBindings
+            upCastFor: ShaderResourceBindings
     }.
 }.
 
-compileTime constant SoftShaderSignaturePtr := SoftShaderSignature rcPointer.
+compileTime constant SoftShaderSignatureRef := SoftShaderSignature rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

@@ -18,7 +18,7 @@ struct ShaderSignatureBankDescription definition: {
     const inline method hash ::=> Std Hash
         := maxBindingPointCountHint hash ^ elements hash.
 
-    const method applyToBuilder: (builder: ShaderSignatureBuilder ref) ::=> Void := {
+    const method applyToBuilder: (builder: ShaderSignatureBuilderRef const ref) ::=> Void := {
         builder beginBindingBank: maxBindingPointCountHint.
         elements do: {:each :: Void |
             builder addBankElementWithType: each bindingPointCount: 1

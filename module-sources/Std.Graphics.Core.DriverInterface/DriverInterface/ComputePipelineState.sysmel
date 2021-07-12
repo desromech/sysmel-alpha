@@ -11,7 +11,7 @@ class ComputePipelineState superclass: PipelineState; definition: {
 
 }.
 
-compileTime constant ComputePipelineStatePtr := ComputePipelineState rcPointer.
+compileTime constant ComputePipelineStateRef := ComputePipelineState rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

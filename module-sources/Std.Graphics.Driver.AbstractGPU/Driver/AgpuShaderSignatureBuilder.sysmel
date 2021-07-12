@@ -24,19 +24,19 @@ sealed class AgpuShaderSignatureBuilder superclass: ShaderSignatureBuilder; defi
         }
     }.
 
-    override method build => ShaderSignaturePtr := {
+    override method build => ShaderSignatureRef := {
         let signatureHandle := handle _ build.
         signatureHandle ifNil: {
-            return: ShaderSignaturePtr nil.
+            return: ShaderSignatureRef nil.
         }.
 
-        let result := AgpuShaderSignature rcNew.
-        result _ handle: signatureHandle.
-        result upCastFor: ShaderSignature
+        AgpuShaderSignature new
+            handle: signatureHandle;
+            upCastFor: ShaderSignature
     }.
 }.
 
-compileTime constant AgpuShaderSignatureBuilderPtr := AgpuShaderSignatureBuilder rcPointer.
+compileTime constant AgpuShaderSignatureBuilderRef := AgpuShaderSignatureBuilder rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

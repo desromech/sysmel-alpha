@@ -10,13 +10,13 @@ useNamespace: Std Graphics Core.
  *#
 class SoftSwapChain superclass: SwapChain; definition: {
     protected field creationInfo type: SwapChainCreationInfo.
-    protected field colorBuffers type: Std Collections Vector(SoftTextureViewPtr).
-    protected field framebuffers type: Std Collections Vector(FramebufferPtr).
+    protected field colorBuffers type: Std Collections Vector(SoftTextureViewRef).
+    protected field framebuffers type: Std Collections Vector(FramebufferRef).
     protected field currentBackBufferIndex type: UInt32.
 
-    method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) on: (device: SoftRenderingDevice ref) ::=> Boolean8 := {
+    method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) on: (device: SoftRenderingDevice ref) ::=> Boolean8 := {
         creationInfo := swapChainCreationInfo.
-        creationInfo oldSwapChain reset.
+        creationInfo oldSwapChain := nil.
 
         creationInfo
             extent: (creationInfo extent max: UInt32x2 ones);
@@ -43,14 +43,14 @@ class SoftSwapChain superclass: SwapChain; definition: {
                 return: false
             }.
 
-    		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+    		let colorBufferTextureView := colorBuffer getOrCreateFullView.
             colorBuffers add: (colorBufferTextureView downCastFor: SoftTextureView).
 
             ## TODO: Create the depth buffer.
-            let depthStencilView mutable := TextureViewPtr nil.
+            let depthStencilView mutable := TextureViewRef nil.
 
             ## Create the framebuffer
-            let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
+            let colorAttachments mutable := TextureViewRef array(colorBufferTextureView).
             let framebuffer := device createFramebuffer: creationInfo extent colorViews: colorAttachments depthStencilView: depthStencilView.
             framebuffer ifNil: {
                 return: false.
@@ -87,10 +87,10 @@ class SoftSwapChain superclass: SwapChain; definition: {
         self presentColorbuffer: colorBuffers[newFrontBuffer].
     }.
 
-    virtual method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> SwapChainPresentationError
+    virtual method presentColorbuffer: (colorBuffer: SoftTextureViewRef const ref) ::=> SwapChainPresentationError
         := SwapChainPresentationError Ok.
 
-    override method getCurrentBackBuffer => FramebufferPtr := {
+    override method getCurrentBackBuffer => FramebufferRef := {
         framebuffers[currentBackBufferIndex]
     }.
 
@@ -98,10 +98,10 @@ class SoftSwapChain superclass: SwapChain; definition: {
         currentBackBufferIndex
     }.
 
-    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr := {
+    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferRef := {
         layerIndex selectCase: #{
         0 : {self getCurrentBackBuffer}.
-        _ : {FramebufferPtr nil}.
+        _ : {FramebufferRef nil}.
         }
     }.
 
@@ -113,7 +113,7 @@ class SoftSwapChain superclass: SwapChain; definition: {
     }
 }.
 
-compileTime constant SoftSwapChainPtr := SoftSwapChain rcPointer.
+compileTime constant SoftSwapChainRef := SoftSwapChain rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

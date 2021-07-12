@@ -12,7 +12,7 @@ sealed class AgpuTextureView superclass: TextureView; definition: {
 
 }.
 
-compileTime constant AgpuTextureViewPtr := AgpuTextureView rcPointer.
+compileTime constant AgpuTextureViewRef := AgpuTextureView rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

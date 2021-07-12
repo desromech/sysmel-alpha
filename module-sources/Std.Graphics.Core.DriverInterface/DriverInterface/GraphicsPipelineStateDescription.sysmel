@@ -56,21 +56,21 @@ struct GraphicsPipelineStateDescription definition: {
         sampleCount := 1.
     }.
 
-    public field shaderSignature type: ShaderSignaturePtr.
+    public field shaderSignature type: ShaderSignatureRef.
 
     ## Shader stages.
-    public field vertexShader type: ShaderStageHandlePtr.
-    public field fragmentShader type: ShaderStageHandlePtr.
-    public field geometryShader type: ShaderStageHandlePtr.
-    public field tessellationControlShader type: ShaderStageHandlePtr.
-    public field tessellationEvaluationShader type: ShaderStageHandlePtr.
+    public field vertexShader type: ShaderStageHandleRef.
+    public field fragmentShader type: ShaderStageHandleRef.
+    public field geometryShader type: ShaderStageHandleRef.
+    public field tessellationControlShader type: ShaderStageHandleRef.
+    public field tessellationEvaluationShader type: ShaderStageHandleRef.
 
     ## Rasterization state.
     public field frontFaceOrientation type: FrontFaceOrientation.
     public field faceCullingMode type: FaceCullingMode.
     public field polygonMode type: PolygonMode.
     public field primitiveTopology type: PrimitiveTopology.
-    public field vertexLayout type: VertexLayoutPtr.
+    public field vertexLayout type: VertexLayoutRef.
 
     ## Color attachments
     public field colorAttachments type: Std Collections Vector(GraphicsPipelineStateColorAttachmentDescription).
@@ -98,21 +98,21 @@ struct GraphicsPipelineStateDescription definition: {
     public field stencilBackFaceState type: StencilFaceState.
 
     const inline method = (other: SelfType const ref) ::=> Boolean8 := {
-        shaderSignature = other shaderSignature &&
+        shaderSignature == other shaderSignature &&
 
         ## Shader stages.
-        vertexShader = other vertexShader &&
-        fragmentShader = other fragmentShader &&
-        geometryShader = other geometryShader &&
-        tessellationControlShader = other tessellationControlShader &&
-        tessellationEvaluationShader = other tessellationEvaluationShader &&
+        vertexShader == other vertexShader &&
+        fragmentShader == other fragmentShader &&
+        geometryShader == other geometryShader &&
+        tessellationControlShader == other tessellationControlShader &&
+        tessellationEvaluationShader == other tessellationEvaluationShader &&
 
         ## Rasterization state.
         frontFaceOrientation = other frontFaceOrientation &&
         faceCullingMode = other faceCullingMode &&
         polygonMode = other polygonMode &&
         primitiveTopology = other primitiveTopology &&
-        vertexLayout = other vertexLayout &&
+        vertexLayout == other vertexLayout &&
 
         ## Color attachments
         colorAttachments = other colorAttachments &&
@@ -143,21 +143,21 @@ struct GraphicsPipelineStateDescription definition: {
     Std Utility NotEqualsMethodMixin.
 
     const inline method hash ::=> Std Hash := {
-        shaderSignature hash ^
+        shaderSignature identityHash ^
 
         ## Shader stages.
-        vertexShader hash ^
-        fragmentShader hash ^
-        geometryShader hash ^
-        tessellationControlShader hash ^
-        tessellationEvaluationShader hash ^
+        vertexShader identityHash ^
+        fragmentShader identityHash ^
+        geometryShader identityHash ^
+        tessellationControlShader identityHash ^
+        tessellationEvaluationShader identityHash ^
 
         ## Rasterization state.
         frontFaceOrientation hash ^
         faceCullingMode hash ^
         polygonMode hash ^
         primitiveTopology hash ^
-        vertexLayout hash ^
+        vertexLayout identityHash ^
 
         ## Color attachments
         colorAttachments hash ^

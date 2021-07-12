@@ -10,7 +10,7 @@ class GraphicsPipelineState superclass: PipelineState; definition: {
         := true.
 }.
 
-compileTime constant GraphicsPipelineStatePtr := GraphicsPipelineState rcPointer.
+compileTime constant GraphicsPipelineStateRef := GraphicsPipelineState rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

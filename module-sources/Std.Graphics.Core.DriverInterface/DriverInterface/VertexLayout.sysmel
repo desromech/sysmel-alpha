@@ -9,7 +9,7 @@ class VertexLayout superclass: RenderingDriverObjectHandle; definition: {
     abstract method addVertexBuffers: (strides: UInt32 const arraySlice) withAttributes: (attributes: VertexAttributeDescription const arraySlice) ::=> Void.
 }.
 
-compileTime constant VertexLayoutPtr := VertexLayout rcPointer.
+compileTime constant VertexLayoutRef := VertexLayout rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

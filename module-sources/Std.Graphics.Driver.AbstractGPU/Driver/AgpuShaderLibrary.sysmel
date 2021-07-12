@@ -10,20 +10,17 @@ useNamespace: Std Graphics Core.
 sealed class AgpuShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
     public field handle type: AGPU ShaderRef.
 
-    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
-
-        let result := AgpuShaderStageHandle rcNew.
-        result _
+    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef := {
+        AgpuShaderStageHandle new
             libraryHandle: handle;
             entryPointName: entryPointInfo entryPointSymbol;
-            stageType: (entryPointInfo stageType castTo: AGPU ShaderType).
-
-        result upCastFor: ShaderStageHandle
+            stageType: (entryPointInfo stageType castTo: AGPU ShaderType);
+            upCastFor: ShaderStageHandle
     }.
 
 }.
 
-compileTime constant AgpuShaderLibraryHandlePtr := AgpuShaderLibraryHandle rcPointer.
+compileTime constant AgpuShaderLibraryHandleRef := AgpuShaderLibraryHandle rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

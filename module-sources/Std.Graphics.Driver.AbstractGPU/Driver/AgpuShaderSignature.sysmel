@@ -10,19 +10,19 @@ useNamespace: Std Graphics Core.
 sealed class AgpuShaderSignature superclass: ShaderSignature; definition: {
     public field handle type: AGPU ShaderSignatureRef.
 
-    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
+    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsRef := {
         let bindingsHandle := handle _ createShaderResourceBinding: (elementIndex castTo: UInt32).
         bindingsHandle ifNil: {
-            return: ShaderResourceBindingsPtr nil.
+            return: ShaderResourceBindingsRef nil.
         }.
 
-        let result := AgpuShaderResourceBindings rcNew.
-        result _ handle: bindingsHandle.
-        result upCastFor: ShaderResourceBindings
+        AgpuShaderResourceBindings new
+            handle: bindingsHandle;
+            upCastFor: ShaderResourceBindings
     }.
 }.
 
-compileTime constant AgpuShaderSignaturePtr := AgpuShaderSignature rcPointer.
+compileTime constant AgpuShaderSignatureRef := AgpuShaderSignature rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

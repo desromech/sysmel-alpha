@@ -12,7 +12,7 @@ useNamespace: Std Math Geometry.
 class SoftTexture superclass: Texture; definition: {
     protected field description type: TextureDescription.
     protected field aspect type: TextureAspect.
-    protected field fullTextureView type: TextureViewPtr.
+    protected field fullTextureView type: TextureViewRef.
 
     virtual method initializeWithDescription: (theDescription: TextureDescription const ref) ::=> Boolean8 := {
         description := theDescription.
@@ -79,15 +79,15 @@ class SoftTexture superclass: Texture; definition: {
             yourself
     }.
 
-    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr := {
+    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewRef := {
         viewDescription subresourceRange baseMipLevel >= description miplevels ||
         viewDescription subresourceRange baseArrayLayer >= description layers ifTrue: {
-            return: TextureViewPtr nil
+            return: TextureViewRef nil
         }.
 
         let memoryPointer := self linearMemoryLockLevel: viewDescription subresourceRange baseMipLevel layer: viewDescription subresourceRange baseArrayLayer.
         memoryPointer ifNil: {
-            return: TextureViewPtr nil
+            return: TextureViewRef nil
         }.
 
         self linearMemoryUnlock.
@@ -97,9 +97,8 @@ class SoftTexture superclass: Texture; definition: {
         let pitches := self computePitchesForLevel: viewDescription subresourceRange baseMipLevel.
 
         ## Create the view.
-        let view := SoftTextureView rcNew.
-        view _
-            texture: self asWeakRCPointer;
+        SoftTextureView new
+            texture: self asWeakRCRef;
             pixelsBlitter: (Blitter()
                 extent: levelExtent xy;
                 pixelFormat: viewDescription format;
@@ -108,12 +107,11 @@ class SoftTexture superclass: Texture; definition: {
                 applyFullClippingBounds;
                 initializeCachedState;
                 yourself
-            ).
-
-        view upCastFor: TextureView
+            );
+            upCastFor: TextureView
     }.
 
-    override method getOrCreateFullView => TextureViewPtr := {
+    override method getOrCreateFullView => TextureViewRef := {
         fullTextureView ifNil: {
             fullTextureView := self createView: self getFullViewDescription
         }.
@@ -122,7 +120,7 @@ class SoftTexture superclass: Texture; definition: {
     }.
 }.
 
-compileTime constant SoftTexturePtr := SoftTexture rcPointer.
+compileTime constant SoftTextureRef := SoftTexture rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

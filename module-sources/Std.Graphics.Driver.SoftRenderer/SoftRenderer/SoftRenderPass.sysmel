@@ -28,7 +28,7 @@ class SoftRenderPassExecutionContext definition: {
         0 until: colorAttachmentCount do: {:i :: Void |
             let attachmentBlitter ref := colorAttachmentBlitters[i].
             let attachmentDescription ref := renderPass _ colorAttachments[i].
-            attachmentBlitter := framebuffer _ colorAttachments[i] _ pixelsBlitter.
+            attachmentBlitter := framebuffer _ colorAttachments[i] pixelsBlitter.
 
             attachmentDescription beginAction = RenderPassAttachmentAction Clear ifTrue: {
                 attachmentBlitter setAllPixelsToColor: attachmentDescription clearValue.
@@ -38,7 +38,7 @@ class SoftRenderPassExecutionContext definition: {
         hasDepthStencilAttachment := renderPass _ hasDepthStencilAttachment.
         hasDepthStencilAttachment ifTrue: {
             let attachmentDescription ref := renderPass _ depthStencilAttachment.
-            depthAttachmentBlitter := framebuffer _ depthStencilAttachment _ pixelsBlitter.
+            depthAttachmentBlitter := framebuffer _ depthStencilAttachment pixelsBlitter.
 
             attachmentDescription beginAction = RenderPassAttachmentAction Clear ifTrue: {
                 depthAttachmentBlitter setAllPixelsToColor: attachmentDescription clearValue depth.

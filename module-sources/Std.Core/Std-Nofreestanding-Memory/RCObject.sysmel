@@ -297,6 +297,9 @@ template RCRef(PT: Type)
     const inline method ~~ (other: WeakRCRefType const ref) ::=> Boolean8
         := __rcPointer__ ~~ other __weakRCPointer__.
 
+    const inline method identityHash ::=> Hash
+        := __rcPointer__ hash.
+
     (inline method := (o: _UndefinedType)) ::=> SelfType const ref := {
         __rcPointer__ reset.
 		self
@@ -318,6 +321,8 @@ template RCRef(PT: Type)
 
 	macro method isNil := ``(`,self __rcPointer__ isNil).
 	macro method isNotNil := ``(`,self __rcPointer__ isNotNil).
+
+    macro method rcObjectAddress := ``(`,self __rcPointer__ getPointer).
 
     macro method upCastFor: targetType
         := ``((`,self __rcPointer__ upCastFor: `,targetType) asRCRef).
@@ -385,6 +390,9 @@ template WeakRCRef(PT: Type)
     const inline method ~~ (other: RCRefType const ref) ::=> Boolean8
         := __weakRCPointer__ ~~ other __rcPointer__.
 
+    const inline method identityHash ::=> Hash
+        := __weakRCPointer__ hash.
+
     (inline method := (o: _UndefinedType)) ::=> SelfType const ref := {
         __weakRCPointer__ reset.
 		self
@@ -402,6 +410,8 @@ template WeakRCRef(PT: Type)
 
     macro method asRCPointer := ``(`,self __weakRCPointer__ lock).
     macro method asWeakRCPointer := ``(`,self __weakRCPointer__).
+
+    macro method rcObjectAddress := ``(`,self __weakRCPointer__ lock getPointer).
 
     macro method upCastFor: targetType
         := ``((`,self __weakRCPointer__ upCastFor: `,targetType) asWeakRCRef).
@@ -499,6 +509,9 @@ class RCObject superclass: Object; definition: {
 
     macro method asWeakRCRef := ``(Std WeakRCRef(`,SelfType) for: `,self address).
     macro method asRCRef := ``(Std RCRef(`,SelfType) for: `,self address).
+    
+    macro method rcObjectAddress := ``(`,self address).
+
 
     (inline method := (other: SelfType const ref)) => SelfType ref := {
         ## internalSelfWeakPointer should not be modified.

@@ -7,12 +7,12 @@ namespace Core definition: {
  * I am intended to be used with GPU accelerated rendering devices.
  *#
 class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache; definition: {
-    private field device type: RenderingDeviceWeakPtr.
+    private field device type: RenderingDeviceWeakRef.
 
     private field cacheDictionary type: Std Collections Dictionary(FontFaceWithSize rcPointer, FontFaceWithSizeRef).
     private field cacheDictionaryMutex type: Std Mutex.
 
-    method initializeWithDevice: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
+    method initializeWithDevice: (theDevice: RenderingDeviceWeakRef const ref) ::=> Void := {
         device := theDevice.
     }.
 

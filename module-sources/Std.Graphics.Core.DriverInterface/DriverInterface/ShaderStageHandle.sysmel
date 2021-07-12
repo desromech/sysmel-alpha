@@ -8,7 +8,7 @@ namespace Core definition: {
 class ShaderStageHandle superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant ShaderStageHandlePtr := ShaderStageHandle rcPointer.
+compileTime constant ShaderStageHandleRef := ShaderStageHandle rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -33,7 +33,7 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
     }.
 
     override method newSceneBuilder => Scene2D BuilderRef
-        := window renderingDevice _ createScene2DBuilder.
+        := window renderingDevice createScene2DBuilder.
 
     override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         self validateSwapChain ifFalse: {
@@ -66,7 +66,7 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
                 bufferCount: 2; ## Use at least double buffering.
                 yourself.
 
-            let defaultCommandQueue := renderingDevice _ getDefaultCommandQueue.
+            let defaultCommandQueue := renderingDevice getDefaultCommandQueue.
 
             let newSwapChain := window createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
             newSwapChain ifNil: {

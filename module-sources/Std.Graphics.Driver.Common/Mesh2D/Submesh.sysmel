@@ -15,8 +15,8 @@ struct Submesh definition: {
     public field boundingBox type: RectangleF32.
 
     public field blendingMode type: BlendingMode.
-    public field texture type: TexturePtr.
-    public field textureView type: TextureViewPtr.
+    public field texture type: TextureRef.
+    public field textureView type: TextureViewRef.
     public field fontFaceWithSize type: FontFaceWithSizeRef.
 }.
 

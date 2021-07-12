@@ -15,14 +15,14 @@ class SwapChain superclass: RenderingDriverObjectHandle; definition: {
     abstract method getLayerCount => UInt32.
 
     abstract method swapBuffers => SwapChainPresentationError.
-    abstract method getCurrentBackBuffer => FramebufferPtr.
-    abstract method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr.
+    abstract method getCurrentBackBuffer => FramebufferRef.
+    abstract method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferRef.
     abstract method getCurrentBackBufferIndex => UInt32.
     abstract method getFramebufferCount => UInt32.
     abstract method setOverlayPosition: (position: Int32x2) ::=> Void.
 }.
 
-compileTime constant SwapChainPtr := SwapChain rcPointer.
+compileTime constant SwapChainRef := SwapChain rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

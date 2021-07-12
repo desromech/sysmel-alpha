@@ -13,8 +13,8 @@ class SDL2Window superclass: Window; definition: {
     field windowSystem type: SDL2WindowSystem pointer.
     public field isFullscreen type: Boolean8.
     protected field currentCursor type: Cursor rcPointer.
-    protected field renderingDevice type: RenderingDevicePtr.
-    protected field activeSwapChain type: SwapChainPtr.
+    protected field renderingDevice type: RenderingDeviceRef.
+    protected field activeSwapChain type: SwapChainRef.
     protected field softSceneRenderer type: WindowScene2DRendererRef.
 
     override method initialize => Void := {
@@ -43,12 +43,12 @@ class SDL2Window superclass: Window; definition: {
 
     override method close => Void := {
         renderingDevice ifNotNil: {
-            renderingDevice _ waitForIdle
+            renderingDevice waitForIdle
         }.
 
         ## Destroy the active swap chain.
         activeSwapChain ifNotNil: {
-            activeSwapChain _ destroy.
+            activeSwapChain destroy.
         }.
 
         ## Destroy the active soft scene renderer.
@@ -70,7 +70,7 @@ class SDL2Window superclass: Window; definition: {
         }.
     }.
 
-    override method renderingDevice => RenderingDevice rcPointer := {
+    override method renderingDevice => RenderingDeviceRef := {
         renderingDevice ifNil: {
             renderingDevice := RenderingDriverRegistry defaultDriver _ getMainDevice
         }.
@@ -78,11 +78,11 @@ class SDL2Window superclass: Window; definition: {
         renderingDevice
     }.
 
-    override method renderingDevice: (theRenderingDevice: RenderingDevice rcPointer) ::=> Void := {
+    override method renderingDevice: (theRenderingDevice: RenderingDeviceRef const ref) ::=> Void := {
         renderingDevice := theRenderingDevice
     }.
 
-    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) ::=> SwapChainRef := {
         let adaptedCreationInfo mutable := swapChainCreationInfo.
 
         adaptedCreationInfo extent = UInt32x2 zeros ifTrue: {
@@ -90,10 +90,10 @@ class SDL2Window superclass: Window; definition: {
         }.
 
         ## Get the rendering device.
-        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+        self renderingDevice isSoftRenderingDevice ifTrue: {
             let result := SDL2SoftwareRendererSwapChain for: self.
-            (result _ initializeWith: adaptedCreationInfo for: renderingQueue on: (renderingDevice getPointer castTo: SoftRenderingDevice pointer) _) ifFalse: {
-                return: SwapChainPtr nil
+            (result initializeWith: adaptedCreationInfo for: renderingQueue on: (renderingDevice rcObjectAddress castTo: SoftRenderingDevice pointer) _) ifFalse: {
+                return: SwapChainRef nil
             }.
 
             return: (result upCastFor: SwapChain).
@@ -140,25 +140,25 @@ class SDL2Window superclass: Window; definition: {
         }.
         _ : {
             Std stderr << "Unsupported window system"; nl.
-            return: SwapChainPtr nil
+            return: SwapChainRef nil
         }.
         }.
 
         ## Supply the old swap chain, and make sure it is not on active use anymore.
         activeSwapChain ifNotNil: {
             adaptedCreationInfo oldSwapChain: activeSwapChain.
-            renderingDevice _ waitForIdle.
+            renderingDevice waitForIdle.
         }.
 
-        let newActiveSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
+        let newActiveSwapChain := renderingDevice createSwapChain: adaptedCreationInfo for: renderingQueue.
         activeSwapChain ifNotNil: {
-            activeSwapChain _ destroy
+            activeSwapChain destroy
         }.
         activeSwapChain := newActiveSwapChain
     }.
 
     override method createScene2DRenderer => WindowScene2DRendererRef := {
-        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+        self renderingDevice isSoftRenderingDevice ifTrue: {
             softSceneRenderer ifNotNil: {
                 softSceneRenderer destroy.
                 softSceneRenderer := nil

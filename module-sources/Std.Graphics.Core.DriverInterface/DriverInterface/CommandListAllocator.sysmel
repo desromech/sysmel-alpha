@@ -9,7 +9,7 @@ class CommandListAllocator superclass: RenderingDriverObjectHandle; definition: 
     abstract method resetAllocator => Void.
 }.
 
-compileTime constant CommandListAllocatorPtr := CommandListAllocator rcPointer.
+compileTime constant CommandListAllocatorRef := CommandListAllocator rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -36,18 +36,18 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
         }
     }.
 
-    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferPtr := {
+    override method getCurrentBackBufferForLayer: (layerIndex: UInt32) ::=> FramebufferRef := {
         let backBufferHandle := handle _ getCurrentBackBufferForLayer: layerIndex.
         backBufferHandle ifNil: {
-            return: FramebufferPtr nil
+            return: FramebufferRef nil
         }.
 
-        let result := AgpuFramebuffer rcNew.
-        result _ handle: backBufferHandle.
-        result upCastFor: Framebuffer
+        AgpuFramebuffer new
+            handle: backBufferHandle;
+            upCastFor: Framebuffer
     }.
 
-    override method getCurrentBackBuffer => FramebufferPtr
+    override method getCurrentBackBuffer => FramebufferRef
         := self getCurrentBackBufferForLayer: 0.
 
     override method getCurrentBackBufferIndex => UInt32
@@ -61,7 +61,7 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
     }.
 }.
 
-compileTime constant AgpuSwapChainPtr := AgpuSwapChain rcPointer.
+compileTime constant AgpuSwapChainRef := AgpuSwapChain rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

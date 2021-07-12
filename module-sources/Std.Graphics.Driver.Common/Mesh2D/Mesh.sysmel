@@ -5,8 +5,8 @@ namespace Scene2DMesh definition: {
 useNamespace: Std Graphics Core.
 
 struct Mesh definition: {
-    public field vertexBinding type: VertexBindingPtr.
-    public field indices type: BufferPtr.
+    public field vertexBinding type: VertexBindingRef.
+    public field indices type: BufferRef.
     public field submeshes type: Std Collections Vector(Submesh).
 }.
 

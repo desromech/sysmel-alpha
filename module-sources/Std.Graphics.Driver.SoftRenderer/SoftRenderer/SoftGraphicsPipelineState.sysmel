@@ -14,11 +14,11 @@ class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
 	public field fragmentShader type: GPU NativeFragmentShaderEntryPointType pointer.
 
 	method fetchCachedPipelineState => Boolean8 := {
-		(description vertexShader getPointer castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
+		(description vertexShader rcObjectAddress castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
 			vertexShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeVertexShaderEntryPointType pointer
 		}.
 
-		(description fragmentShader getPointer castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
+		(description fragmentShader rcObjectAddress castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
 			fragmentShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeFragmentShaderEntryPointType pointer
 		}.
 

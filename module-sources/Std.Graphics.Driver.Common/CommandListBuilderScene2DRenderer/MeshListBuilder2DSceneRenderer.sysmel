@@ -12,10 +12,10 @@ useNamespace: Std Graphics Scene2DMesh.
 class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
     public field extent type: UInt32x2.
     public field meshBuilder type: MeshBuilder.
-    public field device type: RenderingDevicePtr.
+    public field device type: RenderingDeviceRef.
 
     override method newSceneBuilder => Scene2D BuilderRef := {
-        device _ createScene2DBuilder
+        device createScene2DBuilder
     }.
 
     override method clearColor: (color: Float32x4) ::=> Void := {
@@ -85,7 +85,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
+                texture: TextureRef nil textureView: TextureViewRef nil fontFaceWithSize: FontFaceWithSizeRef nil;
 
             addVertex: (MeshVertex()
                 position: obl;
@@ -185,7 +185,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
+                texture: TextureRef nil textureView: TextureViewRef nil fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: node c1;
@@ -215,7 +215,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
+                texture: TextureRef nil textureView: TextureViewRef nil fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: c1;
@@ -290,12 +290,12 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
     override method visitTextNode: (node: Scene2D TextNode const ref) ::=> Void := {
         node string ifEmpty: {return: void}.
 
-        let fontFaceWithSize := renderer _ device _ getDefaultFontCache _ getOrCreateAdaptedFontFaceWithSize: node fontFaceWithSize.
+        let fontFaceWithSize := renderer _ device getDefaultFontCache getOrCreateAdaptedFontFaceWithSize: node fontFaceWithSize.
         fontFaceWithSize ifNil: {return: void}.
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: fontFaceWithSize.
+                texture: TextureRef nil textureView: TextureViewRef nil fontFaceWithSize: fontFaceWithSize.
 
         let currentState mutable := node drawingState.
 

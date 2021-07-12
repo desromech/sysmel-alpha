@@ -19,7 +19,7 @@ struct SwapChainCreationInfo definition: {
     public field sampleQuality type: UInt32.
     public field flags type: SwapChainFlags.
     public field position type: Int32x2.
-    public field oldSwapChain type: SwapChainPtr.
+    public field oldSwapChain type: SwapChainRef.
     public field presentationMode type: SwapChainPresentationMode.
     public field fallbackPresentationMode type: SwapChainPresentationMode.
 }.

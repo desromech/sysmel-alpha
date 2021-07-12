@@ -56,6 +56,8 @@ class SoftBuffer superclass: Buffer; definition: {
     }.
 }.
 
+compileTime constant SoftBufferRef := SoftBuffer rcRef.
+
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver
 }. ## End of namespace Graphics

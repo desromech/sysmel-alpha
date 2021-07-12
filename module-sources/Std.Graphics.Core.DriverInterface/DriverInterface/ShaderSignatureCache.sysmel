@@ -6,10 +6,10 @@ namespace Core definition: {
  * I am a handle for a shader signatures cache.
  *#
 class ShaderSignatureCache superclass: RenderingDriverObjectHandle; definition: {
-    abstract method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr.
+    abstract method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignatureRef.
 }.
 
-compileTime constant ShaderSignatureCachePtr := ShaderSignatureCache rcPointer.
+compileTime constant ShaderSignatureCacheRef := ShaderSignatureCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

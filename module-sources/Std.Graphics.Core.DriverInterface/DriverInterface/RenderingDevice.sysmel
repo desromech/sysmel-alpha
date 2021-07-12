@@ -14,21 +14,21 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method isSoftRenderingDevice => Boolean8
         := false.
 
-    abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr.
+    abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderRef.
 
-    virtual method createShaderSignatureWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr := {
+    virtual method createShaderSignatureWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignatureRef := {
         let builder := self createShaderSignatureBuilder.
-        description applyToBuilder: builder _.
-        builder _ build
+        description applyToBuilder: builder.
+        builder build
     }.
 
-    abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr.
-    abstract method createTexture: (description: TextureDescription const ref) ::=> TexturePtr.
-    abstract method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr.
-    abstract method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
-    abstract method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
+    abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferRef.
+    abstract method createTexture: (description: TextureDescription const ref) ::=> TextureRef.
+    abstract method createSampler: (description: SamplerDescription const ref) ::=> SamplerRef.
+    abstract method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStateRef.
+    abstract method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStateRef.
 
-    abstract method createVertexLayout => VertexLayoutPtr.
+    abstract method createVertexLayout => VertexLayoutRef.
 
     virtual method platformName => Char8 const pointer
         := "Unknown".
@@ -36,56 +36,56 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method name => Char8 const pointer
         := "Unknown".
 
-    virtual method createColorTextureWithData: (textureData: TextureDataRef const ref) ::=> TexturePtr := {
+    virtual method createColorTextureWithData: (textureData: TextureDataRef const ref) ::=> TextureRef := {
         let texture := self createTexture: textureData colorTextureDescription.
         texture ifNotNil: {
-            texture _ uploadTextureData: textureData
+            texture uploadTextureData: textureData
         }.
 
         texture
     }.
 
-    virtual method createTextureWithData: (textureData: TextureDataRef const ref) ::=> TexturePtr := {
+    virtual method createTextureWithData: (textureData: TextureDataRef const ref) ::=> TextureRef := {
         let texture := self createTexture: textureData textureDescription.
         texture ifNotNil: {
-            texture _ uploadTextureData: textureData
+            texture uploadTextureData: textureData
         }.
 
         texture
     }.
 
-    virtual method createVertexLayoutWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
+    virtual method createVertexLayoutWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutRef := {
         let layout := self createVertexLayout.
-        description applyToLayout: layout _.
+        description applyToLayout: layout.
         layout
     }.
 
-    abstract method createVertexBindingFor: (layout: VertexLayout rcPointer const ref) ::=> VertexBindingPtr.
+    abstract method createVertexBindingFor: (layout: VertexLayoutRef const ref) ::=> VertexBindingRef.
 
-    abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
-    abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
-    abstract method getDefaultCommandQueue => CommandQueuePtr const ref.
+    abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueueRef const ref) ::=> CommandListAllocatorRef.
+    abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorRef const ref) initialPipelineState: (initialPipeline: PipelineStateRef const ref) ::=> CommandListRef.
+    abstract method getDefaultCommandQueue => CommandQueueRef const ref.
 
-    abstract method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr.
-    abstract method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandlePtr.
-    virtual method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr
+    abstract method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandleRef.
+    abstract method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandleRef.
+    virtual method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandleRef
         := self createShaderLibraryFromBlob: (shaderModule blobStartPointer until: shaderModule blobSize).
 
-    abstract method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr.
-    abstract method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr.
-    abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
+    abstract method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandleRef.
+    abstract method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandleRef.
+    abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef.
 
-    abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr.
-    abstract method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr.
+    abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewRef const arraySlice) depthStencilView: (depthStencilView: TextureViewRef const ref) ::=> FramebufferRef.
+    abstract method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassRef.
 
-    abstract method createFence => FencePtr.
-    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr.
+    abstract method createFence => FenceRef.
+    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) ::=> SwapChainRef.
     abstract method waitForIdle => Void.
 
-    virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> CommandListPtr
-        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil.
+    virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorRef const ref) ::=> CommandListRef
+        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStateRef nil.
 
-    abstract method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> StateTrackerPtr.
+    abstract method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorRef const ref) ::=> StateTrackerRef.
 
     abstract method hasTopLeftNdcOrigin => Boolean8.
     abstract method hasBottomLeftTextureCoordinates => Boolean8.
@@ -110,22 +110,22 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method minTextureDataPitchAlignment => UIntPointer
         := 4.
 
-    abstract method createShaderSignatureCache => ShaderSignatureCachePtr.
-    abstract method createVertexLayoutCache => VertexLayoutCachePtr.
-    abstract method createPipelineStateCache => PipelineStateCachePtr.
-    abstract method createShaderCache => ShaderCachePtr.
-    abstract method createFontCache => RenderingDeviceFontCachePtr.
+    abstract method createShaderSignatureCache => ShaderSignatureCacheRef.
+    abstract method createVertexLayoutCache => VertexLayoutCacheRef.
+    abstract method createPipelineStateCache => PipelineStateCacheRef.
+    abstract method createShaderCache => ShaderCacheRef.
+    abstract method createFontCache => RenderingDeviceFontCacheRef.
     abstract method createScene2DBuilder => Scene2D BuilderRef.
 
-    abstract method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref.
-    abstract method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref.
-    abstract method getDefaultPipelineStateCache => PipelineStateCachePtr const ref.
-    abstract method getDefaultShaderCache => ShaderCachePtr const ref.
-    abstract method getDefaultFontCache => RenderingDeviceFontCachePtr const ref.
+    abstract method getDefaultShaderSignatureCache => ShaderSignatureCacheRef const ref.
+    abstract method getDefaultVertexLayoutCache => VertexLayoutCacheRef const ref.
+    abstract method getDefaultPipelineStateCache => PipelineStateCacheRef const ref.
+    abstract method getDefaultShaderCache => ShaderCacheRef const ref.
+    abstract method getDefaultFontCache => RenderingDeviceFontCacheRef const ref.
 }.
 
-compileTime constant RenderingDevicePtr := RenderingDevice rcPointer.
-compileTime constant RenderingDeviceWeakPtr := RenderingDevice weakRCPointer.
+compileTime constant RenderingDeviceRef := RenderingDevice rcRef.
+compileTime constant RenderingDeviceWeakRef := RenderingDevice weakRCRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

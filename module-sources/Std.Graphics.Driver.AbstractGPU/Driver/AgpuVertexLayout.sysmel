@@ -28,7 +28,7 @@ sealed class AgpuVertexLayout superclass: VertexLayout; definition: {
     }.
 }.
 
-compileTime constant AgpuVertexLayoutPtr := AgpuVertexLayout rcPointer.
+compileTime constant AgpuVertexLayoutRef := AgpuVertexLayout rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

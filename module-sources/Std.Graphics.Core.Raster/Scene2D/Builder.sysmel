@@ -14,7 +14,7 @@ class Builder superclass: RCObject; definition: {
     method container => ContainerNodeRef
         := ContainerNode new.
 
-    virtual method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (view: Std RCObjectPtr const ref) ::=> StrongTextureHandleRef
+    virtual method createTextureHandleFor: (texture: Std RCObjectRef const ref) view: (view: Std RCObjectRef const ref) ::=> StrongTextureHandleRef
         := StrongTextureHandleRef nil.
 
     virtual method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandleRef

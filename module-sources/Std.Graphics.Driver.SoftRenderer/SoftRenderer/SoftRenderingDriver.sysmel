@@ -18,7 +18,7 @@ class SoftRenderingDriver superclass: RenderingDriver; definition: {
         RenderingDriverRegistry default unregisterDriver: self address
     }.
 
-    field mainDevice type: SoftRenderingDevice rcPointer.
+    field mainDevice type: SoftRenderingDevice rcRef.
 
     meta definition: {
         global Singleton mutable type: SoftRenderingDriver.
@@ -27,9 +27,9 @@ class SoftRenderingDriver superclass: RenderingDriver; definition: {
     override const method isSoftRenderingDriver => Boolean8
         := true.
 
-    override method getMainDevice => RenderingDevice rcPointer := {
+    override method getMainDevice => RenderingDevice rcRef := {
         mainDevice ifNil: {
-            mainDevice := SoftRenderingDevice rcNew.
+            mainDevice := SoftRenderingDevice new.
         }.
 
         mainDevice upCastFor: RenderingDevice

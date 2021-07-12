@@ -17,7 +17,7 @@ class SoftSampler superclass: Sampler; definition: {
     }.
 }.
 
-compileTime constant SoftSamplerPtr := SoftSampler rcPointer.
+compileTime constant SoftSamplerRef := SoftSampler rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

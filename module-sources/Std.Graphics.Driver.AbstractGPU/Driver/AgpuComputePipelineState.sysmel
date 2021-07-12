@@ -12,7 +12,7 @@ sealed class AgpuComputePipelineState superclass: ComputePipelineState; definiti
 
 }.
 
-compileTime constant AgpuComputePipelineStatePtr := AgpuComputePipelineState rcPointer.
+compileTime constant AgpuComputePipelineStateRef := AgpuComputePipelineState rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

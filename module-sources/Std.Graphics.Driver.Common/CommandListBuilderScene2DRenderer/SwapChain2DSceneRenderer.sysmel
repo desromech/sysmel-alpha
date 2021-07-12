@@ -9,35 +9,35 @@ useNamespace: Std Math Geometry.
  *#
 class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
     protected field extent type: UInt32x2.
-    protected field renderingQueue type: CommandQueuePtr.
-    protected field swapChain type: SwapChainPtr.
+    protected field renderingQueue type: CommandQueueRef.
+    protected field swapChain type: SwapChainRef.
 
-    protected field device type: RenderingDevicePtr.
-    protected field renderPasses type: Std Collections Vector(RenderPassPtr).
-    protected field commandListAllocators type: Std Collections Vector(CommandListAllocatorPtr).
-    protected field stateTrackers type: Std Collections Vector(StateTrackerPtr).
-    protected field fences type: Std Collections Vector(FencePtr).
+    protected field device type: RenderingDeviceRef.
+    protected field renderPasses type: Std Collections Vector(RenderPassRef).
+    protected field commandListAllocators type: Std Collections Vector(CommandListAllocatorRef).
+    protected field stateTrackers type: Std Collections Vector(StateTrackerRef).
+    protected field fences type: Std Collections Vector(FenceRef).
 
-    protected field perFrameSceneRenderers type: Std Collections Vector(StateTracker2DSceneRendererPtr).
+    protected field perFrameSceneRenderers type: Std Collections Vector(StateTracker2DSceneRendererRef).
 
     protected field currentClearColor type: Float32x4.
     protected field isOutOfDate type: Boolean8.
 
     meta definition: {
-        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer rcRef := {
+        method for: (swapChain: SwapChainRef const ref) on: (theRenderingQueue: CommandQueueRef const ref) on: (theDevice: RenderingDeviceRef const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer rcRef := {
             SwapChain2DSceneRenderer new
                 initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent;
                 yourself
         }.
     }.
 
-    method initializeWithSwapChain: (theSwapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) extent: (theExtent: UInt32x2) ::=> Void := {
+    method initializeWithSwapChain: (theSwapChain: SwapChainRef const ref) on: (theRenderingQueue: CommandQueueRef const ref) on: (theDevice: RenderingDeviceRef const ref) extent: (theExtent: UInt32x2) ::=> Void := {
         swapChain := theSwapChain.
         renderingQueue := theRenderingQueue.
         device := theDevice.
         extent := theExtent.
 
-        let bufferCount := swapChain _ getFramebufferCount.
+        let bufferCount := swapChain getFramebufferCount.
         commandListAllocators reserve: bufferCount.
         stateTrackers reserve: bufferCount.
         renderPasses reserve: bufferCount.
@@ -46,51 +46,43 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
         0 until: bufferCount do: {:i :: Void |
 
             {
-                let commandListAllocator := device _ createCommandAllocatorOfType: CommandListType Direct for: renderingQueue.
-                let commandList := device _ createCommandListOfType: CommandListType Direct for: commandListAllocator.
-                commandList _ close.
-
+                let commandListAllocator := device createCommandAllocatorOfType: CommandListType Direct for: renderingQueue.
                 commandListAllocators add: commandListAllocator.
 
-                let stateTracker := GenericStateTracker rcNew.
-                stateTracker _
-                    commandList: commandList;
-                    shaderCache: device _ getDefaultShaderCache;
-                    pipelineStateCache: device _ getDefaultPipelineStateCache.
-                stateTrackers add: (stateTracker upCastFor: StateTracker)
+                let stateTracker := device createDeferredStateTrackerOfType: CommandListType Direct for: commandListAllocator.
+                stateTrackers add: stateTracker
             }.
 
             let colorAttachments mutable := RenderPassColorAttachmentDescription array (
                 RenderPassColorAttachmentDescription()
-                    format: swapChain _ colorBufferFormat;
+                    format: swapChain colorBufferFormat;
                     beginAction: RenderPassAttachmentAction Clear;
                     endAction: RenderPassAttachmentAction Keep;
                     clearValue: Float32x4(0, 0, 1, 1);
                     yourself
             ).
 
-            let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
+            let renderPass := device createRenderPass: colorAttachments depthStencilAttachment: nil.
             renderPasses add: renderPass.
 
-            let sceneRenderer := StateTracker2DSceneRenderer rcNew.
-            sceneRenderer _
-                extent: extent;
-                device: device.
-            perFrameSceneRenderers add: sceneRenderer.
+            perFrameSceneRenderers add: (StateTracker2DSceneRenderer new
+                    extent: extent;
+                    device: device;
+                    yourself).
         }.
     }.
 
     const method extent => UInt32x2
         := extent.
 
-    const method swapChain => SwapChainPtr const ref
+    const method swapChain => SwapChainRef const ref
         := swapChain.
 
     const method isOutOfDate => Boolean8
         := isOutOfDate.
 
     override method newSceneBuilder => Scene2D BuilderRef
-        := device _ createScene2DBuilder.
+        := device createScene2DBuilder.
 
     override method clearColor: (color: Float32x4) ::=> Void := {
         currentClearColor := color.
@@ -99,8 +91,8 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
     override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         isOutOfDate ifTrue: {return: void}.
 
-        let backBuffer := swapChain _ getCurrentBackBuffer.
-        let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
+        let backBuffer := swapChain getCurrentBackBuffer.
+        let backBufferIndex := swapChain getCurrentBackBufferIndex.
 
         let allocator ref := commandListAllocators[backBufferIndex].
         let renderPass ref := renderPasses[backBufferIndex].
@@ -108,39 +100,39 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
         let perFrameSceneRenderer ref := perFrameSceneRenderers[backBufferIndex].
         let fence ref := fences[backBufferIndex].
         fence ifNotNil: {
-            fence _ wait
+            fence wait
         } ifNil: {
-            fence := device _ createFence.
+            fence := device createFence.
             fence ifNil: {return: void}.
         }.
 
         ## Set the actual clear color in the render pass.
-        renderPass _ setColorAttachment: 0 clearValue: currentClearColor.
+        renderPass setColorAttachment: 0 clearValue: currentClearColor.
 
-        allocator _ resetAllocator.
-    	stateTracker _
+        allocator resetAllocator.
+    	stateTracker
             resetFor: allocator;
             beginRenderPass: renderPass on: backBuffer contentOnBundle: false;
     		setViewport: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2));
     		setScissor: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2)).
 
         rootNode ifNotNil: {
-            perFrameSceneRenderer _
+            perFrameSceneRenderer
                 stateTracker: stateTracker;
                 renderScene: rootNode
         }.
 
-        stateTracker _
+        stateTracker
             endRenderPass;
             close.
 
-        renderingQueue _
+        renderingQueue
             submitCommandList: (stateTracker upCastFor: CommandList);
             signalFence: fence.
     }.
 
     override method present => Void := {
-        swapChain _ swapBuffers selectCase: #{
+        swapChain swapBuffers selectCase: #{
         SwapChainPresentationError OutOfDate : {
             isOutOfDate := true
         }.

@@ -25,7 +25,7 @@ class Buffer superclass: RenderingDriverObjectHandle; definition: {
     virtual method invalidateAt: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {}.
 }.
 
-compileTime constant BufferPtr := Buffer rcPointer.
+compileTime constant BufferRef := Buffer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -9,7 +9,7 @@ useNamespace: Std Graphics Core.
  * I am a handle for a sampler.
  *#
 class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
-    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandleRef := {
+    override method createTextureHandleFor: (texture: Std RCObjectRef const ref) view: (textureView: Std RCObjectRef const ref) ::=> StrongTextureHandleRef := {
         SoftScene2DDeviceTextureHandle new
             texture: (texture downCastFor: Texture);
             textureView: (textureView downCastFor: TextureView);
@@ -23,7 +23,7 @@ class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
     }.
 }.
 
-compileTime constant SoftScene2DBuilderPtr := SoftScene2DBuilder rcPointer.
+compileTime constant SoftScene2DBuilderRef := SoftScene2DBuilder rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

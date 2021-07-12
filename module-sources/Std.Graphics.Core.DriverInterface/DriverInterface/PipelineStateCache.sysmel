@@ -6,11 +6,11 @@ namespace Core definition: {
  * I am a handle for a pipeline state cache.
  *#
 class PipelineStateCache superclass: RenderingDriverObjectHandle; definition: {
-    abstract method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
-    abstract method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
+    abstract method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStateRef.
+    abstract method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStateRef.
 }.
 
-compileTime constant PipelineStateCachePtr := PipelineStateCache rcPointer.
+compileTime constant PipelineStateCacheRef := PipelineStateCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -28,8 +28,8 @@ class Texture superclass: RenderingDriverObjectHandle; definition: {
         sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void.
 
     abstract method getFullViewDescription => TextureViewDescription.
-    abstract method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr.
-    abstract method getOrCreateFullView => TextureViewPtr.
+    abstract method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewRef.
+    abstract method getOrCreateFullView => TextureViewRef.
 
     virtual method uploadTextureData: (textureData: TextureDataRef const ref) ::=> Void := {
         let dataLevelIndex mutable := 0u.
@@ -42,19 +42,18 @@ class Texture superclass: RenderingDriverObjectHandle; definition: {
         }.
     }.
 
-    virtual method asTextureWithView => TextureWithView rcPointer := {
+    virtual method asTextureWithView => TextureWithView rcRef := {
         let mainView := self getOrCreateFullView.
-        mainView ifNil: {return: TextureWithViewPtr nil}.
+        mainView ifNil: {return: TextureWithViewRef nil}.
 
-        let result := TextureWithView rcNew.
-        result _
-            texture: self asRCPointer;
-            textureView: mainView.
-        result
+        TextureWithView new
+            texture: self asRCRef;
+            textureView: mainView;
+            yourself
     }.
 }.
 
-compileTime constant TexturePtr := Texture rcPointer.
+compileTime constant TextureRef := Texture rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

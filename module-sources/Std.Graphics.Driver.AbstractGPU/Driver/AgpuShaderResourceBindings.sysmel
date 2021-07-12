@@ -10,57 +10,57 @@ useNamespace: Std Graphics Core.
 sealed class AgpuShaderResourceBindings superclass: ShaderResourceBindings; definition: {
     public field handle type: AGPU ShaderResourceBindingRef.
 
-    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ bindUniformBuffer: (location castTo: Int32) uniformBuffer: agpuBuffer _ handle.
         }.
     }.
 
-    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ bindUniformBufferRange: (location castTo: Int32) uniformBuffer: agpuBuffer _ handle offset: (offset castTo: UInt32) size: (size castTo: UInt32).
         }.
     }.
 
-    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ bindStorageBuffer: (location castTo: Int32) storageBuffer: agpuBuffer _ handle.
         }.
     }.
 
-    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
-        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+        let agpuBuffer := buffer rcObjectAddress castTo: AgpuBuffer pointer.
         agpuBuffer ifNotNil: {
             handle _ bindStorageBufferRange: (location castTo: Int32) storageBuffer: agpuBuffer _ handle offset: (offset castTo: UInt32) size: (size castTo: UInt32).
         }.
     }.
 
-    override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void := {
-        let agpuTextureView := textureView getPointer castTo: AgpuTextureView pointer.
+    override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewRef const ref) ::=> Void := {
+        let agpuTextureView := textureView rcObjectAddress castTo: AgpuTextureView pointer.
         agpuTextureView ifNotNil: {
             handle _ bindSampledTextureView: (location castTo: Int32) view: agpuTextureView _ handle
         }.
     }.
 
-    override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void := {
-        let agpuTextureView := textureView getPointer castTo: AgpuTextureView pointer.
+    override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewRef const ref) ::=> Void := {
+        let agpuTextureView := textureView rcObjectAddress castTo: AgpuTextureView pointer.
         agpuTextureView ifNotNil: {
             handle _ bindStorageImageView: (location castTo: Int32) view: agpuTextureView _ handle
         }.
     }.
 
-    override method bindOn: (location: IntPointer) sampler: (sampler: SamplerPtr const ref) ::=> Void := {
-        let agpuSampler := sampler getPointer castTo: AgpuSampler pointer.
+    override method bindOn: (location: IntPointer) sampler: (sampler: SamplerRef const ref) ::=> Void := {
+        let agpuSampler := sampler rcObjectAddress castTo: AgpuSampler pointer.
         agpuSampler ifNotNil: {
             handle _ bindSampler: (location castTo: Int32) sampler: agpuSampler _ handle
         }.
     }.
 }.
 
-compileTime constant AgpuShaderResourceBindingsPtr := AgpuShaderResourceBindings rcPointer.
+compileTime constant AgpuShaderResourceBindingsRef := AgpuShaderResourceBindings rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

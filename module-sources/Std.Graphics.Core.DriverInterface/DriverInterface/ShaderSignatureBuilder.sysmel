@@ -9,7 +9,7 @@ class ShaderSignatureBuilder superclass: RenderingDriverObjectHandle; definition
     abstract method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void.
     abstract method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void.
     abstract method addPushConstantsWithSize: (size: UIntPointer) ::=> Void.
-    abstract method build => ShaderSignaturePtr.
+    abstract method build => ShaderSignatureRef.
 
     virtual method beginBindingBank => Void
         := self beginBindingBank: 1024.
@@ -18,7 +18,7 @@ class ShaderSignatureBuilder superclass: RenderingDriverObjectHandle; definition
         := self addBankElementWithType: bindingType bindingPointCount: 1.
 }.
 
-compileTime constant ShaderSignatureBuilderPtr := ShaderSignatureBuilder rcPointer.
+compileTime constant ShaderSignatureBuilderRef := ShaderSignatureBuilder rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

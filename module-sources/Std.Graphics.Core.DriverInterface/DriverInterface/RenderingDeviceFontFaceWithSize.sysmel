@@ -10,7 +10,7 @@ class RenderingDeviceFontFaceWithSize superclass: FontFaceWithSize; definition: 
     override method isRenderingDeviceFontFaceWithSize => Boolean8
         := true.
 
-    abstract method validRenderingTextureAndView => (TexturePtr -- TextureViewPtr).
+    abstract method validRenderingTextureAndView => (TextureRef -- TextureViewRef).
 }.
 
 }. ## End of namespace Core

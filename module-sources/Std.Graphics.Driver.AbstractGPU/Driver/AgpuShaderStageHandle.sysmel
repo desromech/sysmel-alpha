@@ -21,7 +21,7 @@ sealed class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     }.
 }.
 
-compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle rcPointer.
+compileTime constant AgpuShaderStageHandleRef := AgpuShaderStageHandle rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

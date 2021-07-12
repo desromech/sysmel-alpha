@@ -6,9 +6,9 @@ namespace Core definition: {
  * I am a generic implementation for a scene 2D builder
  *#
 class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
-    public field device type: RenderingDeviceWeakPtr.
+    public field device type: RenderingDeviceWeakRef.
 
-    override method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (textureView: Std RCObjectPtr const ref) ::=> StrongTextureHandleRef := {
+    override method createTextureHandleFor: (texture: Std RCObjectRef const ref) view: (textureView: Std RCObjectRef const ref) ::=> StrongTextureHandleRef := {
         TextureWithView new
             texture: (texture downCastFor: Texture);
             textureView: (textureView downCastFor: TextureView);
@@ -20,7 +20,7 @@ class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
     }.
 }.
 
-compileTime constant GenericScene2DBuilderPtr := GenericScene2DBuilder rcPointer.
+compileTime constant GenericScene2DBuilderRef := GenericScene2DBuilder rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

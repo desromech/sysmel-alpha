@@ -35,13 +35,13 @@ class Window superclass: Std RCObject; definition: {
     #**
      * This method creates gets or creates a default rendering device.
      *#
-    abstract method renderingDevice => RenderingDevice rcPointer.
+    abstract method renderingDevice => RenderingDeviceRef.
 
     #**
      * This method sets a particular rendering device that should be used with this window.
      * This rendering device is used for creating a swap chain suitable for this window.
      *#
-    abstract method renderingDevice: (theRenderingDevice: RenderingDevice rcPointer) ::=> Void.
+    abstract method renderingDevice: (theRenderingDevice: RenderingDeviceRef const ref) ::=> Void.
 
     #**
      * This method creates a swap chain with the specified properties for the
@@ -49,7 +49,7 @@ class Window superclass: Std RCObject; definition: {
      * into the actual size of the window.
      * The client is responsible on creating a new swap chain if the swap chain becomes out of date.
      *#
-    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr.
+    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) ::=> SwapChainRef.
 
     #**
      * This method creates a scene 2D graph renderer specific for this window.

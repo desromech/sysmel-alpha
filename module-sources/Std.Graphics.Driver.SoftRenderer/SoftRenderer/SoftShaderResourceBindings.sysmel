@@ -9,12 +9,12 @@ useNamespace: Std Graphics Core.
  * I am a CPU only implementation for a shader resource binding.
  *#
 class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition: {
-    public field shaderSignature type: SoftShaderSignaturePtr.
+    public field shaderSignature type: SoftShaderSignatureRef.
     public field bankIndex type: UIntPointer.
     public field bankDescription type: ShaderSignatureBankDescription pointer.
 
     public field bindingTable type: Std Collections Vector(Void pointer).
-    public field bindingHandleTable type: Std Collections Vector(RenderingDriverObjectHandle rcPointer).
+    public field bindingHandleTable type: Std Collections Vector(RenderingDriverObjectHandle rcRef).
 
     method createBindingTable => Void := {
         let bindingTableSize := bankDescription _ elements size.
@@ -26,12 +26,12 @@ class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition:
         (location castTo: UIntPointer) < bindingTable size.
     }.
 
-    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-        let size := buffer ifNil: {0} ifNotNil: {buffer _ size}.
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) ::=> Void := {
+        let size := buffer ifNil: {0} ifNotNil: {buffer size}.
         self bindOn: location uniformBuffer: buffer offset: 0 size: size.
     }.
 
-    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
         (self isValidLocation: location) ifFalse: {return: void}.
 
         let ulocation := location castTo: UIntPointer.
@@ -39,19 +39,20 @@ class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition:
         let softBuffer := buffer downCastFor: SoftBuffer.
         softBuffer ifNil: {
             bindingTable[ulocation] := nil.
-            bindingHandleTable[ulocation] reset.
+            bindingHandleTable[ulocation] := nil.
+            void
         } ifNotNil: {
-            bindingTable[ulocation] := softBuffer _ memoryStartPointer + offset.
+            bindingTable[ulocation] := softBuffer memoryStartPointer + offset.
             bindingHandleTable[ulocation] := softBuffer upCastFor: RenderingDriverObjectHandle.
         }
     }.
 
-    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-        let size := buffer ifNil: {0} ifNotNil: {buffer _ size}.
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) ::=> Void := {
+        let size := buffer ifNil: {0} ifNotNil: {buffer size}.
         self bindOn: location uniformBuffer: buffer offset: 0 size: size.
     }.
 
-    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
         (self isValidLocation: location) ifFalse: {return: void}.
 
         let ulocation := location castTo: UIntPointer.
@@ -59,22 +60,23 @@ class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition:
         let softBuffer := buffer downCastFor: SoftBuffer.
         softBuffer ifNil: {
             bindingTable[ulocation] := nil.
-            bindingHandleTable[ulocation] reset.
+            bindingHandleTable[ulocation] := nil.
+            void
         } ifNotNil: {
-            bindingTable[ulocation] := softBuffer _ memoryStartPointer + offset.
+            bindingTable[ulocation] := softBuffer memoryStartPointer + offset.
             bindingHandleTable[ulocation] := softBuffer upCastFor: RenderingDriverObjectHandle.
         }
     }.
 
-    override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void := {
+    override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewRef const ref) ::=> Void := {
 
     }.
 
-    override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void := {
+    override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewRef const ref) ::=> Void := {
 
     }.
 
-    override method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void := {
+    override method bindOn: (location: IntPointer) sampler: (sampelr: SamplerRef const ref) ::=> Void := {
 
     }.
 }.

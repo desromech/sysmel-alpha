@@ -6,16 +6,16 @@ namespace Core definition: {
  * I am a handle for a vertex binding.
  *#
 class VertexBinding superclass: RenderingDriverObjectHandle; definition: {
-    compileTime constant VertexBuffers := BufferPtr const arraySlice.
+    compileTime constant VertexBuffers := BufferRef const arraySlice.
     compileTime constant Offsets := UInt32 const arraySlice.
 
-    abstract method getVertexLayout => VertexLayoutPtr.
+    abstract method getVertexLayout => VertexLayoutRef.
     
     abstract method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void.
     abstract method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (offsets: Offsets) ::=> Void.
 }.
 
-compileTime constant VertexBindingPtr := VertexBinding rcPointer.
+compileTime constant VertexBindingRef := VertexBinding rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -12,11 +12,11 @@ class SoftScene2DDeviceTextureHandle superclass: TextureWithView; definition: {
     override method softPixelsBlitter => Blitter := {
         textureView ifNil: {return: Blitter()}.
 
-        (textureView getPointer castTo: SoftTextureView pointer) _ pixelsBlitter
+        (textureView rcObjectAddress castTo: SoftTextureView pointer) _ pixelsBlitter
     }
 }.
 
-compileTime constant SoftScene2DDeviceTextureHandlePtr := SoftScene2DDeviceTextureHandle rcPointer.
+compileTime constant SoftScene2DDeviceTextureHandleRef := SoftScene2DDeviceTextureHandle rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

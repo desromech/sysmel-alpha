@@ -125,8 +125,11 @@ class SoftCommandList superclass: CommandList; definition: {
     override method asRenderingDeviceCommandList => CommandList pointer
         := self address.
 
-    override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
-        commands removeAll
+    override method resetFor: (allocator: CommandListAllocatorRef const ref) initialPipelineState: (initialPipeline: PipelineStateRef const ref) ::=> Void := {
+        commands removeAll.
+        initialPipeline ifNotNil: {
+            self usePipelineState: initialPipeline
+        }
     }.
 
     override method close => Void := {
@@ -137,7 +140,7 @@ class SoftCommandList superclass: CommandList; definition: {
         commands add: QueuedCommandFunction(commandFunction)
     }.
 
-    override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
+    override method useShaderSignature: (shaderSignature: ShaderSignatureRef const ref) ::=> Void := {
     }.
 
     override method setViewport: (rectangle: RectangleI32) ::=> Void := {
@@ -148,25 +151,25 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+    override method usePipelineState: (pipelineState: PipelineStateRef const ref) ::=> Void := {
         pipelineState ifNil: {return: void}.
 
-        pipelineState _ isGraphicsPipelineState ifTrue: {
-            let softGraphicsPipeline := pipelineState getPointer castTo: SoftGraphicsPipeline pointer.
+        pipelineState isGraphicsPipelineState ifTrue: {
+            let softGraphicsPipeline := pipelineState rcObjectAddress castTo: SoftGraphicsPipeline pointer.
             self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
                 state
                     graphicsPipelineState: softGraphicsPipeline.
             }).
         }.
 
-        pipelineState _ isComputePipelineState ifTrue: {
+        pipelineState isComputePipelineState ifTrue: {
 
         }.
 
     }.
 
-    override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
-        let softVertexBinding := vertexBinding getPointer castTo: SoftVertexBinding pointer.
+    override method useVertexBinding: (vertexBinding: VertexBindingRef const ref) ::=> Void := {
+        let softVertexBinding := vertexBinding rcObjectAddress castTo: SoftVertexBinding pointer.
         softVertexBinding ifNil: {return: void}.
 
         self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
@@ -174,13 +177,13 @@ class SoftCommandList superclass: CommandList; definition: {
         }).
     }.
 
-    override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+    override method useIndexBuffer: (buffer: BufferRef const ref) ::=> Void := {
         buffer ifNil: { return: void }.
-        self useIndexBuffer: buffer at: 0 stride: buffer _ stride
+        self useIndexBuffer: buffer at: 0 stride: buffer stride
     }.
 
-    override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
-        let indexBuffer := buffer getPointer castTo: SoftBuffer pointer.
+    override method useIndexBuffer: (buffer: BufferRef const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+        let indexBuffer := buffer rcObjectAddress castTo: SoftBuffer pointer.
         indexBuffer ifNil: {return: void}.
 
         let indexBufferContent := indexBuffer _ memoryStartPointer + offset.
@@ -191,16 +194,16 @@ class SoftCommandList superclass: CommandList; definition: {
         }).
     }.
 
-    override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+    override method useDrawIndirectBuffer: (buffer: BufferRef const ref) ::=> Void := {
 
     }.
 
-    override method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+    override method useComputeDispatchIndirectBuffer: (buffer: BufferRef const ref) ::=> Void := {
 
     }.
 
-    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-        let softBindings := resourcesBinding getPointer castTo: SoftShaderResourceBindings pointer.
+    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsRef const ref) ::=> Void := {
+        let softBindings := resourcesBinding rcObjectAddress castTo: SoftShaderResourceBindings pointer.
         softBindings ifNil: {return: void}.
 
         self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
@@ -208,8 +211,8 @@ class SoftCommandList superclass: CommandList; definition: {
         }).
     }.
 
-    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-        let softBindings := resourcesBinding getPointer castTo: SoftShaderResourceBindings pointer.
+    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsRef const ref) ::=> Void := {
+        let softBindings := resourcesBinding rcObjectAddress castTo: SoftShaderResourceBindings pointer.
         softBindings ifNil: {return: void}.
 
         self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
@@ -249,14 +252,14 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method executeBundle: (bundle: CommandList rcPointer const ref) ::=> Void := {
+    override method executeBundle: (bundle: CommandListRef const ref) ::=> Void := {
 
     }.
 
 
-    override method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
-        let softRenderPass := renderPass getPointer castTo: SoftRenderPass pointer.
-        let softFramebuffer := framebuffer getPointer castTo: SoftFramebuffer pointer.
+    override method beginRenderPass: (renderPass: RenderPassRef const ref) on: (framebuffer: FramebufferRef const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
+        let softRenderPass := renderPass rcObjectAddress castTo: SoftRenderPass pointer.
+        let softFramebuffer := framebuffer rcObjectAddress castTo: SoftFramebuffer pointer.
         softRenderPass isNil || softFramebuffer isNil ifTrue: {return: void}.
 
         self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
@@ -272,12 +275,12 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
+    override method resolveFramebuffer: (source: FramebufferRef const ref) into: (destination: FramebufferRef const ref) ::=> Void := {
 
     }.
 
-    override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
-        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+    override method resolveTexture: (source: TextureRef const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TextureRef const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
         levelCount: (levelCount: UInt32) layerCount: (layerCount: UInt32)
         aspect: (aspect: TextureAspect) ::=> Void := {
 
@@ -291,19 +294,19 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+    override method buffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
 
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+    override method texture: (texture: TextureRef const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) transitionFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
 
     }.
 
-    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
+    override method pushBuffer: (buffer: BufferRef const ref) transitionBarrierFrom: (oldUsageMode: BufferUsageMode) into: (newUsageMode: BufferUsageMode) ::=> Void := {
 
     }.
 
-    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
+    override method pushTexture: (texture: TextureRef const ref) subresourceRange: (subresourceRange: TextureSubResourceRange const ref) transitionBarrierFrom: (oldUsageMode: TextureUsageMode) into: (newUsageMode: TextureUsageMode) ::=> Void := {
 
     }.
 
@@ -315,19 +318,19 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
+    override method copyFromBuffer: (sourceBuffer: BufferRef const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferRef const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
 
     }.
 
-    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
+    override method copyFromBuffer: (sourceBuffer: BufferRef const ref) intoTexture: (destTexture: TextureRef const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
 
     }.
 
-    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
+    override method copyFromTexture: (sourceTexture: TextureRef const ref) intoBuffer: (destBuffer: BufferRef const ref) region: (copyRegion: BufferImageCopyRegion const ref) ::=> Void := {
 
     }.
 
-    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
+    override method copyFromTexture: (sourceTexture: TextureRef const ref) intoTexture: (destTexture: TextureRef const ref) region: (copyRegion: ImageCopyRegion const ref) ::=> Void := {
 
     }.
 

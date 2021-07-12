@@ -12,7 +12,7 @@ class SoftShaderStageHandle superclass: ShaderStageHandle; definition: {
     public field entryPointInfo type: GPU ShaderEntryPointInfo.
 }.
 
-compileTime constant SoftShaderStageHandlePtr := SoftShaderStageHandle rcPointer.
+compileTime constant SoftShaderStageHandleRef := SoftShaderStageHandle rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

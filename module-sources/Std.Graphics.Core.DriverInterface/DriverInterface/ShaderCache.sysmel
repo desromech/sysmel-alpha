@@ -6,11 +6,11 @@ namespace Core definition: {
  * I am a handle for a shader cache.
  *#
 class ShaderCache superclass: RenderingDriverObjectHandle; definition: {
-    abstract method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
-    abstract method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
+    abstract method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandleRef.
+    abstract method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef.
 }.
 
-compileTime constant ShaderCachePtr := ShaderCache rcPointer.
+compileTime constant ShaderCacheRef := ShaderCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -9,28 +9,28 @@ useNamespace: Std Graphics Scene2DMesh.
  * I am a 2D scene renderer that draws onto a specific state tracker.
  *#
 class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; definition: {
-    public field stateTracker type: StateTrackerPtr.
+    public field stateTracker type: StateTrackerRef.
 
-    protected field shaderSignature type: ShaderSignaturePtr.
+    protected field shaderSignature type: ShaderSignatureRef.
 
-    protected field sampler type: SamplerPtr.
-    protected field samplingStateBinding type: ShaderResourceBindingsPtr.
+    protected field sampler type: SamplerRef.
+    protected field samplingStateBinding type: ShaderResourceBindingsRef.
 
-    protected field transformationStateBuffer type: BufferPtr.
-    protected field transformationStateBinding type: ShaderResourceBindingsPtr.
+    protected field transformationStateBuffer type: BufferRef.
+    protected field transformationStateBinding type: ShaderResourceBindingsRef.
 
-    protected field vertexBuffer type: BufferPtr.
-    protected field vertexLayout type: VertexLayoutPtr.
-    protected field vertexBinding type: VertexBindingPtr.
+    protected field vertexBuffer type: BufferRef.
+    protected field vertexLayout type: VertexLayoutRef.
+    protected field vertexBinding type: VertexBindingRef.
 
-    protected field indexBuffer type: BufferPtr.
+    protected field indexBuffer type: BufferRef.
 
-    protected field texturingBindingDictionary type: Std Collections Dictionary(TextureViewPtr, ShaderResourceBindingsPtr).
-    protected field texturingBindings type: Std Collections Vector(ShaderResourceBindingsPtr).
+    protected field texturingBindingDictionary type: Std Collections Dictionary(TextureView pointer, ShaderResourceBindingsRef).
+    protected field texturingBindings type: Std Collections Vector(ShaderResourceBindingsRef).
     protected field nextAvailableTexturingBindings type: UIntPointer.
 
     private field currentActiveClipSubmesh type: Int32.
-    private field lastActiveTextureView type: TextureViewPtr.
+    private field lastActiveTextureView type: TextureViewRef.
 
     override method renderScene: (rootNode: Scene2D NodeRef const ref) ::=> Void := {
         rootNode ifNil: { return: void }.
@@ -43,7 +43,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
             return: void
         }.
 
-        stateTracker _
+        stateTracker
             useShaderSignature: shaderSignature;
             useGraphicShaderBindings: samplingStateBinding;
             useGraphicShaderBindings: transformationStateBinding;
@@ -53,7 +53,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
             useIndexBuffer: indexBuffer.
 
         nextAvailableTexturingBindings := 0.
-        lastActiveTextureView := TextureViewPtr nil.
+        lastActiveTextureView := TextureViewRef nil.
         currentActiveClipSubmesh := -1.
         texturingBindingDictionary removeAll.
         meshBuilder submeshes do: {:each :: Void |
@@ -75,9 +75,9 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         }.
 
         newClippingBounds isEmpty ifTrue: {
-            stateTracker _ setScissor: RectangleI32().
+            stateTracker setScissor: RectangleI32().
         } ifFalse: {
-            stateTracker _ setScissor: newClippingBounds asRectangleI32
+            stateTracker setScissor: newClippingBounds asRectangleI32
         }.
 
         currentActiveClipSubmesh := clipSubmeshIndex.
@@ -90,34 +90,34 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         }.
 
         submesh fontFaceWithSize isNotNil && submesh textureView isNil ifTrue: {
-            let (let texture, let textureView) := (submesh fontFaceWithSize asRCPointer getPointer castTo: RenderingDeviceFontFaceWithSize pointer) _
+            let (let texture, let textureView) := (submesh fontFaceWithSize rcObjectAddress castTo: RenderingDeviceFontFaceWithSize pointer) _
                 validRenderingTextureAndView.
             submesh
                 texture: texture;
                 textureView: textureView.
         }.
 
-        submesh textureView ~= lastActiveTextureView ifTrue: {
+        submesh textureView ~~ lastActiveTextureView ifTrue: {
             submesh textureView ifNil: {
-                stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+                stateTracker fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
             } ifNotNil: {
                 let binding := self getOrCreateTextureBindingFor: submesh textureView.
                 binding ifNil: {
-                    stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+                    stateTracker fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
                 } ifNotNil: {
                     submesh fontFaceWithSize ifNil: {
-                        stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
+                        stateTracker fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
                     } ifNotNil: {
-                        stateTracker _ fragmentShader: SimpleShader textFragment shaderEntryPointInfo address.
+                        stateTracker fragmentShader: SimpleShader textFragment shaderEntryPointInfo address.
                     }.
-                    stateTracker _ useGraphicShaderBindings: binding
+                    stateTracker useGraphicShaderBindings: binding
                 }
             }.
 
             lastActiveTextureView := submesh textureView
         }.
 
-        stateTracker _
+        stateTracker
             blendingEquation: submesh blendingMode asBlendingEquation;
             primitiveTopology: submesh primitiveTopology;
             drawElements: submesh indexCount instanceCount: 1 firstIndex: submesh firstIndex baseVertex: 0baseInstance: 0.
@@ -125,7 +125,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
     method submitVertices => Boolean8 := {
         let requiredSize := meshBuilder vertices size * MeshVertex instanceSize.
-        vertexBuffer isNil || requiredSize > vertexBuffer _ size ifTrue: {
+        vertexBuffer isNil || requiredSize > vertexBuffer size ifTrue: {
             self createVertexBufferWithCapacity: meshBuilder vertices size.
             vertexBuffer ifNil: {
                 return: false.
@@ -133,7 +133,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         }.
 
         requiredSize > 0 ifTrue: {
-            vertexBuffer _ uploadAt: 0 size: requiredSize data: meshBuilder vertices data
+            vertexBuffer uploadAt: 0 size: requiredSize data: meshBuilder vertices data
         }.
 
         true
@@ -141,7 +141,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
     method createVertexBufferWithCapacity: (requiredCapacity: UIntPointer) ::=> Void := {
         let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16) * MeshVertex instanceSize.
-        vertexBuffer := device _ createBuffer: (BufferDescription()
+        vertexBuffer := device createBuffer: (BufferDescription()
             size: newCapacity;
             heapType: MemoryHeapType HostToDevice;
             usageModes: BufferUsageMode Array;
@@ -171,17 +171,17 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
                 addBufferWithStride: MeshVertex instanceSize;
                 yourself.
 
-            vertexLayout := device _ getDefaultVertexLayoutCache _ getOrCreateWithDescription: layoutDescription.
-            vertexBinding := device _ createVertexBindingFor: vertexLayout.
+            vertexLayout := device getDefaultVertexLayoutCache getOrCreateWithDescription: layoutDescription.
+            vertexBinding := device createVertexBindingFor: vertexLayout.
         }.
 
-        let vertexBuffers mutable := BufferPtr array (vertexBuffer).
-        vertexBinding _ bindVertexBuffers: vertexBuffers.
+        let vertexBuffers mutable := BufferRef array (vertexBuffer).
+        vertexBinding bindVertexBuffers: vertexBuffers.
     }.
 
     method submitIndices => Boolean8 := {
         let requiredSize := meshBuilder indices size * 2.
-        indexBuffer isNil || requiredSize > indexBuffer _ size ifTrue: {
+        indexBuffer isNil || requiredSize > indexBuffer size ifTrue: {
             self createIndexBufferWithCapacity: meshBuilder indices size.
             indexBuffer ifNil: {
                 return: false.
@@ -189,7 +189,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         }.
 
         requiredSize > 0 ifTrue: {
-            indexBuffer _ uploadAt: 0 size: requiredSize data: meshBuilder indices data
+            indexBuffer uploadAt: 0 size: requiredSize data: meshBuilder indices data
         }.
 
         true
@@ -197,7 +197,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
     method createIndexBufferWithCapacity: (requiredCapacity: UIntPointer) ::=> Void := {
         let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16)*2.
-        indexBuffer := device _ createBuffer: (BufferDescription()
+        indexBuffer := device createBuffer: (BufferDescription()
             size: newCapacity;
             heapType: MemoryHeapType HostToDevice;
             usageModes: BufferUsageMode ElementArray;
@@ -229,9 +229,9 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
                     yourself
                 );
                 yourself.
-            shaderSignature := device _ getDefaultShaderSignatureCache _ getOrCreateWithDescription: shaderSignatureDescription.
+            shaderSignature := device getDefaultShaderSignatureCache getOrCreateWithDescription: shaderSignatureDescription.
 
-            sampler := device _ createSampler: (SamplerDescription()
+            sampler := device createSampler: (SamplerDescription()
                 filter: TextureFilter MinLinear | TextureFilter MagLinear | TextureFilter MipmapLinear;
                 addressU: TextureAddressMode Wrap;
                 addressV: TextureAddressMode Wrap;
@@ -239,10 +239,10 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
                 maxLod: 10000.0f;
                 yourself).
 
-            samplingStateBinding := shaderSignature _ createShaderResourceBindings: 0.
-            samplingStateBinding _ bindOn: 0 sampler: sampler.
+            samplingStateBinding := shaderSignature createShaderResourceBindings: 0.
+            samplingStateBinding bindOn: 0 sampler: sampler.
 
-            transformationStateBuffer := device _ createBuffer: (BufferDescription()
+            transformationStateBuffer := device createBuffer: (BufferDescription()
                 size: 256;
                 heapType: MemoryHeapType HostToDevice;
                 usageModes: BufferUsageMode Uniform;
@@ -252,8 +252,8 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
                 yourself
             ) initialData: nil.
 
-            transformationStateBinding := shaderSignature _ createShaderResourceBindings: 1.
-            transformationStateBinding _ bindOn: 0 uniformBuffer: transformationStateBuffer.
+            transformationStateBinding := shaderSignature createShaderResourceBindings: 1.
+            transformationStateBinding bindOn: 0 uniformBuffer: transformationStateBuffer.
         }.
 
         {
@@ -261,22 +261,22 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
                 projectionMatrix: (Float32x4x4 reverseDepthOrthoLeft: 0 right: extent x
                     bottom: extent y top: 0
                     near: -100.0f far: 100.0f
-                    invertedY: device _ shouldInvertProjectionY);
+                    invertedY: device shouldInvertProjectionY);
                 yourself.
-            transformationStateBuffer _ uploadAt: 0 size: TransformationState instanceSize data: transformationState address
+            transformationStateBuffer uploadAt: 0 size: TransformationState instanceSize data: transformationState address
         }.
 
         true.
     }.
 
-    method getOrCreateTextureBindingFor: (textureView: TextureViewPtr const ref) ::=> ShaderResourceBindingsPtr := {
-        texturingBindingDictionary at: textureView ifAbsentPut: { :: ShaderResourceBindingsPtr |
+    method getOrCreateTextureBindingFor: (textureView: TextureViewRef const ref) ::=> ShaderResourceBindingsRef := {
+        texturingBindingDictionary at: textureView rcObjectAddress ifAbsentPut: { :: ShaderResourceBindingsRef |
             nextAvailableTexturingBindings >= texturingBindings size ifTrue: {
-                texturingBindings add: (shaderSignature _ createShaderResourceBindings: 2)
+                texturingBindings add: (shaderSignature createShaderResourceBindings: 2)
             }.
 
             let result := texturingBindings[nextAvailableTexturingBindings].
-            result _ bindOn: 0 sampledTextureView: textureView.
+            result bindOn: 0 sampledTextureView: textureView.
             nextAvailableTexturingBindings := nextAvailableTexturingBindings + 1.
             result
         }
@@ -284,7 +284,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
 }.
 
-compileTime constant StateTracker2DSceneRendererPtr := StateTracker2DSceneRenderer rcPointer.
+compileTime constant StateTracker2DSceneRendererRef := StateTracker2DSceneRenderer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -91,26 +91,26 @@ function fuzzyXor(a: Float32, b: Float32) => Float32 := {
 }.
 
 class Mesh superclass: Std RCObject; definition: {
-	public field vertexBinding type: VertexBindingPtr.
-	public field indexBuffer type: BufferPtr.
+	public field vertexBinding type: VertexBindingRef.
+	public field indexBuffer type: BufferRef.
 	public field indexCount type: UInt32.
 
-	method drawWith: (commandList: CommandList ref) ::=> Void := {
+	method drawWith: (commandList: CommandListRef const ref) ::=> Void := {
 		commandList
 			useVertexBinding: vertexBinding;
 			useIndexBuffer: indexBuffer;
 			drawElements: indexCount instanceCount: 1 firstIndex: 0 baseVertex: 0 baseInstance: 0.
 	}.
 }.
-compileTime constant MeshPtr := Mesh rcPointer.
+compileTime constant MeshRef := Mesh rcRef.
 
 class MeshBuilder definition: {
-	public field renderingDevice type: RenderingDevicePtr.
+	public field renderingDevice type: RenderingDeviceRef.
 
 	public field baseVertex type: UInt32.
 	public field vertices type: Std Collections Vector(SimpleVertex).
 	public field indices type: Std Collections Vector(UInt32).
-	public field vertexLayout type: VertexLayoutPtr.
+	public field vertexLayout type: VertexLayoutRef.
 
 	method beginSubmesh => Void := {
 		baseVertex := vertices size castTo: UInt32.
@@ -141,9 +141,9 @@ class MeshBuilder definition: {
 			add: i1 + baseVertex; add: i2 + baseVertex; add: i3 + baseVertex
 	}.
 
-	method finish => MeshPtr := {
-		let vertexBuffers mutable := BufferPtr array (
-			renderingDevice _ createBuffer: (BufferDescription()
+	method finish => MeshRef := {
+		let vertexBuffers mutable := BufferRef array (
+			renderingDevice createBuffer: (BufferDescription()
 				size: vertices size * SimpleVertex instanceSize;
 				heapType: MemoryHeapType DeviceLocal;
 				usageModes: BufferUsageMode Array;
@@ -152,7 +152,7 @@ class MeshBuilder definition: {
 				yourself) initialData: vertices asArraySlice elements
 		).
 
-		let indexBuffer := renderingDevice _ createBuffer: (BufferDescription()
+		let indexBuffer := renderingDevice createBuffer: (BufferDescription()
 			size: indices size * 4;
 			heapType: MemoryHeapType DeviceLocal;
 			usageModes: BufferUsageMode ElementArray;
@@ -160,63 +160,62 @@ class MeshBuilder definition: {
 			stride: 4;
 			yourself) initialData: indices asArraySlice elements.
 
-		let vertexBinding := renderingDevice _ createVertexBindingFor: vertexLayout.
-		vertexBinding _ bindVertexBuffers: vertexBuffers.
+		let vertexBinding := renderingDevice createVertexBindingFor: vertexLayout.
+		vertexBinding bindVertexBuffers: vertexBuffers.
 
-		let result := Mesh rcNew.
-		result _
+		Mesh new
 			vertexBinding: vertexBinding;
 			indexBuffer: indexBuffer;
-			indexCount: (indices size castTo: UInt32).
-		result
+			indexCount: (indices size castTo: UInt32);
+			yourself
 	}.
 }.
 
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
-	field renderingDevice type: RenderingDevicePtr.
+	field renderingDevice type: RenderingDeviceRef.
 	field mainWindow type: WindowRef.
 	field mainWindowRenderer type: WindowScene2DRendererRef.
 	field fontFaceWithSize type: FontFaceWithSizeRef.
 
-	field shaderSignature type: ShaderSignaturePtr.
+	field shaderSignature type: ShaderSignatureRef.
 
 	field frameTime type: Float32.
 	field currentTime type: Float32.
 	field lastFrameRenderingTime type: Float32.
 
-	field renderingCommandQueue type: CommandQueuePtr.
-	field commandListAllocator type: CommandListAllocatorPtr.
-	field commandList type: CommandListPtr.
+	field renderingCommandQueue type: CommandQueueRef.
+	field commandListAllocator type: CommandListAllocatorRef.
+	field commandList type: CommandListRef.
 
 	field colorBufferTextureHandle type: Texture2DRef.
 	field mainFrameBufferExtent type: UInt32x2.
-	field mainFrameBuffer type: FramebufferPtr.
-	field mainRenderPass type: RenderPassPtr.
+	field mainFrameBuffer type: FramebufferRef.
+	field mainRenderPass type: RenderPassRef.
 
 	field cameraOrientation type: Float32x3x3.
 	field cameraPosition type: Float32x3.
 	field cameraAngle type: Float32x3.
 
-	field renderingPipelineState type: PipelineStatePtr.
+	field renderingPipelineState type: PipelineStateRef.
 
 	field projectionMatrix type: Float32x4x4.
 	field viewMatrix type: Float32x4x4.
 	field modelMatrix type: Float32x4x4.
 
-	field cameraStateBuffer type: BufferPtr.
-	field cameraStateBinding type: ShaderResourceBindingsPtr.
+	field cameraStateBuffer type: BufferRef.
+	field cameraStateBinding type: ShaderResourceBindingsRef.
 
-	field cubeObjectStateBuffer type: BufferPtr.
-	field cubeObjectStateBinding type: ShaderResourceBindingsPtr.
+	field cubeObjectStateBuffer type: BufferRef.
+	field cubeObjectStateBinding type: ShaderResourceBindingsRef.
 
-	field planeObjectStateBuffer type: BufferPtr.
-	field planeObjectStateBinding type: ShaderResourceBindingsPtr.
+	field planeObjectStateBuffer type: BufferRef.
+	field planeObjectStateBinding type: ShaderResourceBindingsRef.
 
-	field planeMesh type: MeshPtr.
-	field cubeMesh type: MeshPtr.
+	field planeMesh type: MeshRef.
+	field cubeMesh type: MeshRef.
 
-	field simpleVertexLayout mutable type: VertexLayoutPtr.
+	field simpleVertexLayout mutable type: VertexLayoutRef.
 
 	method initialize => Void := {
 		cameraOrientation := Float32x3x3 identity.
@@ -231,11 +230,11 @@ class Sample definition: {
 				projectionMatrix: projectionMatrix;
 				yourself.
 
-			cameraStateBuffer _ uploadAt: 0 size: CameraTransformationState instanceSize data: cameraTransformationState address.
+			cameraStateBuffer uploadAt: 0 size: CameraTransformationState instanceSize data: cameraTransformationState address.
 		}.
 
-		commandListAllocator _ resetAllocator.
-		commandList _
+		commandListAllocator resetAllocator.
+		commandList
 			resetFor: commandListAllocator;
 			useShaderSignature: shaderSignature;
 
@@ -246,17 +245,17 @@ class Sample definition: {
 			usePipelineState: renderingPipelineState;
 			useGraphicShaderBindings: cameraStateBinding.
 
-		commandList _ useGraphicShaderBindings: planeObjectStateBinding.
-		planeMesh _ drawWith: commandList _.
+		commandList useGraphicShaderBindings: planeObjectStateBinding.
+		planeMesh drawWith: commandList.
 
-		commandList _ useGraphicShaderBindings: cubeObjectStateBinding.
-		cubeMesh _ drawWith: commandList _.
+		commandList useGraphicShaderBindings: cubeObjectStateBinding.
+		cubeMesh drawWith: commandList.
 
-		commandList _
+		commandList
 			endRenderPass;
 			close.
 
-		renderingCommandQueue _
+		renderingCommandQueue
 			submitCommandList: commandList;
 			waitForIdle.
 	}.
@@ -334,10 +333,10 @@ class Sample definition: {
 		}.
 
 		mainFrameBuffer ifNotNil: {
-			renderingDevice _ waitForIdle.
+			renderingDevice waitForIdle.
 		}.
 
-		let colorBuffer := renderingDevice _ createTexture: (TextureDescription()
+		let colorBuffer := renderingDevice createTexture: (TextureDescription()
 			type: TextureType Texture2D;
 			width: newExtent x;
 			height: newExtent y;
@@ -350,12 +349,12 @@ class Sample definition: {
 			heapType: MemoryHeapType DeviceLocal;
 			sampleCount: 1;
 			yourself).
-		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+		let colorBufferTextureView := colorBuffer getOrCreateFullView.
 
 		colorBufferTextureHandle := mainWindowRenderer newSceneBuilder
 			createTextureHandleFor: (colorBuffer upCastFor: Std RCObject) view: (colorBufferTextureView upCastFor: Std RCObject).
 
-		let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
+		let depthBuffer := renderingDevice createTexture: (TextureDescription()
 			type: TextureType Texture2D;
 			width: newExtent x;
 			height: newExtent y;
@@ -368,10 +367,10 @@ class Sample definition: {
 			heapType: MemoryHeapType DeviceLocal;
 			sampleCount: 1;
 			yourself).
-		let depthBufferTextureView := depthBuffer _ getOrCreateFullView.
+		let depthBufferTextureView := depthBuffer getOrCreateFullView.
 
-		let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
-		mainFrameBuffer := renderingDevice _ createFramebuffer: newExtent colorViews: colorAttachments depthStencilView: depthBufferTextureView.
+		let colorAttachments mutable := TextureViewRef array(colorBufferTextureView).
+		mainFrameBuffer := renderingDevice createFramebuffer: newExtent colorViews: colorAttachments depthStencilView: depthBufferTextureView.
 		mainFrameBufferExtent := newExtent.
 
 		true
@@ -422,11 +421,11 @@ class Sample definition: {
 				beginAction: RenderPassAttachmentAction Clear;
 				endAction: RenderPassAttachmentAction Discard;
 				yourself.
-			mainRenderPass := renderingDevice _ createRenderPass: colorAttachments depthStencilAttachment: depthStencilAttachment address.
+			mainRenderPass := renderingDevice createRenderPass: colorAttachments depthStencilAttachment: depthStencilAttachment address.
 		}.
 
 		## Set the projection and model view matrix.
-		projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: renderingDevice _ shouldInvertProjectionY.
+		projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: renderingDevice shouldInvertProjectionY.
 
 	    ## Use the default font face.
 	    let fontFace mutable := FontRegistry default defaultSans normalFace.
@@ -434,7 +433,7 @@ class Sample definition: {
 
 		## Build the shader signature.
 		{
-			shaderSignature := renderingDevice _ createShaderSignatureBuilder _
+			shaderSignature := renderingDevice createShaderSignatureBuilder
 				## Camera state
 				beginBindingBank;
 				addBankElementWithType: ShaderBindingType UniformBuffer;
@@ -467,18 +466,18 @@ class Sample definition: {
 
 			let strides mutable := UInt32 array(SimpleVertex instanceSize).
 
-			simpleVertexLayout := renderingDevice _ createVertexLayout.
-			simpleVertexLayout _ addVertexBuffers: strides withAttributes: attributes.
+			simpleVertexLayout := renderingDevice createVertexLayout.
+			simpleVertexLayout addVertexBuffers: strides withAttributes: attributes.
 		}.
 
 		## Build the graphics pipeline state.
 		{
-			let shaderCache ref := renderingDevice _ getDefaultShaderCache.
-			renderingPipelineState := renderingDevice _ getDefaultPipelineStateCache _ getOrCreateGraphicsPipeline: (GraphicsPipelineStateDescription()
+			let shaderCache ref := renderingDevice getDefaultShaderCache.
+			renderingPipelineState := renderingDevice getDefaultPipelineStateCache getOrCreateGraphicsPipeline: (GraphicsPipelineStateDescription()
 				shaderSignature: shaderSignature;
 
-				vertexShader: (shaderCache _ getOrCreateShaderStageFromEntryPoint: CheckboardShader vertex shaderEntryPointInfo);
-				fragmentShader: (shaderCache _ getOrCreateShaderStageFromEntryPoint: CheckboardShader fragment shaderEntryPointInfo);
+				vertexShader: (shaderCache getOrCreateShaderStageFromEntryPoint: CheckboardShader vertex shaderEntryPointInfo);
+				fragmentShader: (shaderCache getOrCreateShaderStageFromEntryPoint: CheckboardShader fragment shaderEntryPointInfo);
 
 				vertexLayout: simpleVertexLayout;
 				primitiveTopology: PrimitiveTopology Triangles;
@@ -495,26 +494,26 @@ class Sample definition: {
 		}.
 
 		## Get the rendering command queue.
-		renderingCommandQueue := renderingDevice _ getDefaultCommandQueue.
+		renderingCommandQueue := renderingDevice getDefaultCommandQueue.
 
 		## Build the command allocator and list.
 		{
-			commandListAllocator := renderingDevice _ createCommandAllocatorOfType: CommandListType Direct for: renderingCommandQueue.
-			commandList := renderingDevice _ createCommandListOfType: CommandListType Direct for: commandListAllocator.
-			commandList _ close.
+			commandListAllocator := renderingDevice createCommandAllocatorOfType: CommandListType Direct for: renderingCommandQueue.
+			commandList := renderingDevice createCommandListOfType: CommandListType Direct for: commandListAllocator.
+			commandList close.
 		}.
 
 		## Create the camera state buffer and binding
 		{
-			cameraStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+			cameraStateBuffer := renderingDevice createBuffer: (BufferDescription()
 				size: ((CameraTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 				heapType: MemoryHeapType HostToDevice;
 				usageModes: BufferUsageMode Uniform;
 				mainUsageMode: BufferUsageMode Uniform;
 				mappingFlags: BufferMappingFlags DynamicStorage;
 				yourself) initialData: nil.
-			cameraStateBinding := shaderSignature _ createShaderResourceBindings: 0.
-			cameraStateBinding _ bindOn: 0 uniformBuffer: cameraStateBuffer.
+			cameraStateBinding := shaderSignature createShaderResourceBindings: 0.
+			cameraStateBinding bindOn: 0 uniformBuffer: cameraStateBuffer.
 		}.
 
 		## Build the plane
@@ -539,14 +538,14 @@ class Sample definition: {
 				modelMatrix: Float32x4x4 identity;
 				yourself.
 
-			planeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+			planeObjectStateBuffer := renderingDevice createBuffer: (BufferDescription()
 				size: ((ObjectTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 				heapType: MemoryHeapType HostToDevice;
 				usageModes: BufferUsageMode Uniform;
 				mainUsageMode: BufferUsageMode Uniform;
 				yourself) initialData: planeTransformationState address.
-			planeObjectStateBinding := shaderSignature _ createShaderResourceBindings: 1.
-			planeObjectStateBinding _ bindOn: 0 uniformBuffer: planeObjectStateBuffer.
+			planeObjectStateBinding := shaderSignature createShaderResourceBindings: 1.
+			planeObjectStateBinding bindOn: 0 uniformBuffer: planeObjectStateBuffer.
 		}.
 
 		## Build the cube
@@ -617,14 +616,14 @@ class Sample definition: {
 					modelMatrix: (Float32x4x4 translation: Float32x3(0, 1, 0));
 					yourself.
 
-				cubeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+				cubeObjectStateBuffer := renderingDevice createBuffer: (BufferDescription()
 					size: ((ObjectTransformationState instanceSize alignedTo: 256) castTo: UIntPointer);
 					heapType: MemoryHeapType HostToDevice;
 					usageModes: BufferUsageMode Uniform;
 					mainUsageMode: BufferUsageMode Uniform;
 					yourself) initialData: cubeTransformationState address.
-				cubeObjectStateBinding := shaderSignature _ createShaderResourceBindings: 1.
-				cubeObjectStateBinding _ bindOn: 0 uniformBuffer: cubeObjectStateBuffer.
+				cubeObjectStateBinding := shaderSignature createShaderResourceBindings: 1.
+				cubeObjectStateBinding bindOn: 0 uniformBuffer: cubeObjectStateBuffer.
 		}.
 
 	    ## Create the event handler.

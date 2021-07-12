@@ -11,12 +11,12 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     public field handle type: AGPU DeviceRef.
     public field platformHandle type: AGPU Platform pointer.
 
-    private field defaultCommandQueue type: CommandQueuePtr.
-    private field defaultShaderSignatureCache type: ShaderSignatureCachePtr.
-    private field defaultVertexLayoutCache type: VertexLayoutCachePtr.
-    private field defaultShaderCache type: ShaderCachePtr.
-    private field defaultPipelineStateCache type: PipelineStateCachePtr.
-    private field defaultFontCache type: RenderingDeviceFontCachePtr.
+    private field defaultCommandQueue type: CommandQueueRef.
+    private field defaultShaderSignatureCache type: ShaderSignatureCacheRef.
+    private field defaultVertexLayoutCache type: VertexLayoutCacheRef.
+    private field defaultShaderCache type: ShaderCacheRef.
+    private field defaultPipelineStateCache type: PipelineStateCacheRef.
+    private field defaultFontCache type: RenderingDeviceFontCacheRef.
 
     private field nonCoherentAtomSize type: UIntPointer.
     private field minMemoryMapAlignment type: UIntPointer.
@@ -40,9 +40,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         {
             let defaultCommandQueueHandle := handle _ getDefaultCommandQueue.
-            let wrapper := AgpuCommandQueue rcNew.
-            wrapper _ handle: defaultCommandQueueHandle.
-            defaultCommandQueue := wrapper upCastFor: CommandQueue.
+            defaultCommandQueue := AgpuCommandQueue new
+                handle: defaultCommandQueueHandle;
+                upCastFor: CommandQueue.
         }.
 
         defaultShaderSignatureCache := self createShaderSignatureCache.
@@ -58,18 +58,18 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     override method name => Char8 const pointer
         := handle _ getName.
 
-    override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr := {
+    override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderRef := {
         let builderHandle := handle _ createShaderSignatureBuilder.
         builderHandle ifNil: {
-            return: ShaderSignatureBuilderPtr nil.
+            return: ShaderSignatureBuilderRef nil.
         }.
 
-        let result := AgpuShaderSignatureBuilder rcNew.
-        result _ handle := builderHandle.
-        result upCastFor: ShaderSignatureBuilder
+        AgpuShaderSignatureBuilder new
+            handle: builderHandle;
+            upCastFor: ShaderSignatureBuilder
     }.
 
-    override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr := {
+    override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferRef := {
         let convertedDescription mutable := AGPU BufferDescription()
             size: (description size castTo: UInt32);
             heap_type: (description heapType castTo: AGPU MemoryHeapType);
@@ -80,17 +80,16 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             yourself.
         let bufferHandle := handle _ createBuffer: convertedDescription address initialData: (initialData reinterpretCastTo: Void pointer).
         bufferHandle ifNil: {
-            return: BufferPtr nil.
+            return: BufferRef nil.
         }.
 
-        let result := AgpuBuffer rcNew.
-        result _
+        AgpuBuffer new
             handle: bufferHandle;
-            creationDescription: description.
-        result upCastFor: Buffer
+            creationDescription: description;
+            upCastFor: Buffer
     }.
 
-    override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
+    override method createTexture: (description: TextureDescription const ref) ::=> TextureRef := {
         let convertedDescription mutable := AGPU TextureDescription()
             type: (description type castTo: AGPU TextureType);
             width: (description width castTo: UInt32);
@@ -108,40 +107,39 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let textureHandle := handle _ createTexture: convertedDescription address.
         textureHandle ifNil: {
-            return: TexturePtr nil.
+            return: TextureRef nil.
         }.
 
-        let result := AgpuTexture rcNew.
-        result _
+        AgpuTexture new
             handle: textureHandle;
             creationDescription: description;
-            inferCreationAspect.
-        result upCastFor: Texture
+            inferCreationAspect;
+            upCastFor: Texture
     }.
 
-    override method createColorTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TexturePtr := {
+    override method createColorTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TextureRef := {
         let bytesPerPixel := textureData format bytesPerPixel.
         bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
             let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
-            expandedTexture ifNil: {return: TexturePtr nil}.
+            expandedTexture ifNil: {return: TextureRef nil}.
             return: (super createColorTextureWithData: expandedTexture)
         }.
 
         super createColorTextureWithData: textureData
     }.
 
-    override method createTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TexturePtr := {
+    override method createTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TextureRef := {
         let bytesPerPixel := textureData format bytesPerPixel.
         bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
             let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
-            expandedTexture ifNil: {return: TexturePtr nil}.
+            expandedTexture ifNil: {return: TextureRef nil}.
             return: (super createTextureWithData: expandedTexture)
         }.
 
         super createTextureWithData: textureData
     }.
 
-    override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
+    override method createSampler: (description: SamplerDescription const ref) ::=> SamplerRef := {
         let convertedDescription mutable := AGPU SamplerDescription()
             filter: (description filter castTo: AGPU Filter);
             address_u: (description addressU castTo: AGPU TextureAddressMode);
@@ -163,26 +161,25 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let samplerHandle := handle _ createSampler: convertedDescription address.
         samplerHandle ifNil: {
-            return: SamplerPtr nil.
+            return: SamplerRef nil.
         }.
 
-        let result := AgpuSampler rcNew.
-        result _
-            handle: samplerHandle.
-        result upCastFor: Sampler
+        AgpuSampler new
+            handle: samplerHandle;
+            upCastFor: Sampler
     }.
 
-    override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
+    override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStateRef := {
         let builder := handle _ createComputePipelineBuilder.
         builder ifNil: {
-            return: PipelineStatePtr nil.
+            return: PipelineStateRef nil.
         }.
 
-        (description shaderSignature getPointer castTo: AgpuShaderSignature pointer) ifNotNil: {:shaderSignature :: Void |
+        (description shaderSignature rcObjectAddress castTo: AgpuShaderSignature pointer) ifNotNil: {:shaderSignature :: Void |
             builder _ setShaderSignature: shaderSignature _ handle
         }.
 
-        (description computeShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description computeShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
 
@@ -195,41 +192,41 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
             Std stderr << "Failed to build compute pipeline state:"; nl.
             Std stderr << buildingLog; nl.
-            return: PipelineStatePtr nil
+            return: PipelineStateRef nil
         }.
 
-        let result := AgpuComputePipelineState rcNew.
-        result _ handle: pso.
-        result upCastFor: PipelineState
+        AgpuComputePipelineState new
+            handle: pso;
+            upCastFor: PipelineState
     }.
 
-    override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
+    override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStateRef := {
         let builder := handle _ createPipelineBuilder.
         builder ifNil: {
-            return: PipelineStatePtr nil.
+            return: PipelineStateRef nil.
         }.
 
-        (description shaderSignature getPointer castTo: AgpuShaderSignature pointer) ifNotNil: {:shaderSignature :: Void |
+        (description shaderSignature rcObjectAddress castTo: AgpuShaderSignature pointer) ifNotNil: {:shaderSignature :: Void |
             builder _ setShaderSignature: shaderSignature _ handle
         }.
 
-        (description vertexLayout getPointer castTo: AgpuVertexLayout pointer) ifNotNil: {:vertexLayout :: Void |
+        (description vertexLayout rcObjectAddress castTo: AgpuVertexLayout pointer) ifNotNil: {:vertexLayout :: Void |
             builder _ setVertexLayout: vertexLayout _ handle
         }.
 
-        (description vertexShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description vertexShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
-        (description fragmentShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description fragmentShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
-        (description geometryShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description geometryShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
-        (description tessellationControlShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description tessellationControlShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
-        (description tessellationEvaluationShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+        (description tessellationEvaluationShader rcObjectAddress castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
             shader _ attachTo: builder
         }.
 
@@ -275,112 +272,108 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
             Std stderr << "Failed to build graphics pipeline state:"; nl.
             Std stderr << buildingLog; nl.
-            return: PipelineStatePtr nil.
+            return: PipelineStateRef nil.
         }.
 
-        let result := AgpuGraphicsPipelineState rcNew.
-        result _ handle: pso.
-        result upCastFor: PipelineState
+        AgpuGraphicsPipelineState new
+            handle: pso;
+            upCastFor: PipelineState
     }.
 
-    override method createVertexLayout => VertexLayoutPtr := {
+    override method createVertexLayout => VertexLayoutRef := {
         let vertexLayoutHandle := handle _ createVertexLayout.
         vertexLayoutHandle ifNil: {
-            return: VertexLayoutPtr nil.
+            return: VertexLayoutRef nil.
         }.
 
-        let result := AgpuVertexLayout rcNew.
-        result _
-            handle: vertexLayoutHandle.
-        result upCastFor: VertexLayout
+        AgpuVertexLayout new
+            handle: vertexLayoutHandle;
+            upCastFor: VertexLayout
     }.
 
-    override method createVertexBindingFor: (layout: VertexLayout rcPointer const ref) ::=> VertexBindingPtr := {
-        let agpuVertexLayout := layout getPointer castTo: AgpuVertexLayout pointer.
+    override method createVertexBindingFor: (layout: VertexLayoutRef const ref) ::=> VertexBindingRef := {
+        let agpuVertexLayout := layout rcObjectAddress castTo: AgpuVertexLayout pointer.
         agpuVertexLayout ifNil: {
-            return: VertexBindingPtr nil.
+            return: VertexBindingRef nil.
         }.
 
         let bindingHandle := handle _ createVertexBinding: agpuVertexLayout _ handle.
         bindingHandle ifNil: {
-            return: VertexBindingPtr nil.
+            return: VertexBindingRef nil.
         }.
 
-        let result := AgpuVertexBinding rcNew.
-        result _
+        AgpuVertexBinding new
             handle: bindingHandle;
-            vertexLayout: layout.
-        result upCastFor: VertexBinding
+            vertexLayout: layout;
+            upCastFor: VertexBinding
     }.
 
-    override method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr := {
-        let agpuCommandQueue := queue getPointer castTo: AgpuCommandQueue pointer.
+    override method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueueRef const ref) ::=> CommandListAllocatorRef := {
+        let agpuCommandQueue := queue rcObjectAddress castTo: AgpuCommandQueue pointer.
         agpuCommandQueue ifNil: {
-            return: CommandListAllocatorPtr nil
+            return: CommandListAllocatorRef nil
         }.
 
         let allocatorHandle := handle _ createCommandAllocator: (type castTo: AGPU CommandListType) queue: agpuCommandQueue _ handle.
         allocatorHandle ifNil: {
-            return: CommandListAllocatorPtr nil
+            return: CommandListAllocatorRef nil
         }.
 
-        let result := AgpuCommandListAllocator rcNew.
-        result _ handle: allocatorHandle.
-        result upCastFor: CommandListAllocator
+        AgpuCommandListAllocator new
+            handle: allocatorHandle;
+            upCastFor: CommandListAllocator
     }.
 
-    override method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr := {
-        let agpuAllocator := allocator getPointer castTo: AgpuCommandListAllocator pointer.
+    override method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorRef const ref) initialPipelineState: (initialPipeline: PipelineStateRef const ref) ::=> CommandListRef := {
+        let agpuAllocator := allocator rcObjectAddress castTo: AgpuCommandListAllocator pointer.
         agpuAllocator ifNil: {
-            return: CommandListPtr nil
+            return: CommandListRef nil
         }.
 
         let agpuInitialPipeline mutable := AGPU PipelineStateRef().
         initialPipeline ifNotNil: {
-            initialPipeline _ isGraphicsPipelineState ifTrue: {
-                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            initialPipeline isGraphicsPipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline rcObjectAddress castTo: AgpuGraphicsPipelineState pointer) _ handle
             }.
 
-            initialPipeline _ isComputePipelineState ifTrue: {
-                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            initialPipeline isComputePipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline rcObjectAddress castTo: AgpuGraphicsPipelineState pointer) _ handle
             }.
         }.
 
         let commandListHandle := handle _ createCommandList: (type castTo: AGPU CommandListType) allocator: agpuAllocator _ handle initialPipelineState: agpuInitialPipeline.
         commandListHandle ifNil: {
-            return: CommandListPtr nil
+            return: CommandListRef nil
         }.
 
-        let result := AgpuCommandList rcNew.
-        result _ handle: commandListHandle.
-        result upCastFor: CommandList
+        AgpuCommandList new
+            handle: commandListHandle;
+            upCastFor: CommandList
     }.
 
-    override method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> StateTrackerPtr := {
+    override method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorRef const ref) ::=> StateTrackerRef := {
         let commandList := self createCommandListOfType: type for: allocator.
         commandList ifNil: {
-            return: StateTrackerPtr nil.
+            return: StateTrackerRef nil.
         }.
 
-        let result := GenericStateTracker rcNew.
-        result _
+        GenericStateTracker new
             commandList: commandList;
             shaderCache: self getDefaultShaderCache;
-            pipelineStateCache: self getDefaultPipelineStateCache.
-
-        result upCastFor: StateTracker
+            pipelineStateCache: self getDefaultPipelineStateCache;
+            upCastFor: StateTracker
     }.
 
-    override method getDefaultCommandQueue => CommandQueuePtr const ref
+    override method getDefaultCommandQueue => CommandQueueRef const ref
         := defaultCommandQueue.
 
-    override method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr
-        := ShaderLibraryHandlePtr nil.
+    override method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandleRef
+        := ShaderLibraryHandleRef nil.
 
-    override method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandlePtr := {
+    override method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandleRef := {
         let shaderHandle := handle _ createShader: AGPU ShaderType Library.
         shaderHandle ifNil: {
-            return: ShaderLibraryHandlePtr nil
+            return: ShaderLibraryHandleRef nil
         }.
 
         shaderHandle _
@@ -388,35 +381,35 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
                 sourceTextLength: (shaderModuleBlob size castTo: UInt32);
                 compileShader: "".
 
-        let result := AgpuShaderLibraryHandle rcNew.
-        result _ handle: shaderHandle.
-        result upCastFor: ShaderLibraryHandle
+        AgpuShaderLibraryHandle new
+            handle: shaderHandle;
+            upCastFor: ShaderLibraryHandle
     }.
 
-    override method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
-        := ShaderStageHandlePtr nil. ## TODO: implement myself.
+    override method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandleRef
+        := ShaderStageHandleRef nil. ## TODO: implement myself.
 
-    override method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
-        := ShaderStageHandlePtr nil. ## TODO: implement myself.
+    override method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandleRef
+        := ShaderStageHandleRef nil. ## TODO: implement myself.
 
-    override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+    override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef := {
         entryPointInfo moduleInfo ifNil: {
-            return: ShaderStageHandlePtr nil
+            return: ShaderStageHandleRef nil
         }.
 
         let shaderLibrary := self createShaderLibraryFromModule: entryPointInfo moduleInfo _.
         shaderLibrary ifNil: {
-            return: ShaderStageHandlePtr nil
+            return: ShaderStageHandleRef nil
         }.
 
-        shaderLibrary _ createHandleForEntryPoint: entryPointInfo.
+        shaderLibrary createHandleForEntryPoint: entryPointInfo.
     }.
 
-    override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
+    override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewRef const arraySlice) depthStencilView: (depthStencilView: TextureViewRef const ref) ::=> FramebufferRef := {
         let convertedColorViews mutable type: Std Collections Vector(AGPU TextureViewRef).
         convertedColorViews reserve: colorViews size.
         colorViews do: {:each :: Void |
-            let agpuView := each getPointer castTo: AgpuTextureView const pointer.
+            let agpuView := each rcObjectAddress castTo: AgpuTextureView const pointer.
             agpuView ifNil: {
                 convertedColorViews add: AGPU TextureViewRef()
             } ifNotNil: {
@@ -426,7 +419,7 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let convertedDepthStencilView mutable type: AGPU TextureViewRef.
         depthStencilView ifNotNil: {
-            let agpuView := depthStencilView getPointer castTo: AgpuTextureView const pointer.
+            let agpuView := depthStencilView rcObjectAddress castTo: AgpuTextureView const pointer.
             agpuView ifNotNil: {
                 convertedDepthStencilView := agpuView _ handle
             }
@@ -436,15 +429,15 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             colorCount: (convertedColorViews size castTo: UInt32) colorViews: convertedColorViews data
             depthStencilView: convertedDepthStencilView.
         framebufferHandle ifNil: {
-            return: FramebufferPtr nil
+            return: FramebufferRef nil
         }.
 
-        let result := AgpuFramebuffer rcNew.
-        result _ handle: framebufferHandle.
-        result upCastFor: Framebuffer
+        AgpuFramebuffer new
+            handle: framebufferHandle;
+            upCastFor: Framebuffer
     }.
 
-    override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
+    override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassRef := {
         let convertedColorAttachments mutable type: Std Collections Vector(AGPU RenderpassColorAttachmentDescription).
         convertedColorAttachments reserve: colorAttachments size.
         let sampleCount mutable type: UInt32 := 1.
@@ -491,42 +484,42 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let renderPassHandle := handle _ createRenderPass: renderPassDescription address.
         renderPassHandle ifNil: {
-            return: RenderPassPtr nil
+            return: RenderPassRef nil
         }.
 
-        let result := AgpuRenderPass rcNew.
-        result _
+        let result := AgpuRenderPass new
             handle: renderPassHandle;
             theDepthStencilFormat: (depthAttachment ifNil: {PixelFormat Unknown} ifNotNil: {depthAttachment _ format});
             theSampleCount: sampleCount;
-            theSampleQuality: sampleQuality.
-        result _ colorAttachmentFormats reserve: colorAttachments size.
+            theSampleQuality: sampleQuality;
+            yourself.
+        result colorAttachmentFormats reserve: colorAttachments size.
         colorAttachments do: {:each :: Void |
-            result _ colorAttachmentFormats add: each format
+            result colorAttachmentFormats add: each format
         }.
 
         result upCastFor: RenderPass
     }.
 
-    override method createFence => FencePtr := {
+    override method createFence => FenceRef := {
         let fenceHandle := handle _ createFence.
         fenceHandle ifNil: {
-            return: FencePtr nil
+            return: FenceRef nil
         }.
 
-        let result := AgpuFence rcNew.
-        result _ handle: fenceHandle.
-        result upCastFor: Fence
+        AgpuFence new
+            handle: fenceHandle;
+            upCastFor: Fence
     }.
 
-    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
-        let agpuCommandQueue := renderingQueue getPointer castTo: AgpuCommandQueue pointer.
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) ::=> SwapChainRef := {
+        let agpuCommandQueue := renderingQueue rcObjectAddress castTo: AgpuCommandQueue pointer.
         agpuCommandQueue ifNil: {
-            return: SwapChainPtr nil
+            return: SwapChainRef nil
         }.
 
         let oldSwapChain mutable type: AGPU SwapChain pointer.
-        (swapChainCreationInfo oldSwapChain getPointer castTo: AgpuSwapChain pointer) ifNotNil: { :pointer :: Void |
+        (swapChainCreationInfo oldSwapChain rcObjectAddress castTo: AgpuSwapChain pointer) ifNotNil: { :pointer :: Void |
             oldSwapChain := pointer _ handle getPointer
         }.
 
@@ -551,14 +544,14 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         let swapChainHandle := handle _ createSwapChain: agpuCommandQueue _ handle swapChainInfo: convertedCreationInfo address.
         swapChainHandle ifNil: {
-            return: SwapChainPtr nil
+            return: SwapChainRef nil
         }.
 
-        let result := AgpuSwapChain rcNew.
-        result _
+        let result := AgpuSwapChain new
             handle: swapChainHandle;
-            creationInfo: swapChainCreationInfo.
-        result _ creationInfo oldSwapChain reset.
+            creationInfo: swapChainCreationInfo;
+            yourself.
+        result creationInfo oldSwapChain: nil.
 
         result upCastFor: SwapChain
     }.
@@ -590,59 +583,59 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     override method minTextureDataPitchAlignment => UIntPointer
         := minTextureDataPitchAlignment.
 
-    override method createShaderSignatureCache => ShaderSignatureCachePtr := {
-        let result := GenericShaderSignatureCache rcNew.
-        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: ShaderSignatureCache
+    override method createShaderSignatureCache => ShaderSignatureCacheRef := {
+        GenericShaderSignatureCache new
+            device: (self asWeakRCRef upCastFor: RenderingDevice);
+            upCastFor: ShaderSignatureCache
     }.
 
-    override method createVertexLayoutCache => VertexLayoutCachePtr := {
-        let result := GenericVertexLayoutCache rcNew.
-        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: VertexLayoutCache
+    override method createVertexLayoutCache => VertexLayoutCacheRef := {
+        GenericVertexLayoutCache new
+            device: (self asWeakRCRef upCastFor: RenderingDevice);
+            upCastFor: VertexLayoutCache
     }.
 
-    override method createPipelineStateCache => PipelineStateCachePtr := {
-        let result := GenericPipelineStateCache rcNew.
-        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: PipelineStateCache
+    override method createPipelineStateCache => PipelineStateCacheRef := {
+        GenericPipelineStateCache new
+            device: (self asWeakRCRef upCastFor: RenderingDevice);
+            upCastFor: PipelineStateCache
     }.
 
-    override method createShaderCache => ShaderCachePtr := {
-        let result := GenericShaderCache rcNew.
-        result _ device: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: ShaderCache
+    override method createShaderCache => ShaderCacheRef := {
+        GenericShaderCache new
+            device: (self asWeakRCRef upCastFor: RenderingDevice);
+            upCastFor: ShaderCache
     }.
 
-    override method createFontCache => RenderingDeviceFontCachePtr := {
-        let result := TextureAtlasRenderingDeviceFontCache rcNew.
-        result _ initializeWithDevice: (self asWeakRCPointer upCastFor: RenderingDevice).
-        result upCastFor: RenderingDeviceFontCache
+    override method createFontCache => RenderingDeviceFontCacheRef := {
+        TextureAtlasRenderingDeviceFontCache new
+            initializeWithDevice: (self asWeakRCRef upCastFor: RenderingDevice);
+            upCastFor: RenderingDeviceFontCache
     }.
 
     override method createScene2DBuilder => Scene2D BuilderRef := {
         GenericScene2DBuilder new
-            device: (self asWeakRCPointer upCastFor: RenderingDevice);
+            device: (self asWeakRCRef upCastFor: RenderingDevice);
             upCastFor: Scene2D Builder
     }.
 
-    override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref
+    override method getDefaultShaderSignatureCache => ShaderSignatureCacheRef const ref
         := defaultShaderSignatureCache.
 
-    override method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref
+    override method getDefaultVertexLayoutCache => VertexLayoutCacheRef const ref
         := defaultVertexLayoutCache.
 
-    override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
+    override method getDefaultPipelineStateCache => PipelineStateCacheRef const ref
         := defaultPipelineStateCache.
 
-    override method getDefaultShaderCache => ShaderCachePtr const ref
+    override method getDefaultShaderCache => ShaderCacheRef const ref
         := defaultShaderCache.
 
-    override method getDefaultFontCache => RenderingDeviceFontCachePtr const ref
+    override method getDefaultFontCache => RenderingDeviceFontCacheRef const ref
         := defaultFontCache.
 }.
 
-compileTime constant AgpuRenderingDevicePtr := AgpuRenderingDevice rcPointer.
+compileTime constant AgpuRenderingDeviceRef := AgpuRenderingDevice rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

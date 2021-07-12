@@ -17,7 +17,7 @@ struct VertexLayoutDescription definition: {
     const inline method hash ::=> Std Hash
         := attributes hash ^ strides hash.
 
-    const method applyToLayout: (vertexLayout: VertexLayout ref) ::=> Void := {
+    const method applyToLayout: (vertexLayout: VertexLayoutRef const ref) ::=> Void := {
         vertexLayout addVertexBuffers: strides asArraySlice withAttributes: attributes asArraySlice
     }.
 

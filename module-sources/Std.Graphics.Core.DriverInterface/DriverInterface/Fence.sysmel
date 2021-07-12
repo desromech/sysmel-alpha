@@ -9,7 +9,7 @@ class Fence superclass: RenderingDriverObjectHandle; definition: {
     abstract method wait => Void.
 }.
 
-compileTime constant FencePtr := Fence rcPointer.
+compileTime constant FenceRef := Fence rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -6,10 +6,10 @@ namespace Core definition: {
  * I am a handle for vertex layouts cache.
  *#
 class VertexLayoutCache superclass: RenderingDriverObjectHandle; definition: {
-    abstract method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr.
+    abstract method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutRef.
 }.
 
-compileTime constant VertexLayoutCachePtr := VertexLayoutCache rcPointer.
+compileTime constant VertexLayoutCacheRef := VertexLayoutCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

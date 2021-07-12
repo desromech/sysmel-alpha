@@ -9,7 +9,7 @@ namespace Core definition: {
 class TextureView superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant TextureViewPtr := TextureView rcPointer.
+compileTime constant TextureViewRef := TextureView rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

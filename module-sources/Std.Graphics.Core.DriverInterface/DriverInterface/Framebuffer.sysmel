@@ -8,7 +8,7 @@ namespace Core definition: {
 class Framebuffer superclass: RenderingDriverObjectHandle; definition: {
 }.
 
-compileTime constant FramebufferPtr := Framebuffer rcPointer.
+compileTime constant FramebufferRef := Framebuffer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

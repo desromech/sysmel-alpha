@@ -12,7 +12,7 @@ sealed class AgpuFramebuffer superclass: Framebuffer; definition: {
 
 }.
 
-compileTime constant AgpuFramebufferPtr := AgpuFramebuffer rcPointer.
+compileTime constant AgpuFramebufferRef := AgpuFramebuffer rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

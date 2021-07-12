@@ -6,14 +6,14 @@ namespace Core definition: {
  * I am a handle for a sampler.
  *#
 class TextureWithView superclass: Std Graphics Core StrongTextureHandle; definition: {
-    public field texture type: TexturePtr.
-    public field textureView type: TextureViewPtr.
+    public field texture type: TextureRef.
+    public field textureView type: TextureViewRef.
 
     override method isTextureWithView => Boolean8
         := true.
 }.
 
-compileTime constant TextureWithViewPtr := TextureWithView rcPointer.
+compileTime constant TextureWithViewRef := TextureWithView rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

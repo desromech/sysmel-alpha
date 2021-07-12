@@ -6,10 +6,10 @@ namespace Core definition: {
  * I am a handle for a shader signature.
  *#
 class ShaderSignature superclass: RenderingDriverObjectHandle; definition: {
-    abstract method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr.
+    abstract method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsRef.
 }.
 
-compileTime constant ShaderSignaturePtr := ShaderSignature rcPointer.
+compileTime constant ShaderSignatureRef := ShaderSignature rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

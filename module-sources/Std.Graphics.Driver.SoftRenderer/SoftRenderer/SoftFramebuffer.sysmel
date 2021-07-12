@@ -10,10 +10,10 @@ useNamespace: Std Graphics Core.
  *#
 class SoftFramebuffer superclass: Framebuffer; definition: {
     public field extent type: UInt32x2.
-    public field colorAttachments type: Std Collections Vector(SoftTextureViewPtr).
-    public field depthStencilAttachment type: SoftTextureViewPtr.
+    public field colorAttachments type: Std Collections Vector(SoftTextureViewRef).
+    public field depthStencilAttachment type: SoftTextureViewRef.
 
-    public field attachmentTextures type: Std Collections Vector(SoftTexturePtr).
+    public field attachmentTextures type: Std Collections Vector(SoftTextureRef).
 }.
 
 }. ## End of namespace SoftRenderer

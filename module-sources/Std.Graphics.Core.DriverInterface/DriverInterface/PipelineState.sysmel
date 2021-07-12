@@ -13,7 +13,7 @@ class PipelineState superclass: RenderingDriverObjectHandle; definition: {
 
 }.
 
-compileTime constant PipelineStatePtr := PipelineState rcPointer.
+compileTime constant PipelineStateRef := PipelineState rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

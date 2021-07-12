@@ -19,7 +19,7 @@ class RenderingDriver superclass: Std Object; definition: {
     const virtual method isSoftRenderingDriver => Boolean8
         := false.
 
-    abstract method getMainDevice => RenderingDevice rcPointer.
+    abstract method getMainDevice => RenderingDevice rcRef.
 }.
 
 

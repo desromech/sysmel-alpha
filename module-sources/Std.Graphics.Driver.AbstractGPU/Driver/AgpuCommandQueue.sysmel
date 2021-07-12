@@ -10,9 +10,9 @@ useNamespace: Std Graphics Core.
 sealed class AgpuCommandQueue superclass: CommandQueue; definition: {
     public field handle type: AGPU CommandQueueRef.
 
-    override method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void := {
+    override method submitCommandList: (commandList: CommandListRef const ref) ::=> Void := {
         commandList ifNil: {return: void}.
-        let agpuCommandList := commandList _ asRenderingDeviceCommandList castTo: AgpuCommandList pointer.
+        let agpuCommandList := commandList asRenderingDeviceCommandList castTo: AgpuCommandList pointer.
 
         agpuCommandList ifNotNil: {
             handle _ addCommandList: agpuCommandList _ handle
@@ -23,15 +23,15 @@ sealed class AgpuCommandQueue superclass: CommandQueue; definition: {
         handle _ finishExecution
     }.
 
-    override method signalFence: (fence: FencePtr const ref) ::=> Void := {
-        let agpuFence := fence getPointer castTo: AgpuFence pointer.
+    override method signalFence: (fence: FenceRef const ref) ::=> Void := {
+        let agpuFence := fence rcObjectAddress castTo: AgpuFence pointer.
         agpuFence ifNotNil: {
             handle _ signalFence: agpuFence _ handle
         }
     }.
 
-    override method waitFence: (fence: FencePtr const ref) ::=> Void := {
-        let agpuFence := fence getPointer castTo: AgpuFence pointer.
+    override method waitFence: (fence: FenceRef const ref) ::=> Void := {
+        let agpuFence := fence rcObjectAddress castTo: AgpuFence pointer.
         agpuFence ifNotNil: {
             handle _ waitFence: agpuFence _ handle
         }
@@ -39,7 +39,7 @@ sealed class AgpuCommandQueue superclass: CommandQueue; definition: {
 
 }.
 
-compileTime constant AgpuCommandQueuePtr := AgpuCommandQueue rcPointer.
+compileTime constant AgpuCommandQueueRef := AgpuCommandQueue rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

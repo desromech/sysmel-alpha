@@ -6,14 +6,14 @@ namespace Core definition: {
  * I am a handle for a command queue.
  *#
 class CommandQueue superclass: RenderingDriverObjectHandle; definition: {
-    abstract method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void.
+    abstract method submitCommandList: (commandList: CommandListRef const ref) ::=> Void.
     abstract method waitForIdle ::=> Void.
 
-    abstract method signalFence: (fence: FencePtr const ref) ::=> Void.
-    abstract method waitFence: (fence: FencePtr const ref) ::=> Void.
+    abstract method signalFence: (fence: FenceRef const ref) ::=> Void.
+    abstract method waitFence: (fence: FenceRef const ref) ::=> Void.
 }.
 
-compileTime constant CommandQueuePtr := CommandQueue rcPointer.
+compileTime constant CommandQueueRef := CommandQueue rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

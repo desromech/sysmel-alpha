@@ -6,15 +6,15 @@ namespace Core definition: {
  * Compute pipeline state description.
  *#
 struct ComputePipelineStateDescription definition: {
-    public field shaderSignature type: ShaderSignaturePtr.
-    public field computeShader type: ShaderStageHandlePtr.
+    public field shaderSignature type: ShaderSignatureRef.
+    public field computeShader type: ShaderStageHandleRef.
 
     const method = (other: SelfType const ref) ::=> Boolean8
-        := shaderSignature = other shaderSignature && computeShader = other computeShader.
+        := shaderSignature == other shaderSignature && computeShader == other computeShader.
     Std Utility NotEqualsMethodMixin.
 
     const method hash => Std Hash
-        := shaderSignature hash ^ computeShader hash.
+        := shaderSignature identityHash ^ computeShader identityHash.
 
 }.
 

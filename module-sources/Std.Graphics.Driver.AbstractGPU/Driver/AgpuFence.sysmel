@@ -16,7 +16,7 @@ sealed class AgpuFence superclass: Fence; definition: {
 
 }.
 
-compileTime constant AgpuFencePtr := AgpuFence rcPointer.
+compileTime constant AgpuFenceRef := AgpuFence rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -6,34 +6,34 @@ namespace Core definition: {
  * I am a handle for a shader resource binding.
  *#
 class ShaderResourceBindings superclass: RenderingDriverObjectHandle; definition: {
-    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void.
-    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
+    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
 
-    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void.
-    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
+    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferRef const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
 
-    abstract method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void.
-    abstract method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void.
-    abstract method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewRef const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewRef const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) sampler: (sampelr: SamplerRef const ref) ::=> Void.
 
-    inline method bindOn: (location: IntPointer) sampledTextureWithView: (textureWithView: TextureWithViewPtr const ref) ::=> Void := {
+    inline method bindOn: (location: IntPointer) sampledTextureWithView: (textureWithView: TextureWithViewRef const ref) ::=> Void := {
         textureWithView ifNil: {
-            self bindOn: location sampledTextureView: TextureViewPtr nil
+            self bindOn: location sampledTextureView: TextureViewRef nil
         } ifNotNil: {
-            self bindOn: location sampledTextureView: textureWithView _ textureView
+            self bindOn: location sampledTextureView: textureWithView textureView
         }.
     }.
 
-    inline method bindOn: (location: IntPointer) storageImageWithView: (textureWithView: TextureWithViewPtr const ref) ::=> Void := {
+    inline method bindOn: (location: IntPointer) storageImageWithView: (textureWithView: TextureWithViewRef const ref) ::=> Void := {
         textureWithView ifNil: {
-            self bindOn: location storageImageView: TextureViewPtr nil
+            self bindOn: location storageImageView: TextureViewRef nil
         } ifNotNil: {
-            self bindOn: location storageImageView: textureWithView _ textureView
+            self bindOn: location storageImageView: textureWithView textureView
         }.
     }.
 }.
 
-compileTime constant ShaderResourceBindingsPtr := ShaderResourceBindings rcPointer.
+compileTime constant ShaderResourceBindingsRef := ShaderResourceBindings rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -11,18 +11,18 @@ useNamespace: Std Graphics Core.
 class SoftShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
     public field moduleInfo type: GPU ShaderModuleInfo const pointer.
 
-    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandleRef := {
         entryPointInfo moduleInfo ~~ moduleInfo ifTrue: {
-            return: ShaderStageHandlePtr nil
+            return: ShaderStageHandleRef nil
         }.
 
-        let result := SoftShaderStageHandle rcNew.
-        result _ entryPointInfo: entryPointInfo.
-        result upCastFor: ShaderStageHandle
+        SoftShaderStageHandle new
+            entryPointInfo: entryPointInfo;
+            upCastFor: ShaderStageHandle
     }.
 }.
 
-compileTime constant SoftShaderLibraryHandlePtr := SoftShaderLibraryHandle rcPointer.
+compileTime constant SoftShaderLibraryHandleRef := SoftShaderLibraryHandle rcRef.
 
 }. ## End of namespace SoftRenderer
 }. ## End of namespace Driver

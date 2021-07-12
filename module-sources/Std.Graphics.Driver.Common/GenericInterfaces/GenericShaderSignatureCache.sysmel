@@ -6,23 +6,23 @@ namespace Core definition: {
  * I am a generic implementation for a shader signature cache
  *#
 class GenericShaderSignatureCache superclass: ShaderSignatureCache; definition: {
-    public field device type: RenderingDeviceWeakPtr.
+    public field device type: RenderingDeviceWeakRef.
     protected field mutex type: Std Mutex.
-    protected field shaderSignatures type: Std Collections Dictionary(ShaderSignatureDescription, ShaderSignaturePtr).
+    protected field shaderSignatures type: Std Collections Dictionary(ShaderSignatureDescription, ShaderSignatureRef).
 
-    override method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr := {
+    override method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignatureRef := {
         mutex withLock: {
-            shaderSignatures at: description ifPresent: {:(ShaderSignaturePtr ref)existent :: Void |
+            shaderSignatures at: description ifPresent: {:(ShaderSignatureRef ref)existent :: Void |
                 return: existent
             }
         }.
 
-        let strongDevice := device lock.
+        let strongDevice := device asRCRef.
         strongDevice ifNil: {
-            return: ShaderSignaturePtr nil.
+            return: ShaderSignatureRef nil.
         }.
 
-        let result mutable := strongDevice _ createShaderSignatureWithDescription: description.
+        let result mutable := strongDevice createShaderSignatureWithDescription: description.
         mutex withLock: {
             shaderSignatures at: description put: result
         }.
@@ -31,7 +31,7 @@ class GenericShaderSignatureCache superclass: ShaderSignatureCache; definition: 
     }.
 }.
 
-compileTime constant GenericShaderSignatureCachePtr := GenericShaderSignatureCache rcPointer.
+compileTime constant GenericShaderSignatureCacheRef := GenericShaderSignatureCache rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics
