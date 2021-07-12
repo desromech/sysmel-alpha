@@ -96,6 +96,7 @@ class EventHandler superclass: Std RCObject; definition: {
 
 }.
 
+compileTime constant EventHandlerRef := EventHandler rcRef.
 compileTime constant EventHandlerPtr := EventHandler rcPointer.
 
 }. ## End of namespace GUI

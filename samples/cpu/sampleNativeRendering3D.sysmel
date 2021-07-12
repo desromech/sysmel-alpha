@@ -175,7 +175,7 @@ class MeshBuilder definition: {
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
 	field renderingDevice type: RenderingDevicePtr.
-	field mainWindow type: Window rcPointer.
+	field mainWindow type: WindowRef.
 	field mainWindowRenderer type: WindowScene2DRendererPtr.
 	field fontFaceWithSize type: FontFaceWithSize rcPointer.
 
@@ -290,7 +290,7 @@ class Sample definition: {
 	}.
 
 	method render ::=> Void := {
-		(self setMainFramebufferWithExtent: mainWindow _ extent) ifFalse: {return: void}.
+		(self setMainFramebufferWithExtent: mainWindow extent) ifFalse: {return: void}.
 
 		lastFrameRenderingTime := (Std Chrono profileTimeToRun: {
 			mainWindowRenderer _
@@ -311,7 +311,7 @@ class Sample definition: {
     }.
 
 	method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
-        mainWindow _ close
+        mainWindow close
     }.
 
 	method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
@@ -384,7 +384,7 @@ class Sample definition: {
 	    }.
 
 	    ## Create the main window.
-	    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+	    mainWindow := windowSystem createWindow: (WindowCreationInfo()
 			resizable: true;
 			extent: Int32x2(640, 480);
 			title: "Sample Native Rendering 3D" asMutableString;
@@ -395,16 +395,16 @@ class Sample definition: {
 	        return: 0.
 	    }.
 
-		renderingDevice := mainWindow _ renderingDevice.
+		renderingDevice := mainWindow renderingDevice.
 
 	    ## Create the main window scene 2D renderer.
-	    mainWindowRenderer := mainWindow _ createScene2DRenderer.
+	    mainWindowRenderer := mainWindow createScene2DRenderer.
 	    mainWindowRenderer ifNil: {
 	        return: 0.
 	    }.
 
 		## Create the main framebuffer.
-		self setMainFramebufferWithExtent: mainWindow _ extent.
+		self setMainFramebufferWithExtent: mainWindow extent.
 
 		## Create the main render pass
 		{
@@ -628,14 +628,12 @@ class Sample definition: {
 		}.
 
 	    ## Create the event handler.
-	    {
-	        let eventHandler := MainWindowEventHandler rcNew.
-			eventHandler _ sample: self address.
-	        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
-	    }.
+        mainWindow eventHandler: (MainWindowEventHandler new
+			sample: self address;
+			upCastFor: EventHandler).
 
 	    ## Run the actual main loop.
-	    return: windowSystem _ runMainLoop.
+	    return: windowSystem runMainLoop.
 	}
 }.
 

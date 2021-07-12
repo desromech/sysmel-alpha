@@ -9,18 +9,18 @@ useNamespace: Std Graphics Core.
  * I work by delegating my job into an actual SwapChainSurface
  *#
 class WindowSwapChainSurface superclass: Surface; definition: {
-    protected field window type: WindowPtr.
+    protected field window type: WindowRef.
     protected field swapChainSurface type: SwapChainSurfaceRef.
 
     meta definition: {
-        method for: (window: WindowPtr const ref) ::=> WindowSwapChainSurface rcPointer := {
+        method for: (window: WindowRef const ref) ::=> WindowSwapChainSurface rcPointer := {
             let result := WindowSwapChainSurface rcNew.
             result _ initializeWithWindow: window.
             result
         }.
     }.
 
-    method initializeWithWindow: (theWindow: WindowPtr const ref) ::=> Void := {
+    method initializeWithWindow: (theWindow: WindowRef const ref) ::=> Void := {
         window := theWindow
     }.
 

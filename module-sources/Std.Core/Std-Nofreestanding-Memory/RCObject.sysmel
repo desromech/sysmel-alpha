@@ -497,8 +497,8 @@ class RCObject superclass: Object; definition: {
     macro method asWeakRCPointer := ``(Std WeakRCPointer(`,SelfType) for: `,self address).
     macro method asRCPointer := ``(Std RCPointer(`,SelfType) for: `,self address).
 
-    macro method asWeakRCRef := ``(Std WeakRCRef(SelfType) for: `,self address).
-    macro method asRCRef := ``(Std RCRef(SelfType) for: `,self address).
+    macro method asWeakRCRef := ``(Std WeakRCRef(`,SelfType) for: `,self address).
+    macro method asRCRef := ``(Std RCRef(`,SelfType) for: `,self address).
 
     (inline method := (other: SelfType const ref)) => SelfType ref := {
         ## internalSelfWeakPointer should not be modified.

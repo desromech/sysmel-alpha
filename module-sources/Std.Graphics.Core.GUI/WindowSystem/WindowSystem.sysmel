@@ -12,55 +12,51 @@ class WindowSystem superclass: Std RCObject; definition: {
     protected field globalEventHandlers type: Std Collections Vector(EventHandlerPtr).
 
     meta definition: {
-        global MainWindowSystem mutable type: WindowSystemPtr.
+        global MainWindowSystem mutable type: WindowSystemRef.
 
-        method activeWindowSystem: (aWindowSystem: WindowSystemPtr const ref) ::=> Void
+        static method activeWindowSystem: (aWindowSystem: WindowSystemRef const ref) ::=> Void
             := MainWindowSystem := aWindowSystem.
 
-        method activeWindowSystem => WindowSystemPtr
+        static method activeWindowSystem => WindowSystemRef
             := MainWindowSystem.
 
-        method mainLoopOfStarted: (windowSystem: WindowSystem ref) ::=> Void := {
+        static method mainLoopOfStarted: (windowSystem: WindowSystem ref) ::=> Void := {
             MainWindowSystem ifNil: {
-                MainWindowSystem := windowSystem asRCPointer
+                MainWindowSystem := windowSystem asRCRef
             }
         }.
 
-        method mainLoopOfEnded: (windowSystem: WindowSystem ref) ::=> Void := {
-            MainWindowSystem getPointer == windowSystem address ifTrue: {
-                MainWindowSystem reset
+        static method mainLoopOfEnded: (windowSystem: WindowSystem ref) ::=> Void := {
+            MainWindowSystem __rcPointer__ getPointer == windowSystem address ifTrue: {
+                MainWindowSystem := WindowSystemRef nil
             }
         }.
     }.
 
-    method registerGlobalEventHandler: (globalHandler: EventHandlerPtr const ref) ::=> Void := {
-        globalEventHandlers add: globalHandler
+    method registerGlobalEventHandler: (globalHandler: EventHandlerRef const ref) ::=> Void := {
+        globalEventHandlers add: globalHandler asRCPointer
     }.
 
-    method unregisterGlobalEventHandler: (globalHandler: EventHandlerPtr const ref) ::=> Void := {
-        globalEventHandlers remove: globalHandler
+    method unregisterGlobalEventHandler: (globalHandler: EventHandlerRef const ref) ::=> Void := {
+        globalEventHandlers remove: globalHandler asRCPointer
     }.
 
-    virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window rcPointer
-        := Window rcPointer nil.
+    virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window rcRef
+        := Window rcRef nil.
 
-    virtual method createWindowWithTitle: (title: Std String const ref) extent: (extent: Int32x2) ::=> Window rcPointer := {
-        let creationInfo mutable type: WindowCreationInfo.
-        creationInfo
+    virtual method createWindowWithTitle: (title: Std String const ref) extent: (extent: Int32x2) ::=> Window rcRef := {
+        self createWindow: (WindowCreationInfo()
             title: title;
-            extent: extent.
-
-        self createWindow: creationInfo.
+            extent: extent;
+            yourself).
     }.
 
-    virtual method createWindowWithTitle: (title: Std String const ref) position: (position: Int32x2) extent: (extent: Int32x2) ::=> Window rcPointer := {
-        let creationInfo mutable type: WindowCreationInfo.
-        creationInfo
+    virtual method createWindowWithTitle: (title: Std String const ref) position: (position: Int32x2) extent: (extent: Int32x2) ::=> Window rcRef := {
+        self createWindow: (WindowCreationInfo()
             title: title;
             position: position;
-            extent: extent.
-
-        self createWindow: creationInfo.
+            extent: extent;
+            yourself).
     }.
 
     ## Do we have to finish the main loop?
@@ -174,8 +170,8 @@ function windowSystemMainLoopCallback(windowSystemPointer: Void pointer) => Void
 }.
 }.
 
-compileTime constant WindowSystemPtr := WindowSystem rcPointer.
-compileTime constant WindowSystemWeakPtr := WindowSystem weakRCPointer.
+compileTime constant WindowSystemRef := WindowSystem rcRef.
+compileTime constant WindowSystemWeakRef := WindowSystem weakRCRef.
 
 ## The main global window system. This one is used by the Smalltalk style IDE tools.
 

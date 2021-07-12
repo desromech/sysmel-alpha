@@ -11,7 +11,7 @@ compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
 
 class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
-	public field mainWindow type: Window rcPointer.
+	public field mainWindow type: WindowRef.
 	public field mainWindowRenderer type: WindowScene2DRendererPtr.
 	public field fontFaceWithSize type: FontFaceWithSize rcPointer.
 
@@ -69,7 +69,7 @@ class Sample definition: {
 	    }.
 
 	    ## Create the main window.
-	    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+	    mainWindow := windowSystem createWindow: (WindowCreationInfo()
 		 	title: "Sample Native Rendering 2D" asMutableString;
 			extent: Int32x2(640, 480);
 			resizable: true;
@@ -81,7 +81,7 @@ class Sample definition: {
 	    }.
 
 	    ## Create the main window renderer.
-		mainWindowRenderer := mainWindow _ createScene2DRenderer.
+		mainWindowRenderer := mainWindow createScene2DRenderer.
 		mainWindowRenderer ifNil: {
 			return: 0.
 		}.
@@ -93,14 +93,12 @@ class Sample definition: {
 		}.
 
 	    ## Create the event handler.
-	    {
-	        let eventHandler := MainWindowEventHandler rcNew.
-			eventHandler _ sample: self address.
-	        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
-	    }.
+		mainWindow eventHandler: (MainWindowEventHandler new
+			sample: self address;
+			upCastFor: EventHandler).
 
 	    ## Run the actual main loop.
-	    return: windowSystem _ runMainLoop.
+	    return: windowSystem runMainLoop.
 
 	}.
 
@@ -125,7 +123,7 @@ class Sample definition: {
     method onTickEvent: (event: TickEvent ref) ::=> Void := {
 		frameTime := event deltaSeconds castTo: Float32.
         currentTime := currentTime + (frameTime min: 0.1).
-		let extent := mainWindow _ extent castTo: Float32x2.
+		let extent := mainWindow extent castTo: Float32x2.
 		windowScaleTransform := AffinePostTransform2dF32()
 			setIdentity;
 			scaleBy: extent y / 480.0f;
@@ -143,7 +141,7 @@ class Sample definition: {
     }.
 
     method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
-        mainWindow _ close
+        mainWindow close
     }.
 
 }.

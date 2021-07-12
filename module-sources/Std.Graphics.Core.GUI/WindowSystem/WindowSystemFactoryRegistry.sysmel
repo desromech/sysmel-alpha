@@ -15,8 +15,8 @@ class WindowsSystemFactory superclass: Std Object; definition: {
         WindowSystemFactoryRegistry default unregisterFactory: self address
     }.
 
-    virtual method createWindowSystem => WindowSystem rcPointer
-        := WindowSystem rcPointer nil.
+    virtual method createWindowSystem => WindowSystem rcRef
+        := WindowSystem rcRef nil.
 }.
 
 #**
@@ -46,7 +46,7 @@ class WindowSystemFactoryRegistry definition: {
         registeredFactories remove: factory
     }.
 
-    method createHeadlessWindowSystem => WindowSystem rcPointer := {
+    method createHeadlessWindowSystem => WindowSystem rcRef := {
         registeredFactories do: {:each :: Void |
             each _ isHeadless ifTrue: {
                 let result := each _ createWindowSystem.
@@ -54,10 +54,10 @@ class WindowSystemFactoryRegistry definition: {
             }
         }.
 
-        WindowSystem rcPointer nil
+        WindowSystem rcRef nil
     }.
 
-    method createHeadfullWindowSystem => WindowSystem rcPointer := {
+    method createHeadfullWindowSystem => WindowSystem rcRef := {
         registeredFactories do: {:each :: Void |
             each _ isHeadfull && each _ isNativeSystem ifTrue: {
                 let result := each _ createWindowSystem.
@@ -72,10 +72,10 @@ class WindowSystemFactoryRegistry definition: {
             }
         }.
 
-        WindowSystem rcPointer nil
+        WindowSystem rcRef nil
     }.
 
-    method createDefaultWindowSystem => WindowSystem rcPointer := {
+    method createDefaultWindowSystem => WindowSystem rcRef := {
         let result := self createHeadfullWindowSystem.
         result ifNotNil: {return: result}.
 
@@ -83,13 +83,13 @@ class WindowSystemFactoryRegistry definition: {
     }.
 }.
 
-function createDefaultWindowSystem() => WindowSystem rcPointer
+function createDefaultWindowSystem() => WindowSystem rcRef
     := WindowSystemFactoryRegistry default createDefaultWindowSystem.
 
-function createHeadlessWindowSystem() => WindowSystem rcPointer
+function createHeadlessWindowSystem() => WindowSystem rcRef
     := WindowSystemFactoryRegistry default createHeadlessWindowSystem.
 
-function createHeadfullWindowSystem() => WindowSystem rcPointer
+function createHeadfullWindowSystem() => WindowSystem rcRef
     := WindowSystemFactoryRegistry default createHeadfullWindowSystem.
 
 }. ## End of namespace Core

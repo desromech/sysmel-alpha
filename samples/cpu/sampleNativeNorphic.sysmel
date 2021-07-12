@@ -110,5 +110,5 @@ Std MainEntryPoint: {:args :: Int32 |
         updateLayout.
 
     ## Run the actual main loop.
-    return: windowSystem _ runMainLoop.
+    return: windowSystem runMainLoop.
 }.

@@ -31,8 +31,8 @@ class SDL2Window superclass: Window; definition: {
         windowSystem := owner
     }.
 
-    override method windowSystem => WindowSystemPtr
-        := windowSystem _ asRCPointer upCastFor: WindowSystem.
+    override method windowSystem => WindowSystemRef
+        := windowSystem _ asRCRef upCastFor: WindowSystem.
 
     override method extent => UInt32x2 := {
         let w mutable type: Int32.
@@ -168,7 +168,7 @@ class SDL2Window superclass: Window; definition: {
             return: softSceneRenderer.
         }.
 
-        (WindowSwapChain2DSceneRenderer for: (self asRCPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
+        (WindowSwapChain2DSceneRenderer for: (self asRCRef upCastFor: Window)) upCastFor: WindowScene2DRenderer
     }.
 
     override method grabMouseCapture => Void := {

@@ -9,19 +9,19 @@ useNamespace: Std Graphics Core.
  * I work by delegating my job into an actual SwapChainSurface
  *#
 class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
-    protected field window type: WindowPtr.
+    protected field window type: WindowRef.
     protected field swapChain2DSceneRenderer type: SwapChain2DSceneRendererPtr.
     protected field currentClearColor type: Float32x4.
 
     meta definition: {
-        method for: (window: WindowPtr const ref) ::=> WindowSwapChain2DSceneRenderer rcPointer := {
+        method for: (window: WindowRef const ref) ::=> WindowSwapChain2DSceneRenderer rcPointer := {
             let result := WindowSwapChain2DSceneRenderer rcNew.
             result _ initializeWithWindow: window.
             result
         }.
     }.
 
-    method initializeWithWindow: (theWindow: WindowPtr const ref) ::=> Void := {
+    method initializeWithWindow: (theWindow: WindowRef const ref) ::=> Void := {
         window := theWindow.
     }.
 
@@ -33,7 +33,7 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
     }.
 
     override method newSceneBuilder => Scene2D BuilderPtr
-        := window _ renderingDevice _ createScene2DBuilder.
+        := window renderingDevice _ createScene2DBuilder.
 
     override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
         self validateSwapChain ifFalse: {
@@ -54,12 +54,12 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
             return: false.
         }.
 
-        let currentExtent := window _ extent.
+        let currentExtent := window extent.
         (swapChain2DSceneRenderer isNil ||
         swapChain2DSceneRenderer _ isOutOfDate ||
         swapChain2DSceneRenderer _ extent ~= currentExtent) ifTrue: {
 
-            let renderingDevice := window _ renderingDevice.
+            let renderingDevice := window renderingDevice.
             let swapChainCreationInfo mutable := SwapChainCreationInfo()
                 colorBufferFormat: PixelFormat B8G8R8A8_UNormSRGB;
                 extent: currentExtent;
@@ -68,7 +68,7 @@ class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
             let defaultCommandQueue := renderingDevice _ getDefaultCommandQueue.
 
-            let newSwapChain := window _ createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
+            let newSwapChain := window createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
             newSwapChain ifNil: {
                 swapChain2DSceneRenderer reset.
                 return: false.

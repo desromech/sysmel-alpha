@@ -14,7 +14,7 @@ let Gravity := Float32x2(0.0, -9.8).
 compileTime constant Node2D := Std Graphics Scene2D Node.
 compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
 
-global mainWindow mutable type: Window rcPointer.
+global mainWindow mutable type: WindowRef.
 let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
 let fontFaceWithSize mutable type: FontFaceWithSize rcPointer.
 let lastFrameRenderingTime mutable type: Float32.
@@ -320,7 +320,7 @@ global viewMatrix mutable type: Float32x2x3.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
 	method buildEntitiesScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
-		let screenExtent := mainWindow _ extent castTo: Float32x2.
+		let screenExtent := mainWindow extent castTo: Float32x2.
 		let viewTranform := AffinePostTransform2dF32()
 			setIdentity;
 
@@ -369,7 +369,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 	}.
 
 	method buildHudScene2D: (builder: Std Graphics Scene2D Builder ref) ::=> Node2DPtr := {
-		let screenExtent := mainWindow _ extent castTo: Float32x2.
+		let screenExtent := mainWindow extent castTo: Float32x2.
 		let windowScaleTransform := AffinePostTransform2dF32()
 			setIdentity;
 
@@ -418,14 +418,14 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
     }.
 
 	override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
-		mainWindow _ close
+		mainWindow close
 	}.
 
 	override method onKeyPressedEvent: (event: KeyPressedEvent ref) ::=> Void := {
 		event isRepeat ifTrue: {return: void}.
 
 		event symbol selectCase: #{
-		KeySymbol Escape : {mainWindow _ close}.
+		KeySymbol Escape : {mainWindow close}.
 		KeySymbol A : {player moveLeftInput: true}.
 		KeySymbol D : {player moveRightInput: true}.
 		KeySymbol W : {player jump}.
@@ -509,7 +509,7 @@ Std MainEntryPoint: {:args :: Int32 |
 	}.
 
 	## Create the main window.
-    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+    mainWindow := windowSystem createWindow: (WindowCreationInfo()
 	 	title: "Sample Native Game" asMutableString;
 		extent: Int32x2(640, 480);
 		resizable: true;
@@ -521,7 +521,7 @@ Std MainEntryPoint: {:args :: Int32 |
     }.
 
 	## Create the main window renderer.
-	mainWindowRenderer := mainWindow _ createScene2DRenderer.
+	mainWindowRenderer := mainWindow createScene2DRenderer.
 	mainWindowRenderer ifNil: {
 		return: 0.
 	}.
@@ -531,10 +531,7 @@ Std MainEntryPoint: {:args :: Int32 |
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
 
 	## Create the event handler.
-    {
-        let eventHandler := MainWindowEventHandler rcNew.
-        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
-    }.
+	mainWindow eventHandler: (MainWindowEventHandler new upCastFor: EventHandler).
 
 	playbackDevice := SoundDriverRegistry validDefaultPlaybackDevice.
 
@@ -610,7 +607,7 @@ Std MainEntryPoint: {:args :: Int32 |
 	playbackDevice resume.
 
 	## Enter into the main loop.
-	windowSystem _ runMainLoop.
+	windowSystem runMainLoop.
 
 	playbackDevice destroy.
 

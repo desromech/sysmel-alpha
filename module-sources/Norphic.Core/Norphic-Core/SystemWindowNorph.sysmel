@@ -8,8 +8,8 @@ useNamespace: Std Math Geometry.
  * I am a root norph that is a wrapper for a window created by a Window system.
  *#
 class SystemWindowNorph superclass: RootNorph; definition: {
-    protected field windowSystem type: WindowSystem rcPointer.
-    protected field window type: Window rcPointer.
+    protected field windowSystem type: WindowSystemRef.
+    protected field window type: WindowRef.
     protected field sceneRenderer type: WindowScene2DRenderer rcPointer.
     protected field hasChanged type: Boolean8.
 
@@ -17,26 +17,25 @@ class SystemWindowNorph superclass: RootNorph; definition: {
         := self theme _ systemWindowBackground.
 
     meta definition: {
-        method createFor: (windowSystem: WindowSystem rcPointer const ref)
+        method createFor: (windowSystem: WindowSystemRef const ref)
             title: (theTitle: Std String const ref) extent: (theExtent: Int32x2) ::=> InstanceType rcPointer := {
 
-            let creationInfo mutable type: WindowCreationInfo.
-            creationInfo
+            self createFor: windowSystem creationInfo: (WindowCreationInfo()
                 resizable: true;
                 extent: theExtent;
-                title: theTitle.
-            self createFor: windowSystem  creationInfo: creationInfo
+                title: theTitle;
+                yourself)
         }.
 
-        method createFor: (windowSystem: WindowSystem rcPointer const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType rcPointer := {
+        method createFor: (windowSystem: WindowSystemRef const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType rcPointer := {
 
-            let window := windowSystem _ createWindow: creationInfo.
+            let window := windowSystem createWindow: creationInfo.
             window ifNil: {
                 return: InstanceType rcPointer nil
             }.
 
             ## Create the drawing surface.
-            let renderer := window _ createScene2DRenderer.
+            let renderer := window createScene2DRenderer.
             renderer ifNil: {
                 return: InstanceType rcPointer nil
             }.
@@ -48,16 +47,16 @@ class SystemWindowNorph superclass: RootNorph; definition: {
                 initializeWithWindowSystem: windowSystem window: window renderer: renderer.
 
             ## Create the event handler
-            let eventHandler := SystemWindowNorphEventHandler rcNew.
-            eventHandler _ norph: result getPointer.
-            window _ eventHandler: (eventHandler upCastFor: EventHandler).
+            window eventHandler: (SystemWindowNorphEventHandler new
+                norph: result getPointer;
+                upCastFor: EventHandler).
 
             return: result
         }.
     }.
 
-    inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem rcPointer const ref)
-        window: (theWindow: Window rcPointer const ref)
+    inline method initializeWithWindowSystem: (theWindowSystem: WindowSystemRef const ref)
+        window: (theWindow: WindowRef const ref)
         renderer: (theRenderer: WindowScene2DRenderer rcPointer const ref) ::=> Void := {
 
         windowSystem := theWindowSystem.
@@ -76,18 +75,18 @@ class SystemWindowNorph superclass: RootNorph; definition: {
         super setMouseCaptureNorph: norph.
 
         norph ifNil: {
-            window _ releaseMouseCapture
+            window releaseMouseCapture
         } ifNotNil: {
-            window _ grabMouseCapture
+            window grabMouseCapture
         }
     }.
 
     override method destroy => Void := {
         window ifNotNil: {
-            window _ close.
+            window close.
         }.
-        window reset.
-        windowSystem reset.
+        window := nil.
+        windowSystem := nil.
 
         super destroy.
     }.
@@ -104,7 +103,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
     }.
 
     override method currentActiveMouseCursorChanged => Void := {
-        window _ setCursor: self mouseFocusNorphCursor
+        window setCursor: self mouseFocusNorphCursor
     }.
 }.
 

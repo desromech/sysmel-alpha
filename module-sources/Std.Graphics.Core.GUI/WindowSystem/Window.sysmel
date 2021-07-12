@@ -8,12 +8,12 @@ useNamespace: Std Graphics Core.
  * I represent an interface into a window system window.
  *#
 class Window superclass: Std RCObject; definition: {
-    public field eventHandler type: EventHandler rcPointer.
+    public field eventHandler type: EventHandler rcRef.
     public field animated type: Boolean8.
     public field vsyncDisabled type: Boolean8.
 
-    virtual method windowSystem => WindowSystemPtr
-        := WindowSystemPtr nil.
+    virtual method windowSystem => WindowSystemRef
+        := WindowSystemRef nil.
 
     #**
      * This method closes the window.
@@ -26,7 +26,7 @@ class Window superclass: Std RCObject; definition: {
      *#
     virtual method deliverEvent: (event: Event ref) ::=> Void := {
         eventHandler ifNotNil: {
-            eventHandler _ processEvent: event
+            eventHandler processEvent: event
         }
     }.
 
@@ -99,8 +99,8 @@ class Window superclass: Std RCObject; definition: {
     }.
 }.
 
-compileTime constant WindowPtr := Window rcPointer.
-compileTime constant WindowWeakPtr := Window weakRCPointer.
+compileTime constant WindowRef := Window rcRef.
+compileTime constant WindowWeakRef := Window weakRCRef.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics

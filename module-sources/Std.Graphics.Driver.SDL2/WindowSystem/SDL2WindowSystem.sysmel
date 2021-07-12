@@ -29,7 +29,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     private field aliveWindowCount type: UInt32.
     private field isQuitRequested type: Boolean8.
-    private field windowIDDictionary type: Std Collections Dictionary(UInt32, SDL2Window rcPointer).
+    private field windowIDDictionary type: Std Collections Dictionary(UInt32, SDL2Window rcRef).
     private field lastMousePosition type: Float32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
@@ -62,7 +62,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     method currentKeyModifiers => KeyModifiers
         := lastKeyModifiers.
 
-    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcPointer := {
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcRef := {
         let position mutable := Int32x2(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED).
         creationInfo position isPresent ifTrue: {
             position := creationInfo position _
@@ -94,12 +94,11 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, flags).
         windowHandle ifNil: {
-            return: Window rcPointer nil.
+            return: Window rcRef nil.
         }.
 
         aliveWindowCount := aliveWindowCount + 1.
-        let result := SDL2Window rcNew.
-        result _
+        let result := SDL2Window new
             handle: windowHandle;
             setWindowSystem: self address;
             animated: creationInfo animated;
@@ -114,8 +113,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     override method hasAnimatedWindow => Boolean8 := {
         let result mutable := false.
-        windowIDDictionary valuesDo: {:(SDL2Window rcPointer const ref)each :: Void |
-            each _ animated ifTrue: {
+        windowIDDictionary valuesDo: {:(SDL2Window rcRef const ref)each :: Void |
+            each animated ifTrue: {
                 result := true
             }
         }.
@@ -168,8 +167,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         }.
     }.
 
-    method findWrapperForWindowID: (id: UInt32) ::=> Window rcPointer := {
-        let wrapper mutable := windowIDDictionary at: id ifAbsent: SDL2Window rcPointer nil.
+    method findWrapperForWindowID: (id: UInt32) ::=> Window rcRef := {
+        let wrapper mutable := windowIDDictionary at: id ifAbsent: SDL2Window rcRef nil.
 
         wrapper upCastFor: Window.
     }.
@@ -181,62 +180,62 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         event event selectCase: #{
             SDL_WINDOWEVENT_CLOSE : {
                 let convertedEvent mutable type: WindowCloseRequestEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_EXPOSED : {
                 let convertedEvent mutable type: ExposeEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_MOVED : {
                 let convertedEvent mutable type: WindowMovedEvent.
                 convertedEvent newPosition: Float32x2(event data1, event data2).
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_RESIZED : {
                 let convertedEvent mutable type: WindowResizingEvent.
                 convertedEvent newSize: Float32x2(event data1, event data2).
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_SIZE_CHANGED : {
                 let convertedEvent mutable type: WindowSizeChangedEvent.
                 convertedEvent newSize: Float32x2(event data1, event data2).
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_HIDDEN : {
                 let convertedEvent mutable type: WindowHiddenEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_SHOWN : {
                 let convertedEvent mutable type: WindowShownEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_MINIMIZED : {
                 let convertedEvent mutable type: WindowMinimizedEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_MAXIMIZED : {
                 let convertedEvent mutable type: WindowMaximizedEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_RESTORED : {
                 let convertedEvent mutable type: WindowRestoredEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_ENTER : {
                 let convertedEvent mutable type: MouseEnterEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_LEAVE : {
                 let convertedEvent mutable type: MouseLeaveEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_FOCUS_GAINED : {
                 let convertedEvent mutable type: WindowGotFocusEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             SDL_WINDOWEVENT_FOCUS_LOST : {
                 let convertedEvent mutable type: WindowLostFocusEvent.
-                wrapper _ deliverEvent: convertedEvent.
+                wrapper deliverEvent: convertedEvent.
             }.
             _ : {}
         }
@@ -254,7 +253,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         lastKeyModifiers := convertedEvent modifiers.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processKeyUp: (event: SDL_KeyboardEvent const ref) ::=> Void := {
@@ -269,7 +268,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         lastKeyModifiers := convertedEvent modifiers.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processTextEditing: (event: SDL_TextEditingEvent const ref) ::=> Void := {
@@ -281,7 +280,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         let convertedEvent mutable := TextInputEvent newValue.
         convertedEvent text := Std String fromCString: event text[0] address.
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processMouseMotion: (event: SDL_MouseMotionEvent const ref) ::=> Void := {
@@ -298,7 +297,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         lastMousePosition := convertedEvent position.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processMouseButtonDown: (event: SDL_MouseButtonEvent const ref) ::=> Void := {
@@ -314,7 +313,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         lastMousePosition := convertedEvent position.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processMouseButtonUp: (event: SDL_MouseButtonEvent const ref) ::=> Void := {
@@ -330,7 +329,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
         lastMousePosition := convertedEvent position.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processMouseWheel: (event: SDL_MouseWheelEvent const ref) ::=> Void := {
@@ -345,7 +344,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             isFlipped: event direction == SDL_MOUSEWHEEL_FLIPPED;
             yourself.
 
-        wrapper _ deliverEvent: convertedEvent.
+        wrapper deliverEvent: convertedEvent.
     }.
 
     method processGameControllerDeviceAdded: (event: SDL_ControllerDeviceEvent const ref) ::=> Void := {
@@ -428,8 +427,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     override method broadcastEvent: (event: Event ref) ::=> Void := {
         super broadcastEvent: event.
-        windowIDDictionary valuesDo: {:(SDL2Window rcPointer ref) window :: Void |
-            window _ deliverEvent: event
+        windowIDDictionary valuesDo: {:(SDL2Window rcRef ref) window :: Void |
+            window deliverEvent: event
         }
     }.
 
@@ -459,8 +458,8 @@ class SDL2WindowSystemFactory superclass: WindowsSystemFactory; definition: {
         global Singleton mutable type: SDL2WindowSystemFactory.
     }.
 
-    override method createWindowSystem => WindowSystem rcPointer := {
-        SDL2WindowSystem rcNew upCastFor: WindowSystem.
+    override method createWindowSystem => WindowSystem rcRef := {
+        SDL2WindowSystem new upCastFor: WindowSystem.
     }.
 }.
 
