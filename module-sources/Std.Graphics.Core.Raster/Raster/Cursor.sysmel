@@ -14,6 +14,8 @@ class Cursor superclass: Std RCObject; definition: {
         := SystemCursorName Arrow.
 }.
 
+compileTime constant CursorRef := Cursor rcRef.
+
 }. ## End of namespace Core
 }. ## End of namespace Graphics
 }. ## End of namespace Std

@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am a font face loader
  *#
 class FontFaceLoader superclass: Object; definition: {
-    abstract method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFace rcPointer.
+    abstract method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFaceRef.
 }.
 
 #**
@@ -33,7 +33,7 @@ template FontFaceLoaderFactory(FT: Type)
 class FontFaceLoaderRegistry definition: {
     private field loadersMutex type: Std Mutex.
     private field loaders type: Std Collections Vector(FontFaceLoader pointer).
-    public field fallbackFontFace type: FontFace rcPointer.
+    public field fallbackFontFace type: FontFaceRef.
 
     meta definition: {
         let uniqueInstance mutable type: FontFaceLoaderRegistry uniquePointer.
@@ -60,7 +60,7 @@ class FontFaceLoaderRegistry definition: {
         }.
     }.
 
-    method loadFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
+    method loadFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFaceRef := {
         loadersMutex withLock: {
             loaders do: {:(FontFaceLoader pointer)faceLoader :: Void |
                 let face mutable := faceLoader _ loadFromFileNamed: faceFileName.
@@ -70,26 +70,24 @@ class FontFaceLoaderRegistry definition: {
             }.
         }.
 
-        FontFace rcPointer nil
+        FontFaceRef nil
     }.
 
-    method loadRequiredFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
+    method loadRequiredFontFaceFromFileNamed: (faceFileName: Std String const ref) ::=> FontFaceRef := {
         let result := self loadFontFaceFromFileNamed: faceFileName.
         result ifNotNil: {return: result}.
 
         self validFallbackFontFace
     }.
 
-    method validFallbackFontFace => FontFace rcPointer := {
+    method validFallbackFontFace => FontFaceRef := {
         fallbackFontFace ifNil: {
-            fallbackFontFace := NullFontFace rcNew upCastFor: FontFace.
+            fallbackFontFace := NullFontFace new upCastFor: FontFace.
         }.
 
         fallbackFontFace
     }.
 }.
-
-compileTime constant FontFaceWithSizePtr := FontFaceWithSize rcPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

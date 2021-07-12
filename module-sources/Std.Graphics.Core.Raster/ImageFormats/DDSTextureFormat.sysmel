@@ -118,17 +118,17 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/vnd-ms.dds".
 
-    override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+    override const method putTextureData: (textureData: TextureDataRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         Std stdout << "Todo: implemente this part"; nl
     }.
 
-    override const method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataPtr := {
+    override const method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataRef := {
 
         ## Check the magic header.
         {
             let magic mutable type: UInt32.
             (inputStream read: magic address size: 4) = 4 && magic = DDS_HeaderMagic ifFalse: {
-                return: TextureDataPtr nil
+                return: TextureDataRef nil
             }
         }.
 
@@ -139,32 +139,33 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
             (header flags allMask: DDS_HeaderFlags AlwaysRequiresFlags) &&
             ((header flags anyMask: DDS_HeaderFlags Pitch) || (header flags anyMask: DDS_HeaderFlags LinearSize)) &&
             header pixelFormat structureSize = DDS_PixelFormat instanceSize ifFalse: {
-                return: TextureDataPtr nil
+                return: TextureDataRef nil
             }
         }.
 
-        let result mutable := TextureData rcNew.
-        result _ header: (TextureDataHeader()
-            type: TextureType Texture2D;
-            width: (header width max: 1u);
-            height: (header height max: 1u);
-            depth: 1;
-            miplevels: 1;
-            layers: 1;
-            yourself).
+        let result := TextureData new
+            header: (TextureDataHeader()
+                type: TextureType Texture2D;
+                width: (header width max: 1u);
+                height: (header height max: 1u);
+                depth: 1;
+                miplevels: 1;
+                layers: 1;
+                yourself);
+            yourself.
 
         (header flags anyMask: DDS_HeaderFlags MipMapCount) ifTrue: {
-            result _ header miplevels: header mipMapCount
+            result header miplevels: header mipMapCount
         }.
 
         (header caps2 anyMask: DDS_Caps2 Cubemap) ifTrue: {
-            result _ header
+            result header
                 type: TextureType TextureCube;
                 layers: 6
         }.
 
         (header caps2 anyMask: DDS_Caps2 Volume) ifTrue: {
-            result _ header
+            result header
                 type: TextureType Texture3D;
                 depth: (header depth max: 1u)
         }.
@@ -172,32 +173,32 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
         (header pixelFormat flags anyMask: DDS_PixelFormatFlags FourCC) ifTrue: {
             header pixelFormat fourCC selectCase: #{
             DDS_PixelFormat_DXT1 : {
-                result _ header
+                result header
                     format: PixelFormat BC1_UNorm;
                     srgbFormat: PixelFormat BC1_UNormSRGB.
             }.
             DDS_PixelFormat_DXT2 : {
-                result _ header
+                result header
                     format: PixelFormat BC2_UNorm;
                     srgbFormat: PixelFormat BC2_UNormSRGB.
             }.
             DDS_PixelFormat_DXT3 : {
-                result _ header
+                result header
                     format: PixelFormat BC2_UNorm;
                     srgbFormat: PixelFormat BC2_UNormSRGB.
             }.
             DDS_PixelFormat_DXT4 : {
-                result _ header
+                result header
                     format: PixelFormat BC3_UNorm;
                     srgbFormat: PixelFormat BC3_UNormSRGB.
             }.
             DDS_PixelFormat_DXT5 : {
-                result _ header
+                result header
                     format: PixelFormat BC3_UNorm;
                     srgbFormat: PixelFormat BC3_UNormSRGB.
             }.
             DDS_PixelFormat_RXGB : {
-                result _ header
+                result header
                     format: PixelFormat BC3_UNorm;
                     srgbFormat: PixelFormat BC3_UNormSRGB;
                     mainViewComponents: (ComponentsSwizzle()
@@ -211,15 +212,15 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
             DDS_PixelFormat_DX10 : {
                 let headerDXT10 mutable type: DDS_HeaderDXT10.
                 (inputStream read: headerDXT10 address size: DDS_HeaderDXT10 instanceSize) = DDS_HeaderDXT10 instanceSize ifFalse: {
-                    return: TextureDataPtr nil
+                    return: TextureDataRef nil
                 }.
 
-                result _ header
+                result header
                     format: headerDXT10 dxgiFormat;
                     srgbFormat: headerDXT10 dxgiFormat.
             }.
             _ : {
-                return: TextureDataPtr nil
+                return: TextureDataRef nil
             }.
             }.
 
@@ -227,34 +228,34 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
         } ifFalse: {
             header pixelFormat rgbBitCount = 32 ifTrue: {
                 header pixelFormat rBitMask = 16r000000ff && header pixelFormat gBitMask = 16r0000ff00 && header pixelFormat bBitMask = 16r00ff0000 && header pixelFormat aBitMask = 16rff000000 ifTrue: {
-                    result _ header
+                    result header
                         format: PixelFormat R8G8B8A8_UNorm;
                         srgbFormat: PixelFormat R8G8B8A8_UNormSRGB.
                 }.
 
                 header pixelFormat rBitMask = 16r00ff0000 && header pixelFormat gBitMask = 16r0000ff00 && header pixelFormat bBitMask = 16r000000ff && header pixelFormat aBitMask = 16rff000000 ifTrue: {
-                    result _ header
+                    result header
                         format: PixelFormat B8G8R8A8_UNorm;
                         srgbFormat: PixelFormat B8G8R8A8_UNormSRGB.
                 }.
             }.
 
             ## TODO: Support more formats.
-            result _ header format = PixelFormat Unknown ifTrue: {
-                return: TextureDataPtr nil.
+            result header format = PixelFormat Unknown ifTrue: {
+                return: TextureDataRef nil.
             }.
         }.
 
         ## Compute the levels metadata.
-        result _ computeLinearPackedTextureLevelMetadata.
-        result _ linearDataSize = 0 ifTrue: {return: TextureDataPtr nil}.
+        result computeLinearPackedTextureLevelMetadata.
+        result linearDataSize = 0 ifTrue: {return: TextureDataRef nil}.
 
         ## Allocate the pixels memory data.
-        result _ pixels reset: (Std malloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+        result pixels reset: (Std malloc(result linearDataSize) reinterpretCastTo: UInt8 pointer).
 
         ## Read the actual pixel data.
-        (inputStream read: result _ pixels getPointer size: result _ linearDataSize) = result _ linearDataSize ifFalse: {
-            return: TextureDataPtr nil
+        (inputStream read: result pixels getPointer size: result linearDataSize) = result linearDataSize ifFalse: {
+            return: TextureDataRef nil
         }.
 
         result
@@ -266,7 +267,7 @@ global DDSTextureFormatRegistration mutable type: ImageReadWriterRegisterer(DDST
 Form extend: {
     method writeDDSfileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := DDSTextureFormat().
-        readWriter putForm: self onFileNamed: fileName.
+        readWriter putForm: self asRCRef onFileNamed: fileName.
     }.
 }.
 

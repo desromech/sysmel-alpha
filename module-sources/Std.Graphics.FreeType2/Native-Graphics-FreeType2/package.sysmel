@@ -1,4 +1,4 @@
 
 loadFileOnce: "Library.sysmel".
-loadFileOnce: "FontFace.sysmel".
-loadFileOnce: "FontFaceWithSize.sysmel".
+loadFileOnce: "FT2FontFace.sysmel".
+loadFileOnce: "FT2FontFaceWithSize.sysmel".

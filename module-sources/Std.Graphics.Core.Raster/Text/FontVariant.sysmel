@@ -1,0 +1,13 @@
+namespace Std definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum FontVariant bitMask valueType: UInt8; values: #{
+    Normal: 0.
+    Bold: 1<<0.
+    Italic: 2<<0.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Std

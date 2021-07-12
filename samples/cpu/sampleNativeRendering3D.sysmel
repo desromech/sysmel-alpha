@@ -177,7 +177,7 @@ class Sample definition: {
 	field renderingDevice type: RenderingDevicePtr.
 	field mainWindow type: WindowRef.
 	field mainWindowRenderer type: WindowScene2DRendererPtr.
-	field fontFaceWithSize type: FontFaceWithSize rcPointer.
+	field fontFaceWithSize type: FontFaceWithSizeRef.
 
 	field shaderSignature type: ShaderSignaturePtr.
 
@@ -429,8 +429,8 @@ class Sample definition: {
 		projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: renderingDevice _ shouldInvertProjectionY.
 
 	    ## Use the default font face.
-	    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
-	    fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
+	    let fontFace mutable := FontRegistry default defaultSans normalFace.
+	    fontFaceWithSize := fontFace getOrCreateFaceWithSize: 12.
 
 		## Build the shader signature.
 		{

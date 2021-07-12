@@ -36,7 +36,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method name => Char8 const pointer
         := "Unknown".
 
-    virtual method createColorTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
+    virtual method createColorTextureWithData: (textureData: TextureDataRef const ref) ::=> TexturePtr := {
         let texture := self createTexture: textureData colorTextureDescription.
         texture ifNotNil: {
             texture _ uploadTextureData: textureData
@@ -45,7 +45,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
         texture
     }.
 
-    virtual method createTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
+    virtual method createTextureWithData: (textureData: TextureDataRef const ref) ::=> TexturePtr := {
         let texture := self createTexture: textureData textureDescription.
         texture ifNotNil: {
             texture _ uploadTextureData: textureData

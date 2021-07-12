@@ -1,0 +1,43 @@
+namespace Std definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class TextureDataHeader definition: {
+    public field type type: TextureType.
+    public field format type: PixelFormat.
+    public field srgbFormat type: PixelFormat.
+
+    public field width type: UInt32.
+    public field height type: UInt32.
+    public field depth type: UInt32.
+    public field miplevels type: UInt32.
+    public field layers type: UInt32.
+    public field linearDataSize type: UInt32.
+    public field flags type: TextureDataFlags.
+    public field mainViewComponents type: ComponentsSwizzle.
+
+    const inline method extent => UInt32x3
+        := UInt32x3(width, height, depth).
+
+    const inline method hasOptimalTargetSpecificTiling => Boolean8
+        := flags anyMask: TextureDataFlags OptimalTargetSpecificTiling.
+
+    const inline method hasGeneratedMipmaps => Boolean8
+        := (flags anyMask: TextureDataFlags HasGeneratedMipmaps) || miplevels > 1.
+
+    const inline method isTexture1D => Boolean8
+        := type = TextureType Texture1D.
+
+    const inline method isTexture2D => Boolean8
+        := type = TextureType Texture2D.
+
+    const inline method isTextureCube => Boolean8
+        := type = TextureType TextureCube.
+
+    const inline method isTexture3D => Boolean8
+        := type = TextureType Texture3D.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Std

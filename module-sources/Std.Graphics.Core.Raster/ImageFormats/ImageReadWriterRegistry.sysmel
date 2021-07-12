@@ -69,23 +69,23 @@ template ImageReadWriterRegisterer(T: Type)
 
 
 Form extend: {
-    meta method readFromFileNamed: (fileName: Std String const ref) ::=> FormPtr := {
+    meta method readFromFileNamed: (fileName: Std String const ref) ::=> FormRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
-        readWriter ifNil: {return: FormPtr nil}.
+        readWriter ifNil: {return: FormRef nil}.
 
         readWriter _ readFormFromFileNamed: fileName.
     }.
 
-    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
-        readWriter ifNil: {return: FormPtr nil}.
+        readWriter ifNil: {return: FormRef nil}.
 
         readWriter _ readFormFromStream: stream.
     }.
 
-    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
-        readWriter ifNil: {return: FormPtr nil}.
+        readWriter ifNil: {return: FormRef nil}.
 
         readWriter _ readFormFromStream: stream.
     }.
@@ -94,31 +94,31 @@ Form extend: {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: false}.
 
-        readWriter _ putForm: self onFileNamed: fileName.
+        readWriter _ putForm: self asRCRef onFileNamed: fileName.
     }.
 }.
 
 TextureData extend: {
-    meta method readFromFileNamed: (fileName: Std String const ref) ::=> TextureDataPtr
+    meta method readFromFileNamed: (fileName: Std String const ref) ::=> TextureDataRef
         := self readFromFileReference: fileName asNativeFileReference.
 
-    meta method readFromFileReference: (fileReference: Std FileReference const ref) ::=> TextureDataPtr := {
+    meta method readFromFileReference: (fileReference: Std FileReference const ref) ::=> TextureDataRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
-        readWriter ifNil: {return: TextureDataPtr nil}.
+        readWriter ifNil: {return: TextureDataRef nil}.
 
         readWriter _ readTextureDataFromFileReference: fileReference.
     }.
 
-    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
-        readWriter ifNil: {return: TextureDataPtr nil}.
+        readWriter ifNil: {return: TextureDataRef nil}.
 
         readWriter _ readTextureDataFromStream: stream.
     }.
 
-    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataPtr := {
+    meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
-        readWriter ifNil: {return: TextureDataPtr nil}.
+        readWriter ifNil: {return: TextureDataRef nil}.
 
         readWriter _ readTextureDataFromStream: stream.
     }.
@@ -130,7 +130,7 @@ TextureData extend: {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: false}.
 
-        readWriter _ putTextureData: self onFileReference: fileReference.
+        readWriter _ putTextureData: self asRCRef onFileReference: fileReference.
     }.
 }.
 

@@ -85,7 +85,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
 
             addVertex: (MeshVertex()
                 position: obl;
@@ -185,7 +185,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: node c1;
@@ -215,7 +215,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: c1;
@@ -262,7 +262,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         renderer _ meshBuilder
             beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
-                texture: deviceHandle _ texture textureView: deviceHandle _ textureView fontFaceWithSize: FontFaceWithSizePtr nil;
+                texture: deviceHandle _ texture textureView: deviceHandle _ textureView fontFaceWithSize: FontFaceWithSizeRef nil;
             addVertex: (MeshVertex()
                 position: p1;
                 color: color;
@@ -305,27 +305,27 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
         }.
     }.
 
-    inline method drawCharacterWithState: (state: TextDrawingState) font: (fontFaceWithSize: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextDrawingState := {
+    inline method drawCharacterWithState: (state: TextDrawingState) font: (fontFaceWithSize: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextDrawingState := {
         fontFaceWithSize ifNil: {
             return: state.
         }.
 
-        let newState mutable := fontFaceWithSize _ computeNewDrawingState: state.
+        let newState mutable := fontFaceWithSize computeNewDrawingState: state.
         newState isVisibleCharacter ifTrue: {
             ## Get the glyph for the character
-            let glyph := fontFaceWithSize _ getOrCreateGlyphForCodePoint: newState character.
+            let glyph := fontFaceWithSize getOrCreateGlyphForCodePoint: newState character.
             glyph ifNil: {
                 return: newState
             }.
 
             ## Convert the glyph into a form. We can always do this operation with fonts.
-            self drawGlyph: glyph _ color: color at: newState previousPosition.
+            self drawGlyph: glyph color: color at: newState previousPosition.
         }.
 
         return: newState.
     }.
 
-    inline method drawGlyph: (glyph: Glyph ref) color: (color: Float32x4) at: (aPosition: Float32x2) ::=> Void := {
+    inline method drawGlyph: (glyph: GlyphRef const ref) color: (color: Float32x4) at: (aPosition: Float32x2) ::=> Void := {
         let atlasRectangle := glyph textureAtlasBounds.
         let drawRectangle := RectangleF32 min: aPosition + glyph drawOrigin extent: atlasRectangle extent.
 

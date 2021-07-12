@@ -6,9 +6,11 @@ namespace Core definition: {
  * I am an abstract font face.
  *#
 class FontFace superclass: RCObject; definition: {
-    virtual method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize rcPointer
-        := FontFaceWithSize rcPointer nil.
+    virtual method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSizeRef
+        := FontFaceWithSizeRef nil.
 }.
+
+compileTime constant FontFaceRef := FontFace rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

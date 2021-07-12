@@ -1,0 +1,13 @@
+namespace Std definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum TextureDataFlags bitMask valueType: UInt32; values: #{
+    None: 0.
+    OptimalTargetSpecificTiling: 1. ## For some embedded devices where the tiling layout is well known.
+    HasGeneratedMipmaps: 2. ## Mipmaps are already generated.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Std

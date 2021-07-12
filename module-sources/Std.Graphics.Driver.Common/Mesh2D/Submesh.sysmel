@@ -17,7 +17,7 @@ struct Submesh definition: {
     public field blendingMode type: BlendingMode.
     public field texture type: TexturePtr.
     public field textureView type: TextureViewPtr.
-    public field fontFaceWithSize type: FontFaceWithSizePtr.
+    public field fontFaceWithSize type: FontFaceWithSizeRef.
 }.
 
 }. ## End of namespace Scene2DMesh

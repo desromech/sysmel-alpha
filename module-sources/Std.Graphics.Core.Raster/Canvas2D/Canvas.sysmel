@@ -13,7 +13,7 @@ class Canvas superclass: Object; definition: {
     public field transform type: AffinePostTransform2dF32.
     public field drawingState type: CanvasDrawingState.
     public field paintState type: CanvasPaintState.
-    public field fontFaceWithSize type: FontFaceWithSizePtr.
+    public field fontFaceWithSize type: FontFaceWithSizeRef.
 
     protected field currentClipRectangle type: RectangleF32.
 
@@ -23,7 +23,7 @@ class Canvas superclass: Object; definition: {
             yourself.
         currentClipRectangle := RectangleF32 fullSpace.
         transform setIdentity.
-        fontFaceWithSize reset.
+        fontFaceWithSize := nil.
         self doSetClipRectangle: currentClipRectangle.
     }.
 
@@ -48,7 +48,7 @@ class Canvas superclass: Object; definition: {
     abstract method fontFaceWithSize: (font: FontFaceWithSize rcPointer const ref) ::=> Void.
 
     ## Draw a character glyph in a particular position.
-    abstract method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void.
+    abstract method drawGlyph: (glyph: GlyphRef const ref) at: (aPosition: Float32x2) ::=> Void.
 
 
     ## This method sets a white color.
@@ -130,16 +130,16 @@ class Canvas superclass: Object; definition: {
             return: state.
         }.
 
-        let newState mutable := fontFaceWithSize _ computeNewDrawingState: state.
+        let newState mutable := fontFaceWithSize computeNewDrawingState: state.
         newState isVisibleCharacter ifTrue: {
             ## Get the glyph for the character
-            let glyph := fontFaceWithSize _ getOrCreateGlyphForCodePoint: newState character.
+            let glyph := fontFaceWithSize getOrCreateGlyphForCodePoint: newState character.
             glyph ifNil: {
                 return: newState
             }.
 
             ## Convert the glyph into a form. We can always do this operation with fonts.
-            self drawGlyph: glyph _ at: newState previousPosition.
+            self drawGlyph: glyph at: newState previousPosition.
         }.
 
         return: newState.

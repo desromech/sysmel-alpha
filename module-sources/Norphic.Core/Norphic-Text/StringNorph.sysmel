@@ -34,7 +34,7 @@ class StringNorph superclass: Norph; definition: {
     override method minimalContentExtent => Float32x2 := {
         let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
         fontFaceWithSize ifNotNil: {
-            return: (fontFaceWithSize _ computeExtentForString: text)
+            return: (fontFaceWithSize computeExtentForString: text)
         }.
 
         Float32x2 zeros

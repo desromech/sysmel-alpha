@@ -7,7 +7,7 @@ useNamespace: Std Graphics Core.
 
 class TextNode superclass: RectangularShapeNode; definition: {
     public field string type: Std String.
-    public field fontFaceWithSize type: FontFaceWithSizePtr.
+    public field fontFaceWithSize type: FontFaceWithSizeRef.
     public field color type: Float32x4.
     public field drawingState type: TextDrawingState.
 

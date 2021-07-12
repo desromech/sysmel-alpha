@@ -45,11 +45,11 @@ class BMPImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/bmp" || mimeType = "image/x-bmp".
 
-    const override method putForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
-        self putConvertedForm: (form asVerticallyFlippedFormWithFormat: form pixelFormat asValidFormatForBMP) _ onStream: outputStream.
+    const override method putForm: (form: FormRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+        self putConvertedForm: (form asVerticallyFlippedFormWithFormat: form pixelFormat asValidFormatForBMP) onStream: outputStream.
     }.
 
-    const method putConvertedForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+    const method putConvertedForm: (form: FormRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         let pixelDataSize := form height * form pitch.
         let fileHeader mutable := BitmapFileHeader()
             setValid;
@@ -75,7 +75,7 @@ global BMPImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(BM
 Form extend: {
     method writeBMPfileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := BMPImageReadWriter().
-        readWriter putForm: self onFileNamed: fileName.
+        readWriter putForm: self asRCRef onFileNamed: fileName.
     }.
 }.
 

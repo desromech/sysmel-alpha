@@ -9,7 +9,7 @@ class TextModelCursor.
  * I am accessor for a text model span. I am typically used for rendering purposes.
  *#
 struct TextModelSpan definition: {
-    public field fontFaceWithSize type: FontFaceWithSize rcPointer.
+    public field fontFaceWithSize type: FontFaceWithSizeRef.
     public field color type: Float32x4.
     public field utf8String type: Char8 const arraySlice.
     public field textDrawingState type: TextDrawingState.

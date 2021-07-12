@@ -10,7 +10,7 @@ useNamespace: Std Math Geometry.
 class TextureAtlasGlyph superclass: Glyph; definition: {
     private field textureAtlasBounds type: RectangleF32.
 
-    method initializeAdaptingFrom: (other: Glyph ref) inAtlasLocation: (atlasLocation: RectangleF32) ::=> Void := {
+    method initializeAdaptingFrom: (other: GlyphRef const ref) inAtlasLocation: (atlasLocation: RectangleF32) ::=> Void := {
         drawOrigin := other drawOrigin.
 
         extent := other extent.

@@ -12,16 +12,16 @@ class Form superclass: Std RCObject; definition: {
     public field pixels type: UInt8 uniquePointer.
 
     meta definition: {
-        method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) ::=> Form rcPointer := {
-            let result := Form rcNew.
-            result _ initializeWithExtent: theExtent pixelFormat: thePixelFormat.
-            result
+        static method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) ::=> Form rcRef := {
+            Form new
+                initializeWithExtent: theExtent pixelFormat: thePixelFormat;
+                yourself
         }.
 
-        method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) pitch: (thePitch: UInt32 )::=> Form rcPointer := {
-            let result := Form rcNew.
-            result _ initializeWithExtent: theExtent pixelFormat: thePixelFormat pitch: thePitch.
-            result
+        static method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) pitch: (thePitch: UInt32 )::=> Form rcRef := {
+            Form new 
+                initializeWithExtent: theExtent pixelFormat: thePixelFormat pitch: thePitch;
+                yourself
         }.
     }.
 
@@ -63,23 +63,22 @@ class Form superclass: Std RCObject; definition: {
             initializeCachedState;
             yourself.
 
-    method asFormWithFormat: (newFormat: PixelFormat) ::=> FormPtr := {
+    method asFormWithFormat: (newFormat: PixelFormat) ::=> FormRef := {
         let convertedForm := Form extent: extent pixelFormat: newFormat.
-        convertedForm _ makeBlitter
+        convertedForm makeBlitter
             copyPixelsFrom: self makeBlitter into: Int32x2 zeros.
         convertedForm
     }.
 
-    method asVerticallyFlippedFormWithFormat: (newFormat: PixelFormat) ::=> FormPtr := {
+    method asVerticallyFlippedFormWithFormat: (newFormat: PixelFormat) ::=> FormRef := {
         let convertedForm := Form extent: extent pixelFormat: newFormat.
-        convertedForm _ makeVerticallyFlippedBlitter
+        convertedForm makeVerticallyFlippedBlitter
             copyPixelsFrom: self makeBlitter into: Int32x2 zeros.
         convertedForm
     }.
 
-    method asTextureData => TextureDataPtr := {
-        let result := TextureData rcNew.
-        result _
+    method asTextureData => TextureDataRef := {
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: TextureType Texture2D;
                 format: pixelFormat asLinearFormat;
@@ -93,16 +92,16 @@ class Form superclass: Std RCObject; definition: {
             computeLinearPackedTextureLevelMetadata;
             yourself.
 
-        result _ pixels reset: (Std zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
-        let firstLevel ref := result _ levelsData first.
+        result pixels reset: (Std zmalloc(result linearDataSize) reinterpretCastTo: UInt8 pointer).
+        let firstLevel ref := result levelsData first.
         firstLevel pitch = pitch ifTrue: {
             let levelDataSize := pitch * extent y.
             Std assert: firstLevel dataSize >= levelDataSize.
-            Std memcpy(result _ pixels getPointer, pixels getPointer, levelDataSize)
+            Std memcpy(result pixels getPointer, pixels getPointer, levelDataSize)
         } ifFalse: {
             let sourceRow mutable := pixels getPointer.
             let sourcePitch := pitch.
-            let destRow mutable := result _ pixels getPointer.
+            let destRow mutable := result pixels getPointer.
             let destPitch := firstLevel pitch.
             0 until: extent y do: {:y :: Void |
                 Std memcpy(destRow, sourceRow, destPitch).
@@ -115,7 +114,7 @@ class Form superclass: Std RCObject; definition: {
     }.
 }.
 
-compileTime constant FormPtr := Form rcPointer.
+compileTime constant FormRef := Form rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

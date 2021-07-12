@@ -1,0 +1,26 @@
+namespace Std definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class TextureFileHeader definition: {
+    compileTime constant MagicNumber := "STEX".
+    compileTime constant VersionMajor := 0.
+    compileTime constant VersionMinor := 1.
+
+    public field magic type: (Char8 array: 4).
+    public field versionMajor type: UInt16.
+    public field versionMinor type: UInt16.
+
+    method isValid => Boolean8
+        := magic = MagicNumber && versionMajor = VersionMajor && versionMinor = VersionMinor.
+
+    method setValid => Void := {
+        Std memcpy(magic address, MagicNumber, 4).
+        versionMajor := VersionMajor.
+        versionMinor := VersionMinor.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Std

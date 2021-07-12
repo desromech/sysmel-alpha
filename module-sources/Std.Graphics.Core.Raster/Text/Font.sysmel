@@ -2,25 +2,19 @@ namespace Std definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-enum FontVariant bitMask valueType: UInt8; values: #{
-    Normal: 0.
-    Bold: 1<<0.
-    Italic: 2<<0.
-}.
-
 #**
  * I am a font. A font is defined as a collection of related font faces.
  *#
 class Font superclass: RCObject; definition: {
-    public field normalFace type: FontFace rcPointer.
-    public field boldFace type: FontFace rcPointer.
-    public field italicFace type: FontFace rcPointer.
-    public field italicBoldFace type: FontFace rcPointer.
+    public field normalFace type: FontFaceRef.
+    public field boldFace type: FontFaceRef.
+    public field italicFace type: FontFaceRef.
+    public field italicBoldFace type: FontFaceRef.
 
-    inline method validNormalFace => FontFace rcPointer
+    inline method validNormalFace => FontFaceRef
         := normalFace.
 
-    inline method validBoldFace => FontFace rcPointer := {
+    inline method validBoldFace => FontFaceRef := {
         boldFace ifNotNil: {
             return: boldFace
         } ifNil: {
@@ -28,7 +22,7 @@ class Font superclass: RCObject; definition: {
         }
     }.
 
-    inline method validItalicFace => FontFace rcPointer := {
+    inline method validItalicFace => FontFaceRef := {
         italicFace ifNotNil: {
             return: italicFace
         } ifNil: {
@@ -36,7 +30,7 @@ class Font superclass: RCObject; definition: {
         }
     }.
 
-    inline method validItalicBoldFace => FontFace rcPointer := {
+    inline method validItalicBoldFace => FontFaceRef := {
         italicBoldFace ifNotNil: {
             return: italicBoldFace
         } ifNil: {
@@ -45,6 +39,8 @@ class Font superclass: RCObject; definition: {
     }.
 
 }.
+
+compileTime constant FontRef := Font rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

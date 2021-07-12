@@ -119,10 +119,10 @@ class SoftCanvas superclass: Canvas; definition: {
         }
     }.
 
-    override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
+    override method drawGlyph: (glyph: GlyphRef const ref) at: (aPosition: Float32x2) ::=> Void := {
         let form := glyph asForm.
         form ifNotNil: {
-            let sourceBlitter := form _ makeBlitter.
+            let sourceBlitter := form makeBlitter.
             let drawPosition := transform transformPoint: aPosition + glyph drawOrigin.
             targetSurface _ pixelsBlitter
                 compositeAlphaBlendPixelsFrom: sourceBlitter withColor: paintState simplePaint startColor

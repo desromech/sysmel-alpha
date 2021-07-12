@@ -6,6 +6,7 @@ Compiler loadPackages: #(
 loadFileOnce: "Glyph.sysmel".
 loadFileOnce: "FontFaceWithSize.sysmel".
 loadFileOnce: "FontFace.sysmel".
+loadFileOnce: "FontVariant.sysmel".
 loadFileOnce: "Font.sysmel".
 
 loadFileOnce: "TextDrawingState.sysmel".

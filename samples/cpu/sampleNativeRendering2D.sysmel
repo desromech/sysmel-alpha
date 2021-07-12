@@ -13,7 +13,7 @@ class Sample definition: {
 	public field vsyncDisabled type: Boolean8.
 	public field mainWindow type: WindowRef.
 	public field mainWindowRenderer type: WindowScene2DRendererPtr.
-	public field fontFaceWithSize type: FontFaceWithSize rcPointer.
+	public field fontFaceWithSize type: FontFaceWithSizeRef.
 
 	public field mainRectangle type: RectangleF32.
 	public field mainRectangleNormalColor type: Float32x4.
@@ -87,9 +87,9 @@ class Sample definition: {
 		}.
 
 	    ## Use the default font face.
-	    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
+	    let fontFace mutable := FontRegistry default defaultSans normalFace.
 		fontFace ifNotNil: {
-			fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
+			fontFaceWithSize := fontFace getOrCreateFaceWithSize: 24.
 		}.
 
 	    ## Create the event handler.

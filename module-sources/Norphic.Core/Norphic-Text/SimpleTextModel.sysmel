@@ -9,7 +9,7 @@ class SimpleTextModelCursor.
  * Simplistic and slow text model.
  *#
 class SimpleTextModel superclass: TextModel; definition: {
-    public field fontFaceWithSize type: FontFaceWithSize rcPointer.
+    public field fontFaceWithSize type: FontFaceWithSizeRef.
     public field color type: Float32x4.
     public field textBuffer type: Std Collections Vector(Char8).
 
@@ -39,7 +39,7 @@ class SimpleTextModel superclass: TextModel; definition: {
             color: color;
             fontFaceWithSize: fontFaceWithSize;
             utf8String: textBuffer asArraySlice;
-            textDrawingState: (TextDrawingState position: Float32x2(0, fontFaceWithSize _ ascender)).
+            textDrawingState: (TextDrawingState position: Float32x2(0, fontFaceWithSize ascender)).
 
         iterationBlock(span).
     }.
@@ -52,7 +52,7 @@ class SimpleTextModel superclass: TextModel; definition: {
             let character := textBuffer[i].
             currentState character: character.
 
-            currentState := fontFaceWithSize _ computeNewDrawingState: currentState.
+            currentState := fontFaceWithSize computeNewDrawingState: currentState.
         }.
 
         bufferPosition < textBuffer size ifTrue: {
@@ -64,7 +64,7 @@ class SimpleTextModel superclass: TextModel; definition: {
 
     method bufferPositionForDrawingPosition: (drawingPosition: Float32x2) ::=> UIntPointer := {
 
-        let currentState mutable := TextDrawingState position: Float32x2(0, fontFaceWithSize _ ascender).
+        let currentState mutable := TextDrawingState position: Float32x2(0, fontFaceWithSize ascender).
         let bestBufferPosition mutable type: UIntPointer := 0.
         let bestBufferPositionDistance mutable := Float32 infinity.
 
@@ -72,7 +72,7 @@ class SimpleTextModel superclass: TextModel; definition: {
             let character := textBuffer[i].
             currentState character: character.
 
-            currentState := fontFaceWithSize _ computeNewDrawingState: currentState.
+            currentState := fontFaceWithSize computeNewDrawingState: currentState.
 
             let distance := (currentState previousPosition - drawingPosition) length.
             distance < bestBufferPositionDistance ifTrue: {
@@ -108,7 +108,7 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
         := model _ topPositionOfCharacterAt: bufferPosition.
 
     override method drawingHeight => Float32
-        := model _ fontFaceWithSize _ height.
+        := model _ fontFaceWithSize height.
 
     override method model => TextModel ref
         := model _.

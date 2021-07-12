@@ -18,7 +18,7 @@ class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
         result upCastFor: StrongTextureHandle
     }.
 
-    override method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr := {
+    override method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandlePtr := {
         let result := SoftScene2DDeviceTextureHandle rcNew.
         result _
             textureView: ((SoftFormTextureView for: form) downCastFor: TextureView).

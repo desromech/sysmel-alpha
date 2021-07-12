@@ -7,7 +7,7 @@ namespace Core definition: {
  * font face with size. I am intended to be used CPU bit-blit based soft rendering.
  *#
 class NullRenderingDeviceFontCache superclass: RenderingDeviceFontCache; definition: {
-    override method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> FontFaceWithSizePtr
+    override method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizeRef const ref) ::=> FontFaceWithSizeRef
         := fontFaceWithSize.
 }.
 

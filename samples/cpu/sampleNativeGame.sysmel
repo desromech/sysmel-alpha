@@ -16,7 +16,7 @@ compileTime constant Node2DPtr := Std Graphics Scene2D NodePtr.
 
 global mainWindow mutable type: WindowRef.
 let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
-let fontFaceWithSize mutable type: FontFaceWithSize rcPointer.
+let fontFaceWithSize mutable type: FontFaceWithSizeRef.
 let lastFrameRenderingTime mutable type: Float32.
 let lastFrameUpdateTime mutable type: Float32.
 let lastFrameTime mutable type: Float32.
@@ -527,8 +527,8 @@ Std MainEntryPoint: {:args :: Int32 |
 	}.
 
 	## Use the default font face.
-    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
-    fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
+    let fontFace mutable := FontRegistry default defaultSans normalFace.
+    fontFaceWithSize := fontFace getOrCreateFaceWithSize: 12.
 
 	## Create the event handler.
 	mainWindow eventHandler: (MainWindowEventHandler new upCastFor: EventHandler).

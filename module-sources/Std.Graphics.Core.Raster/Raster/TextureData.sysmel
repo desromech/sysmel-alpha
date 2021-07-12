@@ -15,67 +15,6 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
         destFormat: PixelFormat, destPitch: Int32, destPixels: UInt8 pointer) => Boolean8.
 }.
 
-enum TextureDataFlags bitMask valueType: UInt32; values: #{
-    None: 0.
-    OptimalTargetSpecificTiling: 1. ## For some embedded devices where the tiling layout is well known.
-    HasGeneratedMipmaps: 2. ## Mipmaps are already generated.
-}.
-
-class TextureFileHeader definition: {
-    compileTime constant MagicNumber := "STEX".
-    compileTime constant VersionMajor := 0.
-    compileTime constant VersionMinor := 1.
-
-    public field magic type: (Char8 array: 4).
-    public field versionMajor type: UInt16.
-    public field versionMinor type: UInt16.
-
-    method isValid => Boolean8
-        := magic = MagicNumber && versionMajor = VersionMajor && versionMinor = VersionMinor.
-
-    method setValid => Void := {
-        Std memcpy(magic address, MagicNumber, 4).
-        versionMajor := VersionMajor.
-        versionMinor := VersionMinor.
-    }.
-}.
-
-class TextureDataHeader definition: {
-    public field type type: TextureType.
-    public field format type: PixelFormat.
-    public field srgbFormat type: PixelFormat.
-
-    public field width type: UInt32.
-    public field height type: UInt32.
-    public field depth type: UInt32.
-    public field miplevels type: UInt32.
-    public field layers type: UInt32.
-    public field linearDataSize type: UInt32.
-    public field flags type: TextureDataFlags.
-    public field mainViewComponents type: ComponentsSwizzle.
-
-    const inline method extent => UInt32x3
-        := UInt32x3(width, height, depth).
-
-    const inline method hasOptimalTargetSpecificTiling => Boolean8
-        := flags anyMask: TextureDataFlags OptimalTargetSpecificTiling.
-
-    const inline method hasGeneratedMipmaps => Boolean8
-        := (flags anyMask: TextureDataFlags HasGeneratedMipmaps) || miplevels > 1.
-
-    const inline method isTexture1D => Boolean8
-        := type = TextureType Texture1D.
-
-    const inline method isTexture2D => Boolean8
-        := type = TextureType Texture2D.
-
-    const inline method isTextureCube => Boolean8
-        := type = TextureType TextureCube.
-
-    const inline method isTexture3D => Boolean8
-        := type = TextureType Texture3D.
-}.
-
 #**
  * I am a container for texture pixel dta.
  *#
@@ -107,9 +46,9 @@ class TextureData superclass: Std RCObject; definition: {
     macro method isTextureCube := ``(`,self header isTextureCube).
     macro method isTexture3D := ``(`,self header isTexture3D).
 
-    method asFormForLevel: (levelIndex: UIntPointer) ::=> FormPtr := {
+    method asFormForLevel: (levelIndex: UIntPointer) ::=> FormRef := {
         self format isCompressed ifTrue: {
-            return: (self asNonColorTextureDataExpandedForConversions _ asFormForLevel: levelIndex)
+            return: (self asNonColorTextureDataExpandedForConversions asFormForLevel: levelIndex)
         }.
 
         let levelData ref := levelsData[levelIndex].
@@ -117,13 +56,13 @@ class TextureData superclass: Std RCObject; definition: {
         let form := Form extent: levelData extent xy pixelFormat: self format.
         let levelPixels := pixels getPointer + levelData dataOffset.
         let sourcePitch := levelData pitch.
-        let destPitch := form _ pitch.
-        sourcePitch = destPitch && levelData slicePitch = form _ height * destPitch ifTrue: {
-            Std memcpy(form _ pixels getPointer, levelPixels, levelData slicePitch)
+        let destPitch := form pitch.
+        sourcePitch = destPitch && levelData slicePitch = form height * destPitch ifTrue: {
+            Std memcpy(form pixels getPointer, levelPixels, levelData slicePitch)
         } ifFalse: {
             let source mutable := levelPixels.
-            let dest mutable := form _ pixels getPointer.
-            0 until: form _ height do: {:y :: Void |
+            let dest mutable := form pixels getPointer.
+            0 until: form height do: {:y :: Void |
                 Std memcpy(dest, source, destPitch).
                 dest := dest + destPitch.
                 source := source + sourcePitch.
@@ -133,7 +72,7 @@ class TextureData superclass: Std RCObject; definition: {
         form
     }.
 
-    method asForm => FormPtr
+    method asForm => FormRef
         := self asFormForLevel: 0.
 
     method computeLinearPackedTextureLevelMetadata => Void := {
@@ -190,13 +129,12 @@ class TextureData superclass: Std RCObject; definition: {
         }.
     }.
 
-    inline const method clipMiplevelsToMin: (minLevel: UInt32) max: (maxLevel: UInt32) ::=> TextureData rcPointer := {
+    inline const method clipMiplevelsToMin: (minLevel: UInt32) max: (maxLevel: UInt32) ::=> TextureData rcRef := {
         let clipRangeMin := minLevel min: self miplevels - 1u.
         let clipRangeMax := maxLevel min: self miplevels.
 
         let minMipLevel ref := levelsData[clipRangeMin].
-        let result := TextureData rcNew.
-        result _
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: self type;
                 format: self format;
@@ -211,21 +149,22 @@ class TextureData superclass: Std RCObject; definition: {
                 mainViewComponents: self mainViewComponents;
                 yourself);
             computeLinearPackedTextureLevelMetadata;
-            allocatePixelStorage.
+            allocatePixelStorage;
+            yourself.
 
         0 until: self layers do: {:i :: Void |
             clipRangeMin until: clipRangeMax do: {:j :: Void |
                 let sourceLevel ref := levelsData[i*self miplevels + j].
-                let destLevel ref := result _ levelsData[i*result _ miplevels + j - clipRangeMin].
+                let destLevel ref := result levelsData[i*result miplevels + j - clipRangeMin].
                 Std assert: sourceLevel dataSize = destLevel dataSize.
-                Std memcpy(result _ pixels getPointer + destLevel dataOffset, pixels getPointer + sourceLevel dataOffset, sourceLevel dataSize)
+                Std memcpy(result pixels getPointer + destLevel dataOffset, pixels getPointer + sourceLevel dataOffset, sourceLevel dataSize)
             }
         }.
 
         result
     }.
 
-    inline const method clipMiplevelsToMinExtent: (minExtent: UInt32x3) maxExtent: (maxExtent: UInt32x3) ::=> TextureData rcPointer := {
+    inline const method clipMiplevelsToMinExtent: (minExtent: UInt32x3) maxExtent: (maxExtent: UInt32x3) ::=> TextureData rcRef := {
         let minLevel mutable type: UInt32 := 0.
         let maxLevel mutable type: UInt32 := self miplevels.
 
@@ -245,16 +184,15 @@ class TextureData superclass: Std RCObject; definition: {
         self clipMiplevelsToMin: minLevel max: maxLevel
     }.
 
-    inline const method clipMiplevelsToMaxExtent: (maxExtent: UInt32x3) ::=> TextureData rcPointer
+    inline const method clipMiplevelsToMaxExtent: (maxExtent: UInt32x3) ::=> TextureData rcRef
         := self clipMiplevelsToMinExtent: UInt32x3 ones maxExtent: maxExtent.
 
-    inline const method convertIntoCompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcPointer := {
+    inline const method convertIntoCompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcRef := {
         compileTime if: Compiler compilationTarget isDesktopPC then: {
             Std assert: newFormat isCompressed.
             Std assert: self format isCompressed not.
 
-            let result := TextureData rcNew.
-            result _
+            let result := TextureData new
                 header: (TextureDataHeader()
                     type: self type;
                     format: newFormat;
@@ -269,23 +207,24 @@ class TextureData superclass: Std RCObject; definition: {
                     mainViewComponents: self mainViewComponents;
                     yourself);
                 computeLinearPackedTextureLevelMetadata;
-                allocatePixelStorage.
-            Std assert: levelsData size = result _ levelsData size.
+                allocatePixelStorage;
+                yourself.
+            Std assert: levelsData size = result levelsData size.
             let sourcePixelSize := self format bytesPerPixel.
             let destPixelSize := newFormat bytesPerPixel.
 
             0 until: levelsData size do: {:i :: Void |
                 let sourceLevel ref := levelsData[i].
-                let destLevel ref := result _ levelsData[i].
+                let destLevel ref := result levelsData[i].
 
                 let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
-                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                let destSlice mutable := result pixels getPointer + destLevel dataOffset.
                 0 until: sourceLevel extent z do: {:z :: Void |
                     sysmel_textureCompressor_compressTextureSlice(
                         sourceLevel extent x, sourceLevel extent y,
                         self format, sourceLevel pitch castTo: Int32, sourceSlice,
                         newFormat, destLevel pitch castTo: Int32, destSlice) ifFalse: {
-                        return: TextureData rcPointer nil
+                        return: TextureData rcRef nil
                     }.
 
                     sourceSlice := sourceSlice + sourceLevel slicePitch.
@@ -295,16 +234,15 @@ class TextureData superclass: Std RCObject; definition: {
 
             result
         } else: {
-            return: TextureData rcPointer nil
+            return: TextureData rcRef nil
         }
     }.
 
-    inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcPointer := {
+    inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcRef := {
         compileTime if: Compiler compilationTarget isDesktopPC then: {
             Std assert: newFormat isCompressed not.
             Std assert: self format isCompressed.
-            let result := TextureData rcNew.
-            result _
+            let result := TextureData new
                 header: (TextureDataHeader()
                     type: self type;
                     format: newFormat;
@@ -319,23 +257,24 @@ class TextureData superclass: Std RCObject; definition: {
                     mainViewComponents: self mainViewComponents;
                     yourself);
                 computeLinearPackedTextureLevelMetadata;
-                allocatePixelStorage.
-            Std assert: levelsData size = result _ levelsData size.
+                allocatePixelStorage;
+                yourself.
+            Std assert: levelsData size = result levelsData size.
             let sourcePixelSize := self format bytesPerPixel.
             let destPixelSize := newFormat bytesPerPixel.
 
             0 until: levelsData size do: {:i :: Void |
                 let sourceLevel ref := levelsData[i].
-                let destLevel ref := result _ levelsData[i].
+                let destLevel ref := result levelsData[i].
 
                 let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
-                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                let destSlice mutable := result pixels getPointer + destLevel dataOffset.
                 0 until: sourceLevel extent z do: {:z :: Void |
                     sysmel_textureCompressor_decompressTextureSlice(
                         sourceLevel extent x, sourceLevel extent y,
                         self format, sourceLevel pitch castTo: Int32, sourceSlice,
                         newFormat, destLevel pitch castTo: Int32, destSlice) ifFalse: {
-                        return: TextureData rcPointer nil
+                        return: TextureData rcRef nil
                     }.
 
                     sourceSlice := sourceSlice + sourceLevel slicePitch.
@@ -345,14 +284,13 @@ class TextureData superclass: Std RCObject; definition: {
 
             result
         } else: {
-            return: TextureData rcPointer nil
+            return: TextureData rcRef nil
         }
     }.
 
     inline const method convertIntoUncompressedPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat)
-        with: (pixelConversionBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData rcPointer := {
-        let result := TextureData rcNew.
-        result _
+        with: (pixelConversionBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData rcRef := {
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: self type;
                 format: newFormat;
@@ -367,17 +305,18 @@ class TextureData superclass: Std RCObject; definition: {
                 mainViewComponents: self mainViewComponents;
                 yourself);
             computeLinearPackedTextureLevelMetadata;
-            allocatePixelStorage.
-        Std assert: levelsData size = result _ levelsData size.
+            allocatePixelStorage;
+            yourself.
+        Std assert: levelsData size = result levelsData size.
         let sourcePixelSize := self format bytesPerPixel.
         let destPixelSize := newFormat bytesPerPixel.
 
         0 until: levelsData size do: {:i :: Void |
             let sourceLevel ref := levelsData[i].
-            let destLevel ref := result _ levelsData[i].
+            let destLevel ref := result levelsData[i].
 
             let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
-            let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+            let destSlice mutable := result pixels getPointer + destLevel dataOffset.
             0 until: sourceLevel extent z do: {:z :: Void |
                 let sourceRow mutable := sourceSlice.
                 let destRow mutable := destSlice.
@@ -402,9 +341,8 @@ class TextureData superclass: Std RCObject; definition: {
         result
     }.
 
-    inline const method verticallyFlipped ::=> TextureData rcPointer := {
-        let result := TextureData rcNew.
-        result _
+    inline const method verticallyFlipped ::=> TextureData rcRef := {
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: self type;
                 format: self format;
@@ -419,17 +357,18 @@ class TextureData superclass: Std RCObject; definition: {
                 mainViewComponents: self mainViewComponents;
                 yourself);
             computeLinearPackedTextureLevelMetadata;
-            allocatePixelStorage.
-        Std assert: levelsData size = result _ levelsData size.
+            allocatePixelStorage;
+            yourself.
+        Std assert: levelsData size = result levelsData size.
         let pixelSize := self format bytesPerPixel.
 
         0 until: levelsData size do: {:i :: Void |
             let sourceLevel ref := levelsData[i].
-            let destLevel ref := result _ levelsData[i].
+            let destLevel ref := result levelsData[i].
             let sourcePitch := (sourceLevel pitch castTo: Int32) negated.
 
             let sourceSlice mutable := pixels getPointer + sourceLevel dataOffset.
-            let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+            let destSlice mutable := result pixels getPointer + destLevel dataOffset.
             0 until: sourceLevel extent z do: {:z :: Void |
                 let sourceRow mutable := sourceSlice + (sourceLevel extent y - 1) * sourceLevel pitch.
                 let destRow mutable := destSlice.
@@ -446,9 +385,8 @@ class TextureData superclass: Std RCObject; definition: {
         result
     }.
 
-    inline const method swizzleComponentsWith: (swizzleBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData rcPointer := {
-        let result := TextureData rcNew.
-        result _
+    inline const method swizzleComponentsWith: (swizzleBlock: ((UInt8 pointer -- UInt8 const pointer ) => Void) nativeStackBlockClosure) ::=> TextureData rcRef := {
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: self type;
                 format: self format;
@@ -463,13 +401,14 @@ class TextureData superclass: Std RCObject; definition: {
                 mainViewComponents: self mainViewComponents;
                 yourself);
             computeLinearPackedTextureLevelMetadata;
-            allocatePixelStorage.
-        Std assert: levelsData size = result _ levelsData size.
+            allocatePixelStorage;
+            yourself.
+        Std assert: levelsData size = result levelsData size.
         let pixelSize := self format bytesPerPixel.
 
-        let pixelCount := result _ linearDataSize / pixelSize.
+        let pixelCount := result linearDataSize / pixelSize.
         let sourcePixels mutable := pixels getPointer.
-        let destPixels mutable := result _ pixels getPointer.
+        let destPixels mutable := result pixels getPointer.
 
         0 until: pixelCount do: {:i :: Void |
             swizzleBlock(destPixels, sourcePixels).
@@ -481,7 +420,7 @@ class TextureData superclass: Std RCObject; definition: {
     }.
 
     const method convertFromPixelFormat: (sourceFormat: PixelFormat) intoFormat: (destFormat: PixelFormat)
-        resultFormat: (resultFormat: PixelFormat) srgbFormat: (resultSrgbFormat: PixelFormat) ::=> TextureData rcPointer := {
+        resultFormat: (resultFormat: PixelFormat) srgbFormat: (resultSrgbFormat: PixelFormat) ::=> TextureData rcRef := {
 
         sourceFormat isCompressed not && destFormat isCompressed ifTrue: {
             return: (self convertIntoCompressedPixelFormat: resultFormat srgbFormat: resultSrgbFormat)
@@ -498,22 +437,22 @@ class TextureData superclass: Std RCObject; definition: {
             })
         }.
 
-        TextureData rcPointer nil
+        TextureData rcRef nil
     }.
 
-    const method asTextureDataExpandedForConversions => TextureData rcPointer
+    const method asTextureDataExpandedForConversions => TextureData rcRef
         := self convertFromPixelFormat: self srgbFormat intoFormat: self srgbFormat asExpandedWorkingFormat
             resultFormat: self srgbFormat asExpandedWorkingFormat asLinearFormat srgbFormat: self srgbFormat asExpandedWorkingFormat.
 
-    const method asNonColorTextureDataExpandedForConversions => TextureData rcPointer
+    const method asNonColorTextureDataExpandedForConversions => TextureData rcRef
         := self convertFromPixelFormat: self format intoFormat: self format asExpandedWorkingFormat
             resultFormat: self format asExpandedWorkingFormat srgbFormat: self format asExpandedWorkingFormat asSRGBFormat.
 
-    const method asNormalMapTextureDataExpandedForConversions => TextureData rcPointer
+    const method asNormalMapTextureDataExpandedForConversions => TextureData rcRef
         := self convertFromPixelFormat: self format intoFormat: PixelFormat R8G8B8A8_UNorm
             resultFormat: PixelFormat R8G8B8A8_UNorm srgbFormat: PixelFormat R8G8B8A8_UNormSRGB.
 
-    const method expand24To32BitsWithFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcPointer := {
+    const method expand24To32BitsWithFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData rcRef := {
         self convertIntoUncompressedPixelFormat: newFormat srgbFormat: newSRGBFormat
             with: { :(UInt8 pointer)destPixel :(UInt8 const pointer) sourcePixel :: Void |
                 destPixel[0] := sourcePixel[0].
@@ -523,7 +462,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method asTextureDataWithExpandedUnalignedRGBFormats => TextureData rcPointer := {
+    method asTextureDataWithExpandedUnalignedRGBFormats => TextureData rcRef := {
         self format selectCase: #{
         PixelFormat R8G8B8_UNorm : (self expand24To32BitsWithFormat: PixelFormat R8G8B8A8_UNorm srgbFormat: PixelFormat R8G8B8A8_UNormSRGB).
         PixelFormat R8G8B8_UNormSRGB : (self expand24To32BitsWithFormat: PixelFormat R8G8B8A8_UNorm srgbFormat: PixelFormat R8G8B8A8_UNormSRGB).
@@ -532,7 +471,7 @@ class TextureData superclass: Std RCObject; definition: {
         PixelFormat B8G8R8_UNorm : (self expand24To32BitsWithFormat: PixelFormat B8G8R8A8_UNorm srgbFormat: PixelFormat B8G8R8A8_UNormSRGB).
         PixelFormat B8G8R8_UNormSRGB : (self expand24To32BitsWithFormat: PixelFormat B8G8R8A8_UNorm srgbFormat: PixelFormat B8G8R8A8_UNormSRGB).
 
-        _ : (self asRCPointer)
+        _ : (self asRCRef)
         }
     }.
 
@@ -549,14 +488,13 @@ class TextureData superclass: Std RCObject; definition: {
 
     method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3)
         withBoxFilter: (boxFilterBlock: ((UInt8 pointer -- UInt8 const pointer -- UInt8 const pointer -- UInt8 const pointer -- UInt8 const pointer) => Void) nativeStackBlockClosure)
-        ::=> TextureData rcPointer := {
-        self format compressedBlockSize = 0 ifFalse: {return: self asRCPointer}.
+        ::=> TextureData rcRef := {
+        self format compressedBlockSize = 0 ifFalse: {return: self asRCRef}.
 
         let newLevelCount := self computeMiplevelsRequiredDownTo: smallestLevelExtent.
-        newLevelCount <= self miplevels ifTrue: {return: self asRCPointer}.
+        newLevelCount <= self miplevels ifTrue: {return: self asRCRef}.
 
-        let result := TextureData rcNew.
-        result _
+        let result := TextureData new
             header: (TextureDataHeader()
                 type: self type;
                 format: self format;
@@ -570,10 +508,11 @@ class TextureData superclass: Std RCObject; definition: {
                 flags: self flags;
                 mainViewComponents: self mainViewComponents;
                 yourself);
-            computeLinearPackedTextureLevelMetadata.
+            computeLinearPackedTextureLevelMetadata;
+            yourself.
         let pixelSize := self format bytesPerPixel.
 
-        result _ pixels reset: (Std zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+        result pixels reset: (Std zmalloc(result linearDataSize) reinterpretCastTo: UInt8 pointer).
 
         let destLevelDataIndex mutable := 0u.
         let sourceLevelDataIndex mutable := 0u.
@@ -584,12 +523,12 @@ class TextureData superclass: Std RCObject; definition: {
                 let sourceBaseLevel ref := levelsData[sourceLevelDataIndex].
                 let destBaseLevel ref := levelsData[destLevelDataIndex].
                 Std assert: sourceBaseLevel dataSize = destBaseLevel dataSize.
-                Std memcpy(result _ pixels getPointer + destBaseLevel dataOffset, pixels getPointer + sourceBaseLevel dataOffset, sourceBaseLevel dataSize)
+                Std memcpy(result pixels getPointer + destBaseLevel dataOffset, pixels getPointer + sourceBaseLevel dataOffset, sourceBaseLevel dataSize)
             }.
 
             0 until: newLevelCount - 1 do: {:levelIndex :: Void |
-                let sourceLevel ref := result _ levelsData[destLevelDataIndex + levelIndex].
-                let destLevel ref := result _ levelsData[destLevelDataIndex + levelIndex + 1u].
+                let sourceLevel ref := result levelsData[destLevelDataIndex + levelIndex].
+                let destLevel ref := result levelsData[destLevelDataIndex + levelIndex + 1u].
 
                 let sourceRowAdvance mutable := sourceLevel pitch*2.
                 let sourceTopRowDelta mutable := sourceLevel pitch.
@@ -605,8 +544,8 @@ class TextureData superclass: Std RCObject; definition: {
                     sourceColumnPixelDelta := 0.
                 }.
 
-                let sourceSlice mutable := result _ pixels getPointer + sourceLevel dataOffset.
-                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                let sourceSlice mutable := result pixels getPointer + sourceLevel dataOffset.
+                let destSlice mutable := result pixels getPointer + destLevel dataOffset.
                 0 until: destLevel extent z do: {:z :: Void |
                     let sourceTopRow mutable := sourceSlice.
                     let sourceBottomRow mutable := sourceSlice + sourceTopRowDelta.
@@ -645,7 +584,7 @@ class TextureData superclass: Std RCObject; definition: {
         result
     }.
 
-    method generateMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
             let topLeft := (UInt8x3(sourceTopLeftPixels[0], sourceTopLeftPixels[1], sourceTopLeftPixels[2]) castTo: Float32x3).
@@ -660,7 +599,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
             let topLeft := (sourceTopLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4.
@@ -673,7 +612,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateSRGBMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateSRGBMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         useNamespace: Std Math Color.
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
@@ -690,7 +629,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateSRGBMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateSRGBMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         useNamespace: Std Math Color.
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
@@ -704,7 +643,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateNormalMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateNormalMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
             let topLeft := (UInt8x3(sourceTopLeftPixels[0], sourceTopLeftPixels[1], sourceTopLeftPixels[2]) castTo: Float32x3)/255.0f*2.0f - 1.0f.
@@ -721,7 +660,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateNormalMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateNormalMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
         :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
             let topLeft := ((sourceTopLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4)/255.0f*2.0f - 1.0f.
@@ -736,7 +675,7 @@ class TextureData superclass: Std RCObject; definition: {
         }
     }.
 
-    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) decodingFormat: (decodingFormat: PixelFormat)::=> TextureData rcPointer := {
+    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) decodingFormat: (decodingFormat: PixelFormat)::=> TextureData rcRef := {
         decodingFormat selectCase: #{
             (
                 PixelFormat R8G8B8_UNorm, PixelFormat B8G8R8_UNorm
@@ -764,23 +703,23 @@ class TextureData superclass: Std RCObject; definition: {
                 self generateSRGBMiplevels8x4DownTo: smallestLevelExtent
             }.
 
-            _ : (self asRCPointer).
+            _ : (self asRCRef).
         }.
     }.
 
-    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer
+    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef
         := self generateMiplevelsDownTo: smallestLevelExtent decodingFormat: self format.
 
-    method generateMiplevels => TextureData rcPointer
+    method generateMiplevels => TextureData rcRef
         := self generateMiplevelsDownTo: 1.
 
-    method generateColorMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer
+    method generateColorMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef
         := self generateMiplevelsDownTo: smallestLevelExtent decodingFormat: self srgbFormat.
 
-    method generateColorMiplevels => TextureData rcPointer
+    method generateColorMiplevels => TextureData rcRef
         := self generateColorMiplevelsDownTo: 1.
 
-    method generateNormalMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcPointer := {
+    method generateNormalMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData rcRef := {
         self format selectCase: #{
             (
                 PixelFormat R8G8B8_UNorm, PixelFormat R8G8B8_UNormSRGB, PixelFormat B8G8R8_UNorm, PixelFormat B8G8R8_UNormSRGB
@@ -796,19 +735,19 @@ class TextureData superclass: Std RCObject; definition: {
                 self generateNormalMiplevels8x4DownTo: smallestLevelExtent
             }.
 
-            _ : (self asRCPointer).
+            _ : (self asRCRef).
         }.
     }.
 
-    method generateNormalMiplevels => TextureData rcPointer
+    method generateNormalMiplevels => TextureData rcRef
         := self generateNormalMiplevelsDownTo: 1.
 
-    const method swizzleComponentsForRXGBNormalMap => TextureData rcPointer := {
+    const method swizzleComponentsForRXGBNormalMap => TextureData rcRef := {
         let result := self swizzleComponentsWith: {:(UInt8 pointer)destPixel :(UInt8 const pointer)sourcePixel :: Void |
             let source := (sourcePixel reinterpretCastTo: UInt8x4 const pointer) _.
             (destPixel reinterpretCastTo: UInt8x4 pointer) _ := UInt8x4(0, source g, 0, source r)
         }.
-        result _ header mainViewComponents: (ComponentsSwizzle()
+        result header mainViewComponents: (ComponentsSwizzle()
             r: ComponentSwizzle A;
             g: ComponentSwizzle G;
             b: ComponentSwizzle Zero;
@@ -818,7 +757,7 @@ class TextureData superclass: Std RCObject; definition: {
     }.
 }.
 
-compileTime constant TextureDataPtr := TextureData rcPointer.
+compileTime constant TextureDataRef := TextureData rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

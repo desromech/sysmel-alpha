@@ -20,8 +20,8 @@ class FontFaceWithSize superclass: RCObject; definition: {
     virtual method isRenderingDeviceFontFaceWithSize => Boolean8
         := false.
 
-    virtual method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph rcPointer
-        := Glyph rcPointer nil.
+    virtual method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> GlyphRef
+        := GlyphRef nil.
 
     virtual method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2
         := Float32x2 zeros.
@@ -32,7 +32,7 @@ class FontFaceWithSize superclass: RCObject; definition: {
             return: Float32x2 zeros
         }.
 
-        glyph _ horizontalAdvance
+        glyph horizontalAdvance
     }.
 
     virtual method getBoundingBoxForCharacter: (codePoint: Char32) ::=> RectangleF32 := {
@@ -41,7 +41,7 @@ class FontFaceWithSize superclass: RCObject; definition: {
             return: RectangleF32 ()
         }.
 
-        glyph _ bounds
+        glyph bounds
     }.
 
     virtual method computeNewDrawingState: (state: TextDrawingState) ::=> TextDrawingState := {
@@ -84,7 +84,7 @@ class FontFaceWithSize superclass: RCObject; definition: {
 
         newState
             isVisibleCharacter: true;
-            advanceWith: glyph _ horizontalAdvance.
+            advanceWith: glyph horizontalAdvance.
         return: newState.
     }.
 
@@ -123,6 +123,8 @@ class FontFaceWithSize superclass: RCObject; definition: {
     virtual method computeExtentForString: (string: Std String const ref) ::=> Float32x2
         := (self computeBoundingBoxForString: string) extent.
 }.
+
+compileTime constant FontFaceWithSizeRef := FontFaceWithSize rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

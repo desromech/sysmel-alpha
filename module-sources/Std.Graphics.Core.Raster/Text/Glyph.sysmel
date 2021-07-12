@@ -19,8 +19,8 @@ class Glyph superclass: RCObject; definition: {
     public field verticalBearing type: Float32x2.
     public field verticalAdvance type: Float32x2.
 
-    virtual method asForm => Form rcPointer
-        := Form rcPointer nil.
+    virtual method asForm => Form rcRef
+        := Form rcRef nil.
 
     virtual method isRenderingDeviceSpecificGlyph => Boolean8
         := false.
@@ -33,7 +33,7 @@ class Glyph superclass: RCObject; definition: {
 
 }.
 
-compileTime constant GlyphPtr := Glyph rcPointer.
+compileTime constant GlyphRef := Glyph rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

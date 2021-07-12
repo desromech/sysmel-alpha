@@ -8,7 +8,7 @@ namespace Core definition: {
  * either a GPU accelerated rendering device, or a bit-blit based soft rendering device.
  *#
 class RenderingDeviceFontCache superclass: RenderingDriverObjectHandle; definition: {
-    abstract method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> FontFaceWithSizePtr.
+    abstract method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizeRef const ref) ::=> FontFaceWithSizeRef.
 }.
 
 compileTime constant RenderingDeviceFontCachePtr := RenderingDeviceFontCache rcPointer.

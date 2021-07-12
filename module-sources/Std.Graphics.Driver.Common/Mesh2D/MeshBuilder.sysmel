@@ -31,7 +31,7 @@ struct MeshBuilder definition: {
     inline method beginClippingSubmesh: (primitiveTopology: PrimitiveTopology) type: (clipSubmeshType: ClipSubmeshType) ::=> Void := {
         self beginSubmesh: primitiveTopology blendingMode: BlendingMode Discard
             texture: TexturePtr nil textureView: TextureViewPtr nil
-            fontFaceWithSize: FontFaceWithSizePtr nil clipSubmeshType: clipSubmeshType.
+            fontFaceWithSize: FontFaceWithSizeRef nil clipSubmeshType: clipSubmeshType.
         currentClipSubmesh := submeshes size - 1 castTo: Int32.
     }.
 
@@ -43,14 +43,14 @@ struct MeshBuilder definition: {
 
     inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) blendingMode: (blendingMode: BlendingMode)
         texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
-        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> Void
+        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizeRef const ref) ::=> Void
         := self beginSubmesh: primitiveTopology blendingMode: blendingMode
             texture: texture textureView: textureView fontFaceWithSize: fontFaceWithSize
             clipSubmeshType: ClipSubmeshType None.
 
     inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) blendingMode: (blendingMode: BlendingMode)
         texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
-        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref)
+        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizeRef const ref)
         clipSubmeshType: (clipSubmeshType: ClipSubmeshType) ::=> Void := {
 
         submeshes isEmpty || {
@@ -59,7 +59,7 @@ struct MeshBuilder definition: {
             lastSubmesh blendingMode ~= blendingMode ||
             lastSubmesh texture ~= texture ||
             lastSubmesh textureView ~= textureView ||
-            lastSubmesh fontFaceWithSize ~= fontFaceWithSize ||
+            lastSubmesh fontFaceWithSize ~~ fontFaceWithSize ||
             lastSubmesh clipSubmesh ~= currentClipSubmesh ||
             lastSubmesh clipSubmeshType ~= clipSubmeshType
         } ifTrue: {

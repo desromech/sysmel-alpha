@@ -17,7 +17,7 @@ class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
         result upCastFor: StrongTextureHandle
     }.
 
-    override method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr := {
+    override method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandlePtr := {
         StrongTextureHandlePtr nil
     }.
 }.

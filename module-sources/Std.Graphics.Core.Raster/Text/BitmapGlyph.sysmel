@@ -6,9 +6,9 @@ namespace Core definition: {
  * I am a bitmap based glyph.
  *#
 class BitmapGlyph superclass: Glyph; definition: {
-    public field form type: Form rcPointer.
+    public field form type: Form rcRef.
 
-    override method asForm => Form rcPointer
+    override method asForm => Form rcRef
         := form.
 }.
 

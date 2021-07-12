@@ -7,14 +7,14 @@ namespace Core definition: {
  *#
 class FontRegistry definition: {
     private field fontDictionaryMutex type: Std Mutex.
-    private field fontDictionary type: Std Collections Dictionary(Std String, Font rcPointer).
+    private field fontDictionary type: Std Collections Dictionary(Std String, FontRef).
 
     private field fontFaceDictionaryMutex type: Std Mutex.
-    private field fontFaceDictionary type: Std Collections Dictionary(Std String, FontFace rcPointer).
+    private field fontFaceDictionary type: Std Collections Dictionary(Std String, FontFaceRef).
 
-    private field defaultSans type: Font rcPointer.
-    private field defaultSerif type: Font rcPointer.
-    private field defaultMonospaced type: Font rcPointer.
+    private field defaultSans type: FontRef.
+    private field defaultSerif type: FontRef.
+    private field defaultMonospaced type: FontRef.
 
     meta definition: {
         let defaultInstance mutable type: FontRegistry uniquePointer.
@@ -29,81 +29,83 @@ class FontRegistry definition: {
         }.
     }.
 
-    method loadFontNamed: (fontName: Std String const ref) with: (fontFillingBlock: ((Font ref) => Void) nativeBlockClosure) ::=> Font rcPointer := {
+    method loadFontNamed: (fontName: Std String const ref) with: (fontFillingBlock: ((FontRef const ref) => Void) nativeBlockClosure) ::=> FontRef := {
         fontDictionaryMutex withLock: {
-            fontDictionary at: fontName ifAbsentPut: {:: (Font rcPointer) |
-                let font mutable := Font rcNew.
-                fontFillingBlock(font _).
+            fontDictionary at: fontName ifAbsentPut: {:: (FontRef) |
+                let font := Font new.
+                fontFillingBlock(font).
                 font
             }
         }
     }.
 
-    method loadFontFace: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
+    method loadFontFace: (faceFileName: Std String const ref) ::=> FontFaceRef := {
         fontFaceDictionaryMutex withLock: {
-            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace rcPointer) |
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFaceRef) |
                 FontFaceLoaderRegistry uniqueInstance loadFontFaceFromFileNamed: faceFileName
             }
         }
     }.
 
-    method loadRequiredFontFace: (faceFileName: Std String const ref) ::=> FontFace rcPointer := {
+    method loadRequiredFontFace: (faceFileName: Std String const ref) ::=> FontFaceRef := {
         fontFaceDictionaryMutex withLock: {
-            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace rcPointer) |
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFaceRef) |
                 FontFaceLoaderRegistry uniqueInstance loadRequiredFontFaceFromFileNamed: faceFileName
             }
         }
     }.
 
-    method setDefaultSansFont: (font: Font rcPointer const ref) ::=> Void
+    method loadRequiredFontFace: (faceFileReference: Std FileReference const ref) ::=> FontFaceRef
+        := self loadRequiredFontFace: faceFileReference fullName asMutableString.
+
+    method setDefaultSansFont: (font: FontRef const ref) ::=> Void
         := defaultSans := font.
 
-    method defaultSans => Font rcPointer := {
+    method defaultSans => FontRef := {
         defaultSans ifNil: {
-            defaultSans := self loadFontNamed: "DejaVuSans" asMutableString
-                with: {:(Font ref) font :: Void |
+            defaultSans := self loadFontNamed: "DejaVuSans" asMutableString with: {:font :: Void |
                 let dejaVuParentFolder := FileSystem resourcesDirectory / "fonts/dejavu/ttf".
                 font
-                    normalFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans.ttf") fullName asMutableString);
-                    boldFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-Bold.ttf") fullName asMutableString);
-                    italicFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-Oblique.ttf") fullName asMutableString);
-                    italicBoldFace: (self loadRequiredFontFace: (dejaVuParentFolder / "DejaVuSans-BoldOblique.ttf") fullName asMutableString).
+                    normalFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSans.ttf");
+                    boldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSans-Bold.ttf");
+                    italicFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSans-Oblique.ttf");
+                    italicBoldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSans-BoldOblique.ttf").
             }
         }.
 
         defaultSans.
     }.
 
-    method setDefaultSerifFont: (font: Font rcPointer const ref) ::=> Void
+    method setDefaultSerifFont: (font: FontRef const ref) ::=> Void
         := defaultSerif := font.
 
-    method defaultSerif => Font rcPointer := {
+    method defaultSerif => FontRef := {
         defaultSerif ifNil: {
-            defaultSerif := self loadFontNamed: "DejaVuSerif" asMutableString
-                with: {:(Font ref) font :: Void |
+            defaultSerif := self loadFontNamed: "DejaVuSerif" asMutableString with: {:font :: Void |
+                let dejaVuParentFolder := FileSystem resourcesDirectory / "fonts/dejavu/ttf".
                 font
-                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif.ttf" asMutableString);
-                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Bold.ttf" asMutableString);
-                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSerif.ttf");
+                    boldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSerif-Bold.ttf");
+                    italicFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSerif-Oblique.ttf");
+                    italicBoldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuSerif-BoldOblique.ttf")
             }
         }.
 
         defaultSerif
     }.
 
-    method setDefaultMonospaced: (font: Font rcPointer const ref) ::=> Void
+    method setDefaultMonospaced: (font: FontRef const ref) ::=> Void
         := defaultMonospaced := font.
 
-    method defaultMonospaced => Font rcPointer := {
+    method defaultMonospaced => FontRef := {
         defaultMonospaced ifNil: {
-            defaultMonospaced := self loadFontNamed: "DejaVuMono" asMutableString
-                with: {:(Font ref) font :: Void |
+            defaultMonospaced := self loadFontNamed: "DejaVuMono" asMutableString with: {:font :: Void |
+                let dejaVuParentFolder := FileSystem resourcesDirectory / "fonts/dejavu/ttf".
                 font
-                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono.ttf" asMutableString);
-                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Bold.ttf" asMutableString);
-                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuMono.ttf");
+                    boldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuMono-Bold.ttf");
+                    italicFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuMono-Oblique.ttf");
+                    italicBoldFace: (self loadRequiredFontFace: dejaVuParentFolder / "DejaVuMono-BoldOblique.ttf")
             }
         }.
 

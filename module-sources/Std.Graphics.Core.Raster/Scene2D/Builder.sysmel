@@ -17,7 +17,7 @@ class Builder superclass: RCObject; definition: {
     virtual method createTextureHandleFor: (texture: Std RCObjectPtr const ref) view: (view: Std RCObjectPtr const ref) ::=> StrongTextureHandlePtr
         := StrongTextureHandlePtr nil.
 
-    virtual method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr
+    virtual method createTextureFromForm: (form: FormRef const ref) ::=> StrongTextureHandlePtr
         := StrongTextureHandlePtr nil.
 
     method texture: (textureHandle: StrongTextureHandlePtr const ref) rectangle: (rectangle: RectangleF32) ::=> TextureNodePtr := {
@@ -116,17 +116,17 @@ class Builder superclass: RCObject; definition: {
             translation: translation;
             yourself) node: node.
 
-    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextNodePtr := {
+    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodePtr := {
         font ifNil: {return: TextNodePtr nil}.
-        let baseline := Float32x2(0.0f, font _ ascender).
+        let baseline := Float32x2(0.0f, font ascender).
         self text: encodedString in: rectangle font: font color: color drawingState: (TextDrawingState position: rectangle min + baseline)
     }.
 
-    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2) font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextNodePtr
+    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2) font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) ::=> TextNodePtr
         := self text: encodedString in: (RectangleF32 point: position) font: font color: color.
 
     method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32)
-        font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
+        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
         let result := TextNode rcNew.
         result _
             rectangle: rectangle;
@@ -138,7 +138,7 @@ class Builder superclass: RCObject; definition: {
     }.
 
     method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2)
-        font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr
+        font: (font: FontFaceWithSizeRef const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr
         := self text: encodedString in: (RectangleF32 point: position) font: font color: color drawingState: drawingState.
 
 }.

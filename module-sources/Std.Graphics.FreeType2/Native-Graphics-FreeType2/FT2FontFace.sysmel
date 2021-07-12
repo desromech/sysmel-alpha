@@ -5,37 +5,33 @@ namespace FT2Bindings definition: {
 useNamespace: Std Graphics Core.
 useNamespace: FreeType2.
 
-class FT2FontFaceWithSize.
-
 #**
  * I am a FreeType2 based font face.
  *#
 class FT2FontFace superclass: FontFace; definition: {
     meta definition: {
-        method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace rcPointer := {
+        method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace rcRef := {
             let library ref := FT2Library defaultInstance.
             let handle mutable type: FT_Face.
             let error := FT_New_Face(library _ handle, path, 0, handle address).
             convertError(error) ifTrue: {
-                return: FT2FontFace rcPointer nil.
+                return: FT2FontFace rcRef nil.
             }.
 
-            let result := FT2FontFace rcNew.
-            result _
+            FT2FontFace new
                 ft2Library: library;
-                handle: handle.
-            return: result.
+                handle: handle;
+                yourself
         }
     }.
 
     public field ft2Library type: FT2Library rcPointer.
     public field handle type: FT_Face.
-    private field faceSizes type: Std Collections Dictionary(UInt32, FontFaceWithSize rcPointer).
+    private field faceSizes type: Std Collections Dictionary(UInt32, FT2FontFaceWithSizeRef).
 
     override method finalize => Void := {
-        faceSizes valuesDo: {:(FontFaceWithSize rcPointer ref)each :: Void |
-            (each getPointer castTo: FT2FontFaceWithSize pointer)
-                _ releaseHandle.
+        faceSizes valuesDo: {:(FT2FontFaceWithSizeRef ref)each :: Void |
+            each releaseHandle.
         }.
 
         handle ifNotNil: {
@@ -43,37 +39,37 @@ class FT2FontFace superclass: FontFace; definition: {
         }.
     }.
 
-    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize rcPointer := {
-        faceSizes at: faceSize ifAbsentPut: { :: (FontFaceWithSize rcPointer) |
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSizeRef := {
+        (faceSizes at: faceSize ifAbsentPut: { :: FT2FontFaceWithSizeRef |
             let sizeHandle mutable type: FT_Size.
             let error := FT_New_Size(handle, sizeHandle address).
-            let result mutable := FT2FontFaceWithSize rcPointer nil.
+            let result mutable := FT2FontFaceWithSizeRef nil.
             convertError(error) ifFalse: {
                 FT_Activate_Size(sizeHandle).
                 FT_Set_Char_Size(handle, 0, faceSize*64 castTo: Int32, 72, 72).
 
                 let metrics ref := handle _ size _ metrics.
 
-                result := FT2FontFaceWithSize rcNew.
-                result _
+                result := FT2FontFaceWithSize new
                     handle: sizeHandle;
                     face: self address;
 
                     ascender: convert26d6(metrics ascender);
                     descender: convert26d6(metrics descender);
                     height: convert26d6(metrics height);
-                    maxAdvance: Float32x2(convert26d6(metrics max_advance), 0.0f).
+                    maxAdvance: Float32x2(convert26d6(metrics max_advance), 0.0f);
+                    yourself.
             }.
 
-            result upCastFor: FontFaceWithSize
-        }
+            result
+        }) upCastFor: FontFaceWithSize
     }.
 }.
 
 class FreeTypeFontFaceLoader superclass: FontFaceLoader; definition: {
     global Factory mutable type: FontFaceLoaderFactory(FreeTypeFontFaceLoader).
 
-    override method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFace rcPointer := {
+    override method loadFromFileNamed: (fileName: Std String const ref) ::=> FontFaceRef := {
         (FT2FontFace loadFromFile: fileName asCString) upCastFor: FontFace
     }.
 }.

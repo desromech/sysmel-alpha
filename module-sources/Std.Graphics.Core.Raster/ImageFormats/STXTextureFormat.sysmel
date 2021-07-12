@@ -11,7 +11,7 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/vnd-sysmel.stx".
 
-    override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+    override const method putTextureData: (textureData: TextureDataRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         ## File header.
         {
             let textureFileHeader mutable := TextureFileHeader()
@@ -32,34 +32,34 @@ class STXTextureFormat superclass: ImageReadWriter; definition: {
         outputStream write: textureData pixels getPointer size: textureData linearDataSize.
     }.
 
-    override const method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataPtr := {
+    override const method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataRef := {
         ## Check the file header.
         {
             let fileHeader mutable type: TextureFileHeader.
             (inputStream read: fileHeader address size: TextureFileHeader instanceSize) = TextureFileHeader instanceSize && fileHeader isValid ifFalse: {
-                return: TextureDataPtr nil
+                return: TextureDataRef nil
             }
         }.
 
         ## Create the texture data result.
-        let result := TextureData rcNew.
+        let result := TextureData new.
 
         ## Read the texture data header.
-        (inputStream read: result _ header address size: TextureDataHeader instanceSize) = TextureDataHeader instanceSize ifFalse: {
-            return: TextureDataPtr nil
+        (inputStream read: result header address size: TextureDataHeader instanceSize) = TextureDataHeader instanceSize ifFalse: {
+            return: TextureDataRef nil
         }.
 
         ## Read the levels data.
-        result _ levelsData resizeTo: result _ layers * result _ miplevels.
-        let levelDataSize := result _ levelsData size * TextureLevelData instanceSize.
-        (inputStream read: result _ levelsData data size: levelDataSize) = (levelDataSize castTo: IntPointer) ifFalse: {
-            return: TextureDataPtr nil
+        result levelsData resizeTo: result layers * result miplevels.
+        let levelDataSize := result levelsData size * TextureLevelData instanceSize.
+        (inputStream read: result levelsData data size: levelDataSize) = (levelDataSize castTo: IntPointer) ifFalse: {
+            return: TextureDataRef nil
         }.
 
         ## Read the pixel data.
-        result _ pixels reset: (Std malloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
-        (inputStream read: result _ pixels getPointer size: result _ linearDataSize) = result _ linearDataSize ifFalse: {
-            return: TextureDataPtr nil
+        result pixels reset: (Std malloc(result linearDataSize) reinterpretCastTo: UInt8 pointer).
+        (inputStream read: result pixels getPointer size: result linearDataSize) = result linearDataSize ifFalse: {
+            return: TextureDataRef nil
         }.
 
         result
@@ -71,7 +71,7 @@ global STXTextureFormatRegistration mutable type: ImageReadWriterRegisterer(STXT
 Form extend: {
     method writeSTXfileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := STXTextureFormat().
-        readWriter putForm: self onFileNamed: fileName.
+        readWriter putForm: self asRCRef onFileNamed: fileName.
     }.
 }.
 

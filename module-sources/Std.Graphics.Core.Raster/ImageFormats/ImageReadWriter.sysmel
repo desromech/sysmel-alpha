@@ -11,10 +11,10 @@ class ImageReadWriter superclass: RCObject; definition: {
     const virtual method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := false.
 
-    const virtual method putForm: (form: Form ref) onFileNamed: (fileName: Std String const ref) ::=> Boolean8
+    const virtual method putForm: (form: FormRef const ref) onFileNamed: (fileName: Std String const ref) ::=> Boolean8
         := self putForm: form onFileReference: fileName asNativeFileReference.
 
-    const virtual method putForm: (form: Form ref) onFileReference: (fileReference: Std FileReference const ref) ::=> Boolean8 := {
+    const virtual method putForm: (form: FormRef const ref) onFileReference: (fileReference: Std FileReference const ref) ::=> Boolean8 := {
         let outFile := fileReference binaryUnbufferedWriteStream.
         outFile ifNotNil: {
             self putForm: form onStream: outFile _.
@@ -23,10 +23,10 @@ class ImageReadWriter superclass: RCObject; definition: {
         return: false
     }.
 
-    const virtual method putTextureData: (textureData: TextureData ref) onFileNamed: (fileName: Std String const ref) ::=> Boolean8
+    const virtual method putTextureData: (textureData: TextureDataRef const ref) onFileNamed: (fileName: Std String const ref) ::=> Boolean8
         := self putTextureData: textureData onFileReference: fileName asNativeFileReference.
 
-    const virtual method putTextureData: (textureData: TextureData ref) onFileReference: (fileReference: Std FileReference const ref) ::=> Boolean8 := {
+    const virtual method putTextureData: (textureData: TextureDataRef const ref) onFileReference: (fileReference: Std FileReference const ref) ::=> Boolean8 := {
         let outFile := fileReference binaryUnbufferedWriteStream.
         outFile ifNotNil: {
             self putTextureData: textureData onStream: outFile _.
@@ -35,46 +35,46 @@ class ImageReadWriter superclass: RCObject; definition: {
         return: false
     }.
 
-    const virtual method putForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+    const virtual method putForm: (form: FormRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         ## TODO: implement this.
     }.
 
-    const virtual method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
-        self putForm: textureData asForm _ onStream: outputStream
+    const virtual method putTextureData: (textureData: TextureDataRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+        self putForm: textureData asForm onStream: outputStream
     }.
 
-    const virtual method readFormFromFileNamed: (fileName: Std String const ref) ::=> FormPtr
+    const virtual method readFormFromFileNamed: (fileName: Std String const ref) ::=> FormRef
         := self readFormFromFileReference: fileName asNativeFileReference.
 
-    const virtual method readFormFromFileReference: (fileReference: Std FileReference const ref) ::=> FormPtr := {
+    const virtual method readFormFromFileReference: (fileReference: Std FileReference const ref) ::=> FormRef := {
         let inFile := fileReference binaryUnbufferedReadStream.
         inFile ifNil: {
-            return: FormPtr nil
+            return: FormRef nil
         }.
 
         self readFormFromStream: inFile _
     }.
 
-    const virtual method readTextureDataFromFileNamed: (fileName: Std String const ref) ::=> TextureDataPtr
+    const virtual method readTextureDataFromFileNamed: (fileName: Std String const ref) ::=> TextureDataRef
         := self readTextureDataFromFileReference: fileName asNativeFileReference.
 
-    const virtual method readTextureDataFromFileReference: (fileReference: Std FileReference const ref) ::=> TextureDataPtr := {
+    const virtual method readTextureDataFromFileReference: (fileReference: Std FileReference const ref) ::=> TextureDataRef := {
         let inFile := fileReference binaryUnbufferedReadStream.
         inFile ifNil: {
-            return: TextureDataPtr nil
+            return: TextureDataRef nil
         }.
 
         self readTextureDataFromStream: inFile _
     }.
 
-    const virtual method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormPtr
-        := FormPtr nil.
+    const virtual method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormRef
+        := FormRef nil.
 
-    const virtual method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataPtr := {
+    const virtual method readTextureDataFromStream: (inputStream: Std IO Stream ref) ::=> TextureDataRef := {
         let form := self readFormFromStream: inputStream.
-        form ifNil: {return: TextureDataPtr nil}.
+        form ifNil: {return: TextureDataRef nil}.
 
-        form _ asTextureData
+        form asTextureData
     }
 
 }.

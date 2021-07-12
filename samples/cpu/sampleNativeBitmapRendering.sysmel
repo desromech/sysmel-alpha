@@ -7,7 +7,7 @@ Std MainEntryPoint: {:args :: Int32 |
     ## Palette tga
     {
         let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.
-        form _ makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: UInt8x4 |
+        form makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: UInt8x4 |
             let index := pixelCoord y*4 + pixelCoord x.
             let color mutable := UInt8x4 zeros.
 
@@ -26,13 +26,13 @@ Std MainEntryPoint: {:args :: Int32 |
             color
         }.
 
-        form _ writeTGAfileNamed: "pixelUnormRenderPalette.tga" asMutableString.
+        form writeTGAfileNamed: "pixelUnormRenderPalette.tga" asMutableString.
     }.
 
     ## Palette tga
     {
         let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.
-        form _ makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
+        form makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
             let index := pixelCoord y*4 + pixelCoord x.
             let color mutable := Float32x4 zeros.
 
@@ -50,7 +50,7 @@ Std MainEntryPoint: {:args :: Int32 |
 
             color
         }.
-        form _ writeTGAfileNamed: "pixelFloatRenderPalette.tga" asMutableString.
+        form writeTGAfileNamed: "pixelFloatRenderPalette.tga" asMutableString.
     }.
 
     ## Sine waves

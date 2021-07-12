@@ -10,15 +10,15 @@ useNamespace: Std Math Geometry.
 class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; definition: {
     compileTime constant FontTextureWidth := 2048.
 
-    private field originalFontFace type: FontFaceWithSizePtr.
+    private field originalFontFace type: FontFaceWithSizeRef.
     private field device type: RenderingDeviceWeakPtr.
 
     private field hasConvertedLatin1Set type: Boolean8.
     private field mutex type: Std Mutex.
-    private field codePointDictionary type: Std Collections Dictionary(Char32, GlyphPtr).
-    private field adaptedGlyphs type: Std Collections Dictionary(GlyphPtr, GlyphPtr).
+    private field codePointDictionary type: Std Collections Dictionary(Char32, GlyphRef).
+    private field adaptedGlyphs type: Std Collections Dictionary(Glyph rcPointer, GlyphRef).
 
-    private field fontFaceForm type: FormPtr.
+    private field fontFaceForm type: FormRef.
     private field hasValidTexture type: Boolean8.
     private field texture type: TexturePtr.
     private field textureView type: TextureViewPtr.
@@ -33,8 +33,8 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
     method increaseHeighTo: (newHeight: UInt32) ::=> Void := {
         let newFontFaceForm := Form extent: UInt32x2(FontTextureWidth, newHeight) pixelFormat: PixelFormat R8_UNorm.
         fontFaceForm ifNotNil: {
-            let sourceBlitter := fontFaceForm _ makeBlitter.
-            newFontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: 0
+            let sourceBlitter := fontFaceForm makeBlitter.
+            newFontFaceForm makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: 0
         }.
 
         fontFaceForm := newFontFaceForm.
@@ -49,55 +49,55 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
     	}.
 
         currentRowMaxHeight := currentRowMaxHeight max: glyphExtent y.
-        fontFaceForm isNil || fontFaceForm _ extent y < currentRowMaxHeight ifTrue: {
+        fontFaceForm isNil || fontFaceForm extent y < currentRowMaxHeight ifTrue: {
             self increaseHeighTo: (destinationPosition y + currentRowMaxHeight + 1) asLargerPowerOfTwo
         }.
 
     }.
 
-    method createAdaptedGlyph: (originalGlyph: GlyphPtr const ref) ::=> GlyphPtr := {
-        let originalGlyphForm := originalGlyph _ asForm.
+    method createAdaptedGlyph: (originalGlyph: GlyphRef const ref) ::=> GlyphRef := {
+        let originalGlyphForm := originalGlyph asForm.
         originalGlyphForm ifNil: {
-            return: GlyphPtr nil
+            return: GlyphRef nil
         }.
 
         ## Make the space for the next glyph.
-        self ensureSpaceFor: originalGlyphForm _ extent.
+        self ensureSpaceFor: originalGlyphForm extent.
 
         ## Copy the glyph.
         {
-            let sourceBlitter mutable := originalGlyphForm _ makeBlitter.
+            let sourceBlitter mutable := originalGlyphForm makeBlitter.
             sourceBlitter pixelFormat: PixelFormat R8_UNorm.
-            fontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: (destinationPosition castTo: Int32x2)
+            fontFaceForm makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: (destinationPosition castTo: Int32x2)
         }.
 
-        let atlasRectangle := RectangleF32 min: (destinationPosition castTo: Float32x2) extent: (originalGlyphForm _ extent castTo: Float32x2).
+        let atlasRectangle := RectangleF32 min: (destinationPosition castTo: Float32x2) extent: (originalGlyphForm extent castTo: Float32x2).
 
         ## Advance the position.
-        destinationPosition := destinationPosition + UInt32x2(originalGlyphForm _ extent x + 1, 0).
+        destinationPosition := destinationPosition + UInt32x2(originalGlyphForm extent x + 1, 0).
 
         ## Invalidate the texture.
         hasValidTexture := false.
-        let result := TextureAtlasGlyph rcNew.
-        result _ initializeAdaptingFrom: originalGlyph _ inAtlasLocation: atlasRectangle.
-        result upCastFor: Glyph
+        TextureAtlasGlyph new
+            initializeAdaptingFrom: originalGlyph inAtlasLocation: atlasRectangle;
+            upCastFor: Glyph
     }.
 
-    method getOrCreateAdaptedGlyph: (originalGlyph: GlyphPtr const ref) ::=> GlyphPtr := {
+    method getOrCreateAdaptedGlyph: (originalGlyph: GlyphRef const ref) ::=> GlyphRef := {
         originalGlyph ifNil: {
             return: originalGlyph
         }.
 
-        adaptedGlyphs at: originalGlyph ifPresent: {:(GlyphPtr ref)existent :: Void |
+        adaptedGlyphs at: originalGlyph asRCPointer ifPresent: {:(GlyphRef ref)existent :: Void |
             return: existent
         }.
 
         let adapted := self createAdaptedGlyph: originalGlyph.
-        adaptedGlyphs at: originalGlyph put: adapted.
+        adaptedGlyphs at: originalGlyph asRCPointer put: adapted.
         adapted
     }.
 
-    override method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> GlyphPtr := {
+    override method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> GlyphRef := {
         mutex withLock: {
             hasConvertedLatin1Set ifFalse: {
                 0 until: 255 do: {:(Char32)i :: Void |
@@ -106,7 +106,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
                 hasConvertedLatin1Set := true.
             }.
 
-            codePointDictionary at: codePoint ifPresent: {:(GlyphPtr ref)existent :: Void |
+            codePointDictionary at: codePoint ifPresent: {:(GlyphRef ref)existent :: Void |
                 return: existent
             }.
 
@@ -114,11 +114,11 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         }.
     }.
 
-    method convertNewGlyphForCodePoint: (codePoint: Char32) ::=> GlyphPtr := {
-        let originalGlyph := originalFontFace _ getOrCreateGlyphForCodePoint: codePoint.
+    method convertNewGlyphForCodePoint: (codePoint: Char32) ::=> GlyphRef := {
+        let originalGlyph := originalFontFace getOrCreateGlyphForCodePoint: codePoint.
         originalGlyph ifNil: {
-            codePointDictionary at: codePoint put: GlyphPtr nil.
-            return: GlyphPtr nil
+            codePointDictionary at: codePoint put: GlyphRef nil.
+            return: GlyphRef nil
         }.
 
         let adaptedGlyph := self getOrCreateAdaptedGlyph: originalGlyph.
@@ -127,16 +127,16 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
         adaptedGlyph
     }.
 
-    method initializeWith: (theOriginalFontFace: FontFaceWithSizePtr) for: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
+    method initializeWith: (theOriginalFontFace: FontFaceWithSizeRef) for: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
         originalFontFace := theOriginalFontFace.
         device := theDevice.
 
-        maxAdvance := originalFontFace _ maxAdvance.
-        ascender := originalFontFace _ ascender.
-        descender := originalFontFace _ descender.
-        height := originalFontFace _ height.
-        underlinePosition := originalFontFace _ underlinePosition.
-        underlineThickness := originalFontFace _ underlineThickness.
+        maxAdvance := originalFontFace maxAdvance.
+        ascender := originalFontFace ascender.
+        descender := originalFontFace descender.
+        height := originalFontFace height.
+        underlinePosition := originalFontFace underlinePosition.
+        underlineThickness := originalFontFace underlineThickness.
     }.
 
     method validateTextureAndView => Void := {
@@ -147,8 +147,8 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
             strongDevice ifNotNil: {
                 texture := strongDevice _ createTexture: (TextureDescription()
                     type: TextureType Texture2D;
-                    width: fontFaceForm _ extent x;
-                    height: fontFaceForm _ extent y;
+                    width: fontFaceForm extent x;
+                    height: fontFaceForm extent y;
                     depth: 1;
                     layers: 1;
                     miplevels: 1;
@@ -167,8 +167,8 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
 
         texture ifNotNil: {
             texture _ uploadTextureLevel: 0 layer: 0
-                pitch: (fontFaceForm _ pitch castTo: Int32) slicePitch: (fontFaceForm _ pitch * fontFaceForm _ extent y castTo: Int32)
-                data: fontFaceForm _ pixels getPointer
+                pitch: (fontFaceForm pitch castTo: Int32) slicePitch: (fontFaceForm pitch * fontFaceForm extent y castTo: Int32)
+                data: fontFaceForm pixels getPointer
         }.
 
         hasValidTexture := true.

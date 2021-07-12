@@ -149,14 +149,14 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/jpeg".
 
-    const override method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormPtr := {
+    const override method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormRef := {
         let cinfo mutable := jpeg_decompress_struct().
         let jerr mutable := jpeg_error_mgr().
 
         cinfo err: jpeg_std_error(jerr address).
         jerr error_exit: jpegErrorRaiseFunction address.
 
-        let result mutable := FormPtr nil.
+        let result mutable := FormRef nil.
         try:
         {
             jpeg_create_decompress(cinfo address).
@@ -174,7 +174,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
             let pixelFormat := cinfo num_components selectCase: #{
             1 : PixelFormat R8_UNorm.
             3 : PixelFormat R8G8B8_UNormSRGB.
-            _ : (return: FormPtr nil)
+            _ : (return: FormRef nil)
             }.
 
             ## Start the decompression.
@@ -182,15 +182,15 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
 
             let destPitch := width * pixelFormat bytesPerPixel.
 
-            result := Form rcNew.
-            result _
+            result := Form new
                 extent: UInt32x2(width, height);
                 pitch: destPitch;
-                pixelFormat: pixelFormat.
-            result _ pixels reset: (Std zmalloc(destPitch * height) reinterpretCastTo: UInt8 pointer).
+                pixelFormat: pixelFormat;
+                yourself.
+            result pixels reset: (Std zmalloc(destPitch * height) reinterpretCastTo: UInt8 pointer).
 
             let rowBuffer := cinfo mem _ alloc_sarray(cinfo address, JPOOL_PERMANENT, width * numComponents, 1).
-            let destRow mutable := result _ pixels getPointer.
+            let destRow mutable := result pixels getPointer.
             0 until: height do: {:y :: Void |
                 jpeg_read_scanlines(cinfo address, rowBuffer, 1).
                 Std memcpy(destRow, rowBuffer[0], destPitch).
@@ -199,7 +199,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
 
             jpeg_finish_decompress(cinfo address).
         } catch: JPEGError doing: {:e :: Void |
-            result reset
+            result := nil
         } finally: {
             jpeg_destroy_decompress(cinfo address).
         }.
@@ -207,7 +207,7 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
         result
     }.
 
-    const override method putForm: (form: Form ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
+    const override method putForm: (form: FormRef const ref) onStream: (outputStream: Std IO Stream ref) ::=> Void := {
         let cinfo mutable := jpeg_compress_struct().
         let jerr mutable := jpeg_error_mgr().
 

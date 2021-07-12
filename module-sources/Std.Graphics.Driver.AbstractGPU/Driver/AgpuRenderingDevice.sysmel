@@ -119,23 +119,23 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: Texture
     }.
 
-    override method createColorTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
+    override method createColorTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TexturePtr := {
         let bytesPerPixel := textureData format bytesPerPixel.
         bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
             let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
             expandedTexture ifNil: {return: TexturePtr nil}.
-            return: (super createColorTextureWithData: expandedTexture _)
+            return: (super createColorTextureWithData: expandedTexture)
         }.
 
         super createColorTextureWithData: textureData
     }.
 
-    override method createTextureWithData: (textureData: TextureData ref) ::=> TexturePtr := {
+    override method createTextureWithData: (textureData: TextureDataRef const ref ref) ::=> TexturePtr := {
         let bytesPerPixel := textureData format bytesPerPixel.
         bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
             let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
             expandedTexture ifNil: {return: TexturePtr nil}.
-            return: (super createTextureWithData: expandedTexture _)
+            return: (super createTextureWithData: expandedTexture)
         }.
 
         super createTextureWithData: textureData

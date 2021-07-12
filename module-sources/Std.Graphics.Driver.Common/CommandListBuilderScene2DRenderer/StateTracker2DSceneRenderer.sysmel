@@ -90,7 +90,7 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         }.
 
         submesh fontFaceWithSize isNotNil && submesh textureView isNil ifTrue: {
-            let (let texture, let textureView) := (submesh fontFaceWithSize getPointer castTo: RenderingDeviceFontFaceWithSize pointer) _
+            let (let texture, let textureView) := (submesh fontFaceWithSize asRCPointer getPointer castTo: RenderingDeviceFontFaceWithSize pointer) _
                 validRenderingTextureAndView.
             submesh
                 texture: texture;

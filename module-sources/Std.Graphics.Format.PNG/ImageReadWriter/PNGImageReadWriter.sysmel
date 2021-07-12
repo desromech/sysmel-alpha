@@ -34,23 +34,23 @@ class PNGImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
         := mimeType = "image/png".
 
-    const override method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormPtr := {
+    const override method readFormFromStream: (inputStream: Std IO Stream ref) ::=> FormRef := {
         let png mutable := png_create_read_struct(PNG_LIBPNG_VER_STRING, nil, pngReadErrorFunction address, pngReadWarningFunction address).
-        png ifNil: {return: FormPtr nil}.
+        png ifNil: {return: FormRef nil}.
 
         let infoBeginPtr mutable := png_create_info_struct(png).
         infoBeginPtr ifNil: {
             png_destroy_read_struct(png address, nil, nil).
-            return: FormPtr nil
+            return: FormRef nil
         }.
 
         let infoEndPtr mutable := png_create_info_struct(png).
         infoBeginPtr ifNil: {
             png_destroy_read_struct(png address, infoBeginPtr address, nil).
-            return: FormPtr nil
+            return: FormRef nil
         }.
 
-        let result mutable := FormPtr nil.
+        let result mutable := FormRef nil.
         try: {
             ## Set the read function.
             png_set_read_fn(png, inputStream address, pngReadFunction address).
@@ -89,19 +89,19 @@ class PNGImageReadWriter superclass: ImageReadWriter; definition: {
             }).
 
             pixelFormat = PixelFormat Unknown ifTrue: {
-                return: FormPtr nil
+                return: FormRef nil
             }.
 
             ## Create the form buffer.
             let destPitch := pixelFormat bytesPerPixel * width alignedTo: 4.
-            result := Form rcNew.
-            result _
+            result := Form new
                 extent: UInt32x2(width, height);
                 pixelFormat: pixelFormat;
-                pitch: destPitch.
+                pitch: destPitch;
+                yourself.
             let linearBufferSize := destPitch * height.
-            result _ pixels reset: (Std zmalloc(linearBufferSize) reinterpretCastTo: UInt8 pointer).
-            let destRow mutable := result _ pixels getPointer.
+            result pixels reset: (Std zmalloc(linearBufferSize) reinterpretCastTo: UInt8 pointer).
+            let destRow mutable := result pixels getPointer.
             let rowCopySize := (destPitch castTo: UIntPointer) min: pitch.
             0 until: height do: {:y :: Void |
                 Std memcpy(destRow, sourceRows[y], rowCopySize).
@@ -109,7 +109,7 @@ class PNGImageReadWriter superclass: ImageReadWriter; definition: {
             }.
 
         } catch: PNGError doing: {:e :: Void |
-            result reset
+            result := nil
         } finally: {
             png_destroy_read_struct(png address, infoBeginPtr address, infoEndPtr address).
         }.

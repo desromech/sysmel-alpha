@@ -6,13 +6,13 @@ namespace Core definition: {
  * I am a null font face.
  *#
 class NullFontFace superclass: FontFace; definition: {
-    protected field nullFaceWithSize type: FontFaceWithSize rcPointer.
+    protected field nullFaceWithSize type: FontFaceWithSizeRef.
 
     override method initialize => Void := {
-        nullFaceWithSize := FontFaceWithSize rcNew.
+        nullFaceWithSize := FontFaceWithSize new.
     }.
 
-    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize rcPointer
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSizeRef
         := nullFaceWithSize.
 }.
 

@@ -31,7 +31,7 @@ class Texture superclass: RenderingDriverObjectHandle; definition: {
     abstract method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr.
     abstract method getOrCreateFullView => TextureViewPtr.
 
-    virtual method uploadTextureData: (textureData: TextureData const ref) ::=> Void := {
+    virtual method uploadTextureData: (textureData: TextureDataRef const ref) ::=> Void := {
         let dataLevelIndex mutable := 0u.
         0 until: textureData layers do: {:layerIndex :: Void |
             0 until: textureData miplevels do: {:levelIndex :: Void |
