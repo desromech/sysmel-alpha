@@ -14,48 +14,48 @@ class BasicTextureConversionProfile superclass: TextureConversionProfile; defini
     override method description => Char8 const arraySlice
         := "Basic texture conversion with mipmap generation without compression.".
 
-    virtual method minMipLevelExtentFor: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
+    virtual method minMipLevelExtentFor: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
         := UInt32x3 ones.
 
-    virtual method maxMipLevelExtentFor: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
+    virtual method maxMipLevelExtentFor: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) ::=> UInt32x3
         := UInt32x3 infinityOrMaxValue.
 
-    virtual method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    virtual method encodeColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ srgbFormat intoFormat: parameters targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData srgbFormat intoFormat: parameters targetFormat
             resultFormat: parameters targetFormat asLinearFormat srgbFormat: parameters targetFormat.
     }.
 
-    virtual method encodeNonColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    virtual method encodeNonColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: parameters targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData format intoFormat: parameters targetFormat
             resultFormat: parameters targetFormat srgbFormat: parameters targetFormat asSRGBFormat.
     }.
 
-    virtual method encodeNormalMapTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    virtual method encodeNormalMapTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         parameters targetFormat isUnknown ifTrue: {return: inputTextureData}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: parameters targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData format intoFormat: parameters targetFormat
             resultFormat: parameters targetFormat srgbFormat: parameters targetFormat asSRGBFormat.
     }.
 
-    override method convertTextureData: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataPtr := {
+    override method convertTextureData: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataRef := {
         ## Convert the input texture into something more convenient to operate on.
         let convertedTextureData mutable := parameters usageType selectCase: #{
-            TextureUsageType Color : {inputTextureData _ asTextureDataExpandedForConversions}.
-            TextureUsageType NonColorData : {inputTextureData _ asNonColorTextureDataExpandedForConversions}.
-            TextureUsageType NormalMap : {inputTextureData _ asNormalMapTextureDataExpandedForConversions}.
+            TextureUsageType Color : {inputTextureData asTextureDataExpandedForConversions}.
+            TextureUsageType NonColorData : {inputTextureData asNonColorTextureDataExpandedForConversions}.
+            TextureUsageType NormalMap : {inputTextureData asNormalMapTextureDataExpandedForConversions}.
         }.
         convertedTextureData ifNil: {convertedTextureData := inputTextureData}.
 
         ## Generate mipmaps.
         parameters generateMipmaps ifTrue: {
             let withMipmaps mutable := parameters usageType selectCase: #{
-                TextureUsageType Color : {convertedTextureData _ generateColorMiplevels}.
-                TextureUsageType NonColorData : {convertedTextureData _ generateMiplevels}.
-                TextureUsageType NormalMap : {convertedTextureData _ generateNormalMiplevels}.
+                TextureUsageType Color : {convertedTextureData generateColorMiplevels}.
+                TextureUsageType NonColorData : {convertedTextureData generateMiplevels}.
+                TextureUsageType NormalMap : {convertedTextureData generateNormalMiplevels}.
             }.
 
             withMipmaps ifNotNil: {
@@ -64,16 +64,16 @@ class BasicTextureConversionProfile superclass: TextureConversionProfile; defini
 
             let minMipLevelExtent := parameters minMipLevelExtent max: (self minMipLevelExtentFor: inputTextureData withParameters: parameters).
             let maxMipLevelExtent := parameters maxMipLevelExtent min: (self maxMipLevelExtentFor: inputTextureData withParameters: parameters).
-            convertedTextureData := convertedTextureData _ clipMiplevelsToMinExtent: minMipLevelExtent maxExtent: maxMipLevelExtent
+            convertedTextureData := convertedTextureData clipMiplevelsToMinExtent: minMipLevelExtent maxExtent: maxMipLevelExtent
         }.
 
-        convertedTextureData _ header flags: convertedTextureData _ flags | TextureDataFlags HasGeneratedMipmaps.
+        convertedTextureData header flags: convertedTextureData flags | TextureDataFlags HasGeneratedMipmaps.
 
         ## Convert the processed texture into the target format for storage.
         parameters usageType selectCase: #{
-            TextureUsageType Color : {self encodeColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ srgbFormat}.
-            TextureUsageType NonColorData : {self encodeNonColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ format}.
-            TextureUsageType NormalMap : {self encodeNormalMapTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData _ format}.
+            TextureUsageType Color : {self encodeColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData srgbFormat}.
+            TextureUsageType NonColorData : {self encodeNonColorTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData format}.
+            TextureUsageType NormalMap : {self encodeNormalMapTexture: convertedTextureData withParameters: parameters inputFormat: inputTextureData format}.
         }.
     }.
 }.

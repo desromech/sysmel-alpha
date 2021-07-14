@@ -10,7 +10,7 @@ useNamespace: Std Graphics Core.
 class TextureConversionProfile superclass: Std RCObject; definition: {
     abstract method name => Char8 const arraySlice.
     abstract method description => Char8 const arraySlice.
-    abstract method convertTextureData: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataPtr.
+    abstract method convertTextureData: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataRef.
 }.
 
 compileTime constant TextureConversionProfilePtr := TextureConversionProfile rcPointer.

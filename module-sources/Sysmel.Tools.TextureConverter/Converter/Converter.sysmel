@@ -34,7 +34,7 @@ class Converter definition: {
             return: false.
         }.
 
-        outputTextureData _ writeToFileNamed: outputFileName
+        outputTextureData writeToFileNamed: outputFileName
     }.
 }.
 

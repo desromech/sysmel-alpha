@@ -33,35 +33,35 @@ class LowSpecPCTextureConversionProfile superclass: BasicTextureConversionProfil
     override method description => Char8 const arraySlice
         := "Desktop PC with D3D 9 Block Code compressed textures (DXT1, DXT3 and DXT5).".
 
-    override method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {inputFormat asDefaultTargetTextureFormatForLowSpecPC}
             ifFalse: {parameters targetFormat}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ srgbFormat intoFormat: targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData srgbFormat intoFormat: targetFormat
             resultFormat: targetFormat asLinearFormat srgbFormat: targetFormat.
     }.
 
-    override method encodeNonColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeNonColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {inputFormat asDefaultTargetTextureFormatForLowSpecPC}
             ifFalse: {parameters targetFormat}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData format intoFormat: targetFormat
             resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
     }.
 
-    override method encodeNormalMapTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeNormalMapTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {PixelFormat BC3_UNorm}
             ifFalse: {parameters targetFormat}.
 
-        let swizzledTexture := inputTextureData _ swizzleComponentsForRXGBNormalMap.
+        let swizzledTexture := inputTextureData swizzleComponentsForRXGBNormalMap.
         swizzledTexture ifNil: {
             return: (super encodeNormalMapTexture: inputTextureData withParameters: parameters inputFormat: inputFormat)
         }.
 
-        swizzledTexture _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+        swizzledTexture convertFromPixelFormat: inputTextureData format intoFormat: targetFormat
             resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
     }.
 }.

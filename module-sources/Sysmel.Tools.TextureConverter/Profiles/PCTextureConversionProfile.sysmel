@@ -35,30 +35,30 @@ class PCTextureConversionProfile superclass: BasicTextureConversionProfile; defi
     override method description => Char8 const arraySlice
         := "Desktop PC with D3D11 Block Code compressed textures.".
 
-    override method encodeColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {inputFormat asTargetTextureFormatForPC}
             ifFalse: {parameters targetFormat}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ srgbFormat intoFormat: targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData srgbFormat intoFormat: targetFormat
             resultFormat: targetFormat asLinearFormat srgbFormat: targetFormat.
     }.
 
-    override method encodeNonColorTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeNonColorTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {inputFormat asTargetTextureFormatForPC}
             ifFalse: {parameters targetFormat}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData format intoFormat: targetFormat
             resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
     }.
 
-    override method encodeNormalMapTexture: (inputTextureData: TextureDataPtr const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataPtr := {
+    override method encodeNormalMapTexture: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) inputFormat: (inputFormat: PixelFormat) ::=> TextureDataRef := {
         let targetFormat := parameters targetFormat isUnknown
             ifTrue: {PixelFormat BC5_UNorm}
             ifFalse: {parameters targetFormat}.
 
-        inputTextureData _ convertFromPixelFormat: inputTextureData _ format intoFormat: targetFormat
+        inputTextureData convertFromPixelFormat: inputTextureData format intoFormat: targetFormat
             resultFormat: targetFormat srgbFormat: targetFormat asSRGBFormat.
     }.
 }.
