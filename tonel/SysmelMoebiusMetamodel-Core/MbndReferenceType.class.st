@@ -166,6 +166,12 @@ MbndReferenceType >> isReferenceType [
 ]
 
 { #category : #'as yet unclassified' }
+MbndReferenceType >> lookupFallbackMacroSelector: aSelector [
+	(super lookupFallbackMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	^ baseType ifNotNil: [baseType lookupFallbackMacroSelector: aSelector]
+]
+
+{ #category : #'as yet unclassified' }
 MbndReferenceType >> lookupOverloadedFinalSelector: selector [
 	baseType ifNil: [ ^ super lookupOverloadedFinalSelector: selector].
 	

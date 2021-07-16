@@ -525,6 +525,7 @@ TMbndAbstractType >> canUnderstand: aSelector [
 	<compileTime>
 	(self lookupMacroSelector: aSelector) ifNotNil: [ ^ true ].
 	(self lookupOverloadedSelector: aSelector) ifNotNil: [ ^ true ].
+	self doesNotUnderstandProxyType ifNotNil: [ :proxy | ^ proxy canUnderstand: aSelector ].
 	^ false
 ]
 
@@ -627,6 +628,23 @@ TMbndAbstractType >> defaultValueAt: aPosition [
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> defaultVariableType [
 	^ nil
+]
+
+{ #category : #testing }
+TMbndAbstractType >> doesNotUnderstandProxyType [
+	^ (self lookupLocalSymbol: #DoesNotUnderstandProxyType) ifNotNil: [ :symbolBinding |
+		symbolBinding isCompileTimeConstant ifTrue: [ 
+			|proxyType|
+			proxyType := symbolBinding evaluatedValue unwrapMbndValue.
+			proxyType isMbndType ifTrue: [ 
+				proxyType
+			] ifFalse: [ 
+				nil
+			]
+		] ifFalse: [ 
+			nil
+		]
+	]
 ]
 
 { #category : #'semantic analysis' }

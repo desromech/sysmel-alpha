@@ -134,6 +134,12 @@ MbndTemporaryReferenceType >> isTemporaryReferenceType [
 ]
 
 { #category : #'as yet unclassified' }
+MbndTemporaryReferenceType >> lookupFallbackMacroSelector: aSelector [
+	(super lookupFallbackMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	^ baseType ifNotNil: [baseType lookupFallbackMacroSelector: aSelector]
+]
+
+{ #category : #'as yet unclassified' }
 MbndTemporaryReferenceType >> lookupOverloadedFinalSelector: selector [
 	baseType ifNil: [ ^ super lookupOverloadedFinalSelector: selector].
 	
