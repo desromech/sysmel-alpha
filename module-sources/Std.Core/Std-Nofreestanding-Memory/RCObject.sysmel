@@ -356,6 +356,9 @@ template RCRef(PT: Type)
 template WeakRCRef(PT: Type)
     := struct definition: {
     compileTime constant PointedType := PT.
+
+    ## This compile time constant is required by concepts to keep working.
+    ## This also might be used in the future assist auto-completion.
     compileTime constant DoesNotUnderstandProxyType := PointedType.
 
     compileTime constant RCPointerType := Std RCPointer(PT).
@@ -512,6 +515,14 @@ class RCObject superclass: Object; definition: {
     
     macro method rcObjectAddress := ``(`,self address).
 
+    macro method identityHash
+        := ``(`,self address hash).
+
+    macro fallback method hash
+        := ``(`,self identityHash).
+
+    macro fallback method = other
+        := ``(`,self address == `,other rcObjectAddress).
 
     (inline method := (other: SelfType const ref)) => SelfType ref := {
         ## internalSelfWeakPointer should not be modified.
