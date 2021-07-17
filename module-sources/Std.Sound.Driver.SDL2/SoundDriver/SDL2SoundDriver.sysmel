@@ -34,7 +34,7 @@ class SDL2SoundDriver superclass: SoundDriver; definition: {
             channels: 2;
             samples: 2048;
             callback: sdl2PlaybackDeviceAudioCallback address;
-            userdata: result __rcPointer__ getPointer;
+            userdata: result rcObjectAddress;
             yourself.
         let audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
         audioDeviceID = 0 ifTrue: {

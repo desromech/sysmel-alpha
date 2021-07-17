@@ -23,7 +23,7 @@ class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
     }.
 
     method createGlyphForIndex: (glyphIndex: UInt32) ::=> GlyphRef := {
-        FT2Library defaultInstance _ mutex withLock: {
+        FT2Library defaultInstance mutex withLock: {
             FT_Activate_Size(handle).
             self doCreateGlyphForIndex: glyphIndex.
         }.
@@ -91,7 +91,7 @@ class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
         previousIndex ~= 0 ifTrue: {
             let index := FT_Get_Char_Index(face _ handle, rightCharacter).
             index ~= 0 ifTrue: {
-                FT2Library defaultInstance _ mutex withLock: {
+                FT2Library defaultInstance mutex withLock: {
                     FT_Get_Kerning(face _ handle, previousIndex, index, FT_Kerning_Mode Unfitted, delta address).
                 }.
             }

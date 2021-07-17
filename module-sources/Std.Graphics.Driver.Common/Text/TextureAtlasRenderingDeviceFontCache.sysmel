@@ -9,7 +9,7 @@ namespace Core definition: {
 class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache; definition: {
     private field device type: RenderingDeviceWeakRef.
 
-    private field cacheDictionary type: Std Collections Dictionary(FontFaceWithSize rcPointer, FontFaceWithSizeRef).
+    private field cacheDictionary type: Std Collections Dictionary(FontFaceWithSizeRef, FontFaceWithSizeRef).
     private field cacheDictionaryMutex type: Std Mutex.
 
     method initializeWithDevice: (theDevice: RenderingDeviceWeakRef const ref) ::=> Void := {
@@ -22,7 +22,7 @@ class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache;
         }.
 
         cacheDictionaryMutex withLock: {
-            cacheDictionary at: fontFaceWithSize asRCPointer ifAbsentPut: {:: FontFaceWithSizeRef |
+            cacheDictionary at: fontFaceWithSize ifAbsentPut: {:: FontFaceWithSizeRef |
                 TextureAtlasFontFaceWithSize new
                     initializeWith: fontFaceWithSize for: device;
                     upCastFor: FontFaceWithSize

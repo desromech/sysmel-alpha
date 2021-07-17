@@ -6,7 +6,7 @@ namespace Sound definition: {
  *#
 class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
     field mixerMutex type: Std Mutex.
-    field activeSoundSources type: Std Collections Vector(SoftSoundSourcePtr).
+    field activeSoundSources type: Std Collections Vector(SoftSoundSourceRef).
 
     override method destroy => Void := {
         mixerMutex withLock: {
@@ -19,12 +19,12 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
 
     	## Clear the mixing buffer.
     	Std memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
-        let newActiveSoundSources mutable type: Std Collections Vector(SoftSoundSourcePtr).
+        let newActiveSoundSources mutable type: Std Collections Vector(SoftSoundSourceRef).
 
         mixerMutex withLock: {
             newActiveSoundSources reserve: activeSoundSources size.
             activeSoundSources do: {:each :: Void |
-                (each _ mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer) ifTrue: {
+                (each mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer) ifTrue: {
                     newActiveSoundSources add: each
                 }.
             }.
@@ -33,7 +33,7 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
         }.
     }.
 
-    method activateSoundSource: (soundSource: SoftSoundSourcePtr const ref) ::=> Void := {
+    method activateSoundSource: (soundSource: SoftSoundSourceRef const ref) ::=> Void := {
         mixerMutex withLock: {
             (activeSoundSources includes: soundSource) ifFalse: {
                 activeSoundSources add: soundSource

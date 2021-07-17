@@ -373,7 +373,7 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method handlesMouseEvents => Boolean8
         := true.
 
-    virtual method currentMouseCursor => Cursor rcPointer := {
+    virtual method currentMouseCursor => CursorRef := {
         self owner ifNotNil: {:owner :: Void |
             return: owner _ currentMouseCursor
         }.

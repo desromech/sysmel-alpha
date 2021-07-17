@@ -12,7 +12,7 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
     protected field transform type: AffinePostTransform2dF32.
     protected field drawingState type: CanvasDrawingState.
     protected field paintState type: CanvasPaintState.
-    protected field currentFontFaceWithSize type: FontFaceWithSize rcPointer.
+    protected field currentFontFaceWithSize type: FontFaceWithSize rcRef.
     protected field currentClipRectangle type: RectangleF32.
 
     method resetCanvasState => Void := {
@@ -39,10 +39,10 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
             fillTriangle: rectangle topRight tc: Float32x2(1, 1) p2: rectangle topLeft tc: Float32x2(0, 1) p3: rectangle bottomLeft tc: Float32x2(0, 0)
     }.
 
-    override method fontFaceWithSize => FontFaceWithSize rcPointer const ref
+    override method fontFaceWithSize => FontFaceWithSize rcRef const ref
         := currentFontFaceWithSize.
 
-    override method fontFaceWithSize: (font: FontFaceWithSize rcPointer const ref) ::=> Void := {
+    override method fontFaceWithSize: (font: FontFaceWithSize rcRef const ref) ::=> Void := {
         currentFontFaceWithSize := font.
     }.
 

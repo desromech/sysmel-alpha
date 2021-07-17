@@ -9,7 +9,7 @@ class SoundDriver superclass: Std RCObject; definition: {
         := PlaybackDeviceRef nil.
 }.
 
-compileTime constant SoundDriverPtr := SoundDriver rcPointer.
+compileTime constant SoundDriverRef := SoundDriver rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

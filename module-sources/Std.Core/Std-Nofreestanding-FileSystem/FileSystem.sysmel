@@ -3,7 +3,7 @@ namespace Std definition: {
 class FileSystem superclass: Std RCObject; definition: {
     method makeFileReferenceWithPath: (path: Char8 const arraySlice) ::=> FileReference := {
         FileReference()
-            setFileSystem: self asRCPointer path: path;
+            setFileSystem: self asRCRef path: path;
             yourself
     }.
 
@@ -22,6 +22,6 @@ class FileSystem superclass: Std RCObject; definition: {
     abstract method binaryWriteStreamOn: (path: Char8 const arraySlice) ::=> Std IO Stream uniquePointer.
 }.
 
-compileTime constant FileSystemPtr := FileSystem rcPointer.
+compileTime constant FileSystemRef := FileSystem rcRef.
 
 } ## End of namespace Std

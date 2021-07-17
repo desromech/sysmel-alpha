@@ -12,7 +12,7 @@ class SDL2Window superclass: Window; definition: {
     public field handle type: SDL_Window pointer.
     field windowSystem type: SDL2WindowSystem pointer.
     public field isFullscreen type: Boolean8.
-    protected field currentCursor type: Cursor rcPointer.
+    protected field currentCursor type: Cursor rcRef.
     protected field renderingDevice type: RenderingDeviceRef.
     protected field activeSwapChain type: SwapChainRef.
     protected field softSceneRenderer type: WindowScene2DRendererRef.
@@ -195,7 +195,7 @@ class SDL2Window superclass: Window; definition: {
     override method toggleFullscreen => Void
         := self fullscreen: self fullscreen not.
 
-    override method setCursor: (cursor: Cursor rcPointer const ref) ::=> Void := {
+    override method setCursor: (cursor: CursorRef const ref) ::=> Void := {
         currentCursor == cursor ifTrue: {
             return: void
         }.
@@ -205,7 +205,7 @@ class SDL2Window superclass: Window; definition: {
     }.
 
     method applyCurrentCursor => Void := {
-        currentCursor isNil || currentCursor _ isFullyTransparent ifTrue: {
+        currentCursor isNil || currentCursor isFullyTransparent ifTrue: {
             SDL_ShowCursor(SDL_DISABLE).
         } ifFalse: {
             SDL_ShowCursor(SDL_ENABLE).

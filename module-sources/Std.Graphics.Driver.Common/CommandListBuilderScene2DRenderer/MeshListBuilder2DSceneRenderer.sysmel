@@ -41,7 +41,7 @@ class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; defini
 
 }.
 
-compileTime constant MeshListBuilder2DSceneRendererPtr := MeshListBuilder2DSceneRenderer rcPointer.
+compileTime constant MeshListBuilder2DSceneRendererRef := MeshListBuilder2DSceneRenderer rcRef.
 
 class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; definition: {
     public field renderer type: MeshListBuilder2DSceneRenderer pointer.

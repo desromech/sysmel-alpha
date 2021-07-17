@@ -24,12 +24,12 @@ function convert26d6(v: FT_Pos) => Float32
  *#
 class FT2Library superclass: Std RCObject; definition: {
     meta definition: {
-        let defaultInstance mutable type: FT2Library rcPointer.
+        let defaultInstance mutable type: FT2Library rcRef.
         let defaultInstanceOnceCreation mutable type: Std OnceFlag.
 
-        method defaultInstance => FT2Library rcPointer const ref := {
+        method defaultInstance => FT2Library rcRef const ref := {
             defaultInstanceOnceCreation do: {
-                defaultInstance := FT2Library rcNew
+                defaultInstance := FT2Library new
             }.
 
             defaultInstance

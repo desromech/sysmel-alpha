@@ -432,8 +432,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         }
     }.
 
-    method getConvertedCursorFor: (cursor: Cursor rcPointer) ::=> SDL_Cursor pointer := {
-        self getSystemCursor: cursor _ systemCursorName
+    method getConvertedCursorFor: (cursor: CursorRef const ref) ::=> SDL_Cursor pointer := {
+        self getSystemCursor: cursor systemCursorName
     }.
 
     method getSystemCursor: (systemCursorName: SystemCursorName) ::=> SDL_Cursor pointer := {

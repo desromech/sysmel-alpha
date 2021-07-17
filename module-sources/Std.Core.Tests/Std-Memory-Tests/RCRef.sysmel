@@ -72,7 +72,7 @@ class RCRefTest superclass: Std Testing TestCase; definition: {
 
     test: testNil with: {
         let ref := Std RCObject rcRef nil.
-        self assert: ref __rcPointer__ getPointer equals: nil.
+        self assert: ref rcObjectAddress equals: nil.
         self assert: ref isNil.
         self deny: ref isNotNil.
     }.

@@ -40,29 +40,29 @@ sealed class DiskFileSystem superclass: FileSystem; definition: {
     }.
 }.
 
-compileTime constant DiskFileSystemPtr := DiskFileSystem rcPointer.
+compileTime constant DiskFileSystemRef := DiskFileSystem rcRef.
 
 FileSystem extend: {
     meta definition: {
-        let diskFileSystem mutable type: DiskFileSystemPtr.
+        let diskFileSystem mutable type: DiskFileSystemRef.
         let diskFileSystemOnceCreation mutable type: Std OnceFlag.
 
-        method disk => DiskFileSystemPtr const ref := {
+        method disk => DiskFileSystemRef const ref := {
             diskFileSystemOnceCreation do: {
-                diskFileSystem := DiskFileSystem rcNew
+                diskFileSystem := DiskFileSystem new
             }.
             diskFileSystem
         }.
 
         method workingDirectory => FileReference
-            := self disk _ workingDirectory.
+            := self disk workingDirectory.
 
         method resourcesDirectory => FileReference
-            := self disk _ resourcesDirectory.
+            := self disk resourcesDirectory.
     }.
 }.
 
-Std String macro method asNativeFileReference := ``(Std FileSystem disk _ makeFileReferenceWithPath: `,self asArraySlice).
-(_LiteralString | Char8 const arraySlice | Char8 arraySlice) macro method asNativeFileReference := ``(Std FileSystem disk _ makeFileReferenceWithPath: `,self).
+Std String macro method asNativeFileReference := ``(Std FileSystem disk makeFileReferenceWithPath: `,self asArraySlice).
+(_LiteralString | Char8 const arraySlice | Char8 arraySlice) macro method asNativeFileReference := ``(Std FileSystem disk makeFileReferenceWithPath: `,self).
 
 } ## End of namespace Std

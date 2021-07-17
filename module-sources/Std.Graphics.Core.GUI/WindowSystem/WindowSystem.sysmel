@@ -9,7 +9,7 @@ class WindowCreationInfo.
  * I represent an interface into a window system window.
  *#
 class WindowSystem superclass: Std RCObject; definition: {
-    protected field globalEventHandlers type: Std Collections Vector(EventHandlerPtr).
+    protected field globalEventHandlers type: Std Collections Vector(EventHandlerRef).
 
     meta definition: {
         global MainWindowSystem mutable type: WindowSystemRef.
@@ -27,18 +27,18 @@ class WindowSystem superclass: Std RCObject; definition: {
         }.
 
         static method mainLoopOfEnded: (windowSystem: WindowSystem ref) ::=> Void := {
-            MainWindowSystem __rcPointer__ getPointer == windowSystem address ifTrue: {
+            MainWindowSystem rcObjectAddress == windowSystem address ifTrue: {
                 MainWindowSystem := WindowSystemRef nil
             }
         }.
     }.
 
     method registerGlobalEventHandler: (globalHandler: EventHandlerRef const ref) ::=> Void := {
-        globalEventHandlers add: globalHandler asRCPointer
+        globalEventHandlers add: globalHandler
     }.
 
     method unregisterGlobalEventHandler: (globalHandler: EventHandlerRef const ref) ::=> Void := {
-        globalEventHandlers remove: globalHandler asRCPointer
+        globalEventHandlers remove: globalHandler
     }.
 
     virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window rcRef
@@ -159,7 +159,7 @@ class WindowSystem superclass: Std RCObject; definition: {
      *#
     virtual method broadcastEvent: (event: Event ref) ::=> Void := {
         globalEventHandlers do: {:each :: Void |
-            each _ processEvent: event.
+            each processEvent: event.
         }
     }.
 }.

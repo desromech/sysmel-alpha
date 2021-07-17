@@ -36,7 +36,7 @@ class SoftSoundSource superclass: SoundSource; definition: {
 
     override method resume => Void := {
         isPlaying := true.
-        playbackDevice activateSoundSource: self asRCPointer.
+        playbackDevice activateSoundSource: self asRCRef.
     }.
 
     override method stop => Void := {
@@ -74,7 +74,6 @@ class SoftSoundSource superclass: SoundSource; definition: {
         := streamSource.
 }.
 
-compileTime constant SoftSoundSourcePtr := SoftSoundSource rcPointer.
 compileTime constant SoftSoundSourceRef := SoftSoundSource rcRef.
 
 } ## End of namespace Sound

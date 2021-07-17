@@ -13,7 +13,7 @@ class FT2FontFace superclass: FontFace; definition: {
         method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace rcRef := {
             let library ref := FT2Library defaultInstance.
             let handle mutable type: FT_Face.
-            let error := FT_New_Face(library _ handle, path, 0, handle address).
+            let error := FT_New_Face(library handle, path, 0, handle address).
             convertError(error) ifTrue: {
                 return: FT2FontFace rcRef nil.
             }.
@@ -25,7 +25,7 @@ class FT2FontFace superclass: FontFace; definition: {
         }
     }.
 
-    public field ft2Library type: FT2Library rcPointer.
+    public field ft2Library type: FT2Library rcRef.
     public field handle type: FT_Face.
     private field faceSizes type: Std Collections Dictionary(UInt32, FT2FontFaceWithSizeRef).
 

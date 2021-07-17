@@ -74,7 +74,7 @@ class Window superclass: Std RCObject; definition: {
     #**
      * This method sets the cursor that is active on the window.
      *#
-    virtual method setCursor: (cursor: Cursor rcPointer const ref) ::=> Void := {
+    virtual method setCursor: (cursor: CursorRef const ref) ::=> Void := {
 
     }.
 

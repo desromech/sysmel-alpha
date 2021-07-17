@@ -6,20 +6,20 @@ sealed class FileReference definition: {
     compileTime constant ChildrenType := Std Collections Vector(FileReference).
     compileTime constant PathSeparator := '/'.
 
-    field fileSystem type: FileSystemPtr.
+    field fileSystem type: FileSystemRef.
     field path type: Std String.
 
-    method setFileSystem: (theFileSystem: FileSystemPtr const ref) path: (thePath: Std String const ref) ::=> Void := {
+    method setFileSystem: (theFileSystem: FileSystemRef const ref) path: (thePath: Std String const ref) ::=> Void := {
         fileSystem := theFileSystem.
         path := thePath.
     }.
 
-    method setFileSystem: (theFileSystem: FileSystemPtr const ref) path: (thePath: Char8 const arraySlice) ::=> Void := {
+    method setFileSystem: (theFileSystem: FileSystemRef const ref) path: (thePath: Char8 const arraySlice) ::=> Void := {
         fileSystem := theFileSystem.
         path := thePath.
     }.
 
-    const inline method fileSystem => FileSystemPtr const ref
+    const inline method fileSystem => FileSystemRef const ref
         := fileSystem.
 
     const inline method path => Std String const ref
@@ -113,28 +113,28 @@ sealed class FileReference definition: {
     }.
 
     const method exists => Boolean8
-        := fileSystem _ exists: path asArraySlice.
+        := fileSystem exists: path asArraySlice.
 
     const method isFile => Boolean8
-        := fileSystem _ isFile: path asArraySlice.
+        := fileSystem isFile: path asArraySlice.
 
     const method isDirectory => Boolean8
-        := fileSystem _ isDirectory: path asArraySlice.
+        := fileSystem isDirectory: path asArraySlice.
 
     const method binaryUnbufferedReadStream => Std IO Stream uniquePointer
-        := fileSystem _ binaryUnbufferedReadStreamOn: path asArraySlice.
+        := fileSystem binaryUnbufferedReadStreamOn: path asArraySlice.
 
     const method binaryReadStream => Std IO Stream uniquePointer
-        := fileSystem _ binaryReadStreamOn: path asArraySlice.
+        := fileSystem binaryReadStreamOn: path asArraySlice.
 
     const method binaryUnbufferedWriteStream => Std IO Stream uniquePointer
-        := fileSystem _ binaryUnbufferedWriteStreamOn: path asArraySlice.
+        := fileSystem binaryUnbufferedWriteStreamOn: path asArraySlice.
 
     const method binaryWriteStream => Std IO Stream uniquePointer
-        := fileSystem _ binaryWriteStreamOn: path asArraySlice.
+        := fileSystem binaryWriteStreamOn: path asArraySlice.
 
     const method childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void
-        := fileSystem _ directory: path asArraySlice childrenDo: iterationBlock.
+        := fileSystem directory: path asArraySlice childrenDo: iterationBlock.
 
     const method utf8Contents => String uniquePointer := {
         let readStream := self binaryUnbufferedReadStream.

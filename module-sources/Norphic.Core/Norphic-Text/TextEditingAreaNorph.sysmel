@@ -27,7 +27,7 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         super textModelChanged.
     }.
 
-    override method currentMouseCursor => Cursor rcPointer
+    override method currentMouseCursor => CursorRef
         := SystemCursor Ibeam upCastFor: Cursor.
 
     override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {

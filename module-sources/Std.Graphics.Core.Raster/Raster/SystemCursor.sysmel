@@ -37,55 +37,56 @@ class SystemCursor superclass: Cursor; definition: {
         := name.
 
     meta definition: {
-        let singletons mutable type: (SystemCursor rcPointer array: SystemCursorName Count value).
+        let singletons mutable type: (SystemCursor rcRef array: SystemCursorName Count value).
 
-        method getWithName: (name: SystemCursorName) ::=> SystemCursor rcPointer := {
+        method getWithName: (name: SystemCursorName) ::=> SystemCursor rcRef := {
             let result ref := singletons[name value].
             result ifNil: {
-                singletons[name value] := SystemCursor rcNew.
-                result _ initializeWithName: name.
+                singletons[name value] := SystemCursor new
+                    initializeWithName: name;
+                    yourself.
             }.
 
             result
         }.
 
-        method none => SystemCursor rcPointer
+        method none => SystemCursor rcRef
             := self getWithName: SystemCursorName None.
 
-        method Ibeam => SystemCursor rcPointer
+        method Ibeam => SystemCursor rcRef
             := self getWithName: SystemCursorName IBeam.
 
-        method arrow => SystemCursor rcPointer
+        method arrow => SystemCursor rcRef
             := self getWithName: SystemCursorName Arrow.
 
-        method wait => SystemCursor rcPointer
+        method wait => SystemCursor rcRef
             := self getWithName: SystemCursorName Wait.
 
-        method crossHair => SystemCursor rcPointer
+        method crossHair => SystemCursor rcRef
             := self getWithName: SystemCursorName CrossHair.
 
-        method waitArrow => SystemCursor rcPointer
+        method waitArrow => SystemCursor rcRef
             := self getWithName: SystemCursorName WaitArrow.
 
-        method sizeNorthWestSouthEast => SystemCursor rcPointer
+        method sizeNorthWestSouthEast => SystemCursor rcRef
             := self getWithName: SystemCursorName SizeNorthWestSouthEast.
 
-        method sizeNorthEastSouthWest => SystemCursor rcPointer
+        method sizeNorthEastSouthWest => SystemCursor rcRef
             := self getWithName: SystemCursorName SizeNorthEastSouthWest.
 
-        method sizeWestEast => SystemCursor rcPointer
+        method sizeWestEast => SystemCursor rcRef
             := self getWithName: SystemCursorName SizeWestEast.
 
-        method sizeNorthSouth => SystemCursor rcPointer
+        method sizeNorthSouth => SystemCursor rcRef
             := self getWithName: SystemCursorName SizeNorthSouth.
 
-        method sizeAll => SystemCursor rcPointer
+        method sizeAll => SystemCursor rcRef
             := self getWithName: SystemCursorName SizeAll.
 
-        method no => SystemCursor rcPointer
+        method no => SystemCursor rcRef
             := self getWithName: SystemCursorName No.
 
-        method hand => SystemCursor rcPointer
+        method hand => SystemCursor rcRef
             := self getWithName: SystemCursorName Hand.
 
     }.

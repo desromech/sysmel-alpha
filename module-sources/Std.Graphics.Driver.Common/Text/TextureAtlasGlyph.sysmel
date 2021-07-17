@@ -31,7 +31,7 @@ class TextureAtlasGlyph superclass: Glyph; definition: {
         := textureAtlasBounds.
 }.
 
-compileTime constant TextureAtlasGlyphPtr := TextureAtlasGlyph rcPointer.
+compileTime constant TextureAtlasGlyphRef := TextureAtlasGlyph rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

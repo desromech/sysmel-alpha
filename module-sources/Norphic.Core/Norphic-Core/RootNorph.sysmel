@@ -92,7 +92,7 @@ class RootNorph superclass: Norph; definition: {
 
     }.
 
-    virtual method mouseFocusNorphCursor => Cursor rcPointer := {
+    virtual method mouseFocusNorphCursor => CursorRef := {
         mouseFocusNorph ifNotNil: {
             mouseFocusNorph _ currentMouseCursor
         } ifNil: {

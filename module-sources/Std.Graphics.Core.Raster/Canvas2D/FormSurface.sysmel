@@ -6,17 +6,17 @@ namespace Core definition: {
  * I am a form based drawing surface. I am useful for rasterizing into a CPU held form.
  *#
 class FormSurface superclass: SoftSurface; definition: {
-    public field form type: Form rcPointer.
+    public field form type: Form rcRef.
 
     meta definition: {
-        method for: (form: Form rcPointer const ref) ::=> Surface rcPointer
-        := Surface rcPointer for: (FormSurface nativeNew _
+        method for: (form: Form rcRef const ref) ::=> Surface rcRef
+        := FormSurface new
             form: form;
-            address).
+            upCastFor: Surface.
     }.
 
     override method beginDrawing => Boolean8 := {
-        pixelsBlitter := form _ makeBlitter.
+        pixelsBlitter := form makeBlitter.
         true
     }.
 

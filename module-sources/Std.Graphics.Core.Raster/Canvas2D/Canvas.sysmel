@@ -42,10 +42,10 @@ class Canvas superclass: Object; definition: {
     abstract method fillRectangle: (rectangle: RectangleF32) ::=> Void.
 
     ## Gets the current font face with size.
-    abstract method fontFaceWithSize => FontFaceWithSize rcPointer const ref.
+    abstract method fontFaceWithSize => FontFaceWithSize rcRef const ref.
 
     ## Sets the current font face with size.
-    abstract method fontFaceWithSize: (font: FontFaceWithSize rcPointer const ref) ::=> Void.
+    abstract method fontFaceWithSize: (font: FontFaceWithSize rcRef const ref) ::=> Void.
 
     ## Draw a character glyph in a particular position.
     abstract method drawGlyph: (glyph: GlyphRef const ref) at: (aPosition: Float32x2) ::=> Void.

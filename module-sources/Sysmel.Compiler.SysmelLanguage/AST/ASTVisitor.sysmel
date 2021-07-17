@@ -2,7 +2,7 @@ namespace Sysmel definition: {
 namespace Compiler definition: {
 namespace SysmelLanguage definition: {
 
-compileTime constant ASTVisitorResult := Std RCObject rcPointer.
+compileTime constant ASTVisitorResult := Std RCObjectRef.
 
 class ASTVisitor definition: {
     method visitNode: (node: ASTNode ref) ::=> ASTVisitorResult

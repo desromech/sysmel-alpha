@@ -16,7 +16,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
     private field hasConvertedLatin1Set type: Boolean8.
     private field mutex type: Std Mutex.
     private field codePointDictionary type: Std Collections Dictionary(Char32, GlyphRef).
-    private field adaptedGlyphs type: Std Collections Dictionary(Glyph rcPointer, GlyphRef).
+    private field adaptedGlyphs type: Std Collections Dictionary(GlyphRef, GlyphRef).
 
     private field fontFaceForm type: FormRef.
     private field hasValidTexture type: Boolean8.
@@ -88,12 +88,12 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
             return: originalGlyph
         }.
 
-        adaptedGlyphs at: originalGlyph asRCPointer ifPresent: {:(GlyphRef ref)existent :: Void |
+        adaptedGlyphs at: originalGlyph ifPresent: {:(GlyphRef ref)existent :: Void |
             return: existent
         }.
 
         let adapted := self createAdaptedGlyph: originalGlyph.
-        adaptedGlyphs at: originalGlyph asRCPointer put: adapted.
+        adaptedGlyphs at: originalGlyph put: adapted.
         adapted
     }.
 

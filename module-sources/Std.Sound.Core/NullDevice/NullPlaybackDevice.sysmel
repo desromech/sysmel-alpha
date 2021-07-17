@@ -18,7 +18,7 @@ class NullPlaybackDevice superclass: PlaybackDevice; definition: {
         := SoundSource new.
 }.
 
-compileTime constant NullPlaybackDevicePtr := NullPlaybackDevice rcPointer.
+compileTime constant NullPlaybackDeviceRef := NullPlaybackDevice rcRef.
 
 } ## End of namespace Sound
 } ## End of namespace Std

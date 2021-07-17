@@ -23,7 +23,7 @@ class Surface superclass: RCObject; definition: {
         := {}.
 }.
 
-compileTime constant SurfacePtr := Surface rcPointer.
+compileTime constant SurfaceRef := Surface rcRef.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

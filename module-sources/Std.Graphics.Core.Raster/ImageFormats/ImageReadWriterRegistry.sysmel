@@ -19,42 +19,42 @@ class ImageReadWriterRegistry definition: {
     }.
 
     private field mutex type: Std Mutex.
-    private field registeredImageReadWriters type: Std Collections Vector(ImageReadWriter rcPointer).
+    private field registeredImageReadWriters type: Std Collections Vector(ImageReadWriter rcRef).
 
-    method addImageReadWriter: (imageReadWriter: ImageReadWriter rcPointer) ::=> Void := {
+    method addImageReadWriter: (imageReadWriter: ImageReadWriter rcRef) ::=> Void := {
         mutex withLock: {
             registeredImageReadWriters add: imageReadWriter
         }
     }.
 
-    method findForFileName: (fileName: Std String const ref) ::=> ImageReadWriter pointer
+    method findForFileName: (fileName: Std String const ref) ::=> ImageReadWriter rcRef
         := self findForFileReference: fileName asNativeFileReference.
 
-    method findForFileReference: (fileReference: Std FileReference const ref) ::=> ImageReadWriter pointer
+    method findForFileReference: (fileReference: Std FileReference const ref) ::=> ImageReadWriter rcRef
         := self findWithExtension: fileReference extension.
 
-    method findWithExtension: (extension: Char8 const arraySlice) ::=> ImageReadWriter pointer := {
+    method findWithExtension: (extension: Char8 const arraySlice) ::=> ImageReadWriter rcRef := {
         mutex withLock: {
             registeredImageReadWriters do: {:each :: Void |
-                (each _ supportsExtension: extension) ifTrue: {
-                    return: each getPointer
+                (each supportsExtension: extension) ifTrue: {
+                    return: each
                 }
             }
         }.
 
-        nil
+        ImageReadWriter rcRef nil
     }.
 
-    method findWithMimeType: (mimeType: Char8 const arraySlice) ::=> ImageReadWriter pointer := {
+    method findWithMimeType: (mimeType: Char8 const arraySlice) ::=> ImageReadWriter rcRef := {
         mutex withLock: {
             registeredImageReadWriters do: {:each :: Void |
-                (each _ supportsMimeType: mimeType) ifTrue: {
-                    return: each getPointer
+                (each supportsMimeType: mimeType) ifTrue: {
+                    return: each
                 }
             }
         }.
 
-        nil
+        ImageReadWriter rcRef nil
     }.
 
 }.
@@ -63,7 +63,7 @@ template ImageReadWriterRegisterer(T: Type)
     := class definition: {
 
     method initialize => Void := {
-        ImageReadWriterRegistry uniqueInstance addImageReadWriter: (T rcNew upCastFor: ImageReadWriter)
+        ImageReadWriterRegistry uniqueInstance addImageReadWriter: (T new upCastFor: ImageReadWriter)
     }.
 }.
 
@@ -73,28 +73,28 @@ Form extend: {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: FormRef nil}.
 
-        readWriter _ readFormFromFileNamed: fileName.
+        readWriter readFormFromFileNamed: fileName.
     }.
 
     meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
         readWriter ifNil: {return: FormRef nil}.
 
-        readWriter _ readFormFromStream: stream.
+        readWriter readFormFromStream: stream.
     }.
 
     meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
         readWriter ifNil: {return: FormRef nil}.
 
-        readWriter _ readFormFromStream: stream.
+        readWriter readFormFromStream: stream.
     }.
 
     method writeToFileNamed: (fileName: Std String const ref) ::=> Boolean8 := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: false}.
 
-        readWriter _ putForm: self asRCRef onFileNamed: fileName.
+        readWriter putForm: self asRCRef onFileNamed: fileName.
     }.
 }.
 
@@ -106,21 +106,21 @@ TextureData extend: {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: TextureDataRef nil}.
 
-        readWriter _ readTextureDataFromFileReference: fileReference.
+        readWriter readTextureDataFromFileReference: fileReference.
     }.
 
     meta method readFromStream: (stream: Std IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
         readWriter ifNil: {return: TextureDataRef nil}.
 
-        readWriter _ readTextureDataFromStream: stream.
+        readWriter readTextureDataFromStream: stream.
     }.
 
     meta method readFromStream: (stream: Std IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataRef := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
         readWriter ifNil: {return: TextureDataRef nil}.
 
-        readWriter _ readTextureDataFromStream: stream.
+        readWriter readTextureDataFromStream: stream.
     }.
 
     method writeToFileNamed: (fileName: Std String const ref) ::=> Boolean8
@@ -130,7 +130,7 @@ TextureData extend: {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: false}.
 
-        readWriter _ putTextureData: self asRCRef onFileReference: fileReference.
+        readWriter putTextureData: self asRCRef onFileReference: fileReference.
     }.
 }.
 
