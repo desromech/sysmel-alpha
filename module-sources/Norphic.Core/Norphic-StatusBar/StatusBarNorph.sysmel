@@ -5,12 +5,12 @@ namespace Norphic definition: {
  *#
 class StatusBarNorph superclass: Norph; definition: {
     override method defaultColor => Float32x4
-        := self theme _ statusBarBackground.
+        := self theme statusBarBackground.
 
     override method minimalContentExtent => Float32x2
         := Float32x2(0.0f, 10.0f).
 }.
 
-compileTime constant StatusBarNorphPtr := StatusBarNorph rcPointer.
+compileTime constant StatusBarNorphRef := StatusBarNorph rcRef.
 
 }. ## End of namespace Norphic

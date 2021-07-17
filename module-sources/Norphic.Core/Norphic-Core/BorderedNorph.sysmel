@@ -20,7 +20,7 @@ class BorderedNorph superclass: Norph; definition: {
     }.
 
     override method initialize => Void := {
-        borderColor := self theme _ defaultBorderColor.
+        borderColor := self theme defaultBorderColor.
     }.
 
     override method buildPostChildrenSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {

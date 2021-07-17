@@ -9,6 +9,6 @@ useNamespace: Std Math Geometry.
 class LabelNorph superclass: StringNorph; definition: {
 }.
 
-compileTime constant LabelNorphPtr := LabelNorph rcPointer.
+compileTime constant LabelNorphRef := LabelNorph rcRef.
 
 }. ## End of namespace Norphic

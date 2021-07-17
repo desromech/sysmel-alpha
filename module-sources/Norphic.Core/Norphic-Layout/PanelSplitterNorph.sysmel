@@ -12,10 +12,10 @@ class PanelSplitterNorph superclass: Norph; definition: {
         := 5.0f.
 
     override method defaultColor => Float32x4
-        := self theme _ panelSplitterBackground.
+        := self theme panelSplitterBackground.
 
     method directionColor => Float32x4
-        := self theme _ panelSplitterDirectionColor.
+        := self theme panelSplitterDirectionColor.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
         super onMouseEnterEvent: event.
@@ -55,7 +55,7 @@ class PanelSplitterNorph superclass: Norph; definition: {
 
     override method onMouseMoveEvent: (event: NorphMouseMoveEvent ref) ::=> Void := {
         isDragging ifTrue: {
-            (self owner downCastFor: PanedNorph) _
+            (self owner downCastFor: PanedNorph)
                 onSplitter: splitterIndex dragDelta: event delta
         }.
     }.
@@ -76,6 +76,6 @@ class PanelSplitterNorph superclass: Norph; definition: {
     }
 }.
 
-compileTime constant PanelSplitterNorphPtr := PanelSplitterNorph rcPointer.
+compileTime constant PanelSplitterNorphRef := PanelSplitterNorph rcRef.
 
 }. ## End of namespace Norphic

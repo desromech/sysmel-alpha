@@ -20,6 +20,6 @@ class TextInputNorph superclass: AbstractTextEditorNorph; definition: {
     }.
 }.
 
-compileTime constant TextInputNorphPtr := TextInputNorph rcPointer.
+compileTime constant TextInputNorphRef := TextInputNorph rcRef.
 
 }. ## End of namespace Norphic

@@ -7,19 +7,19 @@ useNamespace: Std Math Geometry.
  *#
 class TableViewRowNorph superclass: Norph; definition: {
     compileTime constant Columns := TableViewNorph Columns.
-    compileTime constant Cells := Std Collections Vector(Norph rcPointer).
+    compileTime constant Cells := Std Collections Vector(Norph rcRef).
 
     public field rowIndex type: UIntPointer.
     protected field cells type: Cells.
 
-    const method tableViewNorph => TableViewNorph rcPointer
-        := self owner _ owner downCastFor: TableViewNorph.
+    const method tableViewNorph => TableViewNorph rcRef
+        := self owner owner downCastFor: TableViewNorph.
 
-    const method dataSource => DataSourcePtr const ref
-        := self tableViewNorph _ dataSource.
+    const method dataSource => DataSourceRef const ref
+        := self tableViewNorph dataSource.
 
     const method columns => Columns const ref
-        := self tableViewNorph _ columns.
+        := self tableViewNorph columns.
 
     override method defaultColor => Float32x4
         := Float32x4 zeros.
@@ -30,10 +30,10 @@ class TableViewRowNorph superclass: Norph; definition: {
 
     override method color => Float32x4 := {
         self isSelected ifTrue: {
-            self theme _ tableRowSelectedColor
+            self theme tableRowSelectedColor
         } ifFalse: {
             self hasMouseFocus ifTrue: {
-                self theme _ tableRowHighlightColor
+                self theme tableRowHighlightColor
             } ifFalse: {
                 super color.
             }
@@ -53,19 +53,19 @@ class TableViewRowNorph superclass: Norph; definition: {
     override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
         super onMouseButtonPressedEvent: event.
         event isLeftButton && event wasHandled not ifTrue: {
-            self tableViewNorph _ rowClicked: rowIndex
+            self tableViewNorph rowClicked: rowIndex
         }.
     }.
 
     method isSelected => Boolean8
-        := self tableViewNorph _ isRowSelected: rowIndex.
+        := self tableViewNorph isRowSelected: rowIndex.
 
     override method updateLayout => Void := {
         let cellX mutable := 0.0f.
         let cellHeight := self extent y.
         self columns doWithIndex: {:each :cellIndex :: Void |
-            let cellWidth := each _ width.
-            cells[cellIndex] _ bounds: (RectangleF32 min: Float32x2(cellX, 0.0f) extent: Float32x2(cellWidth, cellHeight)).
+            let cellWidth := each width.
+            cells[cellIndex] bounds: (RectangleF32 min: Float32x2(cellX, 0.0f) extent: Float32x2(cellWidth, cellHeight)).
 
             cellX := cellX + cellWidth.
         }.
@@ -77,21 +77,21 @@ class TableViewRowNorph superclass: Norph; definition: {
             return: void.
         }.
 
-        let element := dataSource _ elementAtRow: rowIndex.
+        let element := dataSource elementAtRow: rowIndex.
         self columns doWithIndex: {:each :cellIndex :: Void |
-            each _ updateCellNorph: cells[cellIndex] withElement: element
+            each updateCellNorph: cells[cellIndex] withElement: element
         }
     }.
 
     method createCells => Void := {
         self columns do: {:each :: Void |
-            let cell := each _ createCellNorph.
+            let cell := each createCellNorph.
             self addSubnorph: (cell upCastFor: Norph).
             cells add: cell.
         }.
     }.
 }.
 
-compileTime constant TableViewRowNorphPtr := TableViewRowNorph rcPointer.
+compileTime constant TableViewRowNorphRef := TableViewRowNorph rcRef.
 
 }. ## End of namespace Norphic

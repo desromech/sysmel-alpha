@@ -7,13 +7,13 @@ useNamespace: Std Graphics Core.
  *#
 class MenuItemSeparatorNorph superclass: Norph; definition: {
     override method defaultColor => Float32x4
-        := self theme _ menuItemSeparatorColor.
+        := self theme menuItemSeparatorColor.
 
     override method minimalContentExtent => Float32x2
         := Float32x2(0, 1).
 }.
 
-compileTime constant MenuItemSeparatorNorphPtr := MenuItemSeparatorNorph rcPointer.
+compileTime constant MenuItemSeparatorNorphRef := MenuItemSeparatorNorph rcRef.
 
 
 }. ## End of namespace Norphic

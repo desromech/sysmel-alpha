@@ -18,12 +18,12 @@ class StringNorph superclass: Norph; definition: {
     }.
 
     override method buildSceneGraphWith: (builder: NorphSceneBuilderRef const ref) ::=> NorphSceneNodeRef := {
-        let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
+        let fontFaceWithSize ref := self theme normalFontFaceWithSize.
         (builder text: text asArraySlice in: self localBounds font: fontFaceWithSize color: self stringColor) asNode
     }.
 
     override method defaultColor => Float32x4
-        := self theme _ textColor.
+        := self theme textColor.
 
     virtual method stringColor => Float32x4
         := self color.
@@ -32,7 +32,7 @@ class StringNorph superclass: Norph; definition: {
         := self minimalContentExtent.
 
     override method minimalContentExtent => Float32x2 := {
-        let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
+        let fontFaceWithSize ref := self theme normalFontFaceWithSize.
         fontFaceWithSize ifNotNil: {
             return: (fontFaceWithSize computeExtentForString: text)
         }.
@@ -47,6 +47,6 @@ class StringNorph superclass: Norph; definition: {
         := false.
 }.
 
-compileTime constant StringNorphPtr := StringNorph rcPointer.
+compileTime constant StringNorphRef := StringNorph rcRef.
 
 }. ## End of namespace Norphic

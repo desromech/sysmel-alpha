@@ -1,8 +1,14 @@
 namespace Norphic definition: {
 
 class NorphEventSubscription superclass: Std RCObject; definition: {
+    method handlesEvent: (event: NorphEvent rcRef const ref) ::=> Boolean8
+        := self handlesEvent: event asRCObjectNativeRef.
+
     virtual method handlesEvent: (event: NorphEvent const ref) ::=> Boolean8
         := false.
+
+    method handleEvent: (event: NorphEvent rcRef const ref) ::=> Void
+        := self handleEvent: event asRCObjectNativeRef.
 
     virtual method handleEvent: (event: NorphEvent ref) ::=> Void
         := void.

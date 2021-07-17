@@ -4,16 +4,16 @@ namespace Norphic definition: {
  * I am a simple list data size. I just hold a vector of data elements.
  *#
 class SimpleStringDataSourceElementColumnView superclass: TableViewColumn; definition: {
-    override method createCellNorph => Norph rcPointer
-        := StringNorph rcNew upCastFor: Norph.
+    override method createCellNorph => Norph rcRef
+        := StringNorph new upCastFor: Norph.
 
-    override method updateCellNorph: (cellNorph: Norph rcPointer const ref) withElement: (element: DataSourceElementPtr const ref) ::=> Void := {
+    override method updateCellNorph: (cellNorph: Norph rcRef const ref) withElement: (element: DataSourceElementRef const ref) ::=> Void := {
         let stringNorph := cellNorph downCastFor: StringNorph.
         let stringElement := element downCastFor: SimpleStringDataSourceElement.
         stringElement ifNil: {
-            stringNorph _ text: "" asMutableString
+            stringNorph text: "" asMutableString
         } ifNotNil: {
-            stringNorph _ text: stringElement _ value
+            stringNorph text: stringElement value
         }.
     }.
 }.

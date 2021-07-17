@@ -7,17 +7,17 @@ useNamespace: Std Math Geometry.
  *#
 class TableViewContentNorph superclass: Norph; definition: {
     compileTime constant Columns := TableViewNorph Columns.
-    compileTime constant Rows := Std Collections Vector(TableViewRowNorphPtr).
+    compileTime constant Rows := Std Collections Vector(TableViewRowNorphRef).
     protected field visibleRows type: Rows.
 
-    const method tableViewNorph => TableViewNorph rcPointer
+    const method tableViewNorph => TableViewNorph rcRef
         := self owner downCastFor: TableViewNorph.
 
-    const method dataSource => DataSourcePtr const ref
-        := self tableViewNorph _ dataSource.
+    const method dataSource => DataSourceRef const ref
+        := self tableViewNorph dataSource.
 
     const method columns => Columns const ref
-        := self tableViewNorph _ columns.
+        := self tableViewNorph columns.
 
     override method isClipped => Boolean8
         := true.
@@ -31,7 +31,7 @@ class TableViewContentNorph superclass: Norph; definition: {
     }.
 
     const method rowHeight => Float32
-        := self tableViewNorph _ rowHeight.
+        := self tableViewNorph rowHeight.
 
     method computeVisibleRowRange => (UIntPointer -- UIntPointer) := {
         let visibleBounds := self localBounds.
@@ -40,13 +40,13 @@ class TableViewContentNorph superclass: Norph; definition: {
         let firstVisibleRow := ((visibleBounds min y / rowHeight) floor max: 0) castTo: UIntPointer.
         let lastVisibleRow := ((visibleBounds max y / rowHeight) ceiling max: 0) castTo: UIntPointer.
 
-        (firstVisibleRow min: self dataSource _ numberOfElements, lastVisibleRow + 1 min: self dataSource _ numberOfElements)
+        (firstVisibleRow min: self dataSource numberOfElements, lastVisibleRow + 1 min: self dataSource numberOfElements)
     }.
 
     method updateContent => Void := {
         self ensureThatVisibleRowsExist.
         visibleRows do: {:each :: Void |
-            each _ updateContent
+            each updateContent
         }
     }.
 
@@ -54,8 +54,8 @@ class TableViewContentNorph superclass: Norph; definition: {
         let rowHeight := self rowHeight.
         let rowExtent := Float32x2(self extent x, rowHeight).
         visibleRows do: {:each :: Void |
-            let position := Float32x2(0, rowHeight * (each _ rowIndex castTo: Float32)).
-            each _ bounds: (RectangleF32 min: position extent: rowExtent)
+            let position := Float32x2(0, rowHeight * (each rowIndex castTo: Float32)).
+            each bounds: (RectangleF32 min: position extent: rowExtent)
         }
     }.
 
@@ -67,12 +67,12 @@ class TableViewContentNorph superclass: Norph; definition: {
         let (let startRange, let endRange) := self computeVisibleRowRange.
 
         let createdRowsStart := visibleRows isNotEmpty ifTrue: {
-            visibleRows first _ rowIndex
+            visibleRows first rowIndex
         } ifFalse: {
             endRange
         }.
         let createdRowsEnd := visibleRows isNotEmpty ifTrue: {
-            visibleRows last _ rowIndex + 1
+            visibleRows last rowIndex + 1
         } ifFalse: {
             endRange
         }.
@@ -88,10 +88,10 @@ class TableViewContentNorph superclass: Norph; definition: {
 
         ## Remove the old non-visible rows.
         visibleRows do: {:each :: Void |
-            let rowIndex := each _ rowIndex.
+            let rowIndex := each rowIndex.
             startRange <= rowIndex && rowIndex < endRange ifFalse: {
                 ##Std stdout << "Destroy invisible row " << rowIndex; nl.
-                each _ destroy
+                each destroy
             }.
         }.
 
@@ -101,11 +101,11 @@ class TableViewContentNorph superclass: Norph; definition: {
                 newRows add: visibleRows[rowIndex - createdRowsStart]
             } ifFalse: {
                 ##Std stdout << "Create new row " << rowIndex; nl.
-                let newRow := TableViewRowNorph rcNew.
+                let newRow := TableViewRowNorph new.
                 self addSubnorph: (newRow upCastFor: Norph).
                 newRows add: newRow.
 
-                newRow _
+                newRow
                     rowIndex: rowIndex;
                     createCells;
                     updateContent.

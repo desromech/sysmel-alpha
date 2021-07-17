@@ -17,18 +17,18 @@ compileTime constant NorphSceneBuilderRef := Std Graphics Scene2D BuilderRef.
  * Smalltalk morph.
  *#
 class Norph superclass: NorphEventHandler; definition: {
-    compileTime constant Subnorphs := Std Collections Vector(Norph rcPointer).
+    compileTime constant Subnorphs := Std Collections Vector(Norph rcRef).
     protected field bounds type: RectangleF32.
     protected field color type: Float32x4.
 
-    protected field owner type: Norph weakRCPointer.
+    protected field owner type: Norph weakRCRef.
     protected field subnorphs type: Subnorphs.
-    protected field eventSubscriptions type: Std Collections Vector(NorphEventSubscription rcPointer).
+    protected field eventSubscriptions type: Std Collections Vector(NorphEventSubscription rcRef).
 
     private field isDirtyInThisFrame type: Boolean8.
     private field isUpdatingLayout type: Boolean8.
 
-    public field sizer type: Sizer rcPointer.
+    public field sizer type: Sizer rcRef.
     public field autolayout type: Boolean8.
 
     inline method extent => Float32x2
@@ -47,7 +47,7 @@ class Norph superclass: NorphEventHandler; definition: {
     const virtual method rootLocalPosition => Float32x2 := {
         let result mutable := self position.
         self owner ifNotNil: {:o :: Void |
-            result := result + o _ rootLocalPosition
+            result := result + o rootLocalPosition
         }.
         result
     }.
@@ -115,7 +115,7 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method minimalExtent => Float32x2 := {
         let result mutable := self minimalContentExtent.
         sizer ifNotNil: {
-            result := result max: sizer _ minimalExtent
+            result := result max: sizer minimalExtent
         }.
 
         result.
@@ -150,7 +150,7 @@ class Norph superclass: NorphEventHandler; definition: {
         result add: myNode.
 
         self validSubnorphs do: {:child :: Void |
-            result add: (child _ buildFullSceneGraphWith: builder)
+            result add: (child buildFullSceneGraphWith: builder)
         }.
 
         result add: myPostChildrenNode.
@@ -180,7 +180,7 @@ class Norph superclass: NorphEventHandler; definition: {
         }.
 
         self owner ifNotNil: { :theOwner :: Void |
-            theOwner _ childChanged.
+            theOwner childChanged.
         }.
     }.
 
@@ -196,13 +196,13 @@ class Norph superclass: NorphEventHandler; definition: {
         self invalidateLayout.
 
         self owner ifNotNil: { :theOwner :: Void |
-            theOwner _ childBoundsChanged.
+            theOwner childBoundsChanged.
         }.
     }.
 
     virtual method positionChanged ::=> Void := {
         self owner ifNotNil: { :theOwner :: Void |
-            theOwner _ childBoundsChanged.
+            theOwner childBoundsChanged.
         }.
     }.
 
@@ -214,7 +214,7 @@ class Norph superclass: NorphEventHandler; definition: {
         }.
 
         self owner ifNotNil: { :theOwner :: Void |
-            theOwner _ childBoundsChanged.
+            theOwner childBoundsChanged.
         }.
     }.
 
@@ -226,7 +226,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method doUpdateLayout => Void := {
         sizer ifNotNil: {
-            sizer _ applyIntoBounds: self localBounds
+            sizer applyIntoBounds: self localBounds
         }
     }.
 
@@ -242,7 +242,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method destroy ::=> Void := {
         self owner ifNotNil: { :o :: Void |
-            o _ removeSubnorph: self asRCPointer
+            o removeSubnorph: self asRCRef
         }.
     }.
 
@@ -250,32 +250,32 @@ class Norph superclass: NorphEventHandler; definition: {
         := subnorphs.
 
     virtual method addedToOwner: (newOwner: Norph ref) ::=> Void := {
-        owner := newOwner asWeakRCPointer.
+        owner := newOwner asWeakRCRef.
     }.
 
     virtual method removedFromOwner: (oldOwner: Norph ref) ::=> Void := {
-        owner reset
+        owner := nil
     }.
 
-    virtual method removeSubnorph: (childSubnorph: Norph rcPointer const ref) ::=> Void := {
+    virtual method removeSubnorph: (childSubnorph: Norph rcRef const ref) ::=> Void := {
         childSubnorph ifNil: { return: void }.
 
         subnorphs remove: childSubnorph.
-        childSubnorph _ removedFromOwner: self.
+        childSubnorph removedFromOwner: self.
         self changed.
     }.
 
-    virtual method addSubnorph: (newSubnorph: Norph rcPointer const ref) ::=> Void := {
+    virtual method addSubnorph: (newSubnorph: Norph rcRef const ref) ::=> Void := {
         newSubnorph ifNil: { return: void }.
 
         subnorphs add: newSubnorph.
-        newSubnorph _ addedToOwner: self.
+        newSubnorph addedToOwner: self.
         self changed.
     }.
 
     const virtual method globalPosition => Float32x2 := {
         self owner ifNotNil: {:owner :: Void |
-            return: bounds min + owner _ globalPosition
+            return: bounds min + owner globalPosition
         }.
 
         bounds min
@@ -283,7 +283,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     const virtual method keyboardFocusNorph => Norph pointer := {
         self owner ifNotNil: {:owner :: Void |
-            return: owner _ keyboardFocusNorph
+            return: owner keyboardFocusNorph
         }.
 
         nil
@@ -291,7 +291,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     const virtual method mouseFocusNorph => Norph pointer := {
         self owner ifNotNil: {:owner :: Void |
-            return: owner _ mouseFocusNorph
+            return: owner mouseFocusNorph
         }.
 
         nil
@@ -299,23 +299,23 @@ class Norph superclass: NorphEventHandler; definition: {
 
     const virtual method mouseCaptureNorph => Norph pointer := {
         self owner ifNotNil: {:owner :: Void |
-            return: owner _ mouseCaptureNorph
+            return: owner mouseCaptureNorph
         }.
 
         nil
     }.
 
-    const virtual method rootNorph => RootNorph pointer := {
+    virtual method rootNorph => RootNorph rcRef := {
         self owner ifNotNil: {:owner :: Void |
-            return: owner _ rootNorph
+            return: owner rootNorph
         }.
 
-        nil
+        RootNorphRef nil
     }.
 
     method grabMouseCapture => Void := {
         self rootNorph ifNotNil: {:root :: Void |
-            root _ setMouseCaptureNorph: self address
+            root setMouseCaptureNorph: self asRCRef
         }
     }.
 
@@ -325,12 +325,12 @@ class Norph superclass: NorphEventHandler; definition: {
         }.
 
         self rootNorph ifNotNil: {:root :: Void |
-            root _ setMouseCaptureNorph: nil
+            root setMouseCaptureNorph: NorphRef nil
         }
     }.
 
-    const inline method owner => Norph rcPointer
-        := owner lock.
+    const inline method owner => Norph rcRef
+        := owner asRCRef.
 
     virtual method handlesKeyboardEvents => Boolean8
         := false.
@@ -346,7 +346,7 @@ class Norph superclass: NorphEventHandler; definition: {
             self hasKeyboardFocus
         } ifFalse: {
             self owner ifNotNil: { :o :: Boolean8 |
-                o _ canReceiveKeyboardEvents
+                o canReceiveKeyboardEvents
             } ifNil: {
                 false
             }
@@ -354,14 +354,14 @@ class Norph superclass: NorphEventHandler; definition: {
 
     method acquireKeyboardFocus => Void := {
         self rootNorph ifNotNil: {:root :: Void |
-            root _ setNewKeyboardFocus: self address
+            root setNewKeyboardFocus: self address
         }
     }.
 
-    inline method theme => Theme rcPointer const ref
+    inline method theme => Theme rcRef const ref
         := ThemeRegistry uniqueInstance defaultTheme.
 
-    inline method asSizerElement => SizerElement rcPointer
+    inline method asSizerElement => SizerElement rcRef
         := (SizerNorphElement for: self) upCastFor: SizerElement.
 
     const inline method hasMouseFocus => Boolean8
@@ -375,7 +375,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method currentMouseCursor => CursorRef := {
         self owner ifNotNil: {:owner :: Void |
-            return: owner _ currentMouseCursor
+            return: owner currentMouseCursor
         }.
 
         SystemCursor arrow upCastFor: Cursor.
@@ -383,7 +383,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method currentCursorChanged => Void := {
         self hasMouseFocus ifTrue: {
-            self rootNorph _ currentActiveMouseCursorChanged.
+            self rootNorph currentActiveMouseCursorChanged.
         }
     }.
 
@@ -397,11 +397,11 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
         let mousePosition := event position.
         self validSubnorphs reverseDo: {:child :: Void |
-            let childBounds := child _ bounds.
-            child _ handlesMouseEvents && (childBounds includesPoint: event position) ifTrue: {
+            let childBounds := child bounds.
+            child handlesMouseEvents && (childBounds includesPoint: event position) ifTrue: {
                 event position: mousePosition - childBounds min.
                 try: {
-                    child _ dispatchMouseEvent: event
+                    child dispatchMouseEvent: event
                 } finally: {
                     event position: mousePosition
                 }.
@@ -417,10 +417,10 @@ class Norph superclass: NorphEventHandler; definition: {
         self dispatchMouseEventToChildren: event.
 
         event targetNorph ifNil: {
-            event targetNorph: self asRCPointer.
+            event targetNorph: self asRCRef.
 
             self rootNorph ifNotNil: {:rootNorph :: Void |
-                rootNorph _ mouseEventHasFoundItsTarget: event
+                rootNorph mouseEventHasFoundItsTarget: event
             }.
         }.
 
@@ -437,8 +437,8 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method dispatchKeyboardEventToChildren: (event: NorphKeyboardEvent ref) ::=> Void := {
         self validSubnorphs do: {:each :: Void |
-            each _ canHaveKeyboardFocus ifFalse: {
-                each _ dispatchKeyboardEventFromParent: event.
+            each canHaveKeyboardFocus ifFalse: {
+                each dispatchKeyboardEventFromParent: event.
                 event wasHandled ifTrue: {return: void}.
             }.
         }.
@@ -456,7 +456,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
         self hasKeyboardFocus ifTrue: {
             self owner ifNotNil: {:parent :: Void |
-                parent _ dispatchPropagatedKeyboardEvent: event
+                parent dispatchPropagatedKeyboardEvent: event
             }.
         }.
     }.
@@ -465,7 +465,7 @@ class Norph superclass: NorphEventHandler; definition: {
         self dispatchKeyboardHereEvent: event.
 
         self owner ifNotNil: {:parent :: Void |
-            parent _ dispatchPropagatedKeyboardEvent: event
+            parent dispatchPropagatedKeyboardEvent: event
         }.
     }.
 
@@ -477,8 +477,8 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method dispatchTextInputEventToChildren: (event: NorphTextInputEvent ref) ::=> Void := {
         self validSubnorphs do: {:each :: Void |
-            each _ canHaveKeyboardFocus ifFalse: {
-                each _ dispatchTextInputEventFromParent: event.
+            each canHaveKeyboardFocus ifFalse: {
+                each dispatchTextInputEventFromParent: event.
                 event wasHandled ifTrue: {return: void}.
             }.
         }.
@@ -496,7 +496,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
         self hasKeyboardFocus ifTrue: {
             self owner ifNotNil: {:parent :: Void |
-                parent _ dispatchPropagatedTextInputEvent: event
+                parent dispatchPropagatedTextInputEvent: event
             }.
         }.
     }.
@@ -505,60 +505,47 @@ class Norph superclass: NorphEventHandler; definition: {
         self dispatchTextInputHereEvent: event.
 
         self owner ifNotNil: {:parent :: Void |
-            parent _ dispatchPropagatedTextInputEvent: event
+            parent dispatchPropagatedTextInputEvent: event
         }.
     }.
 
     const inline method hasKeyboardFocus => Boolean8
         := self keyboardFocusNorph == self address.
 
-    method addEventSubscription: (subscription: NorphEventSubscription rcPointer const ref) ::=> Void := {
+    method addEventSubscription: (subscription: NorphEventSubscription rcRef const ref) ::=> Void := {
         eventSubscriptions add: subscription
     }.
 
     method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformation const pointer) ::=> Void := {
-        let subscription := NorphEventFunctionSubscription rcNew.
-        subscription _
+        self addEventSubscription: (NorphEventFunctionSubscription new
             handlingFunction: eventHandler;
-            expectedEventTypeInfo: eventClassInfo.
-
-        self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
-    }.
-
-    compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        method registerEventHandler: (eventHandler: EventHandlerFunctionType gcBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformation const pointer) ::=> Void := {
-            let subscription := NorphEventFunctionSubscription rcNew.
-            subscription _
-                handlingFunction: eventHandler;
-                expectedEventTypeInfo: eventClassInfo.
-
-            self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
-        }.
+            expectedEventTypeInfo: eventClassInfo;
+            upCastFor: NorphEventSubscription)
     }.
 
     macro method when: aClass do: aBlock
         := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformation)
     ).
 
-    method raiseEvent: (event: NorphEvent rcPointer) ::=> Void := {
-        self processEvent: event _.
+    method raiseEvent: (event: NorphEvent rcRef) ::=> Void := {
+        self processEvent: event.
 
         eventSubscriptions do: {:each :: Void |
-            (each _ handlesEvent: event _) ifTrue: {
-                each _ handleEvent: event _
+            (each handlesEvent: event) ifTrue: {
+                each handleEvent: event
             }.
         }.
     }.
 
     method raiseActivatedEvent => Void := {
-        self raiseEvent: (NorphActivatedEvent rcNew upCastFor: NorphEvent).
+        self raiseEvent: (NorphActivatedEvent new upCastFor: NorphEvent).
     }.
 
-    virtual method ownedPopupCreated: (popup: PopupNorph rcPointer const ref) ::=> Void := {
+    virtual method ownedPopupCreated: (popup: PopupNorph rcRef const ref) ::=> Void := {
 
     }.
 
-    virtual method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
+    virtual method ownedPopupKilled: (popup: PopupNorph rcRef const ref) ::=> Void := {
 
     }.
 
@@ -566,6 +553,6 @@ class Norph superclass: NorphEventHandler; definition: {
         := false.
 }.
 
-compileTime constant NorphPtr := Norph rcPointer.
+compileTime constant NorphRef := Norph rcRef.
 
 }. ## End of namespace Norphic

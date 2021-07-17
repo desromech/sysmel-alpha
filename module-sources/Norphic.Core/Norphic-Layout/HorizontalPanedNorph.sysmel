@@ -8,10 +8,10 @@ class HorizontalPanedNorph superclass: PanedNorph; definition: {
     override method splitDirection => Float32x2
         := Float32x2(1, 0).
 
-    override method newPanelSplitterNorph => PanelSplitterNorphPtr
-        := HorizontalPanelSplitterNorph rcNew upCastFor: PanelSplitterNorph.
+    override method newPanelSplitterNorph => PanelSplitterNorphRef
+        := HorizontalPanelSplitterNorph new upCastFor: PanelSplitterNorph.
 }.
 
-compileTime constant HorizontalPanedNorphPtr := HorizontalPanedNorph rcPointer.
+compileTime constant HorizontalPanedNorphRef := HorizontalPanedNorph rcRef.
 
 }. ## End of namespace Norphic

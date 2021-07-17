@@ -8,15 +8,15 @@ class TableViewColumn superclass: Std RCObject; definition: {
     public field width type: Float32.
 
     virtual method minimalCellExtent => Float32x2
-        := self createCellNorph _ minimalExtent.
+        := self createCellNorph minimalExtent.
 
-    virtual method createCellNorph => Norph rcPointer
-        := Norph rcNew.
+    virtual method createCellNorph => Norph rcRef
+        := Norph new.
 
-    virtual method updateCellNorph: (cellNorph: Norph rcPointer const ref) withElement: (element: DataSourceElementPtr const ref) ::=> Void
+    virtual method updateCellNorph: (cellNorph: Norph rcRef const ref) withElement: (element: DataSourceElementRef const ref) ::=> Void
         := void.
 }.
 
-compileTime constant TableViewColumnPtr := TableViewColumn rcPointer.
+compileTime constant TableViewColumnRef := TableViewColumn rcRef.
 
 }. ## End of namespace Norphic

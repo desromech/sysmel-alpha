@@ -7,6 +7,6 @@ useNamespace: Std Math Geometry.
 class HorizontalPanelSplitterNorph superclass: PanelSplitterNorph; definition: {
 }.
 
-compileTime constant HorizontalPanelSplitterNorphPtr := HorizontalPanelSplitterNorph rcPointer.
+compileTime constant HorizontalPanelSplitterNorphRef := HorizontalPanelSplitterNorph rcRef.
 
 }. ## End of namespace Norphic

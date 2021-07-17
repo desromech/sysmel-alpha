@@ -8,7 +8,7 @@ class SizerElement.
  * I am a norph sizer. My job is to size and align different norphs.
  *#
 class Sizer superclass: Std RCObject; definition: {
-    protected field elements type: Std Collections Vector(SizerElement rcPointer).
+    protected field elements type: Std Collections Vector(SizerElement rcRef).
 
     abstract method minimalExtent => Float32x2.
     abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
@@ -17,22 +17,22 @@ class Sizer superclass: Std RCObject; definition: {
         self minimalExtent
     }.
 
-    inline method asSizerElement => SizerElement rcPointer
+    inline method asSizerElement => SizerElement rcRef
         := (SizerSubSizerElement for: self) upCastFor: SizerElement.
 
-    method add: (newElement: SizerElement rcPointer const ref) ::=> Void := {
+    method add: (newElement: SizerElement rcRef const ref) ::=> Void := {
         elements add: newElement
     }.
 
-    method addFirst: (newElement: SizerElement rcPointer const ref) ::=> Void := {
+    method addFirst: (newElement: SizerElement rcRef const ref) ::=> Void := {
         elements add: newElement
     }.
 
     macro method element: aWidgetOrASizer with: aBlock :=  {
         let sizerElement := __astBuilder gensym: #sizerElement.
         (``{
-            let `,sizerElement mutable := `,aWidgetOrASizer _ asSizerElement.
-            `,aBlock __macroInlineBlock: `,sizerElement _.
+            let `,sizerElement mutable := `,aWidgetOrASizer asSizerElement.
+            `,aBlock __macroInlineBlock: `,sizerElement.
             `,self add: `,sizerElement
         }) asSequenceWithoutLexicalScope
     }.
@@ -40,13 +40,13 @@ class Sizer superclass: Std RCObject; definition: {
     macro method startElement: aWidgetOrASizer with: aBlock :=  {
         let sizerElement := __astBuilder gensym: #sizerElement.
         (``{
-            let `,sizerElement mutable := `,aWidgetOrASizer _ asSizerElement.
-            `,aBlock __macroInlineBlock: `,sizerElement _.
+            let `,sizerElement mutable := `,aWidgetOrASizer asSizerElement.
+            `,aBlock __macroInlineBlock: `,sizerElement .
             `,self addFirst: `,sizerElement
         }) asSequenceWithoutLexicalScope
     }.
 }.
 
-compileTime constant SizerPtr := Sizer rcPointer.
+compileTime constant SizerRef := Sizer rcRef.
 
 }. ## End of namespace Norphic

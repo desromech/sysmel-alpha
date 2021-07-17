@@ -4,24 +4,24 @@ namespace Norphic definition: {
  * I am a simple list data size. I just hold a vector of data elements.
  *#
 class SimpleListDataSource superclass: DataSource; definition: {
-    protected field items type: Std Collections Vector (DataSourceElementPtr).
+    protected field items type: Std Collections Vector (DataSourceElementRef).
 
     override method numberOfElements => UIntPointer
         := items size.
 
-    override method elementAtRow: (rowIndex: UIntPointer) ::=> DataSourceElementPtr := {
+    override method elementAtRow: (rowIndex: UIntPointer) ::=> DataSourceElementRef := {
         rowIndex < items size ifTrue: {
             return: items[rowIndex]
         }.
 
-        DataSourceElementPtr nil
+        DataSourceElementRef nil
     }.
 
     method removeAll => Void := {
         items removeAll.
     }.
 
-    method addItem: (item: DataSourceElementPtr const ref) ::=> UIntPointer := {
+    method addItem: (item: DataSourceElementRef const ref) ::=> UIntPointer := {
         items add: item.
         items size
     }

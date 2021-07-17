@@ -25,11 +25,10 @@ class SimpleTextModel superclass: TextModel; definition: {
         }
     }.
 
-    override method newCursor => TextModelCursor rcPointer := {
-        let result := SimpleTextModelCursor rcNew.
-        result _ model: self asRCPointer.
-        result upCastFor: TextModelCursor
-    }.
+    override method newCursor => TextModelCursor rcRef
+        := SimpleTextModelCursor new
+            model: self asRCRef;
+            upCastFor: TextModelCursor.
 
     override method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void := {
         textBuffer isEmpty ifTrue: { return: void }.
@@ -97,24 +96,24 @@ class SimpleTextModel superclass: TextModel; definition: {
  * Simplistic and slow text model cursor.
  *#
 class SimpleTextModelCursor superclass: TextModelCursor; definition: {
-    protected field model type: SimpleTextModel rcPointer.
+    protected field model type: SimpleTextModel rcRef.
     private field bufferPosition type: UIntPointer.
 
-    method model: (theModel: SimpleTextModel rcPointer const ref) ::=> Void := {
+    method model: (theModel: SimpleTextModel rcRef const ref) ::=> Void := {
         model := theModel
     }.
 
     override method drawingPosition => Float32x2
-        := model _ topPositionOfCharacterAt: bufferPosition.
+        := model topPositionOfCharacterAt: bufferPosition.
 
     override method drawingHeight => Float32
-        := model _ fontFaceWithSize height.
+        := model fontFaceWithSize height.
 
-    override method model => TextModel ref
-        := model _.
+    override method model => TextModel rcRef
+        := model upCastFor: TextModel.
 
     override method nextCharacter ::=> Int32 := {
-        let textBuffer ref := model _ textBuffer.
+        let textBuffer ref := model textBuffer.
         bufferPosition < textBuffer size ifTrue: {
             return: textBuffer[bufferPosition]
         }.
@@ -123,7 +122,7 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
     }.
 
     override method previousCharacter ::=> Int32 := {
-        let textBuffer ref := model _ textBuffer.
+        let textBuffer ref := model textBuffer.
         bufferPosition > 0 ifTrue: {
             return: textBuffer[bufferPosition - 1]
         }.
@@ -132,7 +131,7 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
     }.
 
     override method moveIntoNextCharacter ::=> Void := {
-        bufferPosition := bufferPosition + 1 min: model _ textBuffer size
+        bufferPosition := bufferPosition + 1 min: model textBuffer size
     }.
 
     override method moveIntoPreviousCharacter ::=> Void := {
@@ -142,7 +141,7 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
     }.
 
     override method deleteNext ::=> Boolean8 := {
-        let textBuffer ref := model _ textBuffer.
+        let textBuffer ref := model textBuffer.
         bufferPosition := bufferPosition min: textBuffer size.
         bufferPosition < textBuffer size ifTrue: {
             bufferPosition until: textBuffer size - 1 do: {:i :: Void |
@@ -164,11 +163,11 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
     }.
 
     override method setAtDrawingPosition: (position: Float32x2) ::=> Void := {
-        bufferPosition := model _ bufferPositionForDrawingPosition: position
+        bufferPosition := model bufferPositionForDrawingPosition: position
     }.
 
     override method insertString: (text: Std String const ref) ::=> Void := {
-        let textBuffer ref := model _ textBuffer.
+        let textBuffer ref := model textBuffer.
 
         bufferPosition := bufferPosition min: textBuffer size.
         textBuffer addAll: text asArraySlice beforeIndex: bufferPosition.

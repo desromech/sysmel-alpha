@@ -1,36 +1,34 @@
 namespace Norphic definition: {
 
 #**
- * I am a button widget norph with a text label.
+ * I am a button widget norph with a text rcRef.
  *#
 class SimpleButtonNorph superclass: AbstractButtonNorph; definition: {
-    protected field label type: StringNorph rcPointer.
+    protected field label type: StringNorph rcRef.
 
     method initialize => Void := {
-        label := StringNorph rcNew.
+        label := StringNorph new.
 
-        let labelRef := label upCastFor: Norph.
-        self addSubnorph: labelRef.
-
-        let sizer := HorizontalBoxSizer rcNew.
-        sizer _ element: label with: {:constraints :: Void |
-            constraints centered; allBorders; borderSize: 2.
-        }.
+        self addSubnorph: (label upCastFor: Norph).
 
         self
-            sizer: (sizer upCastFor: Sizer);
+            sizer: (HorizontalBoxSizer new
+                element: label with: {:(SizerElementRef const ref)constraints :: Void |
+                    constraints centered; allBorders; borderSize: 2.
+                };
+                upCastFor: Sizer);
             autolayout: true
     }.
 
     method text => Std String const ref := {
-        label _ text.
+        label text.
     }.
 
     method text: (newLabel: Std String const ref) ::=> Void := {
-        label _ text: newLabel
+        label text: newLabel
     }.
 }.
 
-compileTime constant SimpleButtonNorphPtr := SimpleButtonNorph rcPointer.
+compileTime constant SimpleButtonNorphRef := SimpleButtonNorph rcRef.
 
 }. ## End of namespace Norphic

@@ -6,11 +6,8 @@ template SimpleDataSourceElement(VT: Type)
     public field value type: ValueType.
 
     meta definition: {
-        method for: (value: ValueType const ref) ::=> InstanceType rcPointer := {
-            let result := InstanceType rcNew.
-            result _ value: value.
-            result
-        }.
+        method for: (value: ValueType const ref) ::=> InstanceType rcRef
+            := InstanceType new value: value; yourself.
     }.
 }.
 

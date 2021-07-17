@@ -19,7 +19,7 @@ class BoxSizer superclass: FullSizer; definition: {
         let oppositeDirection := self oppositeDirection.
 
         elements do: {:each :: Void |
-            let elementExtent := each _ minimalExtent.
+            let elementExtent := each minimalExtent.
             directionExtentSum := directionExtentSum + elementExtent*direction.
             maxOpppositeDirectionExtent := maxOpppositeDirectionExtent max: elementExtent * oppositeDirection.
         }.
@@ -40,9 +40,9 @@ class BoxSizer superclass: FullSizer; definition: {
         let requiredExtent mutable := 0.0f.
         let proportionSum mutable := 0.0f.
         elements do: {:each :: Void |
-            let proportion := each _ proportion.
+            let proportion := each proportion.
             proportion <= 0.0f ifTrue: {
-                requiredExtent := requiredExtent + (each _ layoutComputationExtent dot: direction).
+                requiredExtent := requiredExtent + (each layoutComputationExtent dot: direction).
             } ifFalse: {
                 proportionSum := proportionSum + proportion.
             }.
@@ -54,16 +54,16 @@ class BoxSizer superclass: FullSizer; definition: {
         let currentPosition mutable := newBounds min.
 
         elements do: {:each :: Void |
-            let proportion := each _ proportion.
+            let proportion := each proportion.
 
             let elementExtent := proportion <= 0.0f ifTrue: {
-                each _ layoutComputationExtent * direction + oppositeExtent.
+                each layoutComputationExtent * direction + oppositeExtent.
             } ifFalse: {
                 remainingDirectionExtent * proportion / proportionSum + oppositeExtent.
             }.
 
             let elementBounds := RectangleF32 min: currentPosition extent: elementExtent.
-            each _ applyIntoBounds: elementBounds.
+            each applyIntoBounds: elementBounds.
             currentPosition := currentPosition + elementExtent*direction.
         }
     }.

@@ -4,46 +4,47 @@ namespace Norphic definition: {
  * I am a menu popup norph.
  *#
 class MenuNorph superclass: PopupNorph; definition: {
-    protected field items type: Std Collections Vector(MenuItemNorph rcPointer).
-    protected field activeItem type: MenuItemNorph pointer.
+    protected field items type: Std Collections Vector(MenuItemNorph rcRef).
+    protected field activeItem type: MenuItemNorphRef.
     protected field changingActiveItem type: Boolean8.
 
     override method defaultColor => Float32x4
-        := self theme _ menuBackground.
+        := self theme menuBackground.
 
     override method initialize => Void := {
         self
-            sizer: (VerticalBoxSizer rcNew upCastFor: Sizer);
+            sizer: (VerticalBoxSizer new upCastFor: Sizer);
             autolayout: true
     }.
 
-    method activeItem => MenuItemNorph pointer
+    method activeItem => MenuItemNorphRef const ref
         := activeItem.
 
-    override method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
+    override method ownedPopupKilled: (popup: PopupNorph rcRef const ref) ::=> Void := {
         changingActiveItem ifFalse: {
-            self itemActivate: nil
+            self itemActivate: MenuItemNorphRef nil
         }
     }.
 
-    method addMenu: (label: Std String const ref) ::=> MenuNorph rcPointer := {
+    method addMenu: (label: Std String const ref) ::=> MenuNorph rcRef := {
         let menuItem := self addItem: label.
 
         ## Create the menu itself.
-        let menu := MenuNorph rcNew.
-        menuItem _ menu: menu.
+        let menu := MenuNorph new.
+        menuItem menu: menu.
         menu
     }.
 
-    method addItem: (label: Std String const ref) ::=> MenuItemNorphPtr := {
+    method addItem: (label: Std String const ref) ::=> MenuItemNorphRef := {
         ## Create the menu item
-        let menuItem := MenuItemNorph rcNew.
-        menuItem _ label: label.
+        let menuItem := MenuItemNorph new
+            label: label;
+            yourself.
         self addSubnorph: (menuItem upCastFor: Norph).
         items add: menuItem.
 
-        self sizer _
-            element: menuItem with: {:constraints :: Void |
+        self sizer
+            element: menuItem with: {:(SizerElementRef const ref)constraints :: Void |
                 constraints expanded
             }.
 
@@ -52,37 +53,37 @@ class MenuNorph superclass: PopupNorph; definition: {
     }.
 
     method addSeparator => Void := {
-        let separator := MenuItemSeparatorNorph rcNew.
+        let separator := MenuItemSeparatorNorph new.
         self addSubnorph: (separator upCastFor: Norph).
 
-        self sizer _
-            element: separator with: {:constraints :: Void |
+        self sizer
+            element: separator with: {:(SizerElementRef const ref)constraints :: Void |
                 constraints expanded
             }.
 
         self fit.
     }.
 
-    method itemClicked: (item: MenuItemNorph pointer) ::=> Void := {
-        item _ menu ifNil: {
+    method itemClicked: (item: MenuItemNorphRef const ref) ::=> Void := {
+        item menu ifNil: {
             self rootNorph ifNotNil: {:r :: Void |
-                r _ killAllPopups.
+                r killAllPopups.
             }.
-            item _ raiseActivatedEvent.
+            item raiseActivatedEvent.
         } ifNotNil: {
-            item _ activated
+            item activated
         }
     }.
 
     override method onPopupStarted => Void := {
-        self itemActivate: nil
+        self itemActivate: MenuItemNorphRef nil
     }.
 
     override method onPopupKilled => Void := {
-        self itemActivate: nil
+        self itemActivate: MenuItemNorphRef nil
     }.
 
-    method itemActivate: (newActiveItem: MenuItemNorph pointer) ::=> Void := {
+    method itemActivate: (newActiveItem: MenuItemNorphRef const ref) ::=> Void := {
         changingActiveItem ifTrue: { return: void }.
         changingActiveItem := true.
 
@@ -91,30 +92,30 @@ class MenuNorph superclass: PopupNorph; definition: {
             activeItem := newActiveItem.
 
             oldActiveItem ifNotNil: {
-                oldActiveItem _ deactivated.
+                oldActiveItem deactivated.
             }.
 
             activeItem ifNotNil: {
-                activeItem _ activated.
+                activeItem activated.
             }.
         } finally: {
             changingActiveItem := false.
         }
     }.
 
-    method itemMouseEnter: (item: MenuItemNorph pointer) ::=> Void := {
+    method itemMouseEnter: (item: MenuItemNorphRef const ref) ::=> Void := {
         item ~~ activeItem ifTrue: {
             self itemActivate: item.
         }
     }.
 
     macro method addItem: menuName doing: aBlock :=
-        ``((`,self addItem: `,menuName) _ when: Norphic NorphActivatedEvent do: `,aBlock).
+        ``((`,self addItem: `,menuName) when: Norphic NorphActivatedEvent do: `,aBlock).
 
     macro method addMenu: menuName with: aBlock :=
-        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
+        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName)).
 }.
 
-compileTime constant MenuNorphPtr := MenuNorph rcPointer.
+compileTime constant MenuNorphRef := MenuNorph rcRef.
 
 }. ## End of namespace Norphic

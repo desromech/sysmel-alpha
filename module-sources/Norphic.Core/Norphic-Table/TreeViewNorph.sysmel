@@ -6,7 +6,7 @@ namespace Norphic definition: {
 class TreeViewNorph superclass: TableViewNorph; definition: {
 }.
 
-compileTime constant TreeViewNorphPtr := TreeViewNorph rcPointer.
+compileTime constant TreeViewNorphRef := TreeViewNorph rcRef.
 
 
 }. ## End of namespace Norphic

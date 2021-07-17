@@ -33,7 +33,7 @@ class TextModel superclass: Std RCObject; definition: {
         tabSize := 4.
     }.
 
-    abstract method newCursor => TextModelCursor rcPointer.
+    abstract method newCursor => TextModelCursor rcRef.
     abstract method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void.
 
     abstract method text => Std String.
@@ -56,7 +56,7 @@ class TextModel superclass: Std RCObject; definition: {
  * I am an abstract text model cursor interface. I am used to keep track
  *#
 class TextModelCursor superclass: Std RCObject; definition: {
-    abstract method model => TextModel ref.
+    abstract method model => TextModel rcRef.
 
     virtual method drawingPosition => Float32x2 := Float32x2 zeros.
     virtual method drawingHeight => Float32 := 10.0f.

@@ -8,7 +8,7 @@ useNamespace: Std Math Geometry.
  * I am norph whose task is to displaying a text model.
  *#
 class TextEditingAreaNorph superclass: TextModelNorph; definition: {
-    protected field textCursor type: TextModelCursor rcPointer.
+    protected field textCursor type: TextModelCursor rcRef.
     public field isMultiLineEditor type: Boolean8.
 
     override method canHaveKeyboardFocus => Boolean8
@@ -20,9 +20,10 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
 
     override method textModelChanged => Void := {
         textModel ifNil: {
-            textCursor reset
+            textCursor := nil.
+            void
         } ifNotNil: {
-            textCursor := textModel _ newCursor
+            textCursor := textModel newCursor
         }.
         super textModelChanged.
     }.
@@ -38,7 +39,7 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         }.
 
         textCursor ifNotNil: {
-            textCursor _ setAtDrawingPosition: event position.
+            textCursor setAtDrawingPosition: event position.
             self changed.
         }.
     }.
@@ -52,23 +53,23 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
 
         event symbol selectCase: #{
         KeySymbol Backspace : {
-            textCursor _ deletePrevious.
+            textCursor deletePrevious.
             self changed.
             event wasHandled: true.
         }.
 
         KeySymbol Delete : {
-            textCursor _ deleteNext.
+            textCursor deleteNext.
             self changed.
             event wasHandled: true.
         }.
         KeySymbol Left : {
-            textCursor _ advanceCharacters: -1.
+            textCursor advanceCharacters: -1.
             self changed.
             event wasHandled: true.
         }.
         KeySymbol Right : {
-            textCursor _ advanceCharacters: 1.
+            textCursor advanceCharacters: 1.
             self changed.
             event wasHandled: true.
         }.
@@ -78,16 +79,16 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         isMultiLineEditor ifTrue: {
             event symbol selectCase: #{
             (KeySymbol Return, KeySymbol KpEnter) asValueInSetPattern  : {
-                textCursor _ insertString: textModel _ newLineString.
+                textCursor insertString: textModel newLineString.
                 self changed.
             }.
             KeySymbol Up : {
-                textCursor _ advanceLines: -1.
+                textCursor advanceLines: -1.
                 self changed.
                 event wasHandled: true.
             }.
             KeySymbol Down : {
-                textCursor _ advanceLines: 1.
+                textCursor advanceLines: 1.
                 self changed.
                 event wasHandled: true.
             }.
@@ -103,7 +104,7 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         }.
 
         textCursor ifNotNil: {
-            textCursor _ insertString: event text.
+            textCursor insertString: event text.
             self changed
         }
     }.
@@ -112,7 +113,7 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         let textNode := super buildSceneGraphWith: builder.
         let result mutable := textNode.
         self canReceiveKeyboardEvents && textCursor isNotNil && textModel isNotNil ifTrue: {
-            let caret := builder fillRectangle: (RectangleF32 min: textCursor _ drawingPosition extent: Float32x2(1.0f, textCursor _ drawingHeight)) color: Float32x4 blue.
+            let caret := builder fillRectangle: (RectangleF32 min: textCursor drawingPosition extent: Float32x2(1.0f, textCursor drawingHeight)) color: Float32x4 blue.
             result := caret -- textNode
         }.
 

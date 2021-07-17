@@ -114,7 +114,7 @@ class NorphTextInputEvent superclass: NorphEvent; definition: {
 }.
 
 class NorphMouseEvent superclass: NorphEvent; definition: {
-    public field targetNorph type: Norph rcPointer.
+    public field targetNorph type: Norph rcRef.
 
     public field mouseId type: UInt32.
     public field position type: Float32x2.

@@ -231,5 +231,5 @@ class SizerElement superclass: Std RCObject; definition: {
 
 }.
 
-
+compileTime constant SizerElementRef := SizerElement rcRef.
 }. ## End of namespace Norphic

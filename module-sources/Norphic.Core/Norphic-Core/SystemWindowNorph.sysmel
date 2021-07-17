@@ -14,11 +14,11 @@ class SystemWindowNorph superclass: RootNorph; definition: {
     protected field hasChanged type: Boolean8.
 
     override method defaultColor => Float32x4
-        := self theme _ systemWindowBackground.
+        := self theme systemWindowBackground.
 
     meta definition: {
-        method createFor: (windowSystem: WindowSystemRef const ref)
-            title: (theTitle: Std String const ref) extent: (theExtent: Int32x2) ::=> InstanceType rcPointer := {
+        static method createFor: (windowSystem: WindowSystemRef const ref)
+            title: (theTitle: Std String const ref) extent: (theExtent: Int32x2) ::=> InstanceType rcRef := {
 
             self createFor: windowSystem creationInfo: (WindowCreationInfo()
                 resizable: true;
@@ -27,28 +27,28 @@ class SystemWindowNorph superclass: RootNorph; definition: {
                 yourself)
         }.
 
-        method createFor: (windowSystem: WindowSystemRef const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType rcPointer := {
+        static method createFor: (windowSystem: WindowSystemRef const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType rcRef := {
 
             let window := windowSystem createWindow: creationInfo.
             window ifNil: {
-                return: InstanceType rcPointer nil
+                return: InstanceType rcRef nil
             }.
 
             ## Create the drawing surface.
             let renderer := window createScene2DRenderer.
             renderer ifNil: {
-                return: InstanceType rcPointer nil
+                return: InstanceType rcRef nil
             }.
 
             ## Create the system window norph.
-            let result := SystemWindowNorph rcNew.
-            result _
+            let result := SystemWindowNorph new
                 bounds: (RectangleF32 min: Float32x2 zeros extent: (creationInfo extent castTo: Float32x2));
-                initializeWithWindowSystem: windowSystem window: window renderer: renderer.
+                initializeWithWindowSystem: windowSystem window: window renderer: renderer;
+                yourself.
 
             ## Create the event handler
             window eventHandler: (SystemWindowNorphEventHandler new
-                norph: result getPointer;
+                norph: result asWeakRCRef;
                 upCastFor: EventHandler).
 
             return: result
@@ -71,7 +71,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             present
     }.
 
-    override method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {
+    override method setMouseCaptureNorph: (norph: NorphRef const ref) ::=> Void := {
         super setMouseCaptureNorph: norph.
 
         norph ifNil: {
@@ -108,30 +108,30 @@ class SystemWindowNorph superclass: RootNorph; definition: {
 }.
 
 class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
-    public field norph type: SystemWindowNorph pointer.
+    public field norph type: SystemWindowNorph weakRCRef.
 
     override method onTickEvent: (event: TickEvent ref) ::=> Void := {
-        norph _ onTick
+        norph onTick
     }.
 
     override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
-        norph _ render
+        norph render
     }.
 
     override method onWindowMovedEvent: (event: WindowMovedEvent ref) ::=> Void := {
-        norph _ movedInto: event newPosition.
+        norph movedInto: event newPosition.
     }.
 
     override method onWindowResizingEvent: (event: WindowResizingEvent ref) ::=> Void := {
-        norph _ extentChangedInto: event newSize.
+        norph extentChangedInto: event newSize.
     }.
 
     override method onWindowSizeChangedEvent: (event: WindowSizeChangedEvent ref) ::=> Void := {
-        norph _ extentChangedInto: event newSize.
+        norph extentChangedInto: event newSize.
     }.
 
     override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
-        norph _ destroy
+        norph destroy
     }.
 
     override method onKeyPressedEvent: (event: KeyPressedEvent ref) ::=> Void := {
@@ -140,7 +140,7 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
             modifiers: event modifiers;
             isRepeat: event isRepeat;
             yourself.
-        norph _ dispatchKeyboardEvent: convertedEvent.
+        norph dispatchKeyboardEvent: convertedEvent.
     }.
 
     override method onKeyReleasedEvent: (event: KeyReleasedEvent ref) ::=> Void := {
@@ -149,14 +149,14 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
             modifiers: event modifiers;
             isRepeat: event isRepeat;
             yourself.
-        norph _ dispatchKeyboardEvent: convertedEvent.
+        norph dispatchKeyboardEvent: convertedEvent.
     }.
 
     override method onTextInputEvent: (event: TextInputEvent ref) ::=> Void := {
         let convertedEvent mutable := NorphTextInputEvent()
             text: event text;
             yourself.
-        norph _ dispatchTextInputEvent: convertedEvent.
+        norph dispatchTextInputEvent: convertedEvent.
     }.
 
     override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
@@ -167,7 +167,7 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
             buttonState: event buttonState;
             delta: (event delta castTo: Float32x2);
             yourself.
-        norph _ dispatchMouseEvent: convertedEvent
+        norph dispatchMouseEvent: convertedEvent
     }.
 
     override method onMouseButtonPressedEvent: (event: MouseButtonPressedEvent ref) ::=> Void := {
@@ -178,7 +178,7 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
             button: event button;
             clickCount: event clickCount;
             yourself.
-        norph _ dispatchMouseEvent: convertedEvent
+        norph dispatchMouseEvent: convertedEvent
     }.
 
     override method onMouseButtonReleasedEvent: (event: MouseButtonReleasedEvent ref) ::=> Void := {
@@ -189,7 +189,7 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
             button: event button;
             clickCount: event clickCount;
             yourself.
-        norph _ dispatchMouseEvent: convertedEvent
+        norph dispatchMouseEvent: convertedEvent
     }.
 }.
 

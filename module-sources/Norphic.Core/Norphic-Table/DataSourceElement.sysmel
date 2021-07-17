@@ -6,6 +6,6 @@ namespace Norphic definition: {
 class DataSourceElement superclass: Std RCObject; definition: {
 }.
 
-compileTime constant DataSourceElementPtr := DataSourceElement rcPointer.
+compileTime constant DataSourceElementRef := DataSourceElement rcRef.
 
 }. ## End of namespace Norphic

@@ -5,33 +5,33 @@ namespace Norphic definition: {
  * I am just a single column table of strings.
  *#
 class ListViewNorph superclass: TableViewNorph; definition: {
-    protected field listDataSource type: SimpleListDataSource rcPointer.
+    protected field listDataSource type: SimpleListDataSource rcRef.
 
     override method defaultColor => Float32x4
-        := self theme _ listViewBackground.
+        := self theme listViewBackground.
 
     override method initialize => Void := {
-        listDataSource := SimpleListDataSource rcNew.
+        listDataSource := SimpleListDataSource new.
         self dataSource: (listDataSource upCastFor: DataSource).
 
-        self addColumn: (SimpleStringDataSourceElementColumnView rcNew upCastFor: TableViewColumn).
+        self addColumn: (SimpleStringDataSourceElementColumnView new upCastFor: TableViewColumn).
     }.
 
-    const method listDataSource => SimpleListDataSource rcPointer const ref
+    const method listDataSource => SimpleListDataSource rcRef const ref
         := listDataSource.
 
     method removeAll ::=> Void := {
-        listDataSource _ removeAll.
+        listDataSource removeAll.
         self changed.
     }.
 
     method addItem: (item: Std String const ref) ::=> UIntPointer := {
-        let result := listDataSource _ addItem: ((SimpleStringDataSourceElement for: item) upCastFor: DataSourceElement).
+        let result := listDataSource addItem: ((SimpleStringDataSourceElement for: item) upCastFor: DataSourceElement).
         self changed.
         result
     }.
 }.
 
-compileTime constant ListViewNorphPtr := ListViewNorph rcPointer.
+compileTime constant ListViewNorphRef := ListViewNorph rcRef.
 
 }. ## End of namespace Norphic

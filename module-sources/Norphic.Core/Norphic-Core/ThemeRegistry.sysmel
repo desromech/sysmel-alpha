@@ -17,10 +17,10 @@ class ThemeRegistry definition: {
         }.
     }.
 
-    public field defaultTheme type: Theme rcPointer.
+    public field defaultTheme type: Theme rcRef.
 
     method initialize => Void := {
-        defaultTheme := Theme rcNew
+        defaultTheme := Theme new
     }.
 }.
 

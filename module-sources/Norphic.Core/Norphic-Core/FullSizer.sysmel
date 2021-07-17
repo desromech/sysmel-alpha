@@ -9,14 +9,14 @@ class FullSizer superclass: Sizer; definition: {
     override method minimalExtent => Float32x2 := {
         let result mutable := Float32x2 zeros.
         elements do: {:each :: Void |
-            result := result max: each _ minimalExtent
+            result := result max: each minimalExtent
         }.
         result
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
         elements do: {:each :: Void |
-            each _ applyIntoBounds: newBounds
+            each applyIntoBounds: newBounds
         }
     }.
 }.

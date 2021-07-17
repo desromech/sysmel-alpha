@@ -2,6 +2,10 @@ namespace Norphic definition: {
 
 class NorphEventHandler superclass: Std RCObject; definition: {
 
+    method processEvent: (event: NorphEvent rcRef const ref) ::=> Void := {
+        self processEvent: event asRCObjectNativeRef
+    }.
+
     virtual method processEvent: (event: NorphEvent ref) ::=> Void := {
         event acceptEventHandler: self
     }.

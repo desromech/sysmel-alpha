@@ -19,19 +19,19 @@ Std MainEntryPoint: {:args :: Int32 |
         return: 0.
     }.
 
-    let menuBar := MenuBarNorph rcNew.
-    let statusBar := StatusBarNorph rcNew.
-    let rectangleWithBorder := BorderedNorph rcNew.
-    let list := ListViewNorph rcNew.
-    let label := LabelNorph rcNew.
-    let button := SimpleButtonNorph rcNew.
-    let textInput := TextInputNorph rcNew.
-    let textArea := TextAreaNorph rcNew.
+    let menuBar := MenuBarNorph new.
+    let statusBar := StatusBarNorph new.
+    let rectangleWithBorder := BorderedNorph new.
+    let list := ListViewNorph new.
+    let label := LabelNorph new.
+    let button := SimpleButtonNorph new.
+    let textInput := TextInputNorph new.
+    let textArea := TextAreaNorph new.
 
     ## Menu bar
     {
-        menuBar _
-            addMenu: "File" asMutableString with: {:menu :: Void |
+        menuBar
+            addMenu: "File" asMutableString with: {:(MenuNorphRef const ref)menu :: Void |
                 menu
                     addItem: "New" asMutableString doing: { :(NorphEvent ref) event :: Void |
                         Std stdout << "TODO: File new"; nl.
@@ -41,10 +41,10 @@ Std MainEntryPoint: {:args :: Int32 |
                     };
                     addSeparator;
                     addItem: "Exit" asMutableString doing: { :(NorphEvent ref) event :: Void |
-                        mainWindow _ destroy
+                        mainWindow destroy
                     }
             };
-            addMenu: "Help" asMutableString with: {:menu :: Void |
+            addMenu: "Help" asMutableString with: {:(MenuNorphRef const ref)menu :: Void |
                 menu addItem: "About" asMutableString doing: { :(NorphEvent ref) event :: Void |
                     Std stdout << "TODO: Help about"; nl.
                 }
@@ -53,57 +53,57 @@ Std MainEntryPoint: {:args :: Int32 |
 
     ## Rectangle with border.
     {
-        rectangleWithBorder _
+        rectangleWithBorder
             color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
     }.
 
     ## Sample label
     {
-        label _
+        label
             text: "Hello World" asMutableString.
     }.
 
     ## Sample button
     {
-        button _
+        button
             text: "Button" asMutableString.
 
-        button _ when: NorphActivatedEvent do: { :(NorphEvent ref) event :: Void |
-            list _ addItem: "Extra item" asMutableString.
+        button when: NorphActivatedEvent do: { :(NorphEvent ref) event :: Void |
+            list addItem: "Extra item" asMutableString.
         }.
     }.
 
     ## List view
     {
-        list _
+        list
             addItem: "First" asMutableString;
             addItem: "Second" asMutableString;
             addItem: "Third" asMutableString.
     }.
 
     ## Layout
-    mainWindow _
-        buildLayoutWith: {:b :: Void |
-            b verticalBoxWith: {:b :: Void |
+    mainWindow
+        buildLayoutWith: {:(LayoutBuilder ref)b :: Void |
+            b verticalBoxWith: {:(SizerLayoutBuilder ref)b :: Void |
                 b
-                    element: menuBar with: {:c :: Void | c expanded};
-                    horizontalPanedWith: {:b :: Void |
+                    element: menuBar with: {:(SizerElementRef const ref) c :: Void | c expanded};
+                    horizontalPanedWith: {:(PanedNorphLayoutBuilder ref)b :: Void |
                         b
-                            verticalPanedWith: {:b :: Void |
+                            verticalPanedWith: {:(PanedNorphLayoutBuilder ref)b :: Void |
                                 b
                                     element: rectangleWithBorder;
                                     element: label;
                                     element: button;
                                     element: list
                             };
-                            verticalPanedWith: {:b :: Void |
+                            verticalPanedWith: {:(PanedNorphLayoutBuilder ref)b :: Void |
                                 b
                                     element: textInput;
                                     element: textArea
                             }
-                    } constraints: {:c :: Void | c expanded; proportion: 1.0f};
-                    element: statusBar with: {:c :: Void | c expanded}
+                    } constraints: {:(SizerElementRef const ref)c :: Void | c expanded; proportion: 1.0f};
+                    element: statusBar with: {:(SizerElementRef const ref)c :: Void | c expanded}
             }.
         };
         autolayout: true;

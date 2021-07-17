@@ -11,7 +11,7 @@ class AbstractButtonNorph superclass: BorderedNorph; definition: {
     protected field isDown type: Boolean8.
 
     override method defaultColor => Float32x4
-        := self theme _ buttonColor.
+        := self theme buttonColor.
 
     override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
         event isRepeat not &&

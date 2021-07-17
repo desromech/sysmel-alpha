@@ -8,10 +8,10 @@ useNamespace: Std Graphics GUI.
 class TextAreaNorph superclass: AbstractTextEditorNorph; definition: {
     override method createTextEditingArea => Void := {
         super createTextEditingArea.
-        textEditingArea _ isMultiLineEditor: true.
+        textEditingArea isMultiLineEditor: true.
     }.
 }.
 
-compileTime constant TextAreaNorphPtr := TextAreaNorph rcPointer.
+compileTime constant TextAreaNorphRef := TextAreaNorph rcRef.
 
 }. ## End of namespace Norphic

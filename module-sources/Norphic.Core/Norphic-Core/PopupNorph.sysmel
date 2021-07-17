@@ -5,33 +5,33 @@ namespace Norphic definition: {
  * I am a popup norph.
  *#
 class PopupNorph superclass: BorderedNorph; definition: {
-    protected field currentParent type: NorphPtr.
+    protected field currentParent type: NorphRef.
 
     const override method isPopupNorph => Boolean8
         := true.
 
-    method parentPopup => PopupNorph rcPointer := {
-        currentParent isNotNil && currentParent _ isPopupNorph ifTrue: {
+    method parentPopup => PopupNorph rcRef := {
+        currentParent isNotNil && currentParent isPopupNorph ifTrue: {
             return: (currentParent downCastFor: PopupNorph)
         }.
 
-        PopupNorphPtr nil
+        PopupNorphRef nil
     }.
 
-    method popupAt: (position: Float32x2) withParent: (parent: NorphPtr const ref) on: (rootNorph: RootNorph pointer) ::=> Void := {
+    method popupAt: (position: Float32x2) withParent: (parent: NorphRef const ref) on: (rootNorph: RootNorph rcRef const ref) ::=> Void := {
         rootNorph ifNil: {return: void}.
 
-        rootNorph _ activatePopup: self asRCPointer at: position withParent: parent.
+        rootNorph activatePopup: self asRCRef at: position withParent: parent.
     }.
 
-    method popupAt: (position: Float32x2) on: (rootNorph: RootNorph pointer) ::=> Void
-        := self popupAt: position withParent: NorphPtr nil on: nil.
+    method popupAt: (position: Float32x2) on: (rootNorph: RootNorph rcRef const ref) ::=> Void
+        := self popupAt: position withParent: NorphRef nil on: rootNorph.
 
-    method activatedWithParent: (newParent: NorphPtr const ref) ::=> Void := {
+    method activatedWithParent: (newParent: NorphRef const ref) ::=> Void := {
         currentParent := newParent.
 
         currentParent ifNotNil: {
-            currentParent _ ownedPopupCreated: self asRCPointer.
+            currentParent ownedPopupCreated: self asRCRef.
         }.
 
         self onPopupStarted
@@ -39,10 +39,10 @@ class PopupNorph superclass: BorderedNorph; definition: {
 
     method killed => Void := {
         currentParent ifNotNil: {
-            currentParent _ ownedPopupKilled: self asRCPointer.
+            currentParent ownedPopupKilled: self asRCRef.
         }.
 
-        currentParent reset.
+        currentParent := nil.
         self onPopupKilled.
     }.
 
@@ -56,6 +56,6 @@ class PopupNorph superclass: BorderedNorph; definition: {
 
 }.
 
-compileTime constant PopupNorphPtr := PopupNorph rcPointer.
+compileTime constant PopupNorphRef := PopupNorph rcRef.
 
  }. ## End of namespace Norphic

@@ -6,36 +6,34 @@ useNamespace: Std Graphics Core.
  * I am a menu or menu bar item norph.
  *#
 class AbstractMenuItemNorph superclass: Norph; definition: {
-    public field menu type: MenuNorph rcPointer.
+    public field menu type: MenuNorph rcRef.
 
-    protected field label type: StringNorph rcPointer.
+    protected field label type: StringNorph rcRef.
 
     override method color => Float32x4
-        := self theme _ activeMenuItemHighlightColor.
+        := self theme activeMenuItemHighlightColor.
 
     method initialize => Void := {
-        label := StringNorph rcNew.
+        label := StringNorph new.
 
-        let labelRef := label upCastFor: Norph.
-        self addSubnorph: labelRef.
+        self addSubnorph: (label upCastFor: Norph).
 
-        let sizer := HorizontalBoxSizer rcNew.
-        sizer _ element: label with: {:constraints :: Void |
-            constraints centered; allBorders; borderSize: 3.
-        }.
-
-        self sizer: (sizer upCastFor: Sizer)
+        self sizer: (HorizontalBoxSizer new
+            element: label with: {:(SizerElementRef const ref)constraints :: Void |
+                constraints centered; allBorders; borderSize: 3.
+            };
+            upCastFor: Sizer)
     }.
 
     virtual method isHighlighted => Boolean8
         := false.
 
     method label => Std String const ref := {
-        label _ text.
+        label text.
     }.
 
     method label: (newLabel: Std String const ref) ::=> Void := {
-        label _ text: newLabel.
+        label text: newLabel.
         self fit.
     }.
 

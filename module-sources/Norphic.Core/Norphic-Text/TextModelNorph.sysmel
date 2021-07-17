@@ -8,12 +8,12 @@ useNamespace: Std Math Geometry.
  * I am norph whose task is to displaying a text model.
  *#
 class TextModelNorph superclass: Norph; definition: {
-    protected field textModel type: TextModel rcPointer.
+    protected field textModel type: TextModel rcRef.
 
-    const virtual method textModel => TextModel rcPointer const ref
+    const virtual method textModel => TextModel rcRef const ref
         := textModel.
 
-    virtual method textModel: (theTextModel: TextModel rcPointer const ref) ::=> Void := {
+    virtual method textModel: (theTextModel: TextModel rcRef const ref) ::=> Void := {
         textModel := theTextModel.
         self textModelChanged.
     }.
@@ -27,7 +27,7 @@ class TextModelNorph superclass: Norph; definition: {
 
         let container := builder container.
 
-        textModel _
+        textModel
             textSpansInRectangle: self localBounds do: {:(TextModelSpan ref)span :: Void |
                 let spanNode := builder text: span utf8String in: span rectangle
                     font: span fontFaceWithSize color: span color drawingState: span textDrawingState.

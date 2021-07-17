@@ -6,20 +6,20 @@ namespace Norphic definition: {
 class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
     protected field isActive_ type: Boolean8.
 
-    method menuBar => MenuBarNorph rcPointer
+    method menuBar => MenuBarNorph rcRef
         := self owner downCastFor: MenuBarNorph.
 
     override method isHighlighted => Boolean8
-        := self menuBar _ activeItem == self address.
+        := self menuBar activeItem rcObjectAddress == self address.
 
     override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
         super onMouseButtonPressedEvent: event.
-        self menuBar _ itemClicked: self address.
+        self menuBar itemClicked: self asRCRef.
     }.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
         super onMouseEnterEvent: event.
-        self menuBar _ itemMouseEnter: self address.
+        self menuBar itemMouseEnter: self asRCRef.
     }.
 
     method deactivated => Void := {
@@ -30,11 +30,11 @@ class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
         self changed.
 
         menu ifNotNil: {
-            menu _ popupAt: self rootLocalPosition + self localBounds topLeft withParent: (self menuBar upCastFor: Norph) on: self rootNorph.
+            menu popupAt: self rootLocalPosition + self localBounds topLeft withParent: (self menuBar upCastFor: Norph) on: self rootNorph.
         }.
     }.
 }.
 
-compileTime constant MenuBarItemNorphPtr := MenuBarItemNorph rcPointer.
+compileTime constant MenuBarItemNorphRef := MenuBarItemNorph rcRef.
 
 }. ## End of namespace Norphic

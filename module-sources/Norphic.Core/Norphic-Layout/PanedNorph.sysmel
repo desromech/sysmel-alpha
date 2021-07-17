@@ -5,16 +5,16 @@ useNamespace: Std Graphics GUI.
 useNamespace: Std Math Geometry.
 
 struct PanedNorphElement definition: {
-    public field element type: NorphPtr.
+    public field element type: NorphRef.
     public field proportion type: Float32.
 }.
 
 class PanedNorph superclass: Norph; definition: {
     field elements type: Std Collections Vector(PanedNorphElement).
-    field splitters type: Std Collections Vector(PanelSplitterNorphPtr).
+    field splitters type: Std Collections Vector(PanelSplitterNorphRef).
 
     abstract method splitDirection => Float32x2.
-    abstract method newPanelSplitterNorph => PanelSplitterNorphPtr.
+    abstract method newPanelSplitterNorph => PanelSplitterNorphRef.
 
     override method defaultColor => Float32x4
         := Float32x4 transparent.
@@ -26,7 +26,7 @@ class PanedNorph superclass: Norph; definition: {
     override method doUpdateLayout => Void := {
         elements ifEmpty: {return: void}.
         elements size = 1 ifTrue: {
-            elements first element _ bounds: self localBounds.
+            elements first element bounds: self localBounds.
             return: void
         }.
 
@@ -37,7 +37,7 @@ class PanedNorph superclass: Norph; definition: {
             proportionSum := proportionSum + each proportion
         }.
 
-        let splitterMinimalExtent := splitters first _ minimalExtent dot: splitDirection.
+        let splitterMinimalExtent := splitters first minimalExtent dot: splitDirection.
         let splitterRequiredSize := (splitters size castTo: Float32) * splitterMinimalExtent.
         let availableSize := ((self extent dot: splitDirection) - splitterRequiredSize max: 0.0f) * splitDirection.
         let expandedExtent := self extent * expandDirection.
@@ -46,17 +46,17 @@ class PanedNorph superclass: Norph; definition: {
         let currentPosition mutable := Float32x2 zeros.
         elements doWithIndex: {:each :i :: Void |
             let usedExtent := availableSize * each proportion / proportionSum.
-            each element _ bounds: (RectangleF32 min: currentPosition extent: usedExtent + expandedExtent).
+            each element bounds: (RectangleF32 min: currentPosition extent: usedExtent + expandedExtent).
             currentPosition := currentPosition + usedExtent.
 
             i < splitters size ifTrue: {
-                splitters[i] _ bounds: (RectangleF32 min: currentPosition extent: splitterExtent + expandedExtent).
+                splitters[i] bounds: (RectangleF32 min: currentPosition extent: splitterExtent + expandedExtent).
                 currentPosition := currentPosition + splitterExtent
             }.
         }.
     }.
 
-    method addElement: (element: NorphPtr const ref) proportion: (proportion: Float32) ::=> Void := {
+    method addElement: (element: NorphRef const ref) proportion: (proportion: Float32) ::=> Void := {
         elements add: (PanedNorphElement()
             element: element;
             proportion: proportion;
@@ -68,13 +68,13 @@ class PanedNorph superclass: Norph; definition: {
         }.
 
         let splitter := self newPanelSplitterNorph.
-        splitter _ splitterIndex: splitters size.
+        splitter splitterIndex: splitters size.
         splitters add: splitter.
         self addSubnorph: (splitter upCastFor: Norph).
         self invalidateLayout.
     }.
 
-    method addElement: (element: NorphPtr const ref) ::=> Void
+    method addElement: (element: NorphRef const ref) ::=> Void
         := self addElement: element proportion: 1.
 
     method onSplitter: (splitterIndex: UIntPointer) dragDelta: (dragDelta: Float32x2) ::=> Void := {
@@ -90,12 +90,12 @@ class PanedNorph superclass: Norph; definition: {
 
         let splitExtentDelta := splitDelta * splitDirection.
         let expandedExtent := self extent * expandDirection.
-        let splitterMinimalExtent := splitters first _ minimalExtent *splitDirection + expandedExtent.
+        let splitterMinimalExtent := splitters first minimalExtent *splitDirection + expandedExtent.
 
         ## Compute the moved sizes
-        let leftElementSize := (leftElement element _ extent + splitExtentDelta max: leftElement element _ minimalExtent) dot: splitDirection.
-        let rightElementSize := (rightElement element _ extent - splitExtentDelta max: rightElement element _ minimalExtent) dot: splitDirection.
-        let availableSize := leftElement element _ extent + rightElement element _ extent dot: splitDirection.
+        let leftElementSize := (leftElement element extent + splitExtentDelta max: leftElement element minimalExtent) dot: splitDirection.
+        let rightElementSize := (rightElement element extent - splitExtentDelta max: rightElement element minimalExtent) dot: splitDirection.
+        let availableSize := leftElement element extent + rightElement element extent dot: splitDirection.
 
         ## Compute the new proportions
         let totalProportion := leftElement proportion + rightElement proportion.
@@ -103,19 +103,19 @@ class PanedNorph superclass: Norph; definition: {
         rightElement proportion: rightElementSize * totalProportion / availableSize.
 
         ## Lay the elements with their new proportion.
-        let currentPosition mutable := leftElement element _ position.
+        let currentPosition mutable := leftElement element position.
         let leftElementExtent := (availableSize * leftElement proportion / totalProportion) * splitDirection.
-        leftElement element _ bounds: (RectangleF32 min: currentPosition + expandedExtent extent: leftElementExtent + expandedExtent).
+        leftElement element bounds: (RectangleF32 min: currentPosition + expandedExtent extent: leftElementExtent + expandedExtent).
         currentPosition := currentPosition + leftElementExtent.
 
-        splitter _ position: currentPosition.
-        currentPosition := currentPosition + splitter _ extent * splitDirection.
+        splitter position: currentPosition.
+        currentPosition := currentPosition + splitter extent * splitDirection.
 
         let rightElementExtent := (availableSize * rightElement proportion / totalProportion) * splitDirection.
-        rightElement element _ bounds: (RectangleF32 min: currentPosition extent: rightElementExtent + expandedExtent).
+        rightElement element bounds: (RectangleF32 min: currentPosition extent: rightElementExtent + expandedExtent).
     }.
 }.
 
-compileTime constant PanedNorphPtr := PanedNorph rcPointer.
+compileTime constant PanedNorphRef := PanedNorph rcRef.
 
 }. ## End of namespace Norphic

@@ -6,20 +6,20 @@ useNamespace: Std Graphics Core.
  * I am a menu item norph.
  *#
 class MenuItemNorph superclass: AbstractMenuItemNorph; definition: {
-    method parentMenu => MenuNorph rcPointer
+    method parentMenu => MenuNorph rcRef
         := self owner downCastFor: MenuNorph.
 
     override method isHighlighted => Boolean8
-        := self parentMenu _ activeItem == self address.
+        := self parentMenu activeItem rcObjectAddress == self address.
 
     override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
         super onMouseButtonPressedEvent: event.
-        self parentMenu _ itemClicked: self address.
+        self parentMenu itemClicked: self asRCRef.
     }.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
         super onMouseEnterEvent: event.
-        self parentMenu _ itemMouseEnter: self address.
+        self parentMenu itemMouseEnter: self asRCRef.
     }.
 
     method deactivated => Void := {
@@ -30,12 +30,12 @@ class MenuItemNorph superclass: AbstractMenuItemNorph; definition: {
         self changed.
 
         menu ifNotNil: {
-            menu _ popupAt: self rootLocalPosition + self localBounds topLeft withParent: (self menu upCastFor: Norph) on: self rootNorph.
+            menu popupAt: self rootLocalPosition + self localBounds topLeft withParent: (self menu upCastFor: Norph) on: self rootNorph.
         }.
     }.
 }.
 
-compileTime constant MenuItemNorphPtr := MenuItemNorph rcPointer.
+compileTime constant MenuItemNorphRef := MenuItemNorph rcRef.
 
 
 }. ## End of namespace Norphic

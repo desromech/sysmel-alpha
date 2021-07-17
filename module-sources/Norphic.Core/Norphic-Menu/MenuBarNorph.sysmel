@@ -4,60 +4,61 @@ namespace Norphic definition: {
  * I am a menu bar norph.
  *#
 class MenuBarNorph superclass: Norph; definition: {
-    protected field items type: Std Collections Vector(MenuBarItemNorph rcPointer).
-    protected field activeItem type: MenuBarItemNorph pointer.
+    protected field items type: Std Collections Vector(MenuBarItemNorph rcRef).
+    protected field activeItem type: MenuBarItemNorphRef.
     protected field changingActiveItem type: Boolean8.
 
     override method defaultColor => Float32x4
-        := self theme _ menuBarBackground.
+        := self theme menuBarBackground.
 
     override method initialize => Void := {
         self
-            sizer: (HorizontalBoxSizer rcNew upCastFor: Sizer);
+            sizer: (HorizontalBoxSizer new upCastFor: Sizer);
             autolayout: true
     }.
 
-    override method ownedPopupKilled: (popup: PopupNorph rcPointer const ref) ::=> Void := {
+    override method ownedPopupKilled: (popup: PopupNorph rcRef const ref) ::=> Void := {
         changingActiveItem ifFalse: {
-            self itemClicked: nil
+            self itemClicked: MenuBarItemNorphRef nil
         }
     }.
 
-    method addMenu: (label: Std String const ref) ::=> MenuNorph rcPointer := {
+    method addMenu: (label: Std String const ref) ::=> MenuNorph rcRef := {
         ## Create the menu item
-        let menuItem := MenuBarItemNorph rcNew.
-        menuItem _ label: label.
+        let menuItem := MenuBarItemNorph new
+            label: label;
+            yourself.
         self addSubnorph: (menuItem upCastFor: Norph).
         items add: menuItem.
 
-        self sizer _
-            element: menuItem with: {:constraints :: Void |
+        self sizer
+            element: menuItem with: {:(SizerElementRef const ref)constraints :: Void |
             }.
 
         ## Create the menu itself.
-        let menu := MenuNorph rcNew.
-        menuItem _ menu: menu.
+        let menu := MenuNorph new.
+        menuItem menu: menu.
         menu
     }.
 
-    method activeItem => MenuBarItemNorph pointer
+    method activeItem => MenuBarItemNorphRef const ref
         := activeItem.
 
-    method itemClicked: (item: MenuBarItemNorph pointer) ::=> Void := {
+    method itemClicked: (item: MenuBarItemNorphRef const ref) ::=> Void := {
         changingActiveItem ifTrue: {return: void }.
         changingActiveItem := true.
 
         try: {
-            let newActiveItem := activeItem == item ifTrue: nil ifFalse: item.
+            let newActiveItem := activeItem == item ifTrue: MenuBarItemNorphRef nil ifFalse: item.
 
             let oldActiveItem := activeItem.
             activeItem := newActiveItem.
 
             oldActiveItem ifNotNil: {
-                oldActiveItem _ deactivated.
+                oldActiveItem deactivated.
             }.
             activeItem ifNotNil: {
-                activeItem _ activated.
+                activeItem activated.
             }.
 
         } finally: {
@@ -65,16 +66,16 @@ class MenuBarNorph superclass: Norph; definition: {
         }.
     }.
 
-    method itemMouseEnter: (item: MenuBarItemNorph pointer) ::=> Void := {
+    method itemMouseEnter: (item: MenuBarItemNorphRef const ref) ::=> Void := {
         activeItem isNotNil && item ~~ activeItem ifTrue: {
             self itemClicked: item.
         }
     }.
 
     macro method addMenu: menuName with: aBlock :=
-        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
+        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName)).
 }.
 
-compileTime constant MenuBarNorphPtr := MenuBarNorph rcPointer.
+compileTime constant MenuBarNorphRef := MenuBarNorph rcRef.
 
 }. ## End of namespace Norphic

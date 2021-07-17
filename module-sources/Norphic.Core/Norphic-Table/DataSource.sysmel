@@ -7,10 +7,10 @@ class DataSource superclass: Std RCObject; definition: {
     virtual method numberOfElements => UIntPointer
         := UIntPointer maxValue.
 
-    virtual method elementAtRow: (rowIndex: UIntPointer) ::=> DataSourceElementPtr
-        := DataSourceElementPtr nil.
+    virtual method elementAtRow: (rowIndex: UIntPointer) ::=> DataSourceElementRef
+        := DataSourceElementRef nil.
 }.
 
-compileTime constant DataSourcePtr := DataSource rcPointer.
+compileTime constant DataSourceRef := DataSource rcRef.
 
 }. ## End of namespace Norphic

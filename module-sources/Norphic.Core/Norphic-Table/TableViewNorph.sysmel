@@ -4,28 +4,26 @@ namespace Norphic definition: {
  * I am a table view norph.
  *#
 class TableViewNorph superclass: BorderedNorph; definition: {
-    compileTime constant Columns := Std Collections Vector(TableViewColumnPtr).
+    compileTime constant Columns := Std Collections Vector(TableViewColumnRef).
     compileTime constant RowSelection := Std Collections Vector(UIntPointer).
 
-    protected field dataSource type: DataSourcePtr.
+    protected field dataSource type: DataSourceRef.
     protected field columns type: Columns.
-    protected field headerNorph type: TableViewHeaderNorph rcPointer.
-    protected field contentNorph type: TableViewContentNorph rcPointer.
+    protected field headerNorph type: TableViewHeaderNorph rcRef.
+    protected field contentNorph type: TableViewContentNorph rcRef.
     protected field minimalRowExtent type: Float32x2.
     protected field selectedRows type: RowSelection.
 
     override method initialize => Void := {
-        contentNorph := TableViewContentNorph rcNew.
+        contentNorph := TableViewContentNorph new.
         self addSubnorph: (contentNorph upCastFor: Norph).
 
-        let sizer := VerticalBoxSizer rcNew.
-        sizer _
-            element: contentNorph with: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0.
-            }.
-
         self
-            sizer: (sizer upCastFor: Sizer);
+            sizer: (VerticalBoxSizer new
+                element: contentNorph with: {:(SizerElementRef const ref)constraints :: Void |
+                    constraints expanded; allBorders; borderSize: 2; proportion: 1.0.
+                };
+                upCastFor: Sizer);
             autolayout: true;
             updateLayout.
     }.
@@ -36,17 +34,17 @@ class TableViewNorph superclass: BorderedNorph; definition: {
     method withColumnHeaders => Void := {
         headerNorph ifNotNil: { return: void. }.
 
-        headerNorph := TableViewHeaderNorph rcNew.
-        self addSubnorph: (contentNorph upCastFor: Norph).
+        headerNorph := TableViewHeaderNorph new.
+        self addSubnorph: (headerNorph upCastFor: Norph).
 
-        self sizer _
-            startElement: headerNorph with: {:constraints :: Void |
+        self sizer
+            startElement: headerNorph with: {:(SizerElementRef const ref)constraints :: Void |
                 constraints expanded.
             }.
         self updateLayout.
     }.
 
-    const method dataSource => DataSourcePtr const ref
+    const method dataSource => DataSourceRef const ref
         := dataSource.
 
     const method columns => Columns const ref
@@ -55,13 +53,13 @@ class TableViewNorph superclass: BorderedNorph; definition: {
     const method rowHeight => Float32
         := minimalRowExtent y max: 1. ## To avoid a division by zero
 
-    method dataSource: (newDataSource: DataSourcePtr const ref) ::=> Void := {
+    method dataSource: (newDataSource: DataSourceRef const ref) ::=> Void := {
         dataSource := newDataSource.
     }.
 
     method computeNewColumnWidths => Void := {
         columns do: {:each :: Void |
-            each _ width: (self extent x / (columns size castTo: Float32))
+            each width: (self extent x / (columns size castTo: Float32))
         }.
     }.
 
@@ -70,10 +68,10 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         super updateLayout.
     }.
 
-    method addColumn: (newColumn: TableViewColumn rcPointer) ::=> Void := {
+    method addColumn: (newColumn: TableViewColumn rcRef) ::=> Void := {
         columns add: newColumn.
 
-        let minimalCellExtent := newColumn _ minimalCellExtent.
+        let minimalCellExtent := newColumn minimalCellExtent.
         minimalRowExtent := Float32x2(minimalRowExtent x + minimalCellExtent x, minimalRowExtent y max: minimalCellExtent y).
     }.
 
@@ -95,7 +93,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
     }.
 
     method selectionChanged => Void := {
-        self raiseEvent: (NorphSelectionChangedEvent rcNew upCastFor: NorphEvent).
+        self raiseEvent: (NorphSelectionChangedEvent new upCastFor: NorphEvent).
         self changed.
     }.
 
@@ -103,6 +101,6 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         := selectedRows includes: rowIndex.
 }.
 
-compileTime constant TableViewNorphPtr := TableViewNorph rcPointer.
+compileTime constant TableViewNorphRef := TableViewNorph rcRef.
 
 }. ## End of namespace Norphic

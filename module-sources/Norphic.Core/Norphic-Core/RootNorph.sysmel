@@ -7,22 +7,22 @@ useNamespace: Std Math Geometry.
  * I am a root norph that roughly corresponds to a window in a Window system.
  *#
 class RootNorph superclass: Norph; definition: {
-    protected field mouseFocusNorph type: Norph rcPointer.
-    protected field mouseCaptureNorph type: Norph rcPointer.
-    protected field keyboardFocusNorph type: Norph rcPointer.
-    protected field activePopupLeaf type: PopupNorph rcPointer.
+    protected field mouseFocusNorph type: Norph rcRef.
+    protected field mouseCaptureNorph type: Norph rcRef.
+    protected field keyboardFocusNorph type: Norph rcRef.
+    protected field activePopupLeaf type: PopupNorph rcRef.
 
     const override method mouseFocusNorph => Norph pointer
-        := mouseFocusNorph getPointer.
+        := mouseFocusNorph rcObjectAddress.
 
     const override method mouseCaptureNorph => Norph pointer
-        := mouseCaptureNorph getPointer.
+        := mouseCaptureNorph rcObjectAddress.
 
     const override method keyboardFocusNorph => Norph pointer
-        := keyboardFocusNorph getPointer.
+        := keyboardFocusNorph rcObjectAddress.
 
-    const override method rootNorph => RootNorph pointer
-        := self address reinterpretCastTo: SelfType pointer.
+    override method rootNorph => RootNorph rcRef
+        := self asRCRef.
 
     const override method rootLocalPosition => Float32x2
         := Float32x2 zeros.
@@ -40,51 +40,52 @@ class RootNorph superclass: Norph; definition: {
         self killPopupChain: chainStart.
     }.
 
-    method killPopupChain: (popup: PopupNorphPtr const ref) ::=> Void := {
+    method killPopupChain: (popup: PopupNorphRef const ref) ::=> Void := {
         popup ifNil: {return: void}.
 
-        let parent := popup _ parentPopup.
+        let parent := popup parentPopup.
         self killPopup: popup.
         self killPopupChain: parent
     }.
 
-    method killPopup: (thePopup: PopupNorphPtr const ref) ::=> Void := {
+    method killPopup: (thePopup: PopupNorphRef const ref) ::=> Void := {
         ## Make a copy in case thePopup points to activePopupLeaf.
         let popup := thePopup.
 
-        popup _ owner ifNil: {
+        popup owner ifNil: {
             return: void
         } ifNotNil: {:o :: Void |
             activePopupLeaf = popup ifTrue: {
-                activePopupLeaf := popup _ parentPopup
+                activePopupLeaf := popup parentPopup
             }.
 
-            o _ removeSubnorph: (popup upCastFor: Norph).
-            popup _ killed.
+            o removeSubnorph: (popup upCastFor: Norph).
+            popup killed.
         }.
     }.
 
-    method activatePopup: (popup: PopupNorphPtr const ref) at: (popupPosition: Float32x2) withParent: (newParent: NorphPtr const ref) ::=> Void := {
-        popup _ owner ifNotNil: {
+    method activatePopup: (popup: PopupNorphRef const ref) at: (popupPosition: Float32x2) withParent: (newParent: NorphRef const ref) ::=> Void := {
+        popup owner ifNotNil: {
             self killPopup: popup
         }.
 
-        activePopupLeaf isNotNil && activePopupLeaf ~= popup ifTrue: {
+        activePopupLeaf isNotNil && activePopupLeaf ~~ popup ifTrue: {
             self killPopup: activePopupLeaf
         }.
 
         activePopupLeaf := popup.
         self addSubnorph: (popup upCastFor: Norph).
-        popup _
+        popup
             position: popupPosition;
             activatedWithParent: newParent
     }.
 
-    virtual method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {
+    virtual method setMouseCaptureNorph: (norph: NorphRef const ref) ::=> Void := {
         norph ifNil: {
-            mouseCaptureNorph reset
+            mouseCaptureNorph := nil.
+            void
         } ifNotNil: {
-            mouseCaptureNorph := norph _ asRCPointer
+            mouseCaptureNorph := norph
         }
     }.
 
@@ -94,7 +95,7 @@ class RootNorph superclass: Norph; definition: {
 
     virtual method mouseFocusNorphCursor => CursorRef := {
         mouseFocusNorph ifNotNil: {
-            mouseFocusNorph _ currentMouseCursor
+            mouseFocusNorph currentMouseCursor
         } ifNil: {
             self currentMouseCursor
         }
@@ -108,7 +109,7 @@ class RootNorph superclass: Norph; definition: {
         mouseFocusNorph ifNotNil: {
             let leaveEvent mutable type: NorphMouseLeaveEvent.
             leaveEvent setFrom: event.
-            mouseFocusNorph _ processEvent: leaveEvent
+            mouseFocusNorph processEvent: leaveEvent
         }.
 
         mouseFocusNorph := event targetNorph.
@@ -116,7 +117,7 @@ class RootNorph superclass: Norph; definition: {
         mouseFocusNorph ifNotNil: {
             let enterEvent mutable type: NorphMouseEnterEvent.
             enterEvent setFrom: event.
-            mouseFocusNorph _ processEvent: enterEvent.
+            mouseFocusNorph processEvent: enterEvent.
         }.
 
         self currentActiveMouseCursorChanged.
@@ -129,8 +130,8 @@ class RootNorph superclass: Norph; definition: {
         } ifNotNil: {
             let oldPosition := event position.
             try: {
-                event position: oldPosition - (mouseCaptureNorph _ globalPosition - self globalPosition).
-                mouseCaptureNorph _ dispatchMouseEvent: event
+                event position: oldPosition - (mouseCaptureNorph globalPosition - self globalPosition).
+                mouseCaptureNorph dispatchMouseEvent: event
             } finally: {
                 event position: oldPosition
             }
@@ -138,26 +139,26 @@ class RootNorph superclass: Norph; definition: {
     }.
 
     virtual method setNewKeyboardFocus: (newKeyboardFocus: Norph pointer) ::=> Void := {
-        keyboardFocusNorph getPointer == newKeyboardFocus ifTrue: {
+        keyboardFocusNorph rcObjectAddress == newKeyboardFocus ifTrue: {
             return: void
         }.
 
         keyboardFocusNorph ifNotNil: {
             let lostFocusEvent mutable type: NorphLostFocusEvent.
-            keyboardFocusNorph _ processEvent: lostFocusEvent
+            keyboardFocusNorph processEvent: lostFocusEvent
         }.
 
-        keyboardFocusNorph := newKeyboardFocus _ asRCPointer.
+        keyboardFocusNorph := newKeyboardFocus _ asRCRef.
 
         keyboardFocusNorph ifNotNil: {
             let gotFocusEvent mutable type: NorphGotFocusEvent.
-            keyboardFocusNorph _ processEvent: gotFocusEvent.
+            keyboardFocusNorph processEvent: gotFocusEvent.
         }.
     }.
 
     override method dispatchKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
         keyboardFocusNorph ifNotNil: {
-            keyboardFocusNorph _ dispatchKeyboardEvent: event.
+            keyboardFocusNorph dispatchKeyboardEvent: event.
             return: void
         }.
 
@@ -170,7 +171,7 @@ class RootNorph superclass: Norph; definition: {
 
     override method dispatchTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
         keyboardFocusNorph ifNotNil: {
-            keyboardFocusNorph _ dispatchTextInputEvent: event.
+            keyboardFocusNorph dispatchTextInputEvent: event.
             return: void
         }.
 
@@ -182,6 +183,6 @@ class RootNorph superclass: Norph; definition: {
     }.
 }.
 
-compileTime constant RootNorphPtr := RootNorph rcPointer.
+compileTime constant RootNorphRef := RootNorph rcRef.
 
 }. ## End of namespace Norphic
