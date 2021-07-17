@@ -420,7 +420,7 @@ Object definition: {
         := valueToUInt32(self at: key).
 
     const method getUInt32: (key: Std ImmutableString) ::=> UInt32
-        := self getUInt32: key.
+        := self getUInt32: key asMutableString.
 
     const method getUInt32: (key: Std String const ref) default: (defaultValue: UInt32) ::=> UInt32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -584,7 +584,7 @@ Object definition: {
     }.
 
     const method getFloat64x2: (key: Std ImmutableString) default: (defaultValue: Float64x2) ::=> Float64x2
-        := self getFloat64x2: key default: defaultValue.
+        := self getFloat64x2: key asMutableString default: defaultValue.
 
     const method getFloat64x3: (key: Std String const ref) ::=> Float64x3
         := valueToFloat64x3(self at: key).
@@ -618,7 +618,7 @@ Object definition: {
     }.
 
     const method getFloat64x4: (key: Std ImmutableString) default: (defaultValue: Float64x4) ::=> Float64x4
-        := self getFloat64x4: key default: defaultValue.
+        := self getFloat64x4: key asMutableString default: defaultValue.
 
 }.
 
