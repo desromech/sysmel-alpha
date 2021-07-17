@@ -10,7 +10,7 @@ template GenericTokenizedSourceCode(TT: Std Concepts Copyable)
     compileTime constant ValueType := Token.
     compileTime constant PeekType := Token.
 
-    public field sourceCode type: SourceCodePtr.
+    public field sourceCode type: SourceCodeRef.
     public field tokens type: Std Collections Vector(Token).
 
     macro method size := ``(`,self tokens size).
@@ -26,7 +26,7 @@ template GenericTokenizedSourceCode(TT: Std Concepts Copyable)
     const method printRangeFrom: (startPosition: UIntPointer) until: (endPosition: UIntPointer) on: (out: Std IO TextStreamWriter ref) ::=> Void := {
         let sourceStartPosition := tokens[startPosition min: self size - 1] position startPosition.
         let sourceEndPosition := tokens[endPosition min: self size - 1] position endPosition.
-        sourceCode _ printRangeFrom: sourceStartPosition until: sourceEndPosition on: out
+        sourceCode printRangeFrom: sourceStartPosition until: sourceEndPosition on: out
     }.
 
 }.

@@ -8,20 +8,20 @@ useNamespace: Sysmel Compiler SysmelLanguage.
 useNamespace: Sysmel Tools LanguageServerProtocol.
 
 function parseAndVerifySourceCode(fileName: Std ImmutableString, content: Std String const ref) => Void := {
-    let sourceCode := SourceCode rcNew.
-    sourceCode _
+    let sourceCode := SourceCode new
         content: content;
-        name: fileName.
+        name: fileName;
+        yourself.
 
     let tokenizedSourceCode := Scanner() scan: sourceCode.
-    tokenizedSourceCode _ tokens do: {:each :: Void |
+    tokenizedSourceCode tokens do: {:each :: Void |
         each type isError ifTrue: {
             Std stderr << each position << ": tokenization error: " << each type; nl
         }.
     }.
 
     let ast := Parser() parse: tokenizedSourceCode.
-    ASTParseErrorCheckerVisitor verify: ast _ callback: {:parserErrorNode :: Void |
+    ASTParseErrorCheckerVisitor verify: ast callback: {:parserErrorNode :: Void |
         Std stderr << parserErrorNode sourcePosition << ": " << parserErrorNode errorMessage; nl
     }.
 }.

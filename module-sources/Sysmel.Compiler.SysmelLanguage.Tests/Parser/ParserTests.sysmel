@@ -6,287 +6,283 @@ namespace Tests definition: {
 useNamespace: Sysmel Compiler Parsing.
 
 class ParserTests superclass: Std Testing TestCase; definition: {
-    method parseString: (source: Std ImmutableString) ::=> ASTNodePtr := {
-        let sourceCode := SourceCode rcNew.
-        sourceCode _
+    method parseString: (source: Std ImmutableString) ::=> ASTNodeRef := {
+        Parser() parse: (Scanner() scan: (SourceCode new
             content: source asMutableString;
-            name: "unit test".
-
-        Parser() parse: (Scanner() scan: sourceCode)
+            name: "unit test";
+            yourself))
     }.
 
-    method parseStringWithLiteralArrayContent: (source: Std ImmutableString) ::=> ASTNodePtr := {
-        let sourceCode := SourceCode rcNew.
-        sourceCode _
+    method parseStringWithLiteralArrayContent: (source: Std ImmutableString) ::=> ASTNodeRef := {
+        Parser() parseLiteralArrayContent: (Scanner() scan: (SourceCode new
             content: source asMutableString;
-            name: "unit test".
-
-        Parser() parseLiteralArrayContent: (Scanner() scan: sourceCode)
+            name: "unit test";
+            yourself))
     }.
 
-    method parseSingleExpression: (source: Std ImmutableString) ::=> ASTNodePtr := {
+    method parseSingleExpression: (source: Std ImmutableString) ::=> ASTNodeRef := {
         let parseResult := self parseString: source.
-        self assert: parseResult _ isExpressionListNode.
+        self assert: parseResult isExpressionListNode.
 
         let expresionList := (parseResult downCastFor: ASTExpressionListNode).
-        self assert: expresionList _ expressions size equals: 1.
-        return: expresionList _ expressions first
+        self assert: expresionList expressions size equals: 1.
+        return: expresionList expressions first
     }.
 
     test: testEmpty with: {
         let node := self parseString: "".
-        self assert: node _ isExpressionListNode.
-        self assert: (node downCastFor: ASTExpressionListNode) _ expressions isEmpty.
+        self assert: node isExpressionListNode.
+        self assert: (node downCastFor: ASTExpressionListNode) expressions isEmpty.
     }.
 
     test: testLiteralInteger with: {
         {
             let literal := self parseSingleExpression: "0".
-            self assert: literal _ isIntegerLiteralNode.
-            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "0".
+            self assert: literal isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "0".
         }.
 
         {
             let literal := self parseSingleExpression: "-0".
-            self assert: literal _ isIntegerLiteralNode.
-            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-0".
+            self assert: literal isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "-0".
         }.
 
         {
             let literal := self parseSingleExpression: "42".
-            self assert: literal _ isIntegerLiteralNode.
-            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+            self assert: literal isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
         }.
 
         {
             let literal := self parseSingleExpression: "-42".
-            self assert: literal _ isIntegerLiteralNode.
-            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-42".
+            self assert: literal isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "-42".
         }.
 
         {
             let literal := self parseSingleExpression: "(-42)".
-            self assert: literal _ isIntegerLiteralNode.
-            self assert: (literal downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-42".
+            self assert: literal isIntegerLiteralNode.
+            self assert: (literal downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "-42".
         }.
     }.
 
     test: testLiteralFloat with: {
         {
             let literal := self parseSingleExpression: "0.0".
-            self assert: literal _ isFloatLiteralNode.
-            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 0.0.
+            self assert: literal isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) value equals: 0.0.
         }.
 
         {
             let literal := self parseSingleExpression: "42.5".
-            self assert: literal _ isFloatLiteralNode.
-            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5.
+            self assert: literal isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) value equals: 42.5.
         }.
 
         {
             let literal := self parseSingleExpression: "42.5e2".
-            self assert: literal _ isFloatLiteralNode.
-            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5e2.
+            self assert: literal isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) value equals: 42.5e2.
         }.
 
         {
             let literal := self parseSingleExpression: "-1.5e-6".
-            self assert: literal _ isFloatLiteralNode.
-            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: -1.5e-6.
+            self assert: literal isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) value equals: -1.5e-6.
         }.
 
         {
             let literal := self parseSingleExpression: "42.5e2".
-            self assert: literal _ isFloatLiteralNode.
-            self assert: (literal downCastFor: ASTFloatLiteralNode) _ value equals: 42.5e2.
+            self assert: literal isFloatLiteralNode.
+            self assert: (literal downCastFor: ASTFloatLiteralNode) value equals: 42.5e2.
         }.
     }.
 
     test: testLiteralString with: {
         {
             let literal := self parseSingleExpression: "\"\"".
-            self assert: literal _ isStringLiteralNode.
-            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "".
+            self assert: literal isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) value asArraySlice equals: "".
         }.
 
         {
             let literal := self parseSingleExpression: "\"hello\"".
-            self assert: literal _ isStringLiteralNode.
-            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "hello".
+            self assert: literal isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) value asArraySlice equals: "hello".
         }.
 
         {
             let literal := self parseSingleExpression: "\"Hello World\\r\\n\"".
-            self assert: literal _ isStringLiteralNode.
-            self assert: (literal downCastFor: ASTStringLiteralNode) _ value asArraySlice equals: "Hello World\r\n".
+            self assert: literal isStringLiteralNode.
+            self assert: (literal downCastFor: ASTStringLiteralNode) value asArraySlice equals: "Hello World\r\n".
         }.
     }.
 
     test: testLiteralCharacter with: {
         {
             let literal := self parseSingleExpression: "'a'".
-            self assert: literal _ isCharacterLiteralNode.
-            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: 'a'.
+            self assert: literal isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) value equals: 'a'.
         }.
 
         {
             let literal := self parseSingleExpression: "'\\n'".
-            self assert: literal _ isCharacterLiteralNode.
-            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\n'.
+            self assert: literal isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) value equals: '\n'.
         }.
 
         {
             let literal := self parseSingleExpression: "'\\r'".
-            self assert: literal _ isCharacterLiteralNode.
-            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\r'.
+            self assert: literal isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) value equals: '\r'.
         }.
 
         {
             let literal := self parseSingleExpression: "'\\t'".
-            self assert: literal _ isCharacterLiteralNode.
-            self assert: (literal downCastFor: ASTCharacterLiteralNode) _ value equals: '\t'.
+            self assert: literal isCharacterLiteralNode.
+            self assert: (literal downCastFor: ASTCharacterLiteralNode) value equals: '\t'.
         }.
     }.
 
     test: testLiteralSymbol with: {
         {
             let literal := self parseSingleExpression: "#a".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "a".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "a".
         }.
 
         {
             let literal := self parseSingleExpression: "#test:".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "test:".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "test:".
         }.
 
         {
             let literal := self parseSingleExpression: "#<".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "<".
         }.
     }.
 
     test: testLiteralSymbolString with: {
         {
             let literal := self parseSingleExpression: "#\"\"".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "".
         }.
 
         {
             let literal := self parseSingleExpression: "#\"hello\"".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "hello".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "hello".
         }.
 
         {
             let literal := self parseSingleExpression: "#\"Hello World\\r\\n\"".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "Hello World\r\n".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "Hello World\r\n".
         }.
 
         {
             let literal := self parseSingleExpression: "#\"std::string\"".
-            self assert: literal _ isSymbolLiteralNode.
-            self assert: (literal downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "std::string".
+            self assert: literal isSymbolLiteralNode.
+            self assert: (literal downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "std::string".
         }.
     }.
 
     test: testIdentifierReference with: {
         {
             let node := self parseSingleExpression: "hello".
-            self assert: node _ isIdentifierReferenceNode.
-            self assert: (node downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "hello".
+            self assert: node isIdentifierReferenceNode.
+            self assert: (node downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "hello".
         }.
 
         {
             let node := self parseSingleExpression: "_helloWorld12345".
-            self assert: node _ isIdentifierReferenceNode.
-            self assert: (node downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "_helloWorld12345".
+            self assert: node isIdentifierReferenceNode.
+            self assert: (node downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "_helloWorld12345".
         }.
     }.
 
     test: testUnaryMessage with: {
         let node := self parseSingleExpression: "a negated".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "negated".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "negated".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testUnaryMinus with: {
         let node := self parseSingleExpression: "-a".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pre--".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pre--".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testUnaryPlus with: {
         let node := self parseSingleExpression: "+a".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pre-+".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pre-+".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testUnaryLogicalNot with: {
         let node := self parseSingleExpression: "!a".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pre-!".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pre-!".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testUnaryBitwiseNot with: {
         let node := self parseSingleExpression: "~a".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pre-~".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pre-~".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
-    method extractBinarySendSequenceSelectors: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Std Collections Vector(Std ImmutableString) := {
+    method extractBinarySendSequenceSelectors: (binarySendSequence: ASTBinaryMessageSendSequenceNode rcRef const ref) ::=> Std Collections Vector(Std ImmutableString) := {
         let result mutable type: Std Collections Vector(Std ImmutableString).
 
         binarySendSequence selectors do: {:selectorNode :: Void |
-            self assert: selectorNode _ isSymbolLiteralNode.
-            let value type: Std ImmutableString := (selectorNode downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+            self assert: selectorNode isSymbolLiteralNode.
+            let value type: Std ImmutableString := (selectorNode downCastFor: ASTSymbolLiteralNode) value asArraySlice.
             result add: value
         }.
 
         result asMoveReference
     }.
 
-    method extractBinarySendSequenceIdentifiers: (binarySendSequence: ASTBinaryMessageSendSequenceNode ref) ::=> Std Collections Vector(Std ImmutableString) := {
+    method extractBinarySendSequenceIdentifiers: (binarySendSequence: ASTBinaryMessageSendSequenceNode rcRef const ref) ::=> Std Collections Vector(Std ImmutableString) := {
         let result mutable type: Std Collections Vector(Std ImmutableString).
 
         binarySendSequence operands do: {:operandNode :: Void |
-            self assert: operandNode _ isIdentifierReferenceNode.
-            let value type: Std ImmutableString := (operandNode downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice.
+            self assert: operandNode isIdentifierReferenceNode.
+            let value type: Std ImmutableString := (operandNode downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice.
             result add: value
         }.
 
@@ -295,13 +291,13 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testBinaryOperation with: {
         let node := self parseSingleExpression: "a+b".
-        self assert: node _ isBinaryMessageSendSequenceNode.
+        self assert: node isBinaryMessageSendSequenceNode.
 
         let binarySendSequence ref := node downCastFor: ASTBinaryMessageSendSequenceNode.
-        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence _.
-        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
+        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence.
+        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence.
 
-        self deny: binarySendSequence _ isLowPrecedence.
+        self deny: binarySendSequence isLowPrecedence.
         self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+"
         ).
@@ -312,13 +308,13 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testBinaryOperation2 with: {
         let node := self parseSingleExpression: "a+b*c".
-        self assert: node _ isBinaryMessageSendSequenceNode.
+        self assert: node isBinaryMessageSendSequenceNode.
 
         let binarySendSequence ref := node downCastFor: ASTBinaryMessageSendSequenceNode.
-        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence _.
-        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
+        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence.
+        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence.
 
-        self deny: binarySendSequence _ isLowPrecedence.
+        self deny: binarySendSequence isLowPrecedence.
         self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
@@ -329,13 +325,13 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testBinaryOperation3 with: {
         let node := self parseSingleExpression: "a + b*c".
-        self assert: node _ isBinaryMessageSendSequenceNode.
+        self assert: node isBinaryMessageSendSequenceNode.
 
         let binarySendSequence ref := node downCastFor: ASTBinaryMessageSendSequenceNode.
-        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence _.
-        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
+        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence.
+        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence.
 
-        self deny: binarySendSequence _ isLowPrecedence.
+        self deny: binarySendSequence isLowPrecedence.
         self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
@@ -346,13 +342,13 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testLowPrecedenceBinaryOperation with: {
         let node := self parseSingleExpression: "a ::+ b".
-        self assert: node _ isBinaryMessageSendSequenceNode.
+        self assert: node isBinaryMessageSendSequenceNode.
 
         let binarySendSequence ref := node downCastFor: ASTBinaryMessageSendSequenceNode.
-        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence _.
-        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
+        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence.
+        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence.
 
-        self assert: binarySendSequence _ isLowPrecedence.
+        self assert: binarySendSequence isLowPrecedence.
         self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+"
         ).
@@ -363,13 +359,13 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testLowPrecedenceBinaryOperation2 with: {
         let node := self parseSingleExpression: "a ::+ b ::* c".
-        self assert: node _ isBinaryMessageSendSequenceNode.
+        self assert: node isBinaryMessageSendSequenceNode.
 
         let binarySendSequence ref := node downCastFor: ASTBinaryMessageSendSequenceNode.
-        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence _.
-        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence _.
+        let selectors := self extractBinarySendSequenceSelectors: binarySendSequence.
+        let identifiers := self extractBinarySendSequenceIdentifiers: binarySendSequence.
 
-        self assert: binarySendSequence _ isLowPrecedence.
+        self assert: binarySendSequence isLowPrecedence.
         self assert: selectors asArraySlice equals: Std ImmutableString array(
             "+", "*"
         ).
@@ -380,397 +376,397 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testKeywordMessage with: {
         let node := self parseSingleExpression: "a computeWith: b".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ arguments size equals: 1.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+        self assert: messageNode arguments size equals: 1.
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: messageNode _ arguments first _ isIdentifierReferenceNode.
-        self assert: (messageNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: messageNode arguments first isIdentifierReferenceNode.
+        self assert: (messageNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testKeywordMessageNoReceiver with: {
         let node := self parseSingleExpression: "computeWith: b".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ arguments size equals: 1.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+        self assert: messageNode arguments size equals: 1.
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-        self assert: messageNode _ receiver isNil.
+        self assert: messageNode receiver isNil.
 
-        self assert: messageNode _ arguments first _ isIdentifierReferenceNode.
-        self assert: (messageNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: messageNode arguments first isIdentifierReferenceNode.
+        self assert: (messageNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testUnaryChainMessage with: {
         let node := self parseSingleExpression: "a hello; computeWith: c; << d; yourself".
-        self assert: node _ isMessageChainNode.
+        self assert: node isMessageChainNode.
 
         let chainNode ref := node downCastFor: ASTMessageChainNode.
-        self assert: chainNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (chainNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
-        self assert: chainNode _ messages size equals: 4.
+        self assert: chainNode receiver isIdentifierReferenceNode.
+        self assert: (chainNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
+        self assert: chainNode messages size equals: 4.
 
         {
-            let messageNode ref := chainNode _ messages first.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages first.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "hello".
-            self assert: chainedNode _ arguments isEmpty
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "hello".
+            self assert: chainedNode arguments isEmpty
         }.
 
         {
-            let messageNode ref := chainNode _ messages second.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages second.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "c".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "c".
         }.
 
         {
-            let messageNode ref := chainNode _ messages third.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages third.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<<".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "<<".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "d".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "d".
         }.
 
         {
-            let messageNode ref := chainNode _ messages fourth.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages fourth.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "yourself".
-            self assert: chainedNode _ arguments isEmpty
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "yourself".
+            self assert: chainedNode arguments isEmpty
         }.
     }.
 
     test: testBinaryChainMessage with: {
         let node := self parseSingleExpression: "a + b; computeWith: c; << d; yourself".
-        self assert: node _ isMessageChainNode.
+        self assert: node isMessageChainNode.
 
         let chainNode ref := node downCastFor: ASTMessageChainNode.
-        self assert: chainNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (chainNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
-        self assert: chainNode _ messages size equals: 4.
+        self assert: chainNode receiver isIdentifierReferenceNode.
+        self assert: (chainNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
+        self assert: chainNode messages size equals: 4.
 
         {
-            let messageNode ref := chainNode _ messages first.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages first.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "+".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "+".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
         }.
 
         {
-            let messageNode ref := chainNode _ messages second.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages second.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "c".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "c".
         }.
 
         {
-            let messageNode ref := chainNode _ messages third.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages third.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<<".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "<<".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "d".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "d".
         }.
 
         {
-            let messageNode ref := chainNode _ messages fourth.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages fourth.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "yourself".
-            self assert: chainedNode _ arguments isEmpty
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "yourself".
+            self assert: chainedNode arguments isEmpty
         }.
     }.
 
     test: testKeywordChainMessage with: {
         let node := self parseSingleExpression: "a computeWith: b; computeWith: c; << d; yourself".
-        self assert: node _ isMessageChainNode.
+        self assert: node isMessageChainNode.
 
         let chainNode ref := node downCastFor: ASTMessageChainNode.
-        self assert: chainNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (chainNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
-        self assert: chainNode _ messages size equals: 4.
+        self assert: chainNode receiver isIdentifierReferenceNode.
+        self assert: (chainNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
+        self assert: chainNode messages size equals: 4.
 
         {
-            let messageNode ref := chainNode _ messages first.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages first.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
         }.
 
         {
-            let messageNode ref := chainNode _ messages second.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages second.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "c".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "c".
         }.
 
         {
-            let messageNode ref := chainNode _ messages third.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages third.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<<".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "<<".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "d".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "d".
         }.
 
         {
-            let messageNode ref := chainNode _ messages fourth.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages fourth.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "yourself".
-            self assert: chainedNode _ arguments isEmpty
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "yourself".
+            self assert: chainedNode arguments isEmpty
         }.
     }.
 
     test: testKeywordChainMessageNoReceiver with: {
         let node := self parseSingleExpression: "computeWith: b; computeWith: c; << d; yourself".
-        self assert: node _ isMessageChainNode.
+        self assert: node isMessageChainNode.
 
         let chainNode ref := node downCastFor: ASTMessageChainNode.
-        self assert: chainNode _ receiver isNil.
-        self assert: chainNode _ messages size equals: 4.
+        self assert: chainNode receiver isNil.
+        self assert: chainNode messages size equals: 4.
 
         {
-            let messageNode ref := chainNode _ messages first.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages first.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
         }.
 
         {
-            let messageNode ref := chainNode _ messages second.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages second.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "computeWith:".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "computeWith:".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "c".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "c".
         }.
 
         {
-            let messageNode ref := chainNode _ messages third.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages third.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "<<".
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "<<".
 
-            self assert: chainedNode _ arguments size equals: 1.
-            self assert: chainedNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (chainedNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "d".
+            self assert: chainedNode arguments size equals: 1.
+            self assert: chainedNode arguments first isIdentifierReferenceNode.
+            self assert: (chainedNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "d".
         }.
 
         {
-            let messageNode ref := chainNode _ messages fourth.
-            self assert: messageNode _ isMessageChainMessageNode.
+            let messageNode ref := chainNode messages fourth.
+            self assert: messageNode isMessageChainMessageNode.
             let chainedNode := messageNode downCastFor: ASTMessageChainMessageNode.
-            self assert: chainedNode _ selector _ isSymbolLiteralNode.
-            self assert: (chainedNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "yourself".
-            self assert: chainedNode _ arguments isEmpty
+            self assert: chainedNode selector isSymbolLiteralNode.
+            self assert: (chainedNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "yourself".
+            self assert: chainedNode arguments isEmpty
         }.
     }.
 
     test: testAssignmentOperation with: {
         let node := self parseSingleExpression: "a:=b".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ arguments size equals: 1.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: ":=".
+        self assert: messageNode arguments size equals: 1.
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: ":=".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: messageNode _ arguments first _ isIdentifierReferenceNode.
-        self assert: (messageNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: messageNode arguments first isIdentifierReferenceNode.
+        self assert: (messageNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testAssignmentOperation2 with: {
         let node := self parseSingleExpression: "a:=b:=c".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
         let messageNode ref := node downCastFor: ASTMessageSendNode.
-        self assert: messageNode _ arguments size equals: 1.
-        self assert: messageNode _ selector _ isSymbolLiteralNode.
-        self assert: (messageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: ":=".
+        self assert: messageNode arguments size equals: 1.
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: ":=".
 
-        self assert: messageNode _ receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: messageNode _ arguments first _ isMessageSendNode.
+        self assert: messageNode arguments first isMessageSendNode.
         {
-            let innerMessageNode ref := messageNode _ arguments first downCastFor: ASTMessageSendNode.
-            self assert: innerMessageNode _ arguments size equals: 1.
-            self assert: innerMessageNode _ selector _ isSymbolLiteralNode.
-            self assert: (innerMessageNode _ selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: ":=".
+            let innerMessageNode ref := messageNode arguments first downCastFor: ASTMessageSendNode.
+            self assert: innerMessageNode arguments size equals: 1.
+            self assert: innerMessageNode selector isSymbolLiteralNode.
+            self assert: (innerMessageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: ":=".
 
-            self assert: innerMessageNode _ receiver _ isIdentifierReferenceNode.
-            self assert: (innerMessageNode _ receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+            self assert: innerMessageNode receiver isIdentifierReferenceNode.
+            self assert: (innerMessageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
 
-            self assert: innerMessageNode _ arguments first _ isIdentifierReferenceNode.
-            self assert: (innerMessageNode _ arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "c".
+            self assert: innerMessageNode arguments first isIdentifierReferenceNode.
+            self assert: (innerMessageNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "c".
         }.
     }.
 
     test: testEmptyTuple with: {
         let node := self parseSingleExpression: "()".
-        self assert: node _ isMakeTupleNode.
+        self assert: node isMakeTupleNode.
 
         let tupleNode ref := node downCastFor: ASTMakeTupleNode.
-        self assert: tupleNode _ elements isEmpty
+        self assert: tupleNode elements isEmpty
     }.
 
     test: testMakeTuple with: {
         let node := self parseSingleExpression: "a,".
-        self assert: node _ isMakeTupleNode.
+        self assert: node isMakeTupleNode.
 
         let tupleNode ref := node downCastFor: ASTMakeTupleNode.
-        self assert: tupleNode _ elements size equals: 1.
+        self assert: tupleNode elements size equals: 1.
 
-        self assert: tupleNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (tupleNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: tupleNode elements first isIdentifierReferenceNode.
+        self assert: (tupleNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testMakeTuple2 with: {
         let node := self parseSingleExpression: "a,b".
-        self assert: node _ isMakeTupleNode.
+        self assert: node isMakeTupleNode.
 
         let tupleNode ref := node downCastFor: ASTMakeTupleNode.
-        self assert: tupleNode _ elements size equals: 2.
+        self assert: tupleNode elements size equals: 2.
 
-        self assert: tupleNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (tupleNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: tupleNode elements first isIdentifierReferenceNode.
+        self assert: (tupleNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: tupleNode _ elements second _ isIdentifierReferenceNode.
-        self assert: (tupleNode _ elements second downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: tupleNode elements second isIdentifierReferenceNode.
+        self assert: (tupleNode elements second downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testMakeTuple3 with: {
         let node := self parseSingleExpression: "a,b,".
-        self assert: node _ isMakeTupleNode.
+        self assert: node isMakeTupleNode.
 
         let tupleNode ref := node downCastFor: ASTMakeTupleNode.
-        self assert: tupleNode _ elements size equals: 2.
+        self assert: tupleNode elements size equals: 2.
 
-        self assert: tupleNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (tupleNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: tupleNode elements first isIdentifierReferenceNode.
+        self assert: (tupleNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: tupleNode _ elements second _ isIdentifierReferenceNode.
-        self assert: (tupleNode _ elements second downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: tupleNode elements second isIdentifierReferenceNode.
+        self assert: (tupleNode elements second downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testEmptyLiteralArray with: {
         let node := self parseSingleExpression: "#()".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements isEmpty
+        self assert: arrayNode elements isEmpty
     }.
 
     test: testLiteralArray with: {
         let node := self parseSingleExpression: "#(a)".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 1.
+        self assert: arrayNode elements size equals: 1.
 
-        self assert: arrayNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: arrayNode elements first isIdentifierReferenceNode.
+        self assert: (arrayNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testLiteralArray2 with: {
         let node := self parseSingleExpression: "#(a b)".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 2.
+        self assert: arrayNode elements size equals: 2.
 
-        self assert: arrayNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: arrayNode elements first isIdentifierReferenceNode.
+        self assert: (arrayNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: arrayNode _ elements second _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements second downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: arrayNode elements second isIdentifierReferenceNode.
+        self assert: (arrayNode elements second downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testLiteralArray3 with: {
         let node := self parseSingleExpression: "#(hello:World: #b)".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 2.
+        self assert: arrayNode elements size equals: 2.
 
-        self assert: arrayNode _ elements first _ isSymbolLiteralNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "hello:World:".
+        self assert: arrayNode elements first isSymbolLiteralNode.
+        self assert: (arrayNode elements first downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "hello:World:".
 
-        self assert: arrayNode _ elements second _ isSymbolLiteralNode.
-        self assert: (arrayNode _ elements second downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "b".
+        self assert: arrayNode elements second isSymbolLiteralNode.
+        self assert: (arrayNode elements second downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "b".
     }.
 
     test: testLiteralArray4 with: {
         let node := self parseSingleExpression: "#(* / // % + - << >> <= >= < > = == ~= ~~ & | && || ==> --> )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
         let operators mutable type: Std Collections Vector(Std ImmutableString).
-        arrayNode _ elements do: {:each :: Void |
-            self assert: each _ isSymbolLiteralNode.
-            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+        arrayNode elements do: {:each :: Void |
+            self assert: each isSymbolLiteralNode.
+            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) value asArraySlice.
             operators add: value.
         }.
 
@@ -783,60 +779,60 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testSourceWithEmptyLiteralArray with: {
         let node := self parseStringWithLiteralArrayContent: "".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements isEmpty
+        self assert: arrayNode elements isEmpty
     }.
 
     test: testSourceWithLiteralArray with: {
         let node := self parseStringWithLiteralArrayContent: "a".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 1.
+        self assert: arrayNode elements size equals: 1.
 
-        self assert: arrayNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: arrayNode elements first isIdentifierReferenceNode.
+        self assert: (arrayNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testSourceWithLiteralArray2 with: {
         let node := self parseStringWithLiteralArrayContent: "a b".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 2.
+        self assert: arrayNode elements size equals: 2.
 
-        self assert: arrayNode _ elements first _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        self assert: arrayNode elements first isIdentifierReferenceNode.
+        self assert: (arrayNode elements first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: arrayNode _ elements second _ isIdentifierReferenceNode.
-        self assert: (arrayNode _ elements second downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: arrayNode elements second isIdentifierReferenceNode.
+        self assert: (arrayNode elements second downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testSourceWithLiteralArray3 with: {
         let node := self parseStringWithLiteralArrayContent: "hello:World: #b".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
-        self assert: arrayNode _ elements size equals: 2.
+        self assert: arrayNode elements size equals: 2.
 
-        self assert: arrayNode _ elements first _ isSymbolLiteralNode.
-        self assert: (arrayNode _ elements first downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "hello:World:".
+        self assert: arrayNode elements first isSymbolLiteralNode.
+        self assert: (arrayNode elements first downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "hello:World:".
 
-        self assert: arrayNode _ elements second _ isSymbolLiteralNode.
-        self assert: (arrayNode _ elements second downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "b".
+        self assert: arrayNode elements second isSymbolLiteralNode.
+        self assert: (arrayNode elements second downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "b".
     }.
 
     test: testSourceWithLiteralArray4 with: {
         let node := self parseStringWithLiteralArrayContent: "* / // % + - << >> <= >= < > = == ~= ~~ & | && || ==> -->".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
         let arrayNode ref := node downCastFor: ASTLiteralArrayNode.
         let operators mutable type: Std Collections Vector(Std ImmutableString).
-        arrayNode _ elements do: {:each :: Void |
-            self assert: each _ isSymbolLiteralNode.
-            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) _ value asArraySlice.
+        arrayNode elements do: {:each :: Void |
+            self assert: each isSymbolLiteralNode.
+            let value type: Std ImmutableString := (each downCastFor: ASTSymbolLiteralNode) value asArraySlice.
             operators add: value.
         }.
 
@@ -849,454 +845,454 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testCallExpression with: {
         let node := self parseSingleExpression: "a()".
-        self assert: node _ isCallNode.
+        self assert: node isCallNode.
 
-        let callNode ref := (node downCastFor: ASTCallNode) _.
-        self assert: callNode callable _ isIdentifierReferenceNode.
-        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let callNode ref := node downCastFor: ASTCallNode.
+        self assert: callNode callable isIdentifierReferenceNode.
+        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
         self assert: callNode arguments isEmpty.
     }.
 
     test: testCallExpression2 with: {
         let node := self parseSingleExpression: "a(42)".
-        self assert: node _ isCallNode.
+        self assert: node isCallNode.
 
-        let callNode ref := (node downCastFor: ASTCallNode) _.
-        self assert: callNode callable _ isIdentifierReferenceNode.
-        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let callNode ref := node downCastFor: ASTCallNode.
+        self assert: callNode callable isIdentifierReferenceNode.
+        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: callNode arguments first _ isIntegerLiteralNode.
-        self assert: (callNode arguments first downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+        self assert: callNode arguments first isIntegerLiteralNode.
+        self assert: (callNode arguments first downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
     }.
 
     test: testCallExpression3 with: {
         let node := self parseSingleExpression: "a(42, b)".
-        self assert: node _ isCallNode.
+        self assert: node isCallNode.
 
-        let callNode ref := (node downCastFor: ASTCallNode) _.
-        self assert: callNode callable _ isIdentifierReferenceNode.
-        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let callNode ref := node downCastFor: ASTCallNode.
+        self assert: callNode callable isIdentifierReferenceNode.
+        self assert: (callNode callable downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: callNode arguments first _ isIntegerLiteralNode.
-        self assert: (callNode arguments first downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+        self assert: callNode arguments first isIntegerLiteralNode.
+        self assert: (callNode arguments first downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
 
-        self assert: callNode arguments second _ isIdentifierReferenceNode.
-        self assert: (callNode arguments second downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: callNode arguments second isIdentifierReferenceNode.
+        self assert: (callNode arguments second downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testSubscriptExpression with: {
         let node := self parseSingleExpression: "a[42]".
-        self assert: node _ isSubscriptNode.
+        self assert: node isSubscriptNode.
 
-        let subscriptNode ref := (node downCastFor: ASTSubscriptNode) _.
-        self assert: subscriptNode array _ isIdentifierReferenceNode.
-        self assert: (subscriptNode array downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let subscriptNode ref := node downCastFor: ASTSubscriptNode.
+        self assert: subscriptNode array isIdentifierReferenceNode.
+        self assert: (subscriptNode array downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: subscriptNode index _ isIntegerLiteralNode.
-        self assert: (subscriptNode index downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+        self assert: subscriptNode index  isIntegerLiteralNode.
+        self assert: (subscriptNode index downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
     }.
 
     test: testQuoteNode with: {
         let node := self parseSingleExpression: "`'a".
-        self assert: node _ isQuoteNode.
+        self assert: node isQuoteNode.
 
-        let quoteNode ref := (node downCastFor: ASTQuoteNode) _.
-        self assert: quoteNode quoted _ isIdentifierReferenceNode.
-        self assert: (quoteNode quoted downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let quoteNode ref := node downCastFor: ASTQuoteNode.
+        self assert: quoteNode quoted isIdentifierReferenceNode.
+        self assert: (quoteNode quoted downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testQuasiQuoteNode with: {
         let node := self parseSingleExpression: "``a".
-        self assert: node _ isQuasiQuoteNode.
+        self assert: node isQuasiQuoteNode.
 
-        let quoteNode ref := (node downCastFor: ASTQuasiQuoteNode) _.
-        self assert: quoteNode quoted _ isIdentifierReferenceNode.
-        self assert: (quoteNode quoted downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let quoteNode ref := node downCastFor: ASTQuasiQuoteNode.
+        self assert: quoteNode quoted isIdentifierReferenceNode.
+        self assert: (quoteNode quoted downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testQuasiUnquoteNode with: {
         let node := self parseSingleExpression: "`,a".
-        self assert: node _ isQuasiUnquoteNode.
+        self assert: node isQuasiUnquoteNode.
 
-        let unquoteNode ref := (node downCastFor: ASTQuasiUnquoteNode) _.
-        self assert: unquoteNode expression _ isIdentifierReferenceNode.
-        self assert: (unquoteNode expression downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let unquoteNode ref := node downCastFor: ASTQuasiUnquoteNode.
+        self assert: unquoteNode expression isIdentifierReferenceNode.
+        self assert: (unquoteNode expression downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testSpliceNode with: {
         let node := self parseSingleExpression: "`@a".
-        self assert: node _ isSpliceNode.
+        self assert: node isSpliceNode.
 
-        let spliceNode ref := (node downCastFor: ASTSpliceNode) _.
-        self assert: spliceNode expression _ isIdentifierReferenceNode.
-        self assert: (spliceNode expression downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let spliceNode ref := node downCastFor: ASTSpliceNode.
+        self assert: spliceNode expression isIdentifierReferenceNode.
+        self assert: (spliceNode expression downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
     }.
 
     test: testUnaryMessageWithMacroSelector with: {
         let node := self parseSingleExpression: "a `,b".
-        self assert: node _ isMessageSendNode.
+        self assert: node isMessageSendNode.
 
-        let messageNode ref := (node downCastFor: ASTMessageSendNode) _.
-        self assert: messageNode selector _ isQuasiUnquoteNode.
+        let messageNode ref := node downCastFor: ASTMessageSendNode.
+        self assert: messageNode selector isQuasiUnquoteNode.
 
-        let unquoteNode ref := (messageNode selector downCastFor: ASTQuasiUnquoteNode) _.
-        self assert: unquoteNode expression _ isIdentifierReferenceNode.
-        self assert: (unquoteNode expression downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        let unquoteNode ref := messageNode selector downCastFor: ASTQuasiUnquoteNode.
+        self assert: unquoteNode expression isIdentifierReferenceNode.
+        self assert: (unquoteNode expression downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testBlockNode with: {
         let node := self parseSingleExpression: "{}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNil.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions isEmpty.
     }.
 
     test: testBlockNode2 with: {
         let node := self parseSingleExpression: "{v}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNil.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions size equals: 1.
 
-        self assert: expressionList expressions first _ isIdentifierReferenceNode.
-        self assert: (expressionList expressions first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "v".
+        self assert: expressionList expressions first isIdentifierReferenceNode.
+        self assert: (expressionList expressions first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "v".
     }.
 
     test: testBlockClosureNode with: {
         let node := self parseSingleExpression: "{|}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNotNil.
-        self assert: blockNode blockClosureSignature _ isBlockClosureSignatureNode.
+        self assert: blockNode blockClosureSignature isBlockClosureSignatureNode.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let signature ref := (blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode) _.
+        let signature ref := blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode.
         self assert: signature arguments isEmpty.
         self assert: signature returnType isNil.
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions isEmpty.
     }.
 
     test: testBlockClosureNode2 with: {
         let node := self parseSingleExpression: "{:: Void |}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNotNil.
-        self assert: blockNode blockClosureSignature _ isBlockClosureSignatureNode.
+        self assert: blockNode blockClosureSignature isBlockClosureSignatureNode.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let signature ref := (blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode) _.
+        let signature ref := blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode.
         self assert: signature arguments isEmpty.
-        self assert: signature returnType _ isIdentifierReferenceNode.
-        self assert: (signature returnType downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "Void".
+        self assert: signature returnType isIdentifierReferenceNode.
+        self assert: (signature returnType downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "Void".
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions isEmpty.
     }.
 
     test: testBlockClosureNode3 with: {
         let node := self parseSingleExpression: "{:a |}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNotNil.
-        self assert: blockNode blockClosureSignature _ isBlockClosureSignatureNode.
+        self assert: blockNode blockClosureSignature isBlockClosureSignatureNode.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let signature ref := (blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode) _.
+        let signature ref := blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode.
         self assert: signature arguments size equals: 1.
 
-        let argument ref := (signature arguments first downCastFor: ASTBlockClosureArgumentNode) _.
+        let argument ref := signature arguments first downCastFor: ASTBlockClosureArgumentNode.
         self assert: argument type isNil.
-        self assert: argument identifier _ isSymbolLiteralNode.
-        self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "a".
+        self assert: argument identifier isSymbolLiteralNode.
+        self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "a".
 
         self assert: signature returnType isNil.
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions isEmpty.
     }.
 
     test: testBlockClosureNode4 with: {
         let node := self parseSingleExpression: "{:a :(Int32)b :c |}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNotNil.
-        self assert: blockNode blockClosureSignature _ isBlockClosureSignatureNode.
+        self assert: blockNode blockClosureSignature isBlockClosureSignatureNode.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let signature ref := (blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode) _.
+        let signature ref := blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode.
         self assert: signature arguments size equals: 3.
 
         {
-            let argument ref := (signature arguments first downCastFor: ASTBlockClosureArgumentNode) _.
+            let argument ref := signature arguments first downCastFor: ASTBlockClosureArgumentNode.
             self assert: argument type isNil.
-            self assert: argument identifier _ isSymbolLiteralNode.
-            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "a".
+            self assert: argument identifier isSymbolLiteralNode.
+            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "a".
         }.
 
         {
-            let argument ref := (signature arguments second downCastFor: ASTBlockClosureArgumentNode) _.
-            self assert: argument type _ isIdentifierReferenceNode.
-            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "Int32".
+            let argument ref := signature arguments second downCastFor: ASTBlockClosureArgumentNode.
+            self assert: argument type isIdentifierReferenceNode.
+            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "Int32".
 
-            self assert: argument identifier _ isSymbolLiteralNode.
-            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "b".
+            self assert: argument identifier isSymbolLiteralNode.
+            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "b".
         }.
 
         {
-            let argument ref := (signature arguments third downCastFor: ASTBlockClosureArgumentNode) _.
+            let argument ref := signature arguments third downCastFor: ASTBlockClosureArgumentNode.
             self assert: argument type isNil.
-            self assert: argument identifier _ isSymbolLiteralNode.
-            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "c".
+            self assert: argument identifier isSymbolLiteralNode.
+            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "c".
         }.
 
         self assert: signature returnType isNil.
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions isEmpty.
     }.
 
     test: testBlockClosureNode5 with: {
         let node := self parseSingleExpression: "{:(Float32)a :(Int32)b :: Float32 | a arcTan2: b }".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode blockClosureSignature isNotNil.
-        self assert: blockNode blockClosureSignature _ isBlockClosureSignatureNode.
+        self assert: blockNode blockClosureSignature isBlockClosureSignatureNode.
         self assert: blockNode pragmas isEmpty.
-        self assert: blockNode expressionList _ isExpressionListNode.
+        self assert: blockNode expressionList isExpressionListNode.
 
-        let signature ref := (blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode) _.
+        let signature ref := blockNode blockClosureSignature downCastFor: ASTBlockClosureSignatureNode.
         self assert: signature arguments size equals: 2.
 
         {
-            let argument ref := (signature arguments first downCastFor: ASTBlockClosureArgumentNode) _.
-            self assert: argument type _ isIdentifierReferenceNode.
-            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "Float32".
+            let argument ref := signature arguments first downCastFor: ASTBlockClosureArgumentNode.
+            self assert: argument type isIdentifierReferenceNode.
+            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "Float32".
 
-            self assert: argument identifier _ isSymbolLiteralNode.
-            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "a".
+            self assert: argument identifier isSymbolLiteralNode.
+            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "a".
         }.
 
         {
-            let argument ref := (signature arguments second downCastFor: ASTBlockClosureArgumentNode) _.
-            self assert: argument type _ isIdentifierReferenceNode.
-            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "Int32".
+            let argument ref := signature arguments second downCastFor: ASTBlockClosureArgumentNode.
+            self assert: argument type isIdentifierReferenceNode.
+            self assert: (argument type downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "Int32".
 
-            self assert: argument identifier _ isSymbolLiteralNode.
-            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "b".
+            self assert: argument identifier isSymbolLiteralNode.
+            self assert: (argument identifier downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "b".
         }.
 
-        self assert: signature returnType _ isIdentifierReferenceNode.
-        self assert: (signature returnType downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "Float32".
+        self assert: signature returnType isIdentifierReferenceNode.
+        self assert: (signature returnType downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "Float32".
 
-        let expressionList ref := (blockNode expressionList downCastFor: ASTExpressionListNode) _.
+        let expressionList ref := blockNode expressionList downCastFor: ASTExpressionListNode.
         self assert: expressionList expressions size equals: 1.
-        self assert: expressionList expressions first _ isMessageSendNode.
+        self assert: expressionList expressions first isMessageSendNode.
 
-        let messageNode ref := (expressionList expressions first downCastFor: ASTMessageSendNode) _.
-        self assert: messageNode receiver _ isIdentifierReferenceNode.
-        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "a".
+        let messageNode ref := expressionList expressions first downCastFor: ASTMessageSendNode.
+        self assert: messageNode receiver isIdentifierReferenceNode.
+        self assert: (messageNode receiver downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "a".
 
-        self assert: messageNode selector _ isSymbolLiteralNode.
-        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "arcTan2:".
+        self assert: messageNode selector isSymbolLiteralNode.
+        self assert: (messageNode selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "arcTan2:".
 
         self assert: messageNode arguments size equals: 1.
-        self assert: messageNode arguments first _ isIdentifierReferenceNode.
-        self assert: (messageNode arguments first downCastFor: ASTIdentifierReferenceNode) _ identifier asArraySlice equals: "b".
+        self assert: messageNode arguments first isIdentifierReferenceNode.
+        self assert: (messageNode arguments first downCastFor: ASTIdentifierReferenceNode) identifier asArraySlice equals: "b".
     }.
 
     test: testMakeEmptyDictionary with: {
         let node := self parseSingleExpression: "#{}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
         let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
-        self assert: dictionaryNode _ elements isEmpty.
+        self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testMakeEmptyDictionary2 with: {
         let node := self parseSingleExpression: "#{.}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
         let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
-        self assert: dictionaryNode _ elements isEmpty.
+        self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testMakeEmptyDictionary3 with: {
         let node := self parseSingleExpression: "#{..}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
         let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
-        self assert: dictionaryNode _ elements isEmpty.
+        self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testMakeDictionary with: {
         let node := self parseSingleExpression: "#{A: 1}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 1.
 
-        self assert: dictionaryNode elements first _ isDictionaryElementNode.
-        let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-        self assert: element key _ isSymbolLiteralNode.
-        self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+        self assert: dictionaryNode elements first isDictionaryElementNode.
+        let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+        self assert: element key isSymbolLiteralNode.
+        self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-        self assert: element value _ isIntegerLiteralNode.
-        self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+        self assert: element value isIntegerLiteralNode.
+        self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
     }.
 
     test: testMakeDictionary2 with: {
         let node := self parseSingleExpression: "#{A:}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 1.
 
-        self assert: dictionaryNode elements first _ isDictionaryElementNode.
-        let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-        self assert: element key _ isSymbolLiteralNode.
-        self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+        self assert: dictionaryNode elements first isDictionaryElementNode.
+        let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+        self assert: element key isSymbolLiteralNode.
+        self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
         self assert: element value isNil.
     }.
 
     test: testMakeDictionary3 with: {
         let node := self parseSingleExpression: "#{A: 1 .. B: 2}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testMakeDictionary4 with: {
         let node := self parseSingleExpression: "#{#A : 1 .. B: 2}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testMakeDictionary5 with: {
         let node := self parseSingleExpression: "#{#A : 1 .. B: 2.}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testMakeDictionary6 with: {
         let node := self parseSingleExpression: "#{A: 1. B: . C: .}".
-        self assert: node _ isMakeDictionaryNode.
+        self assert: node isMakeDictionaryNode.
 
-        let dictionaryNode ref := (node downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := node downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 3.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
             self assert: element value isNil.
         }.
 
         {
-            self assert: dictionaryNode elements third _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements third downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "C".
+            self assert: dictionaryNode elements third isDictionaryElementNode.
+            let element ref := dictionaryNode elements third downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "C".
 
             self assert: element value isNil.
         }.
@@ -1304,210 +1300,210 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testLiteralEmptyDictionary with: {
         let node := self parseSingleExpression: "#( #{} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testLiteralEmptyDictionary2 with: {
         let node := self parseSingleExpression: "#( #{.} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testLiteralEmptyDictionary3 with: {
         let node := self parseSingleExpression: "#( #{..} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements isEmpty.
     }.
 
     test: testLiteralDictionary with: {
         let node := self parseSingleExpression: "#( #{A: 1} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 1.
 
-        self assert: dictionaryNode elements first _ isDictionaryElementNode.
-        let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-        self assert: element key _ isSymbolLiteralNode.
-        self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+        self assert: dictionaryNode elements first isDictionaryElementNode.
+        let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+        self assert: element key isSymbolLiteralNode.
+        self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-        self assert: element value _ isIntegerLiteralNode.
-        self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+        self assert: element value isIntegerLiteralNode.
+        self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
     }.
 
     test: testLiteralDictionary2 with: {
         let node := self parseSingleExpression: "#( #{A:} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 1.
 
-        self assert: dictionaryNode elements first _ isDictionaryElementNode.
-        let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-        self assert: element key _ isSymbolLiteralNode.
-        self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+        self assert: dictionaryNode elements first isDictionaryElementNode.
+        let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+        self assert: element key isSymbolLiteralNode.
+        self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
         self assert: element value isNil.
     }.
 
     test: testLiteralDictionary3 with: {
         let node := self parseSingleExpression: "#( #{A: 1 .. B: 2} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testLiteralDictionary4 with: {
         let node := self parseSingleExpression: "#( #{#A : 1 .. B: 2} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testLiteralDictionary5 with: {
         let node := self parseSingleExpression: "#( #{#A : 1 .. B: 2.} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 2.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "2".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "2".
         }.
     }.
 
     test: testLiteralDictionary6 with: {
         let node := self parseSingleExpression: "#( #{A: 1. B: . C: .} )".
-        self assert: node _ isLiteralArrayNode.
+        self assert: node isLiteralArrayNode.
 
-        let literalArrayNode ref := (node downCastFor: ASTLiteralArrayNode) _.
+        let literalArrayNode ref := node downCastFor: ASTLiteralArrayNode.
         self assert: literalArrayNode elements size equals: 1.
-        self assert: literalArrayNode elements first _ isMakeDictionaryNode.
+        self assert: literalArrayNode elements first isMakeDictionaryNode.
 
-        let dictionaryNode ref := (literalArrayNode elements first downCastFor: ASTMakeDictionaryNode) _.
+        let dictionaryNode ref := literalArrayNode elements first downCastFor: ASTMakeDictionaryNode.
         self assert: dictionaryNode elements size equals: 3.
 
         {
-            self assert: dictionaryNode elements first _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements first downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "A".
+            self assert: dictionaryNode elements first isDictionaryElementNode.
+            let element ref := dictionaryNode elements first downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "A".
 
-            self assert: element value _ isIntegerLiteralNode.
-            self assert: (element value downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "1".
+            self assert: element value isIntegerLiteralNode.
+            self assert: (element value downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "1".
         }.
 
         {
-            self assert: dictionaryNode elements second _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements second downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "B".
+            self assert: dictionaryNode elements second isDictionaryElementNode.
+            let element ref := dictionaryNode elements second downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "B".
 
             self assert: element value isNil.
         }.
 
         {
-            self assert: dictionaryNode elements third _ isDictionaryElementNode.
-            let element ref := (dictionaryNode elements third downCastFor: ASTDictionaryElementNode) _.
-            self assert: element key _ isSymbolLiteralNode.
-            self assert: (element key downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "C".
+            self assert: dictionaryNode elements third isDictionaryElementNode.
+            let element ref := dictionaryNode elements third downCastFor: ASTDictionaryElementNode.
+            self assert: element key isSymbolLiteralNode.
+            self assert: (element key downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "C".
 
             self assert: element value isNil.
         }.
@@ -1515,53 +1511,53 @@ class ParserTests superclass: Std Testing TestCase; definition: {
 
     test: testUnaryPragma with: {
         let node := self parseSingleExpression: "{<pragma>}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode pragmas size equals: 1.
 
-        self assert: blockNode pragmas first _ isPragmaNode.
-        let pragma ref := (blockNode pragmas first downCastFor: ASTPragmaNode) _.
-        self assert: pragma selector _ isSymbolLiteralNode.
-        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pragma".
+        self assert: blockNode pragmas first isPragmaNode.
+        let pragma ref := blockNode pragmas first downCastFor: ASTPragmaNode.
+        self assert: pragma selector isSymbolLiteralNode.
+        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pragma".
 
         self assert: pragma arguments isEmpty.
     }.
 
     test: testKeywordPragma with: {
         let node := self parseSingleExpression: "{<pragma: 42>}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode pragmas size equals: 1.
 
-        self assert: blockNode pragmas first _ isPragmaNode.
-        let pragma ref := (blockNode pragmas first downCastFor: ASTPragmaNode) _.
-        self assert: pragma selector _ isSymbolLiteralNode.
-        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pragma:".
+        self assert: blockNode pragmas first isPragmaNode.
+        let pragma ref := blockNode pragmas first downCastFor: ASTPragmaNode.
+        self assert: pragma selector isSymbolLiteralNode.
+        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pragma:".
 
         self assert: pragma arguments size equals: 1.
-        self assert: pragma arguments first _ isIntegerLiteralNode.
-        self assert: (pragma arguments first downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
+        self assert: pragma arguments first isIntegerLiteralNode.
+        self assert: (pragma arguments first downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
     }.
 
     test: testKeywordPragma2 with: {
         let node := self parseSingleExpression: "{<pragma: 42 value: -1>}".
-        self assert: node _ isBlockNode.
+        self assert: node isBlockNode.
 
-        let blockNode ref := (node downCastFor: ASTBlockNode) _.
+        let blockNode ref := node downCastFor: ASTBlockNode.
         self assert: blockNode pragmas size equals: 1.
 
-        self assert: blockNode pragmas first _ isPragmaNode.
-        let pragma ref := (blockNode pragmas first downCastFor: ASTPragmaNode) _.
-        self assert: pragma selector _ isSymbolLiteralNode.
-        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) _ value asArraySlice equals: "pragma:value:".
+        self assert: blockNode pragmas first isPragmaNode.
+        let pragma ref := blockNode pragmas first downCastFor: ASTPragmaNode.
+        self assert: pragma selector isSymbolLiteralNode.
+        self assert: (pragma selector downCastFor: ASTSymbolLiteralNode) value asArraySlice equals: "pragma:value:".
 
         self assert: pragma arguments size equals: 2.
-        self assert: pragma arguments first _ isIntegerLiteralNode.
-        self assert: (pragma arguments first downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "42".
-        self assert: pragma arguments second _ isIntegerLiteralNode.
-        self assert: (pragma arguments second downCastFor: ASTIntegerLiteralNode) _ stringValue asArraySlice equals: "-1".
+        self assert: pragma arguments first isIntegerLiteralNode.
+        self assert: (pragma arguments first downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "42".
+        self assert: pragma arguments second isIntegerLiteralNode.
+        self assert: (pragma arguments second downCastFor: ASTIntegerLiteralNode) stringValue asArraySlice equals: "-1".
     }.
 }.
 

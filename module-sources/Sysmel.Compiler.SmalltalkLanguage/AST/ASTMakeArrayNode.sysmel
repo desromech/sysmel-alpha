@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTMakeArrayNode superclass: ASTNode; definition: {
-    public field elements type: ASTNodePtrList.
+    public field elements type: ASTNodeRefList.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitMakeArrayNode: self.

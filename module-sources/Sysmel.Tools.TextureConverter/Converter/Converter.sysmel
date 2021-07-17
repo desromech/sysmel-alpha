@@ -9,12 +9,12 @@ useNamespace: Std Graphics Core.
  *#
 class Converter definition: {
     public field parameters type: Parameters.
-    public field targetProfile type: TextureConversionProfilePtr.
+    public field targetProfile type: TextureConversionProfileRef.
 
-    method validTargetProfile => TextureConversionProfilePtr := {
+    method validTargetProfile => TextureConversionProfileRef := {
         targetProfile ifNil: {
             targetProfile := TextureConversionProfileRegistry uniqueInstance findNamed: parameters targetProfileName asArraySlice default:
-                (PCTextureConversionProfile rcNew upCastFor: TextureConversionProfile)
+                (PCTextureConversionProfile new upCastFor: TextureConversionProfile)
         }.
         targetProfile
     }.
@@ -29,7 +29,7 @@ class Converter definition: {
             return: false.
         }.
 
-        let outputTextureData := self validTargetProfile _ convertTextureData: inputTextureData withParameters: parameters.
+        let outputTextureData := self validTargetProfile convertTextureData: inputTextureData withParameters: parameters.
         outputTextureData ifNil: {
             return: false.
         }.

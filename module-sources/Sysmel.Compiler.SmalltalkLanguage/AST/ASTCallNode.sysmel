@@ -10,8 +10,8 @@ ASTNode extend: {
 }.
 
 class ASTCallNode superclass: ASTNode; definition: {
-    public field callable type: ASTNodePtr.
-    public field arguments type: ASTNodePtr.
+    public field callable type: ASTNodeRef.
+    public field arguments type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitCallNode: self.

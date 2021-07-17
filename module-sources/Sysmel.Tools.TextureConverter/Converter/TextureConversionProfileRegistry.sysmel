@@ -22,24 +22,24 @@ class TextureConversionProfileRegistry superclass: Std RCObject; definition: {
     }.
 
     private field mutex type: Std Mutex.
-    private field registeredProfiles type: Std Collections Vector(TextureConversionProfile rcPointer).
+    private field registeredProfiles type: Std Collections Vector(TextureConversionProfile rcRef).
 
-    method addProfile: (profile: TextureConversionProfile rcPointer const ref) ::=> Void := {
+    method addProfile: (profile: TextureConversionProfile rcRef const ref) ::=> Void := {
         mutex withLock: {
             registeredProfiles add: profile
         }
     }.
 
-    method getProfiles ::=> Std Collections Vector(TextureConversionProfile rcPointer) := {
+    method getProfiles ::=> Std Collections Vector(TextureConversionProfile rcRef) := {
         mutex withLock: {
             return: registeredProfiles
         }.
     }.
 
-    method findNamed: (name: Char8 const arraySlice) default: (default: TextureConversionProfile rcPointer const ref) ::=> TextureConversionProfile rcPointer := {
+    method findNamed: (name: Char8 const arraySlice) default: (default: TextureConversionProfile rcRef const ref) ::=> TextureConversionProfile rcRef := {
         mutex withLock: {
             registeredProfiles do: {:each :: Void |
-                each _ name = name ifTrue: {
+                each name = name ifTrue: {
                     return: each
                 }
             }
@@ -53,7 +53,7 @@ template TextureConversionProfileRegisterer (T: Type)
     := class definition: {
 
     method initialize => Void := {
-        TextureConversionProfileRegistry uniqueInstance addProfile: (T rcNew upCastFor: TextureConversionProfile)
+        TextureConversionProfileRegistry uniqueInstance addProfile: (T new upCastFor: TextureConversionProfile)
     }.
 }.
 } ## End of namespace Tools

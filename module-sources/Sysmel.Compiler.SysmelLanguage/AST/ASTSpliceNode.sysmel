@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTSpliceNode superclass: ASTNode; definition: {
-    public field expression type: ASTNodePtr.
+    public field expression type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitSpliceNode: self.

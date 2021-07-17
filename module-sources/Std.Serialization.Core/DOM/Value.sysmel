@@ -4,10 +4,10 @@ namespace DOM definition: {
 
 class List superclass: Std RCObject.
 class Object superclass: Std RCObject.
-compileTime constant ListPtr := List rcPointer.
-compileTime constant ObjectPtr := Object rcPointer.
+compileTime constant ListRef := List rcRef.
+compileTime constant ObjectRef := Object rcRef.
 
-compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Std String | Std ByteVector | List rcPointer | Object rcPointer.
+compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Std String | Std ByteVector | List rcRef | Object rcRef.
 Value.
 
 function valueToByteArray(value: Value const ref) ::=> Std ByteVector := {
@@ -78,7 +78,7 @@ function valueToFloat32(value: Value const ref) ::=> Float32 := {
 }.
 
 function valueToFloat32x2(value: Value const ref) ::=> Float32x2 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x2(
         list getFloat32: 0,
         list getFloat32: 1
@@ -86,7 +86,7 @@ function valueToFloat32x2(value: Value const ref) ::=> Float32x2 := {
 }.
 
 function valueToFloat32x2(value: Value const ref, defaultValue: Float32x2) ::=> Float32x2 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x2(
         list getFloat32: 0 default: defaultValue x,
         list getFloat32: 1 default: defaultValue y
@@ -94,7 +94,7 @@ function valueToFloat32x2(value: Value const ref, defaultValue: Float32x2) ::=> 
 }.
 
 function valueToFloat32x3(value: Value const ref) ::=> Float32x3 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x3(
         list getFloat32: 0,
         list getFloat32: 1,
@@ -103,7 +103,7 @@ function valueToFloat32x3(value: Value const ref) ::=> Float32x3 := {
 }.
 
 function valueToFloat32x3(value: Value const ref, defaultValue: Float32x3) ::=> Float32x3 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x3(
         list getFloat32: 0 default: defaultValue x,
         list getFloat32: 1 default: defaultValue y,
@@ -112,7 +112,7 @@ function valueToFloat32x3(value: Value const ref, defaultValue: Float32x3) ::=> 
 }.
 
 function valueToFloat32x4(value: Value const ref) ::=> Float32x4 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x4(
         list getFloat32: 0,
         list getFloat32: 1,
@@ -122,7 +122,7 @@ function valueToFloat32x4(value: Value const ref) ::=> Float32x4 := {
 }.
 
 function valueToFloat32x4(value: Value const ref, defaultValue: Float32x4) ::=> Float32x4 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x4(
         list getFloat32: 0 default: defaultValue x,
         list getFloat32: 1 default: defaultValue y,
@@ -132,7 +132,7 @@ function valueToFloat32x4(value: Value const ref, defaultValue: Float32x4) ::=> 
 }.
 
 function valueToFloat32x4x4(value: Value const ref, defaultValue: Float32x4x4) ::=> Float32x4x4 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float32x4x4(
     Float32x4(
         list getFloat32: 0 default: defaultValue firstColumn x,
@@ -169,7 +169,7 @@ function valueToFloat64(value: Value const ref) ::=> Float64 := {
 }.
 
 function valueToFloat64x2(value: Value const ref) ::=> Float64x2 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x2(
         list getFloat64: 0,
         list getFloat64: 1
@@ -177,7 +177,7 @@ function valueToFloat64x2(value: Value const ref) ::=> Float64x2 := {
 }.
 
 function valueToFloat64x2(value: Value const ref, defaultValue: Float64x2) ::=> Float64x2 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x2(
         list getFloat64: 0 default: defaultValue x,
         list getFloat64: 1 default: defaultValue y
@@ -185,7 +185,7 @@ function valueToFloat64x2(value: Value const ref, defaultValue: Float64x2) ::=> 
 }.
 
 function valueToFloat64x3(value: Value const ref) ::=> Float64x3 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x3(
         list getFloat64: 0,
         list getFloat64: 1,
@@ -194,7 +194,7 @@ function valueToFloat64x3(value: Value const ref) ::=> Float64x3 := {
 }.
 
 function valueToFloat64x3(value: Value const ref, defaultValue: Float64x3) ::=> Float64x3 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x3(
         list getFloat64: 0 default: defaultValue x,
         list getFloat64: 1 default: defaultValue y,
@@ -203,7 +203,7 @@ function valueToFloat64x3(value: Value const ref, defaultValue: Float64x3) ::=> 
 }.
 
 function valueToFloat64x4(value: Value const ref) ::=> Float64x4 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x4(
         list getFloat64: 0,
         list getFloat64: 1,
@@ -213,7 +213,7 @@ function valueToFloat64x4(value: Value const ref) ::=> Float64x4 := {
 }.
 
 function valueToFloat64x4(value: Value const ref, defaultValue: Float64x4) ::=> Float64x4 := {
-    let list ref := (value get: ListPtr) _.
+    let list ref := value get: ListRef.
     Float64x4(
         list getFloat64: 0 default: defaultValue x,
         list getFloat64: 1 default: defaultValue y,
@@ -330,14 +330,17 @@ Object definition: {
 
     macro method keysAndValuesDo: aBlock := ``(`,self elements keysAndValuesDo: `,aBlock).
 
-    macro method at: key := ``(`,self elements at: `,key).
-    macro method at: key put: value := ``(`,self elements at: `,key put: `,value).
-    macro method at: key ifPresent: presentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock).
-    macro method at: key ifPresent: presentBlock ifAbsent: absentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock ifAbsent: `,absentBlock).
+    macro method at: key := ``(`,self elements at: `,key asMutableString).
+    macro method at: key put: value := ``(`,self elements at: `,key asMutableString put: `,value).
+    macro method at: key ifPresent: presentBlock := ``(`,self elements at: `,key asMutableString ifPresent: `,presentBlock).
+    macro method at: key ifPresent: presentBlock ifAbsent: absentBlock := ``(`,self elements at: `,key asMutableString ifPresent: `,presentBlock ifAbsent: `,absentBlock).
     macro method reserve: capacity := ``(`,self elements reserve: `,capacity).
 
     const method getString: (key: Std String const ref) ::=> Std String
         := (self at: key) get: Std String.
+
+    const method getString: (key: Std ImmutableString) ::=> Std String
+        := self getString: key asMutableString.
 
     const method getString: (key: Std String const ref) default: (defaultValue: Std String const ref) ::=> Std String := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -347,14 +350,26 @@ Object definition: {
         defaultValue
     }.
 
-    const method getList: (key: Std String const ref) ::=> ListPtr
-        := (self at: key) get: ListPtr.
+    const method getString: (key: Std ImmutableString) default: (defaultValue: Std ImmutableString) ::=> Std String
+        := self getString: key asMutableString default: defaultValue asMutableString.
 
-    const method getObject: (key: Std String const ref) ::=> ObjectPtr
-        := (self at: key) get: ObjectPtr.
+    const method getList: (key: Std String const ref) ::=> ListRef
+        := (self at: key) get: ListRef.
+
+    const method getList: (key: Std ImmutableString) ::=> ListRef
+        := self getList: key asMutableString.
+
+    const method getObject: (key: Std String const ref) ::=> ObjectRef
+        := (self at: key) get: ObjectRef.
+
+    const method getObject: (key: Std ImmutableString) ::=> ObjectRef
+        := self getObject: key asMutableString.
 
     const method getBoolean8: (key: Std String const ref) ::=> Boolean8
         := (self at: key) get: Boolean8.
+
+    const method getBoolean8: (key: Std ImmutableString) ::=> Boolean8
+        := self getBoolean8: key asMutableString.
 
     const method getBoolean8: (key: Std String const ref) default: (defaultValue: Boolean8) ::=> Boolean8 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -364,8 +379,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getBoolean8: (key: Std ImmutableString) default: (defaultValue: Boolean8) ::=> Boolean8
+        := self getBoolean8: key asMutableString default: defaultValue.
+
     const method getUIntPointer: (key: Std String const ref) ::=> UIntPointer
         := valueToUIntPointer(self at: key).
+
+    const method getUIntPointer: (key: Std ImmutableString) ::=> UIntPointer
+        := self getUIntPointer: key asMutableString.
 
     const method getUIntPointer: (key: Std String const ref) default: (defaultValue: UIntPointer) ::=> UIntPointer := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -375,8 +396,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getUIntPointer: (key: Std ImmutableString) default: (defaultValue: UIntPointer) ::=> UIntPointer
+        := self getUIntPointer: key asMutableString default: defaultValue.
+
     const method getIntPointer: (key: Std String const ref) ::=> IntPointer
         := valueToIntPointer(self at: key).
+
+    const method getIntPointer: (key: Std ImmutableString) ::=> IntPointer
+        := self getIntPointer: key asMutableString.
 
     const method getIntPointer: (key: Std String const ref) default: (defaultValue: IntPointer) ::=> IntPointer := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -386,8 +413,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getIntPointer: (key: Std ImmutableString) default: (defaultValue: IntPointer) ::=> IntPointer
+        := self getIntPointer: key asMutableString default: defaultValue.
+
     const method getUInt32: (key: Std String const ref) ::=> UInt32
         := valueToUInt32(self at: key).
+
+    const method getUInt32: (key: Std ImmutableString) ::=> UInt32
+        := self getUInt32: key.
 
     const method getUInt32: (key: Std String const ref) default: (defaultValue: UInt32) ::=> UInt32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -397,8 +430,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getUInt32: (key: Std ImmutableString) default: (defaultValue: UInt32) ::=> UInt32
+        := self getUInt32: key asMutableString default: defaultValue.
+
     const method getInt32: (key: Std String const ref) ::=> Int32
         := valueToInt32(self at: key).
+
+    const method getInt32: (key: Std ImmutableString) ::=> Int32
+        := self getInt32: key asMutableString.
 
     const method getInt32: (key: Std String const ref) default: (defaultValue: Int32) ::=> Int32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -408,8 +447,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getInt32: (key: Std ImmutableString) default: (defaultValue: Int32) ::=> Int32
+        := self getInt32: key asMutableString default: defaultValue.
+
     const method getUInt64: (key: Std String const ref) ::=> UInt64
         := valueToUInt64(self at: key).
+
+    const method getUInt64: (key: Std ImmutableString) ::=> UInt64
+        := self getUInt64: key asMutableString.
 
     const method getUInt64: (key: Std String const ref) default: (defaultValue: UInt64) ::=> UInt64 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -419,8 +464,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getUInt64: (key: Std ImmutableString) default: (defaultValue: UInt64) ::=> UInt64
+        := self getUInt64: key asMutableString default: defaultValue.
+
     const method getInt64: (key: Std String const ref) ::=> Int64
         := valueToInt64(self at: key).
+
+    const method getInt64: (key: Std ImmutableString) ::=> Int64
+        := self getInt64: key asMutableString.
 
     const method getInt64: (key: Std String const ref) default: (defaultValue: Int64) ::=> Int64 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -430,8 +481,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getInt64: (key: Std ImmutableString) default: (defaultValue: Int64) ::=> Int64
+        := self getInt64: key asMutableString default: defaultValue.
+
     const method getFloat32: (key: Std String const ref) ::=> Float32
         := valueToFloat32(self at: key).
+
+    const method getFloat32: (key: Std ImmutableString) ::=> Float32
+        := self getFloat32: key asMutableString.
 
     const method getFloat32: (key: Std String const ref) default: (defaultValue: Float32) ::=> Float32 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -441,8 +498,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat32: (key: Std ImmutableString) default: (defaultValue: Float32) ::=> Float32
+        := self getFloat32: key asMutableString default: defaultValue.
+
     const method getFloat32x2: (key: Std String const ref) ::=> Float32x2
         := valueToFloat32x2(self at: key).
+
+    const method getFloat32x2: (key: Std ImmutableString) ::=> Float32x2
+        := self getFloat32x2: key asMutableString.
 
     const method getFloat32x2: (key: Std String const ref) default: (defaultValue: Float32x2) ::=> Float32x2 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -452,8 +515,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat32x2: (key: Std ImmutableString) default: (defaultValue: Float32x2) ::=> Float32x2
+        := self getFloat32x2: key asMutableString.
+
     const method getFloat32x3: (key: Std String const ref) ::=> Float32x3
         := valueToFloat32x3(self at: key).
+
+    const method getFloat32x3: (key: Std ImmutableString) ::=> Float32x3
+        := self getFloat32x3: key asMutableString.
 
     const method getFloat32x3: (key: Std String const ref) default: (defaultValue: Float32x3) ::=> Float32x3 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -463,8 +532,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat32x3: (key: Std ImmutableString) default: (defaultValue: Float32x3) ::=> Float32x3
+        := self getFloat32x3: key asMutableString default: defaultValue.
+
     const method getFloat32x4: (key: Std String const ref) ::=> Float32x4
         := valueToFloat32x4(self at: key).
+
+    const method getFloat32x4: (key: Std ImmutableString) ::=> Float32x4
+        := self getFloat32x4: key asMutableString.
 
     const method getFloat32x4: (key: Std String const ref) default: (defaultValue: Float32x4) ::=> Float32x4 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -474,8 +549,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat32x4: (key: Std ImmutableString) default: (defaultValue: Float32x4) ::=> Float32x4
+        := self getFloat32x4: key asMutableString default: defaultValue.
+
     const method getFloat64: (key: Std String const ref) ::=> Float64
         := valueToFloat64(self at: key).
+
+    const method getFloat64: (key: Std ImmutableString) ::=> Float64
+        := self getFloat64: key asMutableString.
 
     const method getFloat64: (key: Std String const ref) default: (defaultValue: Float64) ::=> Float64 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -485,8 +566,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat64: (key: Std ImmutableString) default: (defaultValue: Float64) ::=> Float64
+        := self getFloat64: key asMutableString default: defaultValue.
+
     const method getFloat64x2: (key: Std String const ref) ::=> Float64x2
         := valueToFloat64x2(self at: key).
+
+    const method getFloat64x2: (key: Std ImmutableString) ::=> Float64x2
+        := self getFloat64x2: key asMutableString.
 
     const method getFloat64x2: (key: Std String const ref) default: (defaultValue: Float64x2) ::=> Float64x2 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -496,8 +583,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat64x2: (key: Std ImmutableString) default: (defaultValue: Float64x2) ::=> Float64x2
+        := self getFloat64x2: key default: defaultValue.
+
     const method getFloat64x3: (key: Std String const ref) ::=> Float64x3
         := valueToFloat64x3(self at: key).
+
+    const method getFloat64x3: (key: Std ImmutableString) ::=> Float64x3
+        := self getFloat64x3: key asMutableString.
 
     const method getFloat64x3: (key: Std String const ref) default: (defaultValue: Float64x3) ::=> Float64x3 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -507,8 +600,14 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat64x3: (key: Std ImmutableString) default: (defaultValue: Float64x3) ::=> Float64x3
+        := self getFloat64x3: key asMutableString default: defaultValue.
+
     const method getFloat64x4: (key: Std String const ref) ::=> Float64x4
         := valueToFloat64x4(self at: key).
+
+    const method getFloat64x4: (key: Std ImmutableString) ::=> Float64x4
+        := self getFloat64x4: key asMutableString.
 
     const method getFloat64x4: (key: Std String const ref) default: (defaultValue: Float64x4) ::=> Float64x4 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
@@ -517,6 +616,10 @@ Object definition: {
 
         defaultValue
     }.
+
+    const method getFloat64x4: (key: Std ImmutableString) default: (defaultValue: Float64x4) ::=> Float64x4
+        := self getFloat64x4: key default: defaultValue.
+
 }.
 
 }. ## End of namespace DOM

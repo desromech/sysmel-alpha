@@ -15,10 +15,10 @@ Writer definition: {
         (let x type: Float64) : (self putFloat: x).
         (let x type: Std String) : (self putString: x).
         (let x type: Std ByteVector) : (self putString: Std Serialization BinaryEncoding encodeBase64String(x)).
-        (let list type: ListPtr) : {
+        (let list type: ListRef) : {
             self beginList.
             let isFirst mutable := true.
-            list _ do: {:el :: Void |
+            list do: {:(Value const ref)el :: Void |
                 isFirst ifTrue: {
                     isFirst := false
                 } ifFalse: {
@@ -28,10 +28,10 @@ Writer definition: {
             }.
             self endList.
         }.
-        (let object type: ObjectPtr) : {
+        (let object type: ObjectRef) : {
             self beginObject.
             let isFirst mutable := true.
-            object _ keysAndValuesDo: {:(Std String const ref)k :(Value const ref)v :: Void |
+            object keysAndValuesDo: {:(Std String const ref)k :(Value const ref)v :: Void |
                 isFirst ifTrue: {
                     isFirst := false
                 } ifFalse: {

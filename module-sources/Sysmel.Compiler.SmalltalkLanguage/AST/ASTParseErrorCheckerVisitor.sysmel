@@ -8,7 +8,7 @@ class ASTParseErrorCheckerVisitor superclass: ASTSequentialVisitor; definition: 
     public field errorCount type: UIntPointer.
 
     meta definition: {
-        static method verify: (node: ASTNode ref) callback: (callback: CallbackType) ::=> Boolean8 := {
+        static method verify: (node: ASTNodeRef const ref) callback: (callback: CallbackType) ::=> Boolean8 := {
             let visitor mutable :=InstanceType()
                     callback: callback;
                     yourself.

@@ -13,7 +13,7 @@ class TextureConversionProfile superclass: Std RCObject; definition: {
     abstract method convertTextureData: (inputTextureData: TextureDataRef const ref) withParameters: (parameters: Parameters const ref) ::=> TextureDataRef.
 }.
 
-compileTime constant TextureConversionProfilePtr := TextureConversionProfile rcPointer.
+compileTime constant TextureConversionProfileRef := TextureConversionProfile rcRef.
 
 } ## End of namespace Tools
 } ## End of namespace TextureConverter

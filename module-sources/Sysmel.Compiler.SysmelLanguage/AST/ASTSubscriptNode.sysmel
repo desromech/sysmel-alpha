@@ -10,8 +10,8 @@ ASTNode extend: {
 }.
 
 class ASTSubscriptNode superclass: ASTNode; definition: {
-    public field array type: ASTNodePtr.
-    public field index type: ASTNodePtr.
+    public field array type: ASTNodeRef.
+    public field index type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitSubscriptNode: self.

@@ -82,7 +82,7 @@ compileTime constant Token := GenericToken(TokenType).
 compileTime constant TokenList := Std Collections Vector(Token).
 
 compileTime constant TokenizedSourceCode := GenericTokenizedSourceCode(TokenType).
-compileTime constant TokenizedSourceCodePtr := TokenizedSourceCode rcPointer.
+compileTime constant TokenizedSourceCodeRef := TokenizedSourceCode rcRef.
 compileTime constant TokenizedSourceCodeRange := SourceCollectionRange(TokenizedSourceCode).
 
 }. ## End of namespace Compiler

@@ -323,6 +323,7 @@ template RCRef(PT: Type)
 	macro method isNotNil := ``(`,self __rcPointer__ isNotNil).
 
     macro method rcObjectAddress := ``(`,self __rcPointer__ getPointer).
+    macro method asRCObjectNativeRef := ``(`,self rcObjectAddress _).
 
     macro method upCastFor: targetType
         := ``((`,self __rcPointer__ upCastFor: `,targetType) asRCRef).
@@ -415,6 +416,7 @@ template WeakRCRef(PT: Type)
     macro method asWeakRCPointer := ``(`,self __weakRCPointer__).
 
     macro method rcObjectAddress := ``(`,self __weakRCPointer__ lock getPointer).
+    macro method asRCObjectNativeRef := ``(`,self rcObjectAddress _).
 
     macro method upCastFor: targetType
         := ``((`,self __weakRCPointer__ upCastFor: `,targetType) asWeakRCRef).
@@ -514,6 +516,7 @@ class RCObject superclass: Object; definition: {
     macro method asRCRef := ``(Std RCRef(`,SelfType) for: `,self address).
     
     macro method rcObjectAddress := ``(`,self address).
+    macro method asRCObjectNativeRef := ``(`,self).
 
     macro method identityHash
         := ``(`,self address hash).

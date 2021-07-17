@@ -10,9 +10,9 @@ ASTNode extend: {
 }.
 
 class ASTSequenceNode superclass: ASTNode; definition: {
-    public field pragmas type: ASTNodePtrList.
-    public field locals type: ASTNodePtrList.
-    public field expressions type: ASTNodePtrList.
+    public field pragmas type: ASTNodeRefList.
+    public field locals type: ASTNodeRefList.
+    public field expressions type: ASTNodeRefList.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitSequenceNode: self.

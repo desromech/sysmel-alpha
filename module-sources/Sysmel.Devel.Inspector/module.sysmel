@@ -1,5 +1,0 @@
-Compiler importModulesNamed: #(
-    #"Smalltalk.GUI.Core"
-); loadPackages: #(
-    SimpleInspector
-).

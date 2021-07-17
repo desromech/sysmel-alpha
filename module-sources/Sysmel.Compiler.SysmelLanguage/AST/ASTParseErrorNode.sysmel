@@ -13,15 +13,14 @@ class ASTParseErrorNode superclass: ASTNode; definition: {
     public field errorMessage type: Std String.
 
     meta definition: {
-        static method atTokens: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodePtr := {
-            let result := InstanceType rcNew.
-            result _
+        static method atTokens: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodeRef := {
+            InstanceType new
                 tokenRange: tokenRange;
-                errorMessage: errorMessage.
-            result upCastFor: ASTNode
+                errorMessage: errorMessage;
+                upCastFor: ASTNode
         }.
 
-        static method atToken: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodePtr
+        static method atToken: (tokenRange: TokenizedSourceCodeRange const ref) message: (errorMessage: Std String const ref) ::=> ASTNodeRef
             := self atTokens: (tokenRange until: 1) message: errorMessage.
     }.
 

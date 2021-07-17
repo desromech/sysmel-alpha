@@ -10,9 +10,9 @@ ASTNode extend: {
 }.
 
 class ASTBlockNode superclass: ASTNode; definition: {
-    public field blockClosureSignature type: ASTNodePtr.
-    public field pragmas type: ASTNodePtrList.
-    public field expressionList type: ASTNodePtr.
+    public field blockClosureSignature type: ASTNodeRef.
+    public field pragmas type: ASTNodeRefList.
+    public field expressionList type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitBlockNode: self.

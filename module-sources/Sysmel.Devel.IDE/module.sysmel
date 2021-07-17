@@ -1,6 +1,0 @@
-Compiler importModulesNamed: #(
-    #"Sysmel.Devel.ClassBrowser"
-    #"Sysmel.Devel.Inspector"
-    #"Sysmel.Devel.Playground"
-    #"Sysmel.Devel.ProjectBrowser"
-).

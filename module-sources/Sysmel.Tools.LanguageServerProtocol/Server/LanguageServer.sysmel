@@ -14,53 +14,54 @@ class LanguageServer definition: {
     }.
 
     method run => Void := {
-        let request mutable := MessagePtr nil.
+        let request mutable := MessageRef nil.
         while: (request := self readNextRequest) isNotNil  do: {
             self processRequest: request
         }
     }.
 
-    method readNextRequest ::=> MessagePtr := {
+    method readNextRequest ::=> MessageRef := {
         let header mutable := MessageHeader().
         (header readFrom: inputReader _) ifFalse: {
-            return: MessagePtr nil
+            return: MessageRef nil
         }.
 
         header hasContentLength ifFalse: {
-            return: MessagePtr nil
+            return: MessageRef nil
         }.
 
-        let message := Message rcNew.
+        let message := Message new.
         header isJsonRequest ifTrue: {
             let jsonString := inputReader _ nextString: header contentLength.
-            message _ jsonContent: (JSON ValueParser parseString: jsonString)
+            message jsonContent: (JSON ValueParser parseString: jsonString)
         } ifFalse: {
-            message _ binaryContent: (inputReader _ nextBytes: header contentLength)
+            message binaryContent: (inputReader _ nextBytes: header contentLength)
         }.
 
-        message _ header: header.
         message
+            header: header;
+            yourself
     }.
 
-    method processRequest: (request: MessagePtr const ref) ::=> Void := {
-        request _ header isJsonRequest ifFalse: {
+    method processRequest: (request: MessageRef const ref) ::=> Void := {
+        request header isJsonRequest ifFalse: {
             return: void
         }.
 
-        let requestObject ref := (request _ jsonContent get: DOM ObjectPtr) _.
-        let version := requestObject getString: "jsonrpc" asMutableString.
+        let requestObject ref := request jsonContent get: DOM ObjectRef.
+        let version := requestObject getString: "jsonrpc".
         Std assert: version asArraySlice = "2.0".
-        let rpcMethod := requestObject getString: "method" asMutableString.
-        let params := requestObject getObject: "params" asMutableString.
+        let rpcMethod := requestObject getString: "method".
+        let params := requestObject getObject: "params".
 
-        requestObject at: "id" asMutableString ifPresent: {:(DOM Value const ref)id :: Void |
-            self processRequest: id name: rpcMethod asArraySlice params: params _
+        requestObject at: "id" ifPresent: {:(DOM Value const ref)id :: Void |
+            self processRequest: id name: rpcMethod asArraySlice params: params
         } ifAbsent: {
-            self processNotification: rpcMethod asArraySlice params: params _
+            self processNotification: rpcMethod asArraySlice params: params
         }.
     }.
 
-    method doProcessRequest: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> DOM Value := {
+    method doProcessRequest: (methodName: Std ImmutableString) params: (params: DOM ObjectRef const ref) ::=> DOM Value := {
         methodName selectCase: #{
         _ : {
             let error mutable type: JsonRpcError.
@@ -76,34 +77,29 @@ class LanguageServer definition: {
         DOM Value()
     }.
 
-    method doProcessNotification: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+    method doProcessNotification: (methodName: Std ImmutableString) params: (params: DOM ObjectRef const ref) ::=> Void := {
     }.
 
-    method processRequest: (id: DOM Value const ref) name: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
-        let response := DOM Object rcNew.
-        response _
-            at: "jsonrpc" asMutableString put: "2.0" asMutableString;
-            at: "id" asMutableString put: id.
+    method processRequest: (id: DOM Value const ref) name: (methodName: Std ImmutableString) params: (params: DOM ObjectRef const ref) ::=> Void := {
+        let response := DOM Object new
+            at: "jsonrpc" put: "2.0" asMutableString;
+            at: "id" put: id;
+            yourself.
 
         try: {
             try: {
-                response _
-                    at: "result" asMutableString put: (self doProcessRequest: methodName params: params)
+                response at: "result" put: (self doProcessRequest: methodName params: params)
             } catch: JsonRpcError doing: {:exception :: Void |
-                let error := DOM Object rcNew.
-                error _
-                    at: "code" asMutableString put: exception code;
-                    at: "message" asMutableString put: exception message.
-                response _
-                    at: "error" asMutableString put: error.
+                response at: "error" put: (DOM Object new
+                    at: "code" put: exception code;
+                    at: "message" put: exception message;
+                    yourself).
             }.
         } catch: Std Error doing: {:exception :: Void |
-            let error := DOM Object rcNew.
-            error _
-                at: "code" asMutableString put: -32000; ## Server specific error
-                at: "message" asMutableString put: exception messageText asMutableString.
-            response _
-                at: "error" asMutableString put: error.
+            response at: "error" put: (DOM Object new
+                at: "code" put: -32000; ## Server specific error
+                at: "message" put: exception messageText asMutableString;
+                yourself).
         }.
 
         let encodedResponse := JSON Writer valueToString: response.
@@ -115,7 +111,7 @@ class LanguageServer definition: {
             flush.
     }.
 
-    method processNotification: (methodName: Std ImmutableString) params: (params: DOM Object const ref) ::=> Void := {
+    method processNotification: (methodName: Std ImmutableString) params: (params: DOM ObjectRef const ref) ::=> Void := {
         try: {
             self doProcessNotification: methodName params: params
         } catch: Std Error doing: {:exception :: Void |

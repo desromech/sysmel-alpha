@@ -26,22 +26,22 @@ class ValueDecoderCallback superclass: ValueDecoder Callback; definition: {
         := value.
 
     override method onArray: (elementCount: UInt32) ::=> DOM Value := {
-        let result mutable := DOM List rcNew.
-        result _ reserve: elementCount.
+        let result mutable := DOM List new.
+        result reserve: elementCount.
         0 until: elementCount do: {:(UIntPointer) i :: Void |
-            result _ add: (decoder _ decodeNextElement)
+            result add: (decoder _ decodeNextElement)
         }.
 
         result
     }.
 
     override method onMap: (elementCount: UInt32) ::=> DOM Value := {
-        let result mutable := DOM Object rcNew.
-        result _ reserve: elementCount.
+        let result mutable := DOM Object new.
+        result reserve: elementCount.
         0 until: elementCount do: {:(UIntPointer) i :: Void |
             let key := decoder _ decodeNextElement.
             let value := decoder _ decodeNextElement.
-            result _ at: (key get: Std String ) put: value
+            result at: (key get: Std String ) put: value
         }.
 
         result

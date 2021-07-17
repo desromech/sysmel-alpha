@@ -7,18 +7,18 @@ template SourceCollectionRange(SC: Std Concepts Copyable)
     compileTime constant SourceCollection := SC.
     compileTime constant ValueType := SourceCollection ValueType.
     compileTime constant PeekType := SourceCollection PeekType.
-    compileTime constant SourceCollectionPtr := SourceCollection rcPointer.
+    compileTime constant SourceCollectionRef := SourceCollection rcRef.
 
-    public field sourceCollection type: SourceCollectionPtr.
+    public field sourceCollection type: SourceCollectionRef.
     public field startPosition type: UIntPointer.
     public field endPosition type: UIntPointer.
 
     meta definition: {
-        static method for: (sourceCollection: SourceCollectionPtr const ref) ::=> InstanceType := {
+        static method for: (sourceCollection: SourceCollectionRef const ref) ::=> InstanceType := {
             InstanceType()
                 sourceCollection: sourceCollection;
                 startPosition: 0;
-                endPosition: sourceCollection _ size;
+                endPosition: sourceCollection size;
                 yourself.
         }.
     }.
@@ -28,7 +28,7 @@ template SourceCollectionRange(SC: Std Concepts Copyable)
             return: ""
         }.
 
-        sourceCollection _ textFrom: startPosition until: endPosition
+        sourceCollection textFrom: startPosition until: endPosition
     }.
 
     const method isEmpty => Boolean8
@@ -52,19 +52,19 @@ template SourceCollectionRange(SC: Std Concepts Copyable)
 
     const method peek: (offset: UIntPointer) ::=> PeekType := {
         startPosition + offset < endPosition ifTrue: {
-            return: sourceCollection _ [startPosition + offset]
+            return: sourceCollection [startPosition + offset]
         } ifFalse: {
-            return: sourceCollection _ eofValue
+            return: sourceCollection eofValue
         }
     }.
 
     method next ::=> PeekType := {
         startPosition < endPosition ifTrue: {
-            let result := sourceCollection _ [startPosition].
+            let result := sourceCollection [startPosition].
             startPosition := startPosition + 1.
             return: result
         } ifFalse: {
-            return: sourceCollection _ eofValue
+            return: sourceCollection eofValue
         }
     }.
 
@@ -101,7 +101,7 @@ template SourceCollectionRange(SC: Std Concepts Copyable)
         := self peek: self size - 1.
 
     const method printOnNativeTextStreamWriter: (out: Std IO TextStreamWriter ref) ::=> Void := {
-        sourceCollection _ printRangeFrom: startPosition until: endPosition on: out
+        sourceCollection printRangeFrom: startPosition until: endPosition on: out
     }.
 }.
 

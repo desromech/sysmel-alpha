@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTExpressionListNode superclass: ASTNode; definition: {
-    public field expressions type: ASTNodePtrList.
+    public field expressions type: ASTNodeRefList.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitExpressionListNode: self.

@@ -96,7 +96,7 @@ class SourceCode superclass: Std RCObject; definition: {
     }.
 }.
 
-compileTime constant SourceCodePtr := SourceCode rcPointer.
+compileTime constant SourceCodeRef := SourceCode rcRef.
 compileTime constant SourceCodeRange := SourceCollectionRange(SourceCode).
 
 }. ## End of namespace Compiler

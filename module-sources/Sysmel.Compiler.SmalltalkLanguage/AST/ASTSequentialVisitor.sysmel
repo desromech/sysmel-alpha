@@ -3,10 +3,10 @@ namespace Compiler definition: {
 namespace SmalltalkLanguage definition: {
 
 class ASTSequentialVisitor superclass: ASTVisitor; definition: {
-    method visitNodeList: (nodeList: ASTNodePtrList const ref) ::=> ASTVisitorResult := {
+    method visitNodeList: (nodeList: ASTNodeRefList const ref) ::=> ASTVisitorResult := {
         let result mutable := ASTVisitorResult().
         nodeList do: {:each :: Void |
-            result := self visitNode: each _
+            result := self visitNode: each
         }.
         result
     }.

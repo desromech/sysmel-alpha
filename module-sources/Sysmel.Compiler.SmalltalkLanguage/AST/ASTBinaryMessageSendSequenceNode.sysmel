@@ -14,8 +14,8 @@ ASTNode extend: {
 
 class ASTBinaryMessageSendSequenceNode superclass: ASTNode; definition: {
     public field isLowPrecedence type: Boolean8.
-    public field operands type: ASTNodePtrList.
-    public field selectors type: ASTNodePtrList.
+    public field operands type: ASTNodeRefList.
+    public field selectors type: ASTNodeRefList.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitBinaryMessageSendSequenceNode: self.

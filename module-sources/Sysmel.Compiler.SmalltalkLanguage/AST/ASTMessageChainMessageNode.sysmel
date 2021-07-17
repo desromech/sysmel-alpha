@@ -10,8 +10,8 @@ ASTNode extend: {
 }.
 
 class ASTMessageChainMessageNode superclass: ASTNode; definition: {
-    public field selector type: ASTNodePtr.
-    public field arguments type: ASTNodePtrList.
+    public field selector type: ASTNodeRef.
+    public field arguments type: ASTNodeRefList.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitMessageChainMessageNode: self.

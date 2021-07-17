@@ -1,8 +1,0 @@
-Compiler
-    importModulesNamed: #(
-        #"Norphic.Core"
-    );
-    loadPackages: #(
-        #"ProjectBrowser-Model"
-        #"ProjectBrowser-UI"
-    ).

@@ -45,7 +45,7 @@ struct Parameters definition: {
         out << "Target profiles:"; nl.
         let profiles := TextureConversionProfileRegistry uniqueInstance getProfiles.
         profiles do: {:each :: Void |
-            out << each _ name << ": " << each _ description; nl
+            out << each name << ": " << each description; nl
         }.
     }.
 

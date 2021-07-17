@@ -10,7 +10,7 @@ ASTNode extend: {
 }.
 
 class ASTQuasiQuoteNode superclass: ASTNode; definition: {
-    public field quoted type: ASTNodePtr.
+    public field quoted type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitQuasiQuoteNode: self.

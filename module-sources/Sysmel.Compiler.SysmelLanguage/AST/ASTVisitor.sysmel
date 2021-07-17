@@ -8,10 +8,10 @@ class ASTVisitor definition: {
     method visitNode: (node: ASTNode ref) ::=> ASTVisitorResult
         := node accept: self.
 
-    method visitNode: (node: ASTNodePtr const ref) ::=> ASTVisitorResult
-        := self visitNode: node _.
+    method visitNode: (node: ASTNodeRef const ref) ::=> ASTVisitorResult
+        := self visitNode: node asRCObjectNativeRef.
 
-    method visitOptionalNode: (node: ASTNodePtr const ref) ::=> ASTVisitorResult := {
+    method visitOptionalNode: (node: ASTNodeRef const ref) ::=> ASTVisitorResult := {
         node ifNil: {
             return: ASTVisitorResult()
         }.

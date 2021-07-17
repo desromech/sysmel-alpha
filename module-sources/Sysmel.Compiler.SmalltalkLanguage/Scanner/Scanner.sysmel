@@ -459,17 +459,18 @@ class Scanner definition: {
             yourself).
     }.
 
-    method scan: (sourceCode: SourceCodePtr const ref) ::=> TokenizedSourceCodePtr := {
+    method scan: (sourceCode: SourceCodeRef const ref) ::=> TokenizedSourceCodeRef := {
         let currentPosition mutable := SourceCodeRange for: sourceCode.
-        let result mutable := TokenizedSourceCode rcNew.
-        result _ sourceCode: sourceCode.
+        let result mutable := TokenizedSourceCode new
+            sourceCode: sourceCode;
+            yourself.
 
         do: {
-            self scanNextTokenIn: currentPosition into: result _ tokens.
+            self scanNextTokenIn: currentPosition into: result tokens.
         } until: currentPosition isEmpty.
 
-        result _ tokens isNotEmpty && result _ tokens last type isEndOfSource ifFalse: {
-            result _ tokens add: (Token()
+        result tokens isNotEmpty && result tokens last type isEndOfSource ifFalse: {
+            result tokens add: (Token()
                 type: TokenType EndOfSource;
                 position: currentPosition;
                 yourself).

@@ -6,27 +6,25 @@ namespace Tests definition: {
 useNamespace: Sysmel Compiler Parsing.
 
 class ScannerTests superclass: Std Testing TestCase; definition: {
-    method scanSource: (source: Std ImmutableString) ::=> TokenizedSourceCodePtr := {
-        let sourceCode := SourceCode rcNew.
-        sourceCode _
+    method scanSource: (source: Std ImmutableString) ::=> TokenizedSourceCodeRef := {
+        Scanner() scan: (SourceCode new
             content: source asMutableString;
-            name: "unit test".
-
-        Scanner() scan: sourceCode
+            name: "unit test";
+            yourself)
     }.
 
     method scanSingleToken: (source: Std ImmutableString) ::=> TokenType := {
         let result mutable := self scanSource: source.
-        self assert: result _ tokens isNotEmpty.
+        self assert: result tokens isNotEmpty.
 
         ## FIXME: Implicit return fails in this context because it is loading the reference value after the cleanup.
-        return: result _ tokens first type
+        return: result tokens first type
     }.
 
     method scanSingleTokenText: (source: Std ImmutableString) ::=> Std String := {
         let result mutable := self scanSource: source.
-        self assert: result _ tokens isNotEmpty.
-        result _ tokens first text asMutableString
+        self assert: result tokens isNotEmpty.
+        result tokens first text asMutableString
     }.
 
     test: testEndOfSource with: {

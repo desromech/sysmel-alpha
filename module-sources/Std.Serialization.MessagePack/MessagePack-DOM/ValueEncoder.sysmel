@@ -28,15 +28,15 @@ Encoder extend: {
         (let x type: Float64) : (self encodeFloat: x).
         (let x type: Std String) : (self encodeString: x).
         (let x type: Std ByteVector) : (self encodeByteVector: x).
-        (let list type: ListPtr) : {
-            self encodeArraySize: (list _ size castTo: UInt32).
-            list _ do: {:each :: Void |
+        (let list type: ListRef) : {
+            self encodeArraySize: (list size castTo: UInt32).
+            list do: {:(DOM Value const ref)each :: Void |
                 self encodeValue: each
             }
         }.
-        (let object type: ObjectPtr) : {
-            self encodeMapSize: (object _ size castTo: UInt32).
-            object _ keysAndValuesDo: {:(Std String const ref)key :(DOM Value const ref)value :: Void |
+        (let object type: ObjectRef) : {
+            self encodeMapSize: (object size castTo: UInt32).
+            object keysAndValuesDo: {:(Std String const ref)key :(DOM Value const ref)value :: Void |
                 self encodeString: key.
                 self encodeValue: value
             }

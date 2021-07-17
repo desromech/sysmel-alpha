@@ -10,7 +10,7 @@ class Message superclass: Std RCObject; definition: {
     public field jsonContent type: DOM Value.
 }.
 
-compileTime constant MessagePtr := Message rcPointer.
+compileTime constant MessageRef := Message rcRef.
 
 }. ## End of namespace LanguageServerProtocol
 }. ## End of namespace Tools

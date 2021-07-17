@@ -10,8 +10,8 @@ ASTNode extend: {
 }.
 
 class ASTDictionaryElementNode superclass: ASTNode; definition: {
-    public field key type: ASTNodePtr.
-    public field value type: ASTNodePtr.
+    public field key type: ASTNodeRef.
+    public field value type: ASTNodeRef.
 
     override method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult
         := visitor visitDictionaryElementNode: self.

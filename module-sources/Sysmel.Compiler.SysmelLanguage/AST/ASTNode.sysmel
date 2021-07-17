@@ -14,7 +14,7 @@ class ASTNode superclass: Std RCObject; definition: {
     method tokenRange: (range: TokenizedSourceCodeRange const ref) ::=> Void := {
         tokenRange := range.
         sourcePosition := SourceCodeRange()
-            sourceCollection: tokenRange sourceCollection _ sourceCode;
+            sourceCollection: tokenRange sourceCollection sourceCode;
             startPosition: tokenRange first position startPosition;
             endPosition: tokenRange last position endPosition;
             yourself
@@ -23,8 +23,8 @@ class ASTNode superclass: Std RCObject; definition: {
     abstract method accept: (visitor: ASTVisitor ref) ::=> ASTVisitorResult.
 }.
 
-compileTime constant ASTNodePtr := ASTNode rcPointer.
-compileTime constant ASTNodePtrList := Std Collections Vector(ASTNodePtr).
+compileTime constant ASTNodeRef := ASTNode rcRef.
+compileTime constant ASTNodeRefList := Std Collections Vector(ASTNodeRef).
 
 }. ## End of namespace Compiler
 }. ## End of namespace Compiler
