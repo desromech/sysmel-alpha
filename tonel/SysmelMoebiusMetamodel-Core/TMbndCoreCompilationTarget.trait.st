@@ -652,21 +652,6 @@ TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnTyp
 	^ functionTypes getOrCreateInstanceWithArguments: { argumentTypes . returnType . callingConvention . cvariadic}
 ]
 
-{ #category : #'constructor priorities' }
-TMbndCoreCompilationTarget >> gcInitializationPriority [
-	^ self normalConstructorPriority - 100
-]
-
-{ #category : #'constructor priorities' }
-TMbndCoreCompilationTarget >> gcModuleRootRegistrationPriority [
-	^ self gcInitializationPriority + 1
-]
-
-{ #category : #'constructor priorities' }
-TMbndCoreCompilationTarget >> gcModuleStartUpPriority [
-	^ self gcModuleRootRegistrationPriority + 1
-]
-
 { #category : #accessing }
 TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName
@@ -1572,6 +1557,11 @@ TMbndCoreCompilationTarget >> primitiveVectorTypeFor: elementType elements: vect
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #'constructor priorities' }
+TMbndCoreCompilationTarget >> reflectionConstructorPriority [
+	^ self normalConstructorPriority - 100
 ]
 
 { #category : #'constructor priorities' }

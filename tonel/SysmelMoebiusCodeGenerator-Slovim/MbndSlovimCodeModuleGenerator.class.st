@@ -884,6 +884,40 @@ MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVar
 		destructor: dtor
 ]
 
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateFinalizationOfProgramEntity: programEntity informationWithSSAValue: ssaProgramEntityInfo [
+	| valueType globalDtorFunctionType dtor csymbol unmangledName |
+	valueType := programEntity programEntityInformationDataClass.
+
+	valueType hasTrivialFinalization ifTrue: [ ^ self ].
+	
+	self assert: valueType hasTrivialFinalization not.
+	globalDtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+	csymbol := self newSymbolNameMangler mangleProgramEntityName: programEntity suffixes: {#'..meta.dtor..'}.
+	unmangledName := programEntity qualifiedName , '[meta.dtor]'.
+	
+	dtor := self translateCompilerGeneratedMethodNamed: csymbol functionType: globalDtorFunctionType
+		at: programEntity definitionPosition
+		with: [:ssaFunction :builder :functionCodeGenerator |
+		ssaFunction unmangledName: unmangledName.
+			self isEmittingDebugInformation ifTrue: [
+				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					name: unmangledName;
+					isLocal: true;
+					isDefinition: true;
+					emitLinkageName: true;
+					type: (self translateDebugType: globalDtorFunctionType);
+					yourself).
+		].
+		builder
+			call: (self translateProgramEntity: valueType finalizeMethod) ssaValue arguments: { ssaProgramEntityInfo };
+			returnVoid
+	].
+
+	(self validConstructionRecordFor: ssaProgramEntityInfo priority: self compilationTarget reflectionConstructorPriority)
+		destructor: dtor
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods [
 	| sortedConstructionRecords |
@@ -1086,6 +1120,45 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 	].
 
 	(self validConstructionRecordFor: ssaGlobalVariable priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority]))
+		constructor: ctor
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateInitializationOfProgramEntity: programEntity informationWithSSAValue: ssaProgramEntityInfo [
+	| globalCtorFunctionType ctor valueType csymbol unmangledName |
+	valueType := programEntity programEntityInformationDataClass.
+	programEntity programEntityInformationDataClass hasTrivialInitialization ifTrue: [ ^ self ].
+	
+	globalCtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+	csymbol := self newSymbolNameMangler mangleProgramEntityName: programEntity suffixes: {#'..meta.ctor..'}.
+	unmangledName := programEntity qualifiedName , '[meta.ctor]'.
+	
+	ctor := self translateCompilerGeneratedMethodNamed: csymbol functionType: globalCtorFunctionType
+		at: programEntity definitionPosition
+		with: [:ssaFunction :builder :functionCodeGenerator |
+			ssaFunction unmangledName: unmangledName.
+
+			self isEmittingDebugInformation ifTrue: [
+				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					name: unmangledName;
+					isLocal: true;
+					isDefinition: true;
+					emitLinkageName: true;
+					type: (self translateDebugType: globalCtorFunctionType);
+					yourself).
+			].
+		
+			builder
+				call: (self translateProgramEntity: valueType initializeMethod) ssaValue arguments: { ssaProgramEntityInfo };
+				returnVoid
+		].
+
+
+	ctor ifNil: [ 
+		self error: 'Unsupported global initialization kind'	
+	].
+
+	(self validConstructionRecordFor: ssaProgramEntityInfo priority: self compilationTarget reflectionConstructorPriority)
 		constructor: ctor
 ]
 
@@ -2062,6 +2135,10 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	].
 	
 	ssaProgramEntityInfo initialValue: (self literalValueGenerator translateObject: programEntityType content: programEntity programEntityInformationData).
+	
+	self
+		generateInitializationOfProgramEntity: programEntity informationWithSSAValue: ssaProgramEntityInfo;
+		generateFinalizationOfProgramEntity: programEntity informationWithSSAValue: ssaProgramEntityInfo.
 
 	^ ssaProgramEntityInfo
 ]
