@@ -20,12 +20,12 @@ class SubClassWithMethodDictionary2  superclass: ClassWithMethodDictionary; defi
 
 
 Std MainEntryPoint: {:args :: Int32 |
-    let typeInfo := ClassWithMethodDictionary asTypeInformation.
+    let typeInfo := ClassWithMethodDictionary asTypeInformationMetadata.
     Std stdout << "typeInfo " << typeInfo << ": " << typeInfo _ name << " children " << typeInfo _ staticlyDefinedChildren size; nl.
     typeInfo _ staticlyDefinedChildren do: {:child :: Void |
         Std stdout << "child " << child << ": " << child _ name; nl.
-        child _ isFunctionalObjectInformation ifTrue: {
-            let functionalObject := child castTo: Std Reflection FunctionalObjectInformation pointer.
+        child _ isFunctionalObjectInformationMetadata ifTrue: {
+            let functionalObject := child castTo: Std Reflection FunctionalObjectInformationMetadata pointer.
             Std stdout << "    entryPoint " << functionalObject _ entryPoint; nl.
             Std stdout << "    type " << functionalObject _ type; nl.
         }.

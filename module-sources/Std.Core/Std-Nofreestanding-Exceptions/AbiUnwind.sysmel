@@ -284,9 +284,9 @@ compileTime constant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
 compileTime constant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
 compileTime constant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
 
-Std Reflection TypeInformation extend: {
+Std Reflection TypeInformationMetadata extend: {
     const method canCatchException: (exceptionObjectPointer: Void pointer)
-        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: Std Reflection TypeInformation const pointer) ::=> Boolean8
+        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: Std Reflection TypeInformationMetadata const pointer) ::=> Boolean8
     := (exceptionKind ~~ SysmelExceptionKind NonLocalReturn) &&
         (exceptionTypeInfo _ isPointerReinterpretableTo: self address).
 
@@ -309,7 +309,7 @@ struct SysmelUnwindExceptionData definition: {
 
     public field previousCatchedException type: SysmelUnwindExceptionData pointer.
     public field kind type: SysmelExceptionKind.
-	public field exceptionTypeInfo type: Std Reflection TypeInformation const pointer.
+	public field exceptionTypeInfo type: Std Reflection TypeInformationMetadata const pointer.
     public field exceptionObjectPointer type: Void pointer.
 	public field scanResultCache type: SysmelUnwindScanCacheableResult.
     public field unwindException type: _Unwind_Exception.
@@ -339,7 +339,7 @@ function readTarget2ValueAt(pointer: Void const pointer) => Void const pointer :
 
 function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
     typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
-    unwindException: _Unwind_Exception pointer) => Std Reflection TypeInformation const pointer := {
+    unwindException: _Unwind_Exception pointer) => Std Reflection TypeInformationMetadata const pointer := {
 
     typeInfoTable ifNil: {
         ## This should never happen.
@@ -347,14 +347,14 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
     }.
 
     let typePointer := typeInfoTable[(typeInfoTableIndex * UIntPointer instanceSize) negated] address.
-    readTarget2ValueAt(typePointer) reinterpretCastTo: Std Reflection TypeInformation const pointer
+    readTarget2ValueAt(typePointer) reinterpretCastTo: Std Reflection TypeInformationMetadata const pointer
 }.
 
 } else: {
 
 function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
     typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
-    unwindException: _Unwind_Exception pointer) => Std Reflection TypeInformation const pointer := {
+    unwindException: _Unwind_Exception pointer) => Std Reflection TypeInformationMetadata const pointer := {
 
     typeInfoTable ifNil: {
         ## This should never happen.
@@ -394,7 +394,7 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
 	let typeInfoTableStream mutable := Std IO FixedMemoryStream for: typeInfoTable[typeInfoOffset negated] address withSize: (-1 castTo: UIntPointer).
 	let typeInfoTableReader mutable := Std IO BinaryDataStreamReader for: typeInfoTableStream address.
 
-    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: Std Reflection TypeInformation const pointer
+    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: Std Reflection TypeInformationMetadata const pointer
 }.
 
 }.
@@ -860,7 +860,7 @@ function __sysmel_eh_testDynamicType externC(exceptionObject: Void pointer, exce
     isOurExceptionClass ifFalse: {return: false}.
 
     let exceptionData := SysmelUnwindExceptionData fromUnwindException: unwindException.
-    (exceptionType reinterpretCastTo: Std Reflection TypeInformation pointer) _
+    (exceptionType reinterpretCastTo: Std Reflection TypeInformationMetadata pointer) _
         canCatchException: exceptionData _ exceptionObjectPointer withKind: exceptionData _ kind withTypeInfo: exceptionData _ exceptionTypeInfo
 }.
 
@@ -877,7 +877,7 @@ function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) =>
     let exceptionData := nonLocalReturnExceptionSingleton address.
     exceptionData _
         kind: SysmelExceptionKind NonLocalReturn;
-        exceptionTypeInfo: InternalNonLocalReturn asTypeInformation;
+        exceptionTypeInfo: InternalNonLocalReturn asTypeInformationMetadata;
         exceptionObjectPointer: targetContext.
     exceptionData _ unwindException
         exceptionClass: OurExceptionClass.
@@ -902,7 +902,7 @@ function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindE
 	exceptionData nativeDelete
 }.
 
-function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: Std Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: Std Reflection TypeInformationMetadata const pointer) => SysmelUnwindExceptionData pointer := {
     let heapExceptionObject := typeInfo _ copyValueIntoNativeHeap: object.
     let exceptionData := SysmelUnwindExceptionData basicNativeNew.
 
@@ -920,7 +920,7 @@ function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: Std Refl
 Exception extend: {
     method signal ::=> Void := {
         ## Use the RTTI type information for cloning the exception object into the heap.
-        let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformation).
+        let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformationMetadata).
 
         ## Raise the actual exception.
         ## stderr << "Raise new exception: " << SysmelUnwindExceptionData instanceSize << " " << exceptionData; nl.

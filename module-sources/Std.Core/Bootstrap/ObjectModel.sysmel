@@ -18,28 +18,4 @@ class Object definition: {
     }.
 }.
 
-## I am a native object that is reference counted.
-## I am typically used as the base class for all of the objects that have automatical memory management.
-class RCObject superclass: Object; definition: {
-    compileTime if: Compiler compilationTarget hasOperatingSystem then: {
-        private field strongCounter_ type: AtomicUIntPointer.
-        private field weakCounter_ type: AtomicUIntPointer.
-
-        override method initialize => Void := {
-            strongCounter_ store: 1 with: MemoryOrder Release.
-            weakCounter_ store: 1 with: MemoryOrder Release.
-        }.
-
-        (inline method := (other: SelfType const ref)) => SelfType ref := {
-            ## The counters should not be modified.
-            self
-        }.
-
-        (inline method := (other: SelfType tempRef)) => SelfType ref := {
-            ## The counters should not be modified.
-            self
-        }.
-    }.
-}.
-
 }. ## End of namespace Std

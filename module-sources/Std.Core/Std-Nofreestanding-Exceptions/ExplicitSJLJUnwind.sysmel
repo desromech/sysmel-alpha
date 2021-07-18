@@ -45,12 +45,12 @@ compileTime if: Compiler compilationTarget isEmbeddedPAL then: {
     global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
 }.
 
-function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointer) => (ExceptionContext pointer -- UIntPointer) := {
+function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformationMetadata pointer) => (ExceptionContext pointer -- UIntPointer) := {
     <nogc>
     let position mutable := Std Unwind lastExceptionContext.
     while: position isNotNil do: {
         0 until: position _ catchedExceptionTypeCount do: {:i :: Void |
-            let catchedTypeInfo := position _ catchedExceptionTypes[i] reinterpretCastTo: Reflection TypeInformation pointer.
+            let catchedTypeInfo := position _ catchedExceptionTypes[i] reinterpretCastTo: Reflection TypeInformationMetadata pointer.
             catchedTypeInfo isNotNil && (typeInfo _ isPointerReinterpretableTo: catchedTypeInfo) ifTrue: {
                 return: (position, position _ catchActionBaseOffset + i)
             }
@@ -109,7 +109,7 @@ function unwindUntilContext noReturn(targetContext: ExceptionContext pointer, ta
 
 Exception extend: {
     method signal ::=> Void := {
-        let typeInfo := self __typeInformation.
+        let typeInfo := self __typeInformationMetadata.
 
         ## Find the target catching context.
         let (let matchingContext, let catchActionIndex) := findContextCatchingTypeInfo(typeInfo).
@@ -158,7 +158,7 @@ function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void :=
     }.
 
     let nativeException := (catchedContext _ unwindPayload reinterpretCastTo: Exception pointer).
-    let typeInfo := nativeException _ __typeInformation.
+    let typeInfo := nativeException _ __typeInformationMetadata.
     typeInfo _ isGarbageCollectedType ifFalse: {
         nativeException nativeDelete.
     }.

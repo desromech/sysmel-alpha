@@ -516,7 +516,7 @@ class Norph superclass: NorphEventHandler; definition: {
         eventSubscriptions add: subscription
     }.
 
-    method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformation const pointer) ::=> Void := {
+    method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Std Reflection TypeInformationMetadata const pointer) ::=> Void := {
         self addEventSubscription: (NorphEventFunctionSubscription new
             handlingFunction: eventHandler;
             expectedEventTypeInfo: eventClassInfo;
@@ -524,7 +524,7 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     macro method when: aClass do: aBlock
-        := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformation)
+        := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformationMetadata)
     ).
 
     method raiseEvent: (event: NorphEvent rcRef) ::=> Void := {

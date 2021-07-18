@@ -32,6 +32,5 @@ if: Compiler compilationTarget isGPU not then: {
 		#"Std-Freestanding-Math"
 		#"Std-Freestanding-Threading"
 	).
-	loadFileOnce: "RTTI.sysmel".
 	loadFileOnce: "BasicExceptions.sysmel".
 }.

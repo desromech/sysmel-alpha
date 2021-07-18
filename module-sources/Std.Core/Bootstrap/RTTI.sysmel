@@ -1,44 +1,44 @@
 namespace Std definition: {
 namespace Reflection definition: {
 
-class ProgramEntity superclass: RCObject.
-class ModuleInformation superclass: ProgramEntity.
-class SharedProgramEntity superclass: ProgramEntity.
-class ModuleDefinedProgramEntity superclass: ProgramEntity.
+class ProgramEntityMetadata superclass: Object.
+class ModuleInformationMetadata superclass: ProgramEntityMetadata.
+class SharedProgramEntityMetadata superclass: ProgramEntityMetadata.
+class ModuleDefinedProgramEntityMetadata superclass: ProgramEntityMetadata.
 
-class TypeInformation superclass: ModuleDefinedProgramEntity.
-class NamespaceInformation superclass: SharedProgramEntity.
-class ModuleNamespaceInformation superclass: ModuleDefinedProgramEntity.
+class TypeInformationMetadata superclass: ModuleDefinedProgramEntityMetadata.
+class NamespaceInformationMetadata superclass: SharedProgramEntityMetadata.
+class ModuleNamespaceInformationMetadata superclass: ModuleDefinedProgramEntityMetadata.
 
-class FunctionalObjectInformation superclass: ModuleDefinedProgramEntity.
-class FunctionInformation superclass: FunctionalObjectInformation.
-class MessageMethodInformation superclass: FunctionalObjectInformation.
-class MacroMessageMethodInformation superclass: FunctionalObjectInformation.
+class FunctionalObjectInformationMetadata superclass: ModuleDefinedProgramEntityMetadata.
+class FunctionInformationMetadata superclass: FunctionalObjectInformationMetadata.
+class MessageMethodInformationMetadata superclass: FunctionalObjectInformationMetadata.
+class MacroMessageMethodInformationMetadata superclass: FunctionalObjectInformationMetadata.
 
 ## I am an instance of a program entity reflection data.
-ProgramEntity definition: {
+ProgramEntityMetadata definition: {
     public field name type: Char8 const arraySlice.
-    public field parent type: ProgramEntity pointer.
+    public field parent type: ProgramEntityMetadata pointer.
 
-    virtual method isModuleInformation => Boolean8 := false.
-    virtual method isFunctionalObjectInformation => Boolean8 := false.
-    virtual method isFunctionInformation => Boolean8 := false.
-    virtual method isMessageMethodInformation => Boolean8 := false.
-    virtual method isMacroMessageMethodInformation => Boolean8 := false.
+    virtual method isModuleInformationMetadata => Boolean8 := false.
+    virtual method isFunctionalObjectInformationMetadata => Boolean8 := false.
+    virtual method isFunctionInformationMetadata => Boolean8 := false.
+    virtual method isMessageMethodInformationMetadata => Boolean8 := false.
+    virtual method isMacroMessageMethodInformationMetadata => Boolean8 := false.
 }.
 
-ModuleDefinedProgramEntity definition: {
-    public field module type: ModuleInformation pointer.
-    public field staticlyDefinedChildren type: ProgramEntity pointer arraySlice. ## For now suppress the generation of these children.
+ModuleDefinedProgramEntityMetadata definition: {
+    public field module type: ModuleInformationMetadata pointer.
+    public field staticlyDefinedChildren type: ProgramEntityMetadata pointer arraySlice. ## For now suppress the generation of these children.
 
-    override method isModuleInformation => Boolean8 := true.
+    override method isModuleInformationMetadata => Boolean8 := true.
 }.
 
 ## I am an instance of basic type information. I provide the bare minimun that is
 ## required for moving/copying any native object from one location to another by
 ## erasing its type. I am used for implementing the throwing of native exceptions.
-TypeInformation definition: {
-    public field superclass type: TypeInformation pointer.
+TypeInformationMetadata definition: {
+    public field superclass type: TypeInformationMetadata pointer.
     public field instanceDataSize type: UIntPointer.
     public field instanceDataAlignment type: UIntPointer.
 
@@ -51,7 +51,7 @@ TypeInformation definition: {
         := instanceDataSize.
     const inline method instanceAlignment => UIntPointer
         := instanceDataAlignment.
-    const method isPointerReinterpretableTo: (other: TypeInformation const pointer) ::=> Boolean8 := {
+    const method isPointerReinterpretableTo: (other: TypeInformationMetadata const pointer) ::=> Boolean8 := {
         ## Am I the other type information?
         self address == other ifTrue: {
             return: true.
@@ -67,55 +67,55 @@ TypeInformation definition: {
 }.
 
 Object extend: {
-    const inline method __typeInformation => Std Reflection TypeInformation pointer
-        := Reflection typeInformationFromPointerToVTable(self address).
+    const inline method __typeInformationMetadata => Std Reflection TypeInformationMetadata pointer
+        := Reflection typeInformationMetadataFromPointerToVTable(self address).
 }.
 
-NamespaceInformation definition: {
+NamespaceInformationMetadata definition: {
 }.
 
-ModuleNamespaceInformation definition: {
-    public field sharedNamespace type: NamespaceInformation pointer.
+ModuleNamespaceInformationMetadata definition: {
+    public field sharedNamespace type: NamespaceInformationMetadata pointer.
 }.
 
-ModuleInformation definition: {
-    public field globalNamespace type: ModuleNamespaceInformation pointer.
+ModuleInformationMetadata definition: {
+    public field globalNamespace type: ModuleNamespaceInformationMetadata pointer.
 }.
 
-function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => TypeInformation pointer
-    := (vtablePointer reinterpretCastTo: TypeInformation pointer const pointer const pointer)
+function typeInformationMetadataFromPointerToVTable(vtablePointer: Void const pointer) => TypeInformationMetadata pointer
+    := (vtablePointer reinterpretCastTo: TypeInformationMetadata pointer const pointer const pointer)
         _ [-1].
 
-FunctionalObjectInformation definition: {
+FunctionalObjectInformationMetadata definition: {
     public field entryPoint type: Void pointer.
-    public field type type: TypeInformation pointer.
+    public field type type: TypeInformationMetadata pointer.
 
-    override method isFunctionalObjectInformation => Boolean8 := true.
+    override method isFunctionalObjectInformationMetadata => Boolean8 := true.
 }.
 
-FunctionInformation definition: {
-    override method isFunctionInformation => Boolean8 := true.
+FunctionInformationMetadata definition: {
+    override method isFunctionInformationMetadata => Boolean8 := true.
 }.
 
-MessageMethodInformation definition: {
-    override method isMessageMethodInformation => Boolean8 := true.
+MessageMethodInformationMetadata definition: {
+    override method isMessageMethodInformationMetadata => Boolean8 := true.
 }.
 
-MacroMessageMethodInformation definition: {
-    override method isMacroMessageMethodInformation => Boolean8 := true.
+MacroMessageMethodInformationMetadata definition: {
+    override method isMacroMessageMethodInformationMetadata => Boolean8 := true.
 }.
 
 _BehaviorType extend: {
-    macro method asTypeInformation := ``(`,self reinterpretCastTo: Std Reflection TypeInformation const pointer).
+    macro method asTypeInformationMetadata := ``(`,self reinterpretCastTo: Std Reflection TypeInformationMetadata const pointer).
 }.
 
 Compiler compilationTarget
-    typeInformationClass: TypeInformation;
-    moduleNamespaceInformationClass: ModuleNamespaceInformation;
-    moduleInformationClass: ModuleInformation;
-    functionInformationClass: FunctionInformation;
-    macroMessageMethodInformationClass: MacroMessageMethodInformation;
-    messageMethodInformationClass: MessageMethodInformation.
+    typeInformationClass: TypeInformationMetadata;
+    moduleNamespaceInformationClass: ModuleNamespaceInformationMetadata;
+    moduleInformationClass: ModuleInformationMetadata;
+    functionInformationClass: FunctionInformationMetadata;
+    macroMessageMethodInformationClass: MacroMessageMethodInformationMetadata;
+    messageMethodInformationClass: MessageMethodInformationMetadata.
 
 }. ## End of namespace Reflection
 }. ## End of namespace Std

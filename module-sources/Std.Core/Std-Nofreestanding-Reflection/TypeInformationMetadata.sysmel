@@ -1,8 +1,22 @@
 namespace Std definition: {
 namespace Reflection definition: {
 
-TypeInformation definition: {
+TypeInformationMetadata definition: {
+    field subclasses type: Std Collections Vector(TypeInformationMetadata pointer).
+    
+    override method initialize => Void := {
+        superclass ifNotNil: {
+            superclass _ addSubclass: self address
+        }
+    }.
 
+    method addSubclass: (subclass: TypeInformationMetadata pointer) ::=> Void := {
+        subclasses add: subclass
+    }.
+
+    const method subclasses => TypeInformationMetadata pointer const arraySlice
+        := subclasses asArraySlice.
+        
     const method copyValueIntoNativeHeap: (value: Void const pointer) ::=> Void pointer := {
         let result := zmalloc(instanceDataSize).
         result ifNil: {

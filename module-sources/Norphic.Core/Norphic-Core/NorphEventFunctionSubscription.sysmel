@@ -1,11 +1,11 @@
 namespace Norphic definition: {
 
 class NorphEventFunctionSubscription superclass: NorphEventSubscription; definition: {
-    public field expectedEventTypeInfo type: Std Reflection TypeInformation const pointer.
+    public field expectedEventTypeInfo type: Std Reflection TypeInformationMetadata const pointer.
     public field handlingFunction type: Std Function(EventHandlerFunctionType).
 
     override method handlesEvent: (event: NorphEvent const ref) ::=> Boolean8 := {
-        Std Reflection typeInformationFromPointerToVTable(event address) _
+        Std Reflection typeInformationMetadataFromPointerToVTable(event address) _
             isPointerReinterpretableTo: expectedEventTypeInfo
     }.
 

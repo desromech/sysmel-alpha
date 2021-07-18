@@ -1,11 +1,11 @@
 namespace Std definition: {
 
 struct _NativeStackBlockClosureHeader definition: {
-    public field vtable type: Std Reflection TypeInformation pointer pointer.
+    public field vtable type: Std Reflection TypeInformationMetadata pointer pointer.
     public field functionPointer type: (Void => Void) pointer.
     public field captures type: Void pointer array.
 
-    inline method typeInfo => Std Reflection TypeInformation pointer
+    inline method typeInfo => Std Reflection TypeInformationMetadata pointer
         := vtable[-1].
 }.
 
