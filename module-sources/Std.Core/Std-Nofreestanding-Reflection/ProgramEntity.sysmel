@@ -1,0 +1,8 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+ProgramEntity definition: {
+}.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

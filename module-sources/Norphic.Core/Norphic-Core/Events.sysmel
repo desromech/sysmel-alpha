@@ -6,7 +6,7 @@ class NorphEventHandler.
 class Norph.
 
 class NorphEvent superclass: Std RCObject; definition: {
-    SelfType setRequiredRTTI.
+    SelfType setBasicRequiredRTTI. ## We only need the RTTI to dynamically check for isa
 
     public field wasHandled type: Boolean8.
     public field isSuppressed type: Boolean8.

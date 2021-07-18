@@ -5,6 +5,9 @@ namespace Testing definition: {
  * I am a class that is used for writing tests for native code
  *#
 class TestCase superclass: TestAsserter; definition: {
+    SelfType setRequiredRTTI.
+    SelfType setMethodDictionaryRequired.
+
     meta macro method test: testIdentifier with: body := {
         let testIdentifierSymbol := testIdentifier asLiteralSymbolNodeFor: Compiler compilationTarget.
 

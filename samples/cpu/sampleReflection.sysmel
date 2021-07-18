@@ -1,0 +1,31 @@
+class ClassWithMethodDictionary superclass: Std RCObject; definition: {
+    SelfType setMethodDictionaryRequired.
+
+    method testMethodA => Void := {
+
+    }.
+
+    method testMethodB => Void := {
+
+    }.
+}.
+
+Std MainEntryPoint: {:args :: Int32 |
+    let typeInfo := ClassWithMethodDictionary asTypeInformation.
+    Std stdout << "typeInfo " << typeInfo << ": " << typeInfo _ name << " children " << typeInfo _ staticlyDefinedChildren size; nl.
+    typeInfo _ staticlyDefinedChildren do: {:child :: Void |
+        Std stdout << "child " << child << ": " << child _ name; nl.
+        child _ isFunctionalObjectInformation ifTrue: {
+            let functionalObject := child castTo: Std Reflection FunctionalObjectInformation pointer.
+            Std stdout << "    entryPoint " << functionalObject _ entryPoint; nl.
+            Std stdout << "    type " << functionalObject _ type; nl.
+        }.
+    }.
+
+    let module := typeInfo _ module.
+    module ifNotNil: {
+        Std stdout << "module " << module << ": " << module _ name ; nl.
+    }.
+
+    0
+}.

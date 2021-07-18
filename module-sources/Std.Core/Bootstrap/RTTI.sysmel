@@ -10,14 +10,28 @@ class TypeInformation superclass: ModuleDefinedProgramEntity.
 class NamespaceInformation superclass: SharedProgramEntity.
 class ModuleNamespaceInformation superclass: ModuleDefinedProgramEntity.
 
+class FunctionalObjectInformation superclass: ModuleDefinedProgramEntity.
+class FunctionInformation superclass: FunctionalObjectInformation.
+class MessageMethodInformation superclass: FunctionalObjectInformation.
+class MacroMessageMethodInformation superclass: FunctionalObjectInformation.
+
 ## I am an instance of a program entity reflection data.
 ProgramEntity definition: {
+    public field name type: Char8 const arraySlice.
     public field parent type: ProgramEntity pointer.
+
+    virtual method isModuleInformation => Boolean8 := false.
+    virtual method isFunctionalObjectInformation => Boolean8 := false.
+    virtual method isFunctionInformation => Boolean8 := false.
+    virtual method isMessageMethodInformation => Boolean8 := false.
+    virtual method isMacroMessageMethodInformation => Boolean8 := false.
 }.
 
 ModuleDefinedProgramEntity definition: {
     public field module type: ModuleInformation pointer.
-    protected field __children__ type: Void pointer. ## For now suppress the generation of these children.
+    public field staticlyDefinedChildren type: ProgramEntity pointer arraySlice. ## For now suppress the generation of these children.
+
+    override method isModuleInformation => Boolean8 := true.
 }.
 
 ## I am an instance of basic type information. I provide the bare minimun that is
@@ -60,7 +74,6 @@ Object extend: {
 NamespaceInformation definition: {
 }.
 
-
 ModuleNamespaceInformation definition: {
     public field sharedNamespace type: NamespaceInformation pointer.
 }.
@@ -73,14 +86,36 @@ function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) =
     := (vtablePointer reinterpretCastTo: TypeInformation pointer const pointer const pointer)
         _ [-1].
 
+FunctionalObjectInformation definition: {
+    public field entryPoint type: Void pointer.
+    public field type type: TypeInformation pointer.
+
+    override method isFunctionalObjectInformation => Boolean8 := true.
+}.
+
+FunctionInformation definition: {
+    override method isFunctionInformation => Boolean8 := true.
+}.
+
+MessageMethodInformation definition: {
+    override method isMessageMethodInformation => Boolean8 := true.
+}.
+
+MacroMessageMethodInformation definition: {
+    override method isMacroMessageMethodInformation => Boolean8 := true.
+}.
+
 _BehaviorType extend: {
     macro method asTypeInformation := ``(`,self reinterpretCastTo: Std Reflection TypeInformation const pointer).
 }.
 
 Compiler compilationTarget
-    typeInformationNativeClass: TypeInformation;
-    moduleNamespaceInformationNativeClass: ModuleNamespaceInformation;
-    moduleInformationNativeClass: ModuleInformation.
+    typeInformationClass: TypeInformation;
+    moduleNamespaceInformationClass: ModuleNamespaceInformation;
+    moduleInformationClass: ModuleInformation;
+    functionInformationClass: FunctionInformation;
+    macroMessageMethodInformationClass: MacroMessageMethodInformation;
+    messageMethodInformationClass: MessageMethodInformation.
 
 }. ## End of namespace Reflection
 }. ## End of namespace Std
