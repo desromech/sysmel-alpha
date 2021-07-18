@@ -4,5 +4,22 @@ namespace Reflection definition: {
 ProgramEntity definition: {
 }.
 
+TypeInformation definition: {
+    field subclasses type: Std Collections Vector(TypeInformation pointer).
+    
+    override method initialize => Void := {
+        superclass ifNotNil: {
+            superclass _ addSubclass: self address
+        }
+    }.
+
+    method addSubclass: (subclass: TypeInformation pointer) ::=> Void := {
+        subclasses add: subclass
+    }.
+
+    const method subclasses => TypeInformation pointer const arraySlice
+        := subclasses asArraySlice.
+}.
+
 }. ## End of namespace Reflection
 }. ## End of namespace Std

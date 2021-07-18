@@ -42,11 +42,12 @@ function __sysmel_atexit_finalize externC() => Void := {
     let currentBlock mutable := currentAtExitRecordBlock.
     while: currentBlock isNotNil do: {
         let nextBlock := currentBlock _ header previousBlock.
+        currentBlock _ invokeCallbacks.
+
         currentBlock == finalAtExitRecordBlock address ifFalse: {
             currentBlock nativeDelete.
         }.
 
-        currentBlock _ invokeCallbacks.
         currentBlock := nextBlock
     }.
 }.
@@ -71,20 +72,21 @@ function __sysmel_atexit externC(callback: AtExitCallback) => Void := {
         }
     }.
 
+    ## Allocate a new block if need.
+    let oldSize mutable := currentAtExitRecordBlock _ header size.
+    oldSize = AtExitRecordBlockCapacity ifTrue: {
+        let newBlock := AtExitRecordBlock nativeNew.
+        newBlock _ header previousBlock: currentAtExitRecordBlock.
+        currentAtExitRecordBlock := newBlock.
+        oldSize := currentAtExitRecordBlock _ header size.
+    }.
+
     ## Store the new callback.
-    let oldSize := currentAtExitRecordBlock _ header size.
     let newSize := oldSize + 1 castTo: UInt16.
     currentAtExitRecordBlock _ records[oldSize] := AtExitRecord ()
         callback: callback;
         yourself.
     currentAtExitRecordBlock _ header size: newSize.
-
-    ## Allocate a new block if need.
-    newSize = AtExitRecordBlockCapacity ifTrue: {
-        let newBlock := AtExitRecordBlock nativeNew.
-        newBlock _ header previousBlock: currentAtExitRecordBlock.
-        currentAtExitRecordBlock := newBlock
-    }.
 
     sysmelAtExitSpinlock clearWith: MemoryOrder Release.
 }.

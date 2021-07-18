@@ -10,6 +10,15 @@ class ClassWithMethodDictionary superclass: Std RCObject; definition: {
     }.
 }.
 
+class SubClassWithMethodDictionary superclass: ClassWithMethodDictionary; definition: {
+
+}.
+
+class SubClassWithMethodDictionary2  superclass: ClassWithMethodDictionary; definition: {
+
+}.
+
+
 Std MainEntryPoint: {:args :: Int32 |
     let typeInfo := ClassWithMethodDictionary asTypeInformation.
     Std stdout << "typeInfo " << typeInfo << ": " << typeInfo _ name << " children " << typeInfo _ staticlyDefinedChildren size; nl.
@@ -20,6 +29,10 @@ Std MainEntryPoint: {:args :: Int32 |
             Std stdout << "    entryPoint " << functionalObject _ entryPoint; nl.
             Std stdout << "    type " << functionalObject _ type; nl.
         }.
+    }.
+
+    typeInfo _ subclasses do: {:subclass :: Void |
+        Std stdout << "subclass " << subclass _ name; nl.
     }.
 
     let module := typeInfo _ module.
