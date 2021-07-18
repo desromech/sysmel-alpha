@@ -256,7 +256,7 @@ MbndWBTSysmelModuleTarget >> targetOutputFileReferences [
 
 { #category : #accessing }
 MbndWBTSysmelModuleTarget >> useBinaryBitcode [
-	^ LLVMC isAvailable
+	^ false"LLVMC isAvailable"
 ]
 
 { #category : #accessing }

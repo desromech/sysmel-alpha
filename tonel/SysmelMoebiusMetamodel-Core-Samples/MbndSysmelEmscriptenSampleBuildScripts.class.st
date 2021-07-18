@@ -5,43 +5,43 @@ Class {
 }
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildNativeHelloWorld [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildHelloWorld [
 	<example>
-	^ super buildNativeHelloWorld
+	^ super buildHelloWorld
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildRuntimeLibrariesTests [
 	<example>
-	^ super buildNativeRuntimeLibrariesTests
+	^ super buildRuntimeLibrariesTests
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleNativeGame [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleNorphic [
 	<example>
-	^ super buildSampleNativeGame
+	^ super buildSampleNorphic
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleNativeNorphic [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildSamplePlatformer [
 	<example>
-	^ super buildSampleNativeNorphic
+	^ super buildSamplePlatformer
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleNativeRendering2D [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleRendering2D [
 	<example>
-	^ super buildSampleNativeRendering2D
+	^ super buildSampleRendering2D
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleNativeRendering3D [
+MbndSysmelEmscriptenSampleBuildScripts class >> buildSampleRendering3D [
 	<example>
-	^ super buildSampleNativeRendering3D
+	^ super buildSampleRendering3D
 ]
 
 { #category : #'native samples' }
-MbndSysmelEmscriptenSampleBuildScripts class >> newNativeBuildEnvironment [
+MbndSysmelEmscriptenSampleBuildScripts class >> newNoRTTIBuildEnvironment [
 	^ WBTBuildEnvironment forEmscripten
 		setReleaseWithDebugInfoBuildMode;
 		buildDirectory: 'build-sysmel-emscripten';

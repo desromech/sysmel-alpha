@@ -5,65 +5,65 @@ Class {
 }
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildNativeHelloWorld [
+MbndSysmelUWPSampleBuildScripts class >> buildHelloWorld [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript bundleWithSource: 'samples/cpu/hello.sysmel'
 		]
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
+MbndSysmelUWPSampleBuildScripts class >> buildRuntimeLibrariesTests [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript bundleWithSource: 'tests/RuntimeLibrariesTests.sysmel'
 		]
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeGame [
+MbndSysmelUWPSampleBuildScripts class >> buildSampleNorphic [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeGame.sysmel'
+			packageScript guiBundleWithSource: 'samples/cpu/sampleNorphic.sysmel'
 		]
 
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeNorphic [
+MbndSysmelUWPSampleBuildScripts class >> buildSamplePlatformer [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeNorphic.sysmel'
+			packageScript guiBundleWithSource: 'samples/cpu/samplePlatformer.sysmel'
 		]
 
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeRendering2D [
+MbndSysmelUWPSampleBuildScripts class >> buildSampleRendering2D [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
+			packageScript guiBundleWithSource: 'samples/cpu/sampleRendering2D.sysmel'
 		]
 
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> buildSampleNativeRendering3D [
+MbndSysmelUWPSampleBuildScripts class >> buildSampleRendering3D [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiBundleWithSource: 'samples/cpu/sampleNativeRendering3D.sysmel'
+			packageScript guiBundleWithSource: 'samples/cpu/sampleRendering3D.sysmel'
 		]
 
 ]
 
 { #category : #'native samples' }
-MbndSysmelUWPSampleBuildScripts class >> newNativeBuildEnvironment [
+MbndSysmelUWPSampleBuildScripts class >> newNoRTTIBuildEnvironment [
 	^ WBTBuildEnvironment forUWPLLDX64
 		setReleaseWithDebugInfoBuildMode;
 		buildDirectory: 'build-sysmel-uwp-native';

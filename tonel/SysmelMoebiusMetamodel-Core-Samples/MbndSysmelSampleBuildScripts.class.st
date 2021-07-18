@@ -4,137 +4,101 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Samples'
 }
 
-{ #category : #'gc samples' }
-MbndSysmelSampleBuildScripts class >> buildGCHelloWorld [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildHelloWorld [
 	<example>
-	self newGCBuildEnvironment
-		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/gc-hello.sysmel'
-		]
-]
-
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildNativeHelloWorld [
-	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript programWithSource: 'samples/cpu/hello.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildNativeRuntimeLibrariesTests [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildRuntimeLibrariesTests [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript programWithSource: 'tests/RuntimeLibrariesTests.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNativeBitmapRendering [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleBitmapRendering [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNativeBitmapRendering.sysmel'
+			packageScript programWithSource: 'samples/cpu/sampleBitmapRendering.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNativeGame [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleNorphic [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeGame.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleNorphic.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNativeNorphic [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSamplePlatformer [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeNorphic.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/samplePlatformer.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNativeRendering2D [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleRendering2D [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeRendering2D.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleRendering2D.sysmel'
 		]
 ]
 
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNativeRendering3D [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleRendering3D [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiProgramWithSource: 'samples/cpu/sampleNativeRendering3D.sysmel'
+			packageScript guiProgramWithSource: 'samples/cpu/sampleRendering3D.sysmel'
 		]
 ]
 
-{ #category : #'gc samples' }
-MbndSysmelSampleBuildScripts class >> buildSampleNorphicIDE [
-	<example>
-	self newGCBuildEnvironment
-		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/sampleNorphicIDE.sysmel'
-		]
-]
-
-{ #category : #'gc samples' }
-MbndSysmelSampleBuildScripts class >> buildSmalltalkParser [
-	<example>
-	self newGCBuildEnvironment
-		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript programWithSource: 'samples/cpu/smalltalkParser.sysmel'
-		]
-]
-
-{ #category : #'gc samples' }
-MbndSysmelSampleBuildScripts class >> newGCBuildEnvironment [
-	^ WBTBuildEnvironment forCurrentPlatformWithClang
-		setReleaseWithDebugInfoBuildMode;
-		buildDirectory: 'build-sysmel-gc';
-		setSysmelSettingsWith: [ :settings | ];
-		yourself
-]
-
-{ #category : #'native samples' }
-MbndSysmelSampleBuildScripts class >> newNativeBuildEnvironment [
+{ #category : #samples }
+MbndSysmelSampleBuildScripts class >> newNoRTTIBuildEnvironment [
 	^ WBTBuildEnvironment forCurrentPlatformWithLLD
 		setReleaseWithDebugInfoBuildMode;
-		buildDirectory: 'build-sysmel-native';
+		buildDirectory: 'build-sysmel-nortti';
 		setSysmelSettingsWith: [ :settings | settings noRTTI ];
 		yourself
 ]
 
-{ #category : #'native samples' }
+{ #category : #samples }
 MbndSysmelSampleBuildScripts class >> sysmelParserTool [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript programWithSource: 'tools/sysmelParser.sysmel'
 		].
 ]
 
-{ #category : #'native samples' }
+{ #category : #samples }
 MbndSysmelSampleBuildScripts class >> sysmelSmalltalkParserTool [
 	<example>
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			packageScript programWithSource: 'tools/sysmelSmalltalkParser.sysmel'
 		].
 ]
 
-{ #category : #'native samples' }
+{ #category : #samples }
 MbndSysmelSampleBuildScripts class >> textureTool [
 	<example>
 	| prog |
-	self newNativeBuildEnvironment
+	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
 			prog := packageScript programWithSource: 'tools/sysmelTextureTool.sysmel'
 		].
