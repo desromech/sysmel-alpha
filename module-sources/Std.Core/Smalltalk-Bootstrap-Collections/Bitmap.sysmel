@@ -1,7 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass Bitmap superclass: ArrayedCollection; definition: {
-
-}.
-
-}. ## End of namespace Smalltalk

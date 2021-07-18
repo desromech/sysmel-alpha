@@ -4,13 +4,6 @@ namespace Testing definition: {
 macro method generateTestSuiteProgramMain: testSuiteProgramName := ``(
 Std MainEntryPoint: {:args :: Int32 |
     let succeeded mutable := Std Testing TestRunner defaultInstance runAllTests.
-    compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        let gcTestRunner := Smalltalk TestRunner new.
-        let gcTestResult := gcTestRunner runAllTests.
-        succeeded := succeeded && (gcTestResult castTo: Boolean8).
-        gcTestRunner printReport
-    }.
-
     Std Testing TestRunner defaultInstance printReport.
 
     return: (succeeded ifTrue: 0 ifFalse: 0)

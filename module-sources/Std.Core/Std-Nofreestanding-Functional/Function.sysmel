@@ -18,16 +18,11 @@ template Function(FT: Type)
     compileTime constant NativeStackBlockClosureType := FT nativeStackBlockClosure.
     compileTime constant InlineStorageType := Void pointer array: 4.
 
-    compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        compileTime constant GCBlockClosureType := FT gcBlockClosure.
-    }.
-
     enum WrapperType valueType: UInt8; values: #{
         Invalid: 0.
-        FunctionPointer: 1.
-        InlineNativeClosure: 2.
-        HeapNativeClosure: 3.
-        GCClosure: 4
+        FunctionPointer:.
+        InlineNativeClosure:.
+        HeapNativeClosure:.
     }.
 
     ## Inline storage for typical closures.
@@ -49,14 +44,6 @@ template Function(FT: Type)
                 yourself
         }.
 
-        compileTime if: Compiler hasGarbageCollectedRuntime then: {
-            static inline method for: (blockClosure: GCBlockClosureType) ::=> InstanceType := {
-                <constructor>
-                InstanceType()
-                    setGCBlockClosure: blockClosure;
-                    yourself
-            }.
-        }.
     }.
 
     const inline method isValid => Boolean8
@@ -106,25 +93,6 @@ template Function(FT: Type)
         self
     }.
 
-    compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        method setGCBlockClosure: (blockClosure: GCBlockClosureType) ::=> Void := {
-            let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
-            type = WrapperType GCClosure ifFalse: {
-                self reset.
-                rootBox initialize.
-                type := WrapperType GCClosure
-            }.
-            rootBox pointer: (blockClosure reinterpretCastTo: Std Reflection GCObjectHeader pointer).
-        }.
-
-        (method := (blockClosure: GCBlockClosureType)) => SelfType const ref := {
-            self setGCBlockClosure: blockClosure.
-
-            self
-        }.
-
-    }.
-
     method finalize => Void := {
         self reset.
     }.
@@ -149,12 +117,6 @@ template Function(FT: Type)
             free(closure)
         }.
 
-        WrapperType GCClosure : {
-            compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
-                rootBox finalize
-            }.
-        }.
         _ : {}
         }.
 
@@ -186,16 +148,6 @@ template Function(FT: Type)
             WrapperType HeapNativeClosure : {
                 let closure := other __private inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
                 self setNativeBlockClosure: closure.
-            }.
-
-            WrapperType GCClosure : {
-                compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
-                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
-                    self setGCBlockClosure: closure.
-                } else: {
-                    error: "Unsupported function wrapper type for copy assignment."
-                }.
             }.
 
             _ : {
@@ -238,17 +190,6 @@ template Function(FT: Type)
                 type := WrapperType HeapNativeClosure.
             }.
 
-            WrapperType GCClosure : {
-                compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                    let rootBox ref := (other __private inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
-                    let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
-                    self setGCBlockClosure: closure.
-                    other reset.
-                } else: {
-                    error: "Unsupported function wrapper type for copy assignment."
-                }.
-            }.
-
             _ : {
                 error: "Unsupported function wrapper type for copy assignment."
             }
@@ -275,17 +216,6 @@ template Function(FT: Type)
         WrapperType HeapNativeClosure : {
             let closure := inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
             return: (closure applyWithArguments: arguments).
-        }.
-
-        WrapperType GCClosure : {
-            compileTime if: Compiler hasGarbageCollectedRuntime then: {
-                let rootBox ref := (inlineStorage [0] address reinterpretCastTo: Std GC GCRootBox pointer) _.
-                let closure := rootBox pointer reinterpretCastTo: GCBlockClosureType.
-                return: (closure applyWithArguments: arguments).
-            }
-            else: {
-                error: "Trying to call invalid Std Function wrapper."
-            }
         }.
 
         _ : {

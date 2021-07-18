@@ -1,7 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass AbstractEnvironmentTestCase superclass: TestCase; definition: {
-    field testingEnvironment.
-}.
-
-}. ## End of namespace Smalltalk

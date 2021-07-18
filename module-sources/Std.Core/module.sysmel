@@ -2,10 +2,6 @@ Compiler loadPackage: #Bootstrap.
 
 if: Compiler hasStandardLibrary then: {
     Compiler loadPackage: #Std.
-
-    if: Compiler hasGarbageCollectedRuntime then: {
-        Compiler loadPackage: #Smalltalk.
-    }.
 }.
 
 if: Compiler hasGPUSupport then: {

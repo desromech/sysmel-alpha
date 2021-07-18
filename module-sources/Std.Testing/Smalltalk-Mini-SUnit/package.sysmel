@@ -1,7 +1,0 @@
-loadFileOnce: "TestSkip.sysmel".
-loadFileOnce: "TestAsserter.sysmel".
-loadFileOnce: "TestResource.sysmel".
-loadFileOnce: "TestCase.sysmel".
-loadFileOnce: "TestRunner.sysmel".
-loadFileOnce: "AbstractEnvironmentTestCase.sysmel".
-loadFileOnce: "ClassTestCase.sysmel".

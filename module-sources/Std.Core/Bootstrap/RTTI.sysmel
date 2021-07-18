@@ -1,7 +1,7 @@
 namespace Std definition: {
 namespace Reflection definition: {
 
-class ProgramEntity superclass: GCObjectHeader.
+class ProgramEntity superclass: RCObject.
 class ModuleInformation superclass: ProgramEntity.
 class SharedProgramEntity superclass: ProgramEntity.
 class ModuleDefinedProgramEntity superclass: ProgramEntity.
@@ -50,15 +50,11 @@ TypeInformation definition: {
 
         false
     }.
+}.
 
-    const inline method isGarbageCollectedType => Boolean8 := {
-        compileTime if: Compiler hasGarbageCollectedRuntime then: {
-            (self address reinterpretCastTo: Smalltalk TypeInformation)
-                isGarbageCollectedType
-        } else: {
-            false.
-        }.
-    }
+Object extend: {
+    const inline method __typeInformation => Std Reflection TypeInformation pointer
+        := Reflection typeInformationFromPointerToVTable(self address).
 }.
 
 NamespaceInformation definition: {

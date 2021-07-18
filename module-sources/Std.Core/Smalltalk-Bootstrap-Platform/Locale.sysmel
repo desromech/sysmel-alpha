@@ -1,6 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass Locale superclass: Object; definition: {
-}.
-
-}. ## End of namespace Smalltalk

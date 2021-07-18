@@ -1,6 +1,2 @@
 Compiler
     loadPackage: #"Std-Testing".
-
-if: Compiler hasGarbageCollectedRuntime then: {
-    Compiler loadPackage: #"Smalltalk-Mini-SUnit".
-}.

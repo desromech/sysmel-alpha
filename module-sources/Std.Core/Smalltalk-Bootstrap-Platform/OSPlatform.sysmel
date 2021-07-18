@@ -1,6 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass OSPlatform superclass: Object; definition: {
-}.
-
-}. ## End of namespace Smalltalk

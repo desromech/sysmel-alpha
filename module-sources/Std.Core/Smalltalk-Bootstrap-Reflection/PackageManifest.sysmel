@@ -1,7 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass PackageManifest definition: {
-
-}.
-
-}. ## End of namespace Smalltalk

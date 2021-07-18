@@ -634,10 +634,6 @@ struct SysmelUnwindScanResult definition: {
 function setLandingPathRegisters(unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer,
     scanResult: SysmelUnwindScanCacheableResult ref) => Void := {
 
-    compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
-        Std GC shadowStackPrepareUnwindTo(getUnwindSP(context) reinterpretCastTo: Void pointer).
-    }.
-
     _Unwind_SetGR(context, LandingPadStructurePointerRegister, unwindException reinterpretCastTo: UIntPointer).
     _Unwind_SetGR(context, LandingPadSelectorRegister, scanResult typeInfoTableIndex castTo: UIntPointer).
     _Unwind_SetIP(context, scanResult landingPad reinterpretCastTo: UIntPointer).

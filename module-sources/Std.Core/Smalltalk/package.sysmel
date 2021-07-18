@@ -1,4 +1,0 @@
-Compiler loadPackages: #(
-    #"Smalltalk-GC"
-    #"Smalltalk-Bootstrap"
-).

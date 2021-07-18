@@ -1,9 +1,0 @@
-namespace Smalltalk definition: {
-
-#**
- * I am an exception that is used for signaling the skip of exceptions.
- *#
-gcclass TestSkip superclass: Exception; definition: {
-}.
-
-} ## End of namespace Smalltalk

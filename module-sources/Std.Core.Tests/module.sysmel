@@ -8,9 +8,3 @@ Compiler
         #"Std-Memory-Tests"
         #"Std-Functional-Tests"
     ).
-
-compileTime if: Compiler hasGarbageCollectedRuntime then: {
-    Compiler loadPackages: #(
-        #"Smalltalk-Core-Tests"
-    ).
-}.

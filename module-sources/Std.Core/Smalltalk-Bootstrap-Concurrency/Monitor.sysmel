@@ -1,6 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass Monitor superclass: Object; definition: {
-}.
-
-}. ## End of namespace Smalltalk

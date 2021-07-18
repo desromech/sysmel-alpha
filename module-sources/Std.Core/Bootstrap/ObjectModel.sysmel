@@ -6,49 +6,40 @@ compileTime constant CopyConstructorFunctionPointerType := ((Void pointer -- Voi
 compileTime constant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
 compileTime constant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
-class GCObjectHeader definition: {
-    ## If we do not use the garbage collector, save space by omitting these fields.
-    compileTime if: Compiler hasGarbageCollectedRuntime then: {
-        ## Pointer towards the main virtual table. Objects that implement interfaces
-        ## can have additional vtables.
-        (SelfType addMainVTableFieldNamed: #__vtable) public.
+}. ## End of namespace Reflection
 
-        if: UIntPointer instanceSize == 4 then: {
-            ## TODO: Support big-endian.
-            field __padding public type: UInt32.
-        }.
+## I am a native object that supports the basic construction and finalization
+## methods, and I provide a convenient method for retrieving my type information.
+class Object definition: {
+    virtual method initialize ::=> Void := {
+    }.
 
-        ## 32 bits: gc color, isPinned, isImmutable.
-        field _ public bits: 5; type: UInt32.
-
-        field __gcColor public type: UInt32; bits: 2.
-        field __gcPendingFinalization public type: UInt32; bits: 1.
-        field __isPinned public type: UInt32; bits: 1.
-        field __isImmutable public type: UInt32; bits: 1.
-        field __identityHash public type: UInt32; bits: 22.
-
-        ## Variable data size
-        field __variableDataSize public type: UInt32.
+    virtual method finalize ::=> Void := {
     }.
 }.
 
-compileTime if: Compiler hasGarbageCollectedRuntime then: {
-    compileTime if: UIntPointer instanceSize = 4 then: {
-        GCObjectHeader pointer method __isImmediateValue => Boolean8 := {
-            <notInCompileTime>
-            <staticBinding>
-            <nogc>
-            self == nil || (((self reinterpretCastTo: UIntPointer) & 3) ~= 0)
+## I am a native object that is reference counted.
+## I am typically used as the base class for all of the objects that have automatical memory management.
+class RCObject superclass: Object; definition: {
+    compileTime if: Compiler compilationTarget hasOperatingSystem then: {
+        private field strongCounter_ type: AtomicUIntPointer.
+        private field weakCounter_ type: AtomicUIntPointer.
+
+        override method initialize => Void := {
+            strongCounter_ store: 1 with: MemoryOrder Release.
+            weakCounter_ store: 1 with: MemoryOrder Release.
         }.
-    } else: {
-        GCObjectHeader pointer method __isImmediateValue => Boolean8 := {
-            <notInCompileTime>
-            <staticBinding>
-            <nogc>
-            self == nil || (((self reinterpretCastTo: UIntPointer) & 7) ~= 0)
+
+        (inline method := (other: SelfType const ref)) => SelfType ref := {
+            ## The counters should not be modified.
+            self
         }.
-    }
+
+        (inline method := (other: SelfType tempRef)) => SelfType ref := {
+            ## The counters should not be modified.
+            self
+        }.
+    }.
 }.
 
-}. ## End of namespace Reflection
 }. ## End of namespace Std

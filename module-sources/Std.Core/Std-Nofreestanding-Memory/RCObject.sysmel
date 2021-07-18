@@ -443,18 +443,10 @@ template WeakRCRef(PT: Type)
 #**
  * I am an that holds a pointer into its reference counter.
  *#
-class RCObject superclass: Object; definition: {
-    private field strongCounter_ type: AtomicUIntPointer.
-    private field weakCounter_ type: AtomicUIntPointer.
-
+RCObject definition: {
     meta definition: {
         macro method rcNew := ``(`,self rcPointer forNewInstance).
         macro method new := ``(`,self rcRef forNewInstance).
-    }.
-
-    override method initialize => Void := {
-        strongCounter_ store: 1 with: MemoryOrder Release.
-        weakCounter_ store: 1 with: MemoryOrder Release.
     }.
 
     inline method retain => Void := {
@@ -526,17 +518,6 @@ class RCObject superclass: Object; definition: {
 
     macro fallback method = other
         := ``(`,self address == `,other rcObjectAddress).
-
-    (inline method := (other: SelfType const ref)) => SelfType ref := {
-        ## internalSelfWeakPointer should not be modified.
-        self
-    }.
-
-    (inline method := (other: SelfType tempRef)) => SelfType ref := {
-        ## internalSelfWeakPointer should not be modified.
-        self
-    }.
-
 }.
 
 _ClassType meta macro method rcPointer := ``(Std RCPointer(`,self)).

@@ -1,6 +1,0 @@
-namespace Smalltalk definition: {
-
-gcclass Generator superclass: Stream; definition: {
-
-}.
-} ## End of namespace Smalltalk
