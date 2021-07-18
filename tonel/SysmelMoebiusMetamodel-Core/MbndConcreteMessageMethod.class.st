@@ -28,3 +28,8 @@ MbndConcreteMessageMethod >> hasProgramEntityReflectiveNode [
 MbndConcreteMessageMethod >> isMessageMethod [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndConcreteMessageMethod >> programEntityInformationDataClass [
+	^ self compilationTarget messageMethodInformationClass
+]

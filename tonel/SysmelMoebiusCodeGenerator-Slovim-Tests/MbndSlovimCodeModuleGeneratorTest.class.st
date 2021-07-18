@@ -2530,22 +2530,6 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanThreeWayComparison [
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testBooleanToDynamicObject [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: Boolean8) => ProtoObject := x';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isBoolToDynamicObjectCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testBooleanToInt32 [
 	| function |
 	self
@@ -2664,150 +2648,6 @@ function calledWithNativeBlockClosure cdecl i32
 		)
 	)
 	)
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosure [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-function calledWithGCBlockClosure externC(f: (Void => ProtoObject) gcBlockClosure) => ProtoObject
-	:= f().
-
-function callWithGCBlockClosure externC(v: ProtoObject) => ProtoObject
-	:= calledWithGCBlockClosure(function () => ProtoObject := v).
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #calledWithGCBlockClosure.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			getElementPointer
-			load
-			bitcast
-			call
-			return
-		))
-	).
-	
-	function := ssaModule globalNamed: #callWithGCBlockClosure.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			instantiateClosure
-			bitcast 
-			call
-			return
-		))
-	).
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosure2 [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-function calledWithGCBlockClosure externC(f: (Void => ProtoObject) gcBlockClosure) => ProtoObject
-	:= f().
-
-function callWithGCBlockClosure externC(v: ProtoObject) => ProtoObject
-	:= calledWithGCBlockClosure({ :: ProtoObject | v }).
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #calledWithGCBlockClosure.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			getElementPointer
-			load
-			bitcast
-			call
-			return
-		))
-	).
-	
-	function := ssaModule globalNamed: #callWithGCBlockClosure.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			instantiateClosure
-			bitcast 
-			call
-			return
-		))
-	).
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosureSuper [
-	| function closure |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-gcclass WithSuperClosure definition: { 
-	method calledWithGCBlockClosure: (f: (Void => ProtoObject) gcBlockClosure) ::=> ProtoObject.
-
-	method callWithGCBlockClosure: (v: ProtoObject) ::=> ProtoObject
-		:= self calledWithGCBlockClosure: ({ :: ProtoObject | super computeSomeValue }).
-}.
-';
-		generateSSAModule.
-
-	
-	function := ssaModule globalNamed: #'_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.EPNS0_EPNS_11ProtoObjectEPNS3_E'.
-	self assert: function asFullSExpressionForTesting equals: #(
-function '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.EPNS0_EPNS_11ProtoObjectEPNS3_E' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
-	arguments (
-		(self (pointer (struct 'gcclass.TestModule::WithSuperClosure') gc) ())
-		(v (pointer (struct 'gcclass.TestModule::ProtoObject') gc) ())
-	)
-	literals (
-		(dynobject 'calledWithGCBlockClosure:|(() => ProtoObject) gcBlockClosure::ProtoObject')
-		(dynobject callWithGCBlockClosure:)
-		(dynobject (literalVariable WithSuperClosure))
-	)
-	blocks (
-		(()
-			(nil jump void () () (block 2 body))
-		)
-		(()
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Object') gc) () ((local 0 self)))
-			(nil instantiateClosure (pointer (closure gc (function cdecl () false (pointer (struct 'gcclass.TestModule::ProtoObject') gc)) ((pointer (struct 'gcclass.TestModule::Object') gc))) gc) () ((global nil '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.9__lambda0E') (local 6 nil)))
-			(nil bitcast (pointer (struct nil generic ((struct 'gcclass.TestModule::BlockClosureHeaderClass') (pointer (function cdecl ((pointer (struct 'gcclass.TestModule::ProtoObject') gc)) false (pointer (struct 'gcclass.TestModule::ProtoObject') gc)) generic)) (vtable functionPointer) ()) gc) () ((local 7 nil)))
-			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 self) (local 0 nil) (local 8 nil)))
-			(nil return void () ((local 9 nil)))
-		)
-	)
-	).
-	
-	closure := function basicBlocks second allInstructions second definition.
-	self assert: closure dynamicLiterals size >= 3.
-	self assert: closure asFullSExpressionForTesting equals: #(
-closure '_ZN10TestModule16WithSuperClosure24.callWithGCBlockClosure.9__lambda0E' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
-	arguments (
-	)
-	literals (
-		(dynobject computeSomeValue)
-		(dynobject nil)
-		(dynobject (literalVariable WithSuperClosure))
-	)
-	blocks (
-		(()
-			(nil jump void () () (block 2 body))
-		)
-		(()
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Symbol') gc) () ((local 0 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 6 nil)))
-			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) (superSend) ((local 5 nil) (local 7 nil)))
-			(nil return void () ((local 8 nil)))
-		)
-	)
-	).
 ]
 
 { #category : #tests }
@@ -5044,22 +4884,6 @@ function withCatch cdecl void
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCharacterToDynamicObject [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: Char32) => ProtoObject := x';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isCharToDynamicObjectCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testClassConstPointerUpcast [
 	| function |
 	self
@@ -5854,70 +5678,6 @@ function tupleFirst cdecl (pointer i32 generic)
 		)
 	)
 	)
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToBoolean [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Boolean8 := x castTo: Boolean8';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isDynamicObjectToBoolCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToCharacter [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Char32 := x castTo: Char32';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isDynamicObjectToCharCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToFloat [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Float32 := x castTo: Float32';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isDynamicObjectToFloatCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToInteger [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Int32 := x castTo: Int32';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isDynamicObjectToIntCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
 { #category : #tests }
@@ -7665,22 +7425,6 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatThreeWayComparison [
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testFloatToDynamicObject [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: Float32) => ProtoObject := x';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isFloatToDynamicObjectCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatToIntegerCast [
 	| function |
 	self
@@ -9012,272 +8756,6 @@ function '_ZN10TestModule6shader15..shinterface..E13outputChannelINS_8ShaderIOEE
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testGCBoolean [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-Character extend: { 
-	method isSeparator := { 
-		let in mutable.
-		(in := self asInteger) == 32 or: {| in == 13 or: {| in == 9 or: {| in == 10 or: {| in == 12 } } } }
-	}
-}.
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #'_ZN10TestModule9Character12.isSeparatorEPNS0_EPNS_11ProtoObjectE'.
-	self assert: function asFullSExpressionForTesting equals: #(
-function '_ZN10TestModule9Character12.isSeparatorEPNS0_EPNS_11ProtoObjectE' cdecl (pointer (struct 'gcclass.TestModule::ProtoObject') gc)
-	arguments (
-		(self (pointer (struct 'gcclass.TestModule::Character') gc) ())
-	)
-	literals (
-		(dynobject asInteger)
-		(dynobject isSeparator)
-		(dynobject (literalVariable Character))
-	)
-	blocks (
-		(()
-			(nil alloca (pointer (pointer (struct 'gcclass.TestModule::ProtoObject') gc) function) () ())
-			(nil jump void () () (block 2 body))
-		)
-		(()
-			(nil jump void () () (block 3 tryScope))
-		)
-		((merge (block 6 ifMerge))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((const dynobject nil)))
-			(nil store void () ((local 7 nil) (local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 0 self)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Symbol') gc) () ((local 0 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 10 nil)))
-			(nil send (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 9 nil) (local 11 nil)))
-			(nil store void () ((local 12 nil) (local 4 nil)))
-			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 32)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 15 nil)))
-			(nil dynObjectIdentityEquals b8 () ((local 14 nil) (local 16 nil)))
-			(nil branch void () ((local 17 nil)) ((block 4 ifThen) (block 5 ifElse)))
-		)
-		(()
-			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 19 nil)))
-			(nil jump void () () (block 6 ifMerge))
-		)
-		(()
-			(nil jump void () () (block 7 tryScope))
-		)
-		(()
-			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 20 nil) (local 34 ifResult)) ((block 4 ifThen) (block 10 ifMerge)))
-			(nil return void () ((local 23 ifResult)))
-		)
-		((merge (block 10 ifMerge))
-			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 13)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 26 nil)))
-			(nil dynObjectIdentityEquals b8 () ((local 25 nil) (local 27 nil)))
-			(nil branch void () ((local 28 nil)) ((block 8 ifThen) (block 9 ifElse)))
-		)
-		(()
-			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 30 nil)))
-			(nil jump void () () (block 10 ifMerge))
-		)
-		(()
-			(nil jump void () () (block 11 tryScope))
-		)
-		(()
-			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 31 nil) (local 45 ifResult)) ((block 8 ifThen) (block 14 ifMerge)))
-			(nil jump void () () (block 6 ifMerge))
-		)
-		((merge (block 14 ifMerge))
-			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 9)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 37 nil)))
-			(nil dynObjectIdentityEquals b8 () ((local 36 nil) (local 38 nil)))
-			(nil branch void () ((local 39 nil)) ((block 12 ifThen) (block 13 ifElse)))
-		)
-		(()
-			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 41 nil)))
-			(nil jump void () () (block 14 ifMerge))
-		)
-		(()
-			(nil jump void () () (block 15 tryScope))
-		)
-		(()
-			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 42 nil) (local 56 ifResult)) ((block 12 ifThen) (block 18 ifMerge)))
-			(nil jump void () () (block 10 ifMerge))
-		)
-		((merge (block 18 ifMerge))
-			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 10)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 48 nil)))
-			(nil dynObjectIdentityEquals b8 () ((local 47 nil) (local 49 nil)))
-			(nil branch void () ((local 50 nil)) ((block 16 ifThen) (block 17 ifElse)))
-		)
-		(()
-			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((const b8 true)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 52 nil)))
-			(nil jump void () () (block 18 ifMerge))
-		)
-		(()
-			(nil jump void () () (block 19 tryScope))
-		)
-		(()
-			(ifResult phi (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 53 nil) (local 63 nil)) ((block 16 ifThen) (block 19 tryScope)))
-			(nil jump void () () (block 14 ifMerge))
-		)
-		(()
-			(nil load (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 4 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::Integer') gc) () ((const dynobject 12)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 59 nil)))
-			(nil dynObjectIdentityEquals b8 () ((local 58 nil) (local 60 nil)))
-			(nil bool2dynobject (pointer (struct 'gcclass.TestModule::Boolean') gc) () ((local 61 nil)))
-			(nil bitcast (pointer (struct 'gcclass.TestModule::ProtoObject') gc) () ((local 62 nil)))
-			(nil jump void () () (block 18 ifMerge))
-		)
-	)
-	).
-	
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-gcclass ClassWithPublicField definition: { 
-	public field int32Field type: Int32.
-}.
-
-function getPublicField externC(o: ClassWithPublicField) => Int32
-	:= o int32Field.
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #getPublicField.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			getElementPointer
-			load
-			return
-		))
-	).
-	
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField2 [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-gcclass ClassWithPublicField definition: { 
-	public field int32Field type: Int32.
-}.
-
-function getPublicField externC(o: ClassWithPublicField ref) => Int32
-	:= o int32Field.
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #getPublicField.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			load
-			getElementPointer
-			load
-			return
-		))
-	).
-	
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSend [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-gcclass SuperClass definition: { 
-	field int32Field type: Int32.
-	
-	method getValue => Float64
-		:= int32Field.
-}.
-
-function callMessage externC(o: SuperClass) => Float64
-	:= o getValue.
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #callMessage.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			send
-			return
-		))
-	).
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSuperSend [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: '
-gcclass SuperClass definition: { 
-	field int32Field type: Int32.
-	
-	method getValue => Float64
-		:= int32Field.
-}.
-
-gcclass SubClass superclass: SuperClass; definition: { 
-	field float32Field type: Float32.
-	
-	method getValue => Float64
-		:= super getValue + float32Field.
-}.
-
-function callMessage externC(o: SubClass) => Float64
-	:= o getValue.
-';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #callMessage.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			send
-			return
-		))
-	).
-	
-	function := ssaModule globalNamed: #'_ZN10TestModule8SubClass9.getValueEPNS0_Ed'.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (
-			bitcast
-			send
-			getElementPointer
-			load
-			fpcast
-			fadd
-			return
-		))
-	).
-]
-
-{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGetFieldReference [
 	| function |
 	self
@@ -10307,8 +9785,8 @@ MbndSlovimCodeModuleGeneratorTest >> testIfIntegerLiteralCoercion [
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testInputChannelReceiveInteger [
 	| function |
+	true ifTrue: [ ^ self skip].
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function receive externC(inputChannel: Int32 inputChannel) => Int32
 			:= inputChannel receive';
 		generateSSAModule.
@@ -11186,22 +10664,6 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerToBoolean [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second lastInstruction isReturn.
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testIntegerToDynamicObject [
-	| function |
-	self
-		evaluateMiniObjectModelRuntime;
-		evaluateSysmelSource: 'function cast externC(x: Int32) => ProtoObject := x';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #cast.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isIntToDynamicObjectCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -13796,8 +13258,8 @@ function selectNonPod cdecl void
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testOutputChannelSendInteger [
 	| function |
+	true ifTrue: [ ^ self skip].
 	self
-		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function send externC(outputChannel: Int32 outputChannel, message: Int32) => Void
 			:= outputChannel send: message';
 		generateSSAModule.

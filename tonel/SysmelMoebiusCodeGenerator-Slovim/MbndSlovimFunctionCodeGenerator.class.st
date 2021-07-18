@@ -123,13 +123,6 @@ MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definit
 	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
-	
-	concreteMethod requiresCompiledMethodMetadata ifTrue: [
-		ssaFunction
-			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
-			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
-			hasSelectorAndClassBinding: true
-	].
 
 	self cleanUpStructuredControlFlow.
 	ssaFunction validate.
@@ -177,13 +170,6 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
-	concreteMethod requiresCompiledMethodMetadata ifTrue: [
-		ssaFunction
-			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
-			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
-			hasSelectorAndClassBinding: true
-	].
-
 	self cleanUpStructuredControlFlow.
 	ssaFunction validate.
 ]
@@ -210,13 +196,6 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 
-	concreteMethod requiresCompiledMethodMetadata ifTrue: [
-		ssaFunction
-			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
-			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
-			hasSelectorAndClassBinding: true
-	].
-	
 	self cleanUpStructuredControlFlow.
 	ssaFunction validate.
 ]
@@ -2171,9 +2150,6 @@ MbndSlovimFunctionCodeGenerator >> visitBooleanNode: node [
 	| result expectedType |
 	result := self visitNode: node.
 	expectedType := self slvmCompilationTarget bool.
-	node type isGarbageCollectedType ifTrue: [
-		result := slvmBuilder dynamicObjectToBoolCast: result target: expectedType
-	].
 	^ self sanitizeValue: result withExpectedType: expectedType
 ]
 
@@ -2235,15 +2211,7 @@ MbndSlovimFunctionCodeGenerator >> visitConcretizeUndefinedValueCastNode: node [
 MbndSlovimFunctionCodeGenerator >> visitConvertToCompilerObjectCastNode: node [
 	| underlyingObjectType castedValued convertedValue expectedType |
 	underlyingObjectType := node type underlyingObjectType.
-	underlyingObjectType type isGCClassType ifFalse: [
-		^ (self translateType: underlyingObjectType) defaultConstant
-	].
-
-	castedValued := self visitNode: node expression.
-	convertedValue := self wrapValue: castedValued withType: node expression type intoDynamicObjectWithType: underlyingObjectType.
-	expectedType := self translateType: node type.
-	self assert: convertedValue type == expectedType.
-	^ convertedValue 
+	^ (self translateType: underlyingObjectType) defaultConstant
 ]
 
 { #category : #visiting }
@@ -2510,20 +2478,6 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 		expectedResultType: expectedResultType
 		hiddenReceiverArgument: hiddenReceiverArgument
 		storageCreationNode: node storageCreationNode cleanUpActionNode: node
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitGCVariableDataArrayElementReferenceNode: node [
-	| pointer index |
-	pointer := self visitNode: node container.
-	index := self visitNode: node index.
-	self assert: index type isIntegerType.
-	"Convert one based indices into zero based indices."
-	node isOneBasedIndex ifTrue: [ 
-		index := slvmBuilder sub: index with: (SLVMConstant type: index type value: 1)
-	].
-
-	^ slvmBuilder getReference: pointer element: index
 ]
 
 { #category : #visiting }
@@ -2821,11 +2775,6 @@ MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
-	node type isGarbageCollectedType ifTrue: [
-		| dynamicLiteral |
-		dynamicLiteral := slvmBuilder addDynamicLiteral: node value.
-		^ slvmBuilder bitCast: dynamicLiteral target: (self translateType: node type)
-	].
 	^ codeModuleGenerator translateLiteralValue: node value ofType: node type
 ]
 
@@ -3266,15 +3215,6 @@ MbndSlovimFunctionCodeGenerator >> visitStaticClassPointerCastNode: node [
 	sourceType := node expression type asUndecoratedClassType.
 	targetType := node targetType asUndecoratedClassType.
 	self assert: (sourceType isAbstractClassType and: [ targetType isAbstractClassType ]).
-	
-	"There is only single inheritance with GC classes."
-	(sourceType isGCClassType and: [ targetType isGCClassType ]) ifTrue: [ 
-		(targetType isSubtypeOf: sourceType) ifTrue: [ 
-			self flag: 'TODO: validate the possibility of doing this down cast.'.
-		].
-	
-		^ slvmBuilder bitCast: sourceValue target: targetSSAType
-	].
 	
 	"Is this an upcast?"
 	(sourceType isSubtypeOf: targetType) ifTrue: [ 

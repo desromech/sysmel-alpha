@@ -285,11 +285,6 @@ MbndAstVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstVisitor >> visitGCVariableDataArrayElementReferenceNode: node [
-	self subclassResponsibility
-]
-
-{ #category : #visiting }
 MbndAstVisitor >> visitGetFieldReferenceNode: node [
 	self subclassResponsibility
 ]

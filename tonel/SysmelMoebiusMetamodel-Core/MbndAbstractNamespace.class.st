@@ -14,7 +14,6 @@ MbndAbstractNamespace class >> messagePackTypeName [
 { #category : #converting }
 MbndAbstractNamespace >> fillProgramEntityInfoInstance: programEntityInfoInstance [
 	self fillProgramEntityCommonInfoInstance: programEntityInfoInstance.
-	programEntityInfoInstance setField: #localSymbolTable ifExistsWith: [ self localSymbolTableInstanceObject ]
 ]
 
 { #category : #composition }

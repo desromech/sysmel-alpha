@@ -18,7 +18,6 @@ Trait {
 		'primitiveMatrixTypes',
 		'dynamicObjectType',
 		'managedObjectModel',
-		'gcClassVariableDataArrayTypes',
 		'outputChannelTypes',
 		'inputChannelTypes',
 		'inputChannelImplementationType',
@@ -31,18 +30,12 @@ Trait {
 		'shaderEntryPointInfo',
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
-		'typeInformationNativeClass',
-		'moduleNamespaceInformationNativeClass',
-		'moduleInformationNativeClass',
-		'typeInformationGCClass',
-		'moduleNamespaceInformationGCClass',
-		'moduleInformationGCClass',
-		'extensionMacroMessageGCClass',
-		'extensionMacroMessageNativeClass',
-		'extensionOverloadedMethodGCClass',
-		'extensionOverloadedMethodNativeClass',
-		'extensionMethodGCClass',
-		'extensionMethodNativeClass',
+		'typeInformationClass',
+		'moduleNamespaceInformationClass',
+		'moduleInformationClass',
+		'extensionMacroMessageClass',
+		'extensionOverloadedMethodClass',
+		'extensionMethodClass',
 		'exceptionCatchBeginFunction',
 		'exceptionCatchEndFunction',
 		'nonLocalReturnRaiseFunction',
@@ -71,7 +64,10 @@ Trait {
 		'exceptionContextEndFunction',
 		'exceptionCleanUpEndFunction',
 		'exceptionCatchTestDynamicTypeFunction',
-		'exceptionRethrowFunction'
+		'exceptionRethrowFunction',
+		'functionInformationClass',
+		'macroMessageMethodInformationClass',
+		'messageMethodInformationClass'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -229,18 +225,6 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 	(rightType isLiteralIntegerType and: [rightNode value >= 0 and: [ bestRightType isSigned
 	 and: [leftType isPrimitiveIntegerType and: [leftType isUnsigned]]]]) ifTrue: [
 		bestRightType := bestRightType asUnsignedType
-	].
-
-	"Promote to dynobject type."
-	(leftType isGarbageCollectedType or: [ rightType isGarbageCollectedType ]) ifTrue: [ 
-		(leftType isGCClassType and: [ rightType isGCClassType ]) ifTrue: [ 
-			(leftType isSubtypeOf: rightType) ifTrue: [ ^ rightType ].
-			(rightType isSubtypeOf: leftType) ifTrue: [ ^ leftType ].
-			"TODO: Find a common ancestor"
-			self halt.
-		].
-	
-		^ self dynamicObjectType
 	].
 
 	^ self computeArithmeticCoercionTypeFor: bestLeftType with: bestRightType.
@@ -429,13 +413,17 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			sampleTextureImplicitLodFunction sampleTextureExplicitLodFunction sampleTextureExplicitDerivativesFunction
 			
 			"RTTI"
-			typeInformationNativeClass typeInformationGCClass 
-			moduleNamespaceInformationNativeClass moduleNamespaceInformationGCClass 
-			moduleInformationNativeClass moduleInformationGCClass
+			typeInformationClass
+			moduleNamespaceInformationClass
+			moduleInformationClass
 			
-			extensionMacroMessageGCClass extensionMacroMessageNativeClass
-			extensionOverloadedMethodGCClass extensionOverloadedMethodNativeClass
-			extensionMethodGCClass extensionMethodNativeClass
+			functionInformationClass
+			macroMessageMethodInformationClass
+			messageMethodInformationClass
+			
+			extensionMacroMessageClass
+			extensionOverloadedMethodClass
+			extensionMethodClass
 			
 			"Static constructors/destructors"
 			sysmelAtExitFunction
@@ -461,10 +449,7 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			variantUnexpectedComponentRaiseFunction
 			indexOutOfBoundsRaiseFunction
 			
-			"GC runtime"
-			defaultGCClassSuperClass
-			dynamicObjectType
-		) do: [ :selector |
+			) do: [ :selector |
 			out nextPut: selector; nextPut: ((self perform: selector) encodeGraphForMessagePackWith: graphEncoder)
 		].
 	
@@ -614,77 +599,32 @@ TMbndCoreCompilationTarget >> exceptionSetjmpFunction: anObject [
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> extensionMacroMessageClass [
-	^ extensionMacroMessageGCClass ifNil: [ extensionMacroMessageNativeClass ]
+	^ extensionMacroMessageClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMacroMessageGCClass [
-	^ extensionMacroMessageGCClass
+TMbndCoreCompilationTarget >> extensionMacroMessageClass: aClass [
+	extensionMacroMessageClass := aClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMacroMessageGCClass: anObject [
-	extensionMacroMessageGCClass := anObject
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMacroMessageNativeClass [
-	^ extensionMacroMessageNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMacroMessageNativeClass: anObject [
-	extensionMacroMessageNativeClass := anObject
-]
-
-{ #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> extensionMethodClass [
-	^ extensionMethodGCClass ifNil: [ extensionMethodNativeClass ]
+	^ extensionMethodClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMethodGCClass [
-	^ extensionMethodGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMethodGCClass: anObject [
-	extensionMethodGCClass := anObject
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMethodNativeClass [
-	^ extensionMethodNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionMethodNativeClass: anObject [
-	extensionMethodNativeClass := anObject
+TMbndCoreCompilationTarget >> extensionMethodClass: aClass [
+	extensionMethodClass := aClass
 ]
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> extensionOverloadedMethodClass [
-	^ extensionOverloadedMethodGCClass ifNil: [ extensionOverloadedMethodNativeClass ]
+	^ extensionOverloadedMethodClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> extensionOverloadedMethodGCClass [
-	^ extensionOverloadedMethodGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionOverloadedMethodGCClass: anObject [
-	extensionOverloadedMethodGCClass := anObject
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionOverloadedMethodNativeClass [
-	^ extensionOverloadedMethodNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> extensionOverloadedMethodNativeClass: anObject [
-	extensionOverloadedMethodNativeClass := anObject
+TMbndCoreCompilationTarget >> extensionOverloadedMethodClass: aClass [
+	extensionOverloadedMethodClass := aClass
 ]
 
 { #category : #accessing }
@@ -697,14 +637,19 @@ TMbndCoreCompilationTarget >> forbiddenExceptionHandlingFunction: aFunction [
 	forbiddenExceptionHandlingFunction := aFunction
 ]
 
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
-	^ functionTypes getOrCreateInstanceWithArguments: { argumentTypes . returnType . callingConvention . cvariadic}
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> functionInformationClass [
+	^ functionInformationClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> functionInformationClass: aClass [
+	functionInformationClass := aClass
 ]
 
 { #category : #'derived types' }
-TMbndCoreCompilationTarget >> gcClassVariableDataArrayOf: elementType [
-	^ gcClassVariableDataArrayTypes getOrCreateInstanceWithArguments: { elementType }
+TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
+	^ functionTypes getOrCreateInstanceWithArguments: { argumentTypes . returnType . callingConvention . cvariadic}
 ]
 
 { #category : #'constructor priorities' }
@@ -1153,15 +1098,6 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 
-	gcClassVariableDataArrayTypes := self createSystemProvidedTypeTemplate: #_GCClassVariableDataArrayTypeTemplate
-		argumentNames: #(ElementType)
-		doing: [ :elementType |
-			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndGCClassVariableDataArrayType basicNew)
-				elementType: elementType;
-				initializeNonTraitType;
-				yourself.
-	].
-
 	tupleTypes := self createSystemProvidedTypeTemplate: #_TupleTypeTemplate
 		argumentNames: #(Elements)
 		doing: [ :elements |
@@ -1407,6 +1343,16 @@ TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 
 ]
 
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> macroMessageMethodInformationClass [
+	^ macroMessageMethodInformationClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> macroMessageMethodInformationClass: aClass [
+	macroMessageMethodInformationClass := aClass
+]
+
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> managedObjectModel [
 	^ managedObjectModel ifNil: [managedObjectModel := self managedObjectModelClass for: self ]
@@ -1433,59 +1379,33 @@ TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder:
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> messageMethodInformationClass [
+	^ messageMethodInformationClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> messageMethodInformationClass: aClass [
+	messageMethodInformationClass := aClass
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> moduleInformationClass [
-	^ moduleInformationGCClass ifNil: [ moduleInformationNativeClass ]
+	^ moduleInformationClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> moduleInformationGCClass [
-	^ moduleInformationGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleInformationGCClass: anObject [
-	moduleInformationGCClass := anObject
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleInformationNativeClass [
-	^ moduleInformationNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleInformationNativeClass: anObject [
-	moduleInformationNativeClass := anObject
+TMbndCoreCompilationTarget >> moduleInformationClass: aClass [
+	moduleInformationClass := aClass
 ]
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> moduleNamespaceInformationClass [
-	^ moduleNamespaceInformationGCClass ifNil: [ moduleNamespaceInformationNativeClass ]
+	^ moduleNamespaceInformationClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> moduleNamespaceInformationGCClass [
-	^ moduleNamespaceInformationGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleNamespaceInformationGCClass: anObject [
-	moduleNamespaceInformationGCClass := anObject.
-	moduleNamespaceInformationGCClass ifNotNil: [ 
-		self namespaceType addConversionTo: moduleNamespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
-	]
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleNamespaceInformationNativeClass [
-	^ moduleNamespaceInformationNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> moduleNamespaceInformationNativeClass: anObject [
-	moduleNamespaceInformationNativeClass := anObject.
-	moduleNamespaceInformationNativeClass ifNotNil: [ 
-		self namespaceType addConversionTo: moduleNamespaceInformationNativeClass rule: MbndPointerReinterpretTypeConversionRule.
-	]
+TMbndCoreCompilationTarget >> moduleNamespaceInformationClass: aClass [
+	moduleNamespaceInformationClass := aClass
 ]
 
 { #category : #'derived types' }
@@ -1771,27 +1691,12 @@ TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> typeInformationClass [
-	^ typeInformationGCClass ifNil: [ typeInformationNativeClass ]
+	^ typeInformationClass
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> typeInformationGCClass [
-	^ typeInformationGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> typeInformationGCClass: anObject [
-	typeInformationGCClass := anObject
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> typeInformationNativeClass [
-	^ typeInformationNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> typeInformationNativeClass: anObject [
-	typeInformationNativeClass := anObject
+TMbndCoreCompilationTarget >> typeInformationClass: aClass [
+	^ typeInformationClass := aClass
 ]
 
 { #category : #accessing }

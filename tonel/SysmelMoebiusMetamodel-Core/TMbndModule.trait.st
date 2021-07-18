@@ -440,10 +440,6 @@ TMbndModule >> programEntityScopeClass [
 
 { #category : #'as yet unclassified' }
 TMbndModule >> recordCreatedType: type [
-	type isGCClassType ifTrue: [
-		self addedGCClasses add: type.
-	].
-
 	type isClassType ifTrue: [ 
 		self addedClasses add: type.
 	].

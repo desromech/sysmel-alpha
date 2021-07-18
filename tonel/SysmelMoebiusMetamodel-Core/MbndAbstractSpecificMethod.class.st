@@ -10,7 +10,8 @@ Class {
 		'nonLocalReturnTarget',
 		'lambdaChildren',
 		'nonLocalResultVariable',
-		'typedSelector'
+		'typedSelector',
+		'programEntityForReflectionMetadata'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -114,6 +115,12 @@ MbndAbstractSpecificMethod >> arguments [
 	^ #()
 ]
 
+{ #category : #converting }
+MbndAbstractSpecificMethod >> asProgramEntityForReflectionMetadata [
+	self programEntityInformationDataClass ifNil: [ ^ nil ].
+	^ programEntityForReflectionMetadata ifNil: [ programEntityForReflectionMetadata := MbndProgramEntityReflectionMetadata new wrapped: self ]
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> assistBlockClosureNodeTypeInference: each asArgument: argumentIndex with: analyzer [
 	argumentIndex <= self boundType argumentTypes size ifTrue: [
@@ -198,20 +205,14 @@ MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 MbndAbstractSpecificMethod >> ensureLookupSelectorIsRegisteredIn: programEntity [
 	programEntity methodDict at: self typedSelector put: self.
 	"programEntity methodDict at: name put: self."
-	
-	programEntity requiresDynamicMethodWrappers ifFalse: [ ^ self ].
-	programEntity overloadedMethodDict at: name ifPresent: [ :existent |
-		existent == self ifTrue: [
-			self boundType needsSpecialTypedSelector ifTrue: [ 
-				self createDynamicMethodWrapper ifNotNil: [ :wrapper |
-					programEntity methodDict at: name put: wrapper
-				].
-			] ifFalse: [ 
-				programEntity methodDict at: name put: self.
-			]
-		].
-	].
+]
 
+{ #category : #converting }
+MbndAbstractSpecificMethod >> fillProgramEntityInfoInstance: programEntityInfoInstance [
+	super fillProgramEntityInfoInstance: programEntityInfoInstance.
+	programEntityInfoInstance
+		setField: #entryPoint ifExistsWith: [self];
+		setField: #type ifExistsWith: [self type]
 ]
 
 { #category : #'as yet unclassified' }
@@ -402,6 +403,11 @@ MbndAbstractSpecificMethod >> printOn: aStream [
 	^ aStream nextPutAll: self qualifiedName.
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> programEntityMetadaType [
+	^ self programEntityInformationDataClass pointer
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> receiverType [
 	^ receiverType
@@ -435,7 +441,7 @@ MbndAbstractSpecificMethod >> sendTypedSelector [
 
 { #category : #asserting }
 MbndAbstractSpecificMethod >> shouldMangleReturnType [
-	^ parent isMbndType and: [ parent isGarbageCollectedType ]
+	^ false
 ]
 
 { #category : #accessing }

@@ -14,12 +14,6 @@ MbndArrayType class >> typeName [
 	^ #_ArrayType
 ]
 
-{ #category : #initialization }
-MbndArrayType >> aArraySliceType [
-	<compileTime>
-	^ elementType arraySlice
-]
-
 { #category : #visiting }
 MbndArrayType >> accept: aVisitor [
 	^ aVisitor visitArrayType: self
@@ -88,12 +82,10 @@ MbndArrayType >> analyzeConstructionWithArguments: argumentsTupleNode at: node w
 	^ analyzer visitNode: arrayConstructionNode
 ]
 
-{ #category : #converting }
-MbndArrayType >> asFieldTypeFor: owner [
-	(owner isGarbageCollectedType and: [ elements = 0 ]) ifTrue: [
-		^ self compilationTarget gcClassVariableDataArrayOf: elementType
-	].
-	^ self
+{ #category : #initialization }
+MbndArrayType >> asArraySliceType [
+	<compileTime>
+	^ elementType arraySlice
 ]
 
 { #category : #testing }
@@ -153,12 +145,6 @@ MbndArrayType >> elements [
 { #category : #accessing }
 MbndArrayType >> elements: anObject [
 	elements := anObject
-]
-
-{ #category : #'testing methods' }
-MbndArrayType >> hasGarbageCollectedAddressSpace [
-	elementType ifNil: [ ^ super hasGarbageCollectedAddressSpace ].
-	^ elementType hasGarbageCollectedAddressSpace
 ]
 
 { #category : #testing }
@@ -236,6 +222,14 @@ MbndArrayType >> isCopyable [
 MbndArrayType >> isMoveable [
 	elementType ifNil: [ ^ super isMoveable ].
 	^ elementType isMoveable
+]
+
+{ #category : #'default values' }
+MbndArrayType >> makeInstance [
+	^ MbndAggregateTypeInstanceValue new
+		type: self;
+		slots: (Array new: elements);
+		yourself
 ]
 
 { #category : #printing }

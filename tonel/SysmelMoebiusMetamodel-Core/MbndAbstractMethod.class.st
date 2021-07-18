@@ -73,6 +73,11 @@ MbndAbstractMethod >> hasExplicitSuperSend [
 ]
 
 { #category : #testing }
+MbndAbstractMethod >> hasParentRTTIRequirement [
+	^ parent isNotNil and: [ parent hasRequiredRTTI or: [ parent hasMethodDictionaryRequired ] ]
+]
+
+{ #category : #testing }
 MbndAbstractMethod >> hasPragmaNamed: pragmaName [
 	^ self pragmaAt: pragmaName ifAbsent: [ false ] ifPresent: [ :x | true ]
 ]

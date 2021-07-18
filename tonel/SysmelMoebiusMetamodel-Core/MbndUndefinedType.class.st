@@ -53,7 +53,7 @@ MbndUndefinedType >> addDefaultConversionRules [
 	self
 		addConversionTo: self compilationTarget voidType rule: MbndConcretizeUndefinedTypeConversionRule;
 		addConversionRule: (MbndConcretizeUndefinedTypeConversionRule when: [:source :target |
-			target withoutTopDecorations isPointerType or: [ target isGarbageCollectedType or: [target isBlockClosureType ]]
+			target withoutTopDecorations isPointerType or: [target isBlockClosureType ]
 	])
 
 ]

@@ -460,9 +460,6 @@ MbndSlovimCodeModuleGenerator >> ensureRequiredStructuresAreDefined [
 	].
 	self compilationTarget managedObjectModel runtimeImportantClasses do: [:eachClass |
 		ssaModule importType: (self translateType: eachClass) fromModule: nil.
-		eachClass isGCClassType ifTrue: [ 
-			ssaModule importType: (self translateType: eachClass type) fromModule: nil.
-		]
 	].
 ]
 
@@ -1156,44 +1153,6 @@ MbndSlovimCodeModuleGenerator >> getFieldAsPushConstantReference: field [
 	]
 ]
 
-{ #category : #'code generation' }
-MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: functionType [
-	| adapterFunctionType dynamicObjectType unwrappedArguments callResultType convertedResult |
-	dynamicObjectType := self compilationTarget dynamicObjectType.
-	adapterFunctionType := self compilationTarget
-		functionTypeWithArguments: {functionType pointer} , (functionType argumentTypes collect: [ :arg | dynamicObjectType ])
-		returnType: dynamicObjectType.
-	^ dynamicFunctionCallsAdapters at: adapterFunctionType ifAbsentPut: [ 
-		self generateAnonCompilerGeneratedMethodOfKind: #DynamicFunctionCallAdapter withType: adapterFunctionType allowGC: true
-		debugInformationWith: [ self debugInformationTranslator createForTrampolineNamed: #DynamicFunctionCallAdapter withFunctionType: adapterFunctionType ]
-		with: [:ssaFunction :builder :functionCodeGenerator |
-			| calledFunction result |
-			"Unwrap the arguments."
-			calledFunction := ssaFunction arguments first.
-			unwrappedArguments := ssaFunction arguments allButFirst collectWithIndex: [ :argValue :argIndex |
-				functionCodeGenerator unwrapDynamicObject: argValue withType: dynamicObjectType intoValueOfType: (functionType argumentTypes at: argIndex)
-			].
-		
-			"Generate the call."
-			result := functionCodeGenerator generateCall: calledFunction arguments: unwrappedArguments calledFunctionType: functionType.
-			
-			"Compute the actual result type."
-			callResultType := functionType returnType.
-		
-			"Wrap the result."
-			convertedResult := functionCodeGenerator wrapValue: result withType: callResultType intoDynamicObjectWithType: dynamicObjectType.
-			
-			"Finalize the temporary result."
-			functionType returnType hasTrivialFinalization ifFalse: [
-				self flag: 'FIXME: Make this finalization implicit by using clean-up actions.'.
-				functionCodeGenerator generateVariable: result finalizationForValueType: functionType returnType
-			].
-			
-			builder return: convertedResult
-		]
-	].
-]
-
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getOrCreateFalseLiteralValue [
 	^ SLVMConstant pointer: (self getOrCreateSpecialSingletonNamed: #false withClass: self compilationTarget managedObjectModel falseClass)
@@ -1243,13 +1202,9 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFun
 
 		ssaTypeInfoType := self translateType: typeInfoClass.
 		ssaTypeInfoType isPointerType ifTrue: [ ssaTypeInfoType := ssaTypeInfoType baseType ].
-		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: ssaTypeInfoType storage: (typeInfoClass hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
+		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: ssaTypeInfoType storage: SLVMType genericStorage.
 		ssaClosureTypeInfo omitDebugInformation: true.
-		typeInfoClass isGarbageCollectedType ifTrue: [
-			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateDynamicObjectInstanceContent: typeInfoObjectInstance).
-		] ifFalse: [ 
-			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateLiteralValue: typeInfoObjectInstance ofType: typeInfoClass).
-		].
+		ssaClosureTypeInfo initialValue: (self literalValueGenerator translateLiteralValue: typeInfoObjectInstance ofType: typeInfoClass).
 		
 		vtableEntryType := self slvmCompilationTarget voidPointerType.
 		vtableEntries := {
@@ -1382,9 +1337,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateShaderEntryPointInfoFor: concreteMet
 MbndSlovimCodeModuleGenerator >> getOrCreateSpecialSingletonNamed: singletonName withClass: singletonClass [
 	| mangledName pointerType ssaPointerType singletonVar importedSSAModule |
 	mangledName := self newSymbolNameMangler mangleNestedNameComponents: { self compilationEnvironment coreModule name . #'..s..' . singletonName }.
-	pointerType := singletonClass isGCClassType
-		ifTrue: [singletonClass]
-		ifFalse: [singletonClass pointer].
+	pointerType := singletonClass pointer.
 	ssaPointerType := self translateType: pointerType.
 
 	sourceModule == self compilationEnvironment coreModule ifTrue: [ 
@@ -1814,10 +1767,12 @@ MbndSlovimCodeModuleGenerator >> shouldGenerateRTTIForProgramEntity: programEnti
 	
 	(programEntity isMbndType and: [programEntity isAbstractClassType]) ifTrue: [
 		(sourceModule hasExceptions and: [programEntity isThrowable]) ifTrue: [ ^ true ].
+		programEntity hasBasicRequiredRTTI ifTrue: [ ^ true ].
 		programEntity hasRequiredRTTI ifTrue: [ ^ true ].
+		programEntity hasMethodDictionaryRequired ifTrue: [ ^ true ].
 	].
 
-	^ false
+	^ programEntity hasParentRTTIRequirement
 ]
 
 { #category : #accessing }
@@ -2075,22 +2030,30 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityDebugInformation: aProgra
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programEntity [
+	^ self translateProgramEntityInformationData: programEntity isWrapped: false
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programEntity isWrapped: isWrapped [
 	| ssaProgramEntityInfoType ssaProgramEntityInfo programEntityType |
-	programEntityType := programEntity type.
+	programEntityType := programEntity programEntityMetadaType.
 	ssaProgramEntityInfoType := self translateType: programEntityType.
 	self assert: ssaProgramEntityInfoType isPointerType.
 	
 	(self shouldGenerateRTTIForProgramEntity: programEntity withSSAType: ssaProgramEntityInfoType) ifFalse: [
-		self assert: (programEntity isMbndType not or: [programEntity isGarbageCollectedType not]).
 		ssaProgramEntityInfo := SLVMConstant nullPointer: ssaProgramEntityInfoType.
-		self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
+		isWrapped ifFalse: [ 
+			self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
+		].
 		^ ssaProgramEntityInfo
 	].
 
 	ssaProgramEntityInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: programEntity) valueType: ssaProgramEntityInfoType baseType storage: ssaProgramEntityInfoType storage.
 	ssaProgramEntityInfo omitDebugInformation: true.
-	self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
-	ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
+	isWrapped ifFalse: [
+		self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
+		ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
+	].
 	
 	(programEntity isMbndType and: [
 		programEntity isSpecialStructureType or:
@@ -2413,25 +2376,13 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	ssaTypeValueType := self translateType: type type.
 	type mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: type ].
 
-	type isGCClassType ifTrue: [
-		type isMetaType ifFalse: [ 
-			ssaModule addStructure: ssaType baseType.
-			ssaModule addHighLevelEntity: type mapToStructureType: ssaType baseType.
-
-			ssaModule addStructure: ssaTypeValueType baseType.
-			ssaModule addHighLevelEntity: type type mapToStructureType: ssaTypeValueType baseType.
-		].
-	] ifFalse: [
-		(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
-			ssaModule addStructure: ssaType.
-			ssaModule addHighLevelEntity: type mapToStructureType: ssaType.
-		]
+	(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
+		ssaModule addStructure: ssaType.
+		ssaModule addHighLevelEntity: type mapToStructureType: ssaType.
 	].
 
 	ssaValue := self translateTypeInfoDefinition: type.
-	type isGCClassType ifFalse: [
-		self translateProgramEntityChildren: type type.
-	].  
+	self translateProgramEntityChildren: type type.
 	self translateProgramEntityChildren: type.
 	^ ssaValue
 ]
@@ -2516,7 +2467,7 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	].
 	
 	csymbol := (self generatedNameForAnynomousEntity: compileTimeVariable) asSymbol.
-	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: (compileTimeVariable valueType hasGarbageCollectedAddressSpace ifTrue: [ SLVMType gcStorage ] ifFalse: [ SLVMType genericStorage ]).
+	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
 	ssaCompileTimeVariable unmangledName: csymbol.
 	self setProgramEntity: compileTimeVariable ssaValue: ssaCompileTimeVariable.
 	ssaModule addHighLevelEntity: compileTimeVariable mapToGlobalValue: ssaCompileTimeVariable.
@@ -2672,51 +2623,6 @@ MbndSlovimCodeModuleGenerator >> visitCoreBasicType: coreBasicType [
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> visitDynamicMethodWrapper: generatedMethod [
-	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
-		| dynamicObjectType wrappedMethod wrappedMethodBoundType unwrappedReceiver unwrappedArguments unwrappedAllArguments callResultType calledFunction result convertedResult |
-		dynamicObjectType := self compilationTarget dynamicObjectType.
-
-		wrappedMethod := generatedMethod wrappedMethod.
-		wrappedMethodBoundType := wrappedMethod boundType.
-		
-		unwrappedReceiver := wrappedMethod receiverType isVoidType ifTrue: [
-			nil
-		] ifFalse: [ 
-			functionCodeGenerator unwrapDynamicObject: ssaFunction arguments first withType: dynamicObjectType intoValueOfType: wrappedMethod receiverType
-		].
-				
-		unwrappedArguments := ssaFunction arguments allButFirst collectWithIndex: [ :argValue :argIndex |
-			functionCodeGenerator unwrapDynamicObject: argValue withType: dynamicObjectType intoValueOfType: (wrappedMethodBoundType argumentTypes at: argIndex)
-		].
-	
-		unwrappedAllArguments := unwrappedArguments.
-		unwrappedReceiver ifNotNil: [
-			unwrappedAllArguments := {unwrappedReceiver} , unwrappedArguments.
-		].
-	
-		"Generate the call."
-		calledFunction := (self translateProgramEntity: wrappedMethod) ssaValue.
-		result := functionCodeGenerator generateCall: calledFunction arguments: unwrappedAllArguments calledFunctionType: wrappedMethod type.
-
-		"Compute the actual result type."
-		callResultType := wrappedMethodBoundType returnType.
-		
-		"Wrap the result."
-		convertedResult := functionCodeGenerator wrapValue: result withType: callResultType intoDynamicObjectWithType: dynamicObjectType.
-			
-		"Finalize the temporary result."
-		wrappedMethodBoundType returnType hasTrivialFinalization ifFalse: [
-			self flag: 'FIXME: Make this finalization implicit by using clean-up actions.'.
-			functionCodeGenerator generateVariable: result finalizationForValueType: wrappedMethodBoundType returnType
-		].
-
-		builder return: convertedResult
-	]
-
-]
-
-{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitEnumType: type [
 	^ self visitUserDefinedType: type
 ]
@@ -2768,9 +2674,6 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	].
 
 	storage := SLVMType genericStorage.
-	globalVariable valueType hasGarbageCollectedAddressSpace ifTrue: [ 
-		storage := SLVMType gcStorage
-	].
 
 	isReadOnly := globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]. 
 	hasInitialValue := globalVariable hasExternalVisibility not.
@@ -2879,9 +2782,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 	
 	moduleInfoPointerTypeClass := moduleInfoClass
 		ifNil: [ self compilationTarget voidType pointer ]
-		ifNotNil: [ moduleInfoClass isGCClassType
-			ifTrue: [ moduleInfoClass ]
-			ifFalse: [ moduleInfoClass pointer ] ].
+		ifNotNil: [ moduleInfoClass pointer ].
 	(moduleInfoClass isNil or: [ self compilationEnvironment hasRuntimeTypeInformation not or: [ self slvmCompilationTarget isGPU ] ])
 		ifTrue: [ moduleInfoInstance := nil ]
 		ifFalse: [ moduleInfoInstance := moduleInfoClass makeInstance ].
@@ -2892,9 +2793,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 		self setProgramEntity: module ssaValue: moduleInfoSSAValue
 	] ifNotNil: [
 		moduleInfoSSAValue := SLVMGlobalVariable
-			module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: module) valueType: moduleInfoSSAType baseType storage: (moduleInfoClass hasGarbageCollectedAddressSpace
-		ifTrue: [SLVMType gcStorage]
-		ifFalse: [SLVMType genericStorage]).
+			module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: module) valueType: moduleInfoSSAType baseType storage: SLVMType genericStorage.
 		moduleInfoSSAValue omitDebugInformation: true.
 		self setProgramEntity: module ssaValue: moduleInfoSSAValue.
 		ssaModule addHighLevelEntity: module mapToGlobalValue: moduleInfoSSAValue.
@@ -2987,6 +2886,12 @@ MbndSlovimCodeModuleGenerator >> visitPrimitiveMatrixType: type [
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitPrimitiveVectorType: type [
 	^ self visitCoreBasicType: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitProgramEntityReflectionMetadata: programEntity [
+	^ self translateProgramEntityInformationData: programEntity wrapped isWrapped: true
+	
 ]
 
 { #category : #'typeinfo translation' }

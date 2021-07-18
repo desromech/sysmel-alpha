@@ -84,24 +84,6 @@ MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValu
 ]
 
 { #category : #'as yet unclassified' }
-MbndAbstractConcreteMethod >> createDynamicMethodWrapper [
-	| wrapper |
-	self compilationTarget dynamicObjectType ifNil: [ ^ nil ].
-	boundType canHaveDynamicMethodWrapper ifFalse: [ ^ nil ].
-	
-	wrapper := MbndDynamicMethodWrapper new
-		module: self module;
-		parent: parent;
-		wrappedMethod: self;
-		name: name;
-		receiverType: receiverType asDynamicMethodWrapperReceiverType;
-		boundType: boundType asDynamicMethodWrapperType;
-		yourself.
-	wrapper type: (wrapper boundType withExplicitReceiverType: wrapper receiverType).
-	^ wrapper
-]
-
-{ #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> createExtraImplicitArgument: argumentName withType: argumentType [
 	^ MbndAstArgumentDefinitionNode new
 		position: definitionNode position;
@@ -425,14 +407,6 @@ MbndAbstractConcreteMethod >> preprocessDefinitionBody: node [
 		position: node;
 		implicitReturn: true;
 		expression: node) lexicallyScoped
-]
-
-{ #category : #testing }
-MbndAbstractConcreteMethod >> requiresCompiledMethodMetadata [
-	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
-	(parent isMbndType and: [parent isGarbageCollectedType]) ifTrue: [ ^ true ].
-	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
-	^ false
 ]
 
 { #category : #testing }

@@ -687,17 +687,6 @@ MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: 
 ]
 
 { #category : #'builder methods' }
-MbndAstBuilder >> gcVariableDataArray: array elementReferenceAt: index [
-	<compileTime>
-	<returnType: #_ASTNodeType>
-	^ MbndAstGCVariableDataArrayElementReferenceNode new
-		position: defaultPosition;
-		container: array;
-		index: index;
-		yourself
-]
-
-{ #category : #'builder methods' }
 MbndAstBuilder >> gensym: symbolName [
 	<compileTime>
 	<returnType: #_ASTNodeType>

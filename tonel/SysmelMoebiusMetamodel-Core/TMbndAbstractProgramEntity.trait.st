@@ -42,6 +42,11 @@ TMbndAbstractProgramEntity >> allChildrenDo: aBlock [
 TMbndAbstractProgramEntity >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments [
 ]
 
+{ #category : #converting }
+TMbndAbstractProgramEntity >> asProgramEntityForReflectionMetadata [
+	^ self
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> canHaveNamespaces [
 	^ false
@@ -84,10 +89,13 @@ TMbndAbstractProgramEntity >> evaluateAllPendingDefinitionFragments [
 
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> fillProgramEntityCommonInfoInstance: programEntityInfoInstance [
-	self compilationEnvironment hasRuntimeTypeInformation ifFalse: [ ^ self ].
-	programEntityInfoInstance
-		setField: #name ifExistsWith: [ self name ];
-		setField: #children ifExistsWith: [ (self children select: [:child | child hasProgramEntityReflectiveNode ]) asArray]
+	programEntityInfoInstance setField: #name ifExistsWith: [ self name ].
+	programEntityInfoInstance setField: #staticlyDefinedChildren ifExistsWith: [
+		((self children select: [:child | self isChildMetadataEmittedForReflection: child ]
+			thenCollect: [:child | child asProgramEntityForReflectionMetadata ] )
+		select: [:each | each isNotNil ]) asArray
+	]
+		
 ]
 
 { #category : #'as yet unclassified' }
@@ -135,6 +143,21 @@ TMbndAbstractProgramEntity >> hasAnonymousName [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> hasBasicRequiredRTTI [
+	^ self hasFlag: #requiredBasicRTTI
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> hasMethodDictionaryRequired [
+	^ self hasFlag: #methodDictionaryRequired
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> hasParentRTTIRequirement [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> hasProgramEntityReflectiveNode [
 	^ false
 ]
@@ -142,6 +165,11 @@ TMbndAbstractProgramEntity >> hasProgramEntityReflectiveNode [
 { #category : #testing }
 TMbndAbstractProgramEntity >> hasPublicVisibility [
 	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> hasRequiredRTTI [
+	^ self hasFlag: #requiredRTTI
 ]
 
 { #category : #testing }
@@ -166,6 +194,19 @@ TMbndAbstractProgramEntity >> isBlockClosureMethod [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isBlockClosureWithImmediateActivation [
+	^ false
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> isChildMetadataEmittedForReflection: child [
+	child hasProgramEntityReflectiveNode ifFalse: [ ^ false ].
+	
+	"Do we require full RTTI?"
+	(self compilationEnvironment hasRuntimeTypeInformation or: [ self hasRequiredRTTI ]) ifTrue: [ ^ true
+	].
+
+	(self hasMethodDictionaryRequired and: [ child isMethod ]) ifTrue: [ ^ true ].
+	
 	^ false
 ]
 
@@ -280,6 +321,11 @@ TMbndAbstractProgramEntity >> isNonLocalReturnTargetEntity [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isProgramEntityReflectionMetadata [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isPublicProgramEntityAccessor [
 	^ false
 ]
@@ -387,11 +433,6 @@ TMbndAbstractProgramEntity >> qualifiedName [
 { #category : #printing }
 TMbndAbstractProgramEntity >> qualifiedNameForParent [
 	^ self qualifiedName
-]
-
-{ #category : #testing }
-TMbndAbstractProgramEntity >> requiresDynamicMethodWrappers [
-	^ false
 ]
 
 { #category : #accessing }

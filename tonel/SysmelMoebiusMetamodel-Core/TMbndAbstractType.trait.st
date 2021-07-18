@@ -649,10 +649,6 @@ TMbndAbstractType >> doesNotUnderstandProxyType [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> expandUnexpandedMessageSend: node [
-	(self isGarbageCollectedType and: [ node shouldBeExpandedToDynamicMessage ]) ifTrue: [ 
-		^ node asExpandedDynamicMessageSend
-	].
-	
 	^ node asExpandedMessageSend
 ]
 
@@ -767,11 +763,6 @@ TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 { #category : #testing }
 TMbndAbstractType >> hasDynamicMessageLookup [
 	^ false
-]
-
-{ #category : #'testing methods' }
-TMbndAbstractType >> hasGarbageCollectedAddressSpace [
-	^ self isGarbageCollectedType
 ]
 
 { #category : #'type hierarchy' }

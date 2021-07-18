@@ -38,6 +38,11 @@ MbndConcreteMacroMessageMethod >> isFallbackMacro [
 	^ self hasFlag: #fallback
 ]
 
+{ #category : #'as yet unclassified' }
+MbndConcreteMacroMessageMethod >> programEntityInformationDataClass [
+	^ self compilationTarget macroMessageMethodInformationClass
+]
+
 { #category : #printing }
 MbndConcreteMacroMessageMethod >> qualifiedName [
 	<compileTime>

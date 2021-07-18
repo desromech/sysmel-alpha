@@ -45,7 +45,7 @@ MbndAggregateType >> basicInitializeMethod [
 
 { #category : #testing }
 MbndAggregateType >> canHaveDynamicMethodWrapper [
-	^ self isGarbageCollectedType
+	^ false
 ]
 
 { #category : #'initialize-destroy' }
@@ -156,8 +156,7 @@ MbndAggregateType >> initializeMethod [
 		^ super initializeMethod
 	].
 	
-	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() returnType: (self isGCClassType 		ifTrue: [self asReceiverType]
-		ifFalse: [self compilationTarget voidType]) ]
+	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() returnType: self compilationTarget voidType]
 ]
 
 { #category : #'initialize-destroy' }

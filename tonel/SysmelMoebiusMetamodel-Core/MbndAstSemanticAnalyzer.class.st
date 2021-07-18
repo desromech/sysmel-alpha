@@ -923,25 +923,12 @@ MbndAstSemanticAnalyzer >> visitBlockClosureActivationAttemptNode: node [
 		)
 	].
 
-	(blockNodeType isGarbageCollectedType and: [
-	blockNodeType == self compilationTarget dynamicObjectType and: [
-		scope currentLanguageHasImplicitDynamicObjectBlockEvaluation
-	]]) ifTrue: [
-		| selector |
-		selector := #(value cull: cull:cull: cull:cull:cull: cull:cull:cull:cull:) at: node arguments size + 1.
-		
-		^ self visitNode: (
-		(self astBuilder unexpandedSend: ((self astBuilder literalSymbol: selector) position: node; yourself) to: blockNode withArguments: node arguments)
-			position: node
-		)
-	].
-	
 	^ blockNode
 ]
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
-	| result bodyScope blockClosureEntity owner functionType needsGC preprocessedBody |
+	| result bodyScope blockClosureEntity owner functionType preprocessedBody |
 	result := node copy.
 	result
 		arguments: (self visitNodesAndCollect: result arguments);
@@ -990,9 +977,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 
 	functionType := blockClosureEntity boundType.
 	blockClosureEntity closureKind ifNil: [
-		blockClosureEntity closureKind: (blockClosureEntity needsGarbageCollection
-			ifTrue: [ #gc ]
-			ifFalse: [ #native ])
+		blockClosureEntity closureKind: #native
 	].
 	result closureKind: blockClosureEntity closureKind.
 	blockClosureEntity type: (blockClosureEntity closureKind = #gc
@@ -1277,7 +1262,7 @@ MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
 	result := node copy.
 	result exceptionTypeExpression: (self analyzeNodeIfNeeded: node exceptionTypeExpression).
 	cleanExceptionTypeExpression := result exceptionTypeExpression type withoutReferences withoutTopDecorations.
-	(cleanExceptionTypeExpression isMetaType or: [ cleanExceptionTypeExpression isGarbageCollectedType ]) ifFalse: [ 
+	cleanExceptionTypeExpression isMetaType ifFalse: [ 
 		self error: 'An exception type expression is expected in the catch clause instead of an expression with type "{1}".' format: { result exceptionTypeExpression type asString } at: result.
 	].
 
@@ -1296,9 +1281,7 @@ MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
 			exceptionTypeIsLiteral: false.
 	].
 
-	exceptionReferenceType := result exceptionType isGarbageCollectedType
-		ifTrue: [ result exceptionType ]
-		ifFalse: [ result exceptionType ref ].
+	exceptionReferenceType := result exceptionType ref.
 	caughtExceptionReferenceNode := MbndAstCaughtExceptionReferenceNode new
 		position: node;
 		catchExpressionNode: result;
@@ -1639,29 +1622,6 @@ MbndAstSemanticAnalyzer >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitGCVariableDataArrayElementReferenceNode: node [
-	| result arrayType elementType containerType |
-	result := node copy
-		container: (self analyzeNodeIfNeeded: node container);
-		index: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node index) at: node);
-		yourself.
-		
-	containerType := result container type.
-	containerType isReferenceType ifFalse: [
-		self error: 'A gc class variable data array reference is required for getting a reference to one of its elements.' at: node
-	].
-
-	arrayType := containerType baseType.
-	arrayType isGCClassVariableDataArrayType ifFalse: [
-		self error: 'A gc class variable data array reference is required for getting a reference to one of its elements.' at: node
-	].
-
-	elementType := arrayType elementType.
-	result type: elementType ref.
-	^ result
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
 	| result aggregateType |
 	result := node copy
@@ -1669,9 +1629,6 @@ MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences withoutDecorations.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGarbageCollectedType ifTrue: [
-		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
-	].
 
 	^ result
 		type: result field type;
@@ -1686,10 +1643,6 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGarbageCollectedType ifTrue: [
-		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
-	].
-
 	^ result
 		type: result field valueType;
 		yourself
@@ -1708,11 +1661,7 @@ MbndAstSemanticAnalyzer >> visitGetGCVariableDataArraySizeNode: node [
 	].
 
 	container := result container aggregate.
-	containerType := container type withoutReferences withoutTopDecorations.
-	containerType isGarbageCollectedType ifFalse: [
-		self error: 'A GC class must be the owner of the GC class variable data.' at: node
-	].
-	
+	containerType := container type withoutReferences withoutTopDecorations.	
 	^ self visitNode: (MbndAstGetFieldValueNode new
 		aggregate: container;
 		field: containerType variableDataSizeField;
@@ -2880,9 +2829,6 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 	].
 	aggregateType := aggregateType withoutTopDecorations.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGarbageCollectedType ifTrue: [
-		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
-	].
 	
 	"This is an special case where actually have to invoke an assign value operator, so replace myself with an unexpanded message send into assignValue:"
 	valueType := result field valueType.
@@ -3430,9 +3376,7 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 	| result condition booleanType |
 	result := node copy.
 	condition := self analyzeNodeIfNeeded: result condition.
-	booleanType := condition type isGarbageCollectedType
-		ifTrue: [ self compilationTarget dynamicObjectType ]
-		ifFalse: [ self compilationTarget booleanType ].
+	booleanType := self compilationTarget booleanType.
 	result
 		condition: (self addImplicitCastFor: condition to: booleanType);
 		type: self compilationTarget voidType.

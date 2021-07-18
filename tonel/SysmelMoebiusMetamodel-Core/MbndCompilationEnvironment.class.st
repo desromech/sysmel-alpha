@@ -562,7 +562,7 @@ MbndCompilationEnvironment >> hasGPUSupport [
 { #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectedRuntime [
 	<compileTime>
-	^ self hasRuntimeTypeInformation and: [self hasGarbageCollectionSupport]
+	^ false
 ]
 
 { #category : #parameters }

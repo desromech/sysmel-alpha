@@ -50,6 +50,15 @@ MbndSysmelSampleBuildScripts class >> buildSamplePlatformer [
 ]
 
 { #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleReflection [
+	<example>
+	self newNoRTTIBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiProgramWithSource: 'samples/cpu/sampleReflection.sysmel'
+		]
+]
+
+{ #category : #samples }
 MbndSysmelSampleBuildScripts class >> buildSampleRendering2D [
 	<example>
 	self newNoRTTIBuildEnvironment

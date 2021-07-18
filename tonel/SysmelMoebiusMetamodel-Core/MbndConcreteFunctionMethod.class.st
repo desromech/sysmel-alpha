@@ -25,6 +25,11 @@ MbndConcreteFunctionMethod >> isFunctionMethod [
 ]
 
 { #category : #'as yet unclassified' }
+MbndConcreteFunctionMethod >> programEntityInformationDataClass [
+	^ self compilationTarget functionInformationClass
+]
+
+{ #category : #'as yet unclassified' }
 MbndConcreteFunctionMethod >> vtableEntryKind [
 	^ #function
 ]

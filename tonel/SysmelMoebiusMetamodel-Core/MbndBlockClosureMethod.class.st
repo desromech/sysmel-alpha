@@ -7,7 +7,6 @@ Class {
 		'analyzedNode',
 		'arguments',
 		'children',
-		'needsGarbageCollection',
 		'capturedVariables',
 		'capturedVariableMap',
 		'lambdaIndex',
@@ -80,27 +79,6 @@ MbndBlockClosureMethod >> closureKind [
 { #category : #accessing }
 MbndBlockClosureMethod >> closureKind: anObject [
 	closureKind := anObject
-]
-
-{ #category : #'as yet unclassified' }
-MbndBlockClosureMethod >> computeGarbageCollectionNeed [
-	needsGarbageCollection := boundType returnType isGarbageCollectedType.
-	needsGarbageCollection ifTrue: [ ^ self ].
-
-	boundType argumentTypes do: [ :arg |
-		arg isGarbageCollectedType ifTrue: [ 
-			needsGarbageCollection := true.
-			^ self.
-		].
-	].
-
-	capturedVariables do: [ :capturedVariable |
-		(capturedVariable type isGarbageCollectedType or: [capturedVariable type isReferenceType and: [capturedVariable type baseType isGarbageCollectedType]]) ifTrue: [ 			needsGarbageCollection := true.
-			^ self
-		].
-	].
-
-	self flag: 'TODO: Check the captured variables.'
 ]
 
 { #category : #'as yet unclassified' }
@@ -319,19 +297,6 @@ MbndBlockClosureMethod >> materializeWithGraphDecoder: graphDecoder withFields: 
 
 	definitionPosition := graphDecoder moduleLocation.
 	children := encodedFields at: #children ifAbsent: [nil].
-]
-
-{ #category : #accessing }
-MbndBlockClosureMethod >> needsGarbageCollection [
-	needsGarbageCollection ifNil: [ self computeGarbageCollectionNeed ].
-	^ needsGarbageCollection
-]
-
-{ #category : #testing }
-MbndBlockClosureMethod >> requiresCompiledMethodMetadata [
-	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
-	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
-	^ closureKind = #gc
 ]
 
 { #category : #testing }

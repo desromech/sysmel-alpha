@@ -354,11 +354,6 @@ MbndGCClassType >> programEntityInformationData [
 	^ result
 ]
 
-{ #category : #testing }
-MbndGCClassType >> requiresDynamicMethodWrappers [
-	^ true
-]
-
 { #category : #'as yet unclassified' }
 MbndGCClassType >> unmangledStructureTypePrefix [
 	^ 'gcclass.'

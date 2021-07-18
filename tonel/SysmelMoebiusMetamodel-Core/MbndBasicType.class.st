@@ -405,6 +405,18 @@ MbndBasicType >> generateNewValueForNode: node with: builder andWith: analyzer [
 ]
 
 { #category : #testing }
+MbndBasicType >> hasBasicRequiredRTTI [
+	^ (self hasFlag: #requiredBasicRTTI) or: [
+			self supertype ifNil: [ false] ifNotNil: [:st | st hasBasicRequiredRTTI ] ]
+]
+
+{ #category : #testing }
+MbndBasicType >> hasMethodDictionaryRequired [
+	^ (self hasFlag: #methodDictionaryRequired) or: [
+			self supertype ifNil: [ false] ifNotNil: [:st | st hasMethodDictionaryRequired ] ]
+]
+
+{ #category : #testing }
 MbndBasicType >> hasRequiredRTTI [
 	^ (self hasFlag: #requiredRTTI) or: [
 			self supertype ifNil: [ false] ifNotNil: [:st | st hasRequiredRTTI ] ]
@@ -613,11 +625,23 @@ MbndBasicType >> recordOverloadedMethodAddition: method withSelector: selector [
 ]
 
 { #category : #initialization }
+MbndBasicType >> setBasicRequiredRTTI [
+	<compileTime>
+	self addFlag: #requiredBasicRTTI
+]
+
+{ #category : #initialization }
 MbndBasicType >> setLocalSymbol: symbol valueToGlobalVariable: globalVariable [
 	self setLocalSymbol: symbol value: globalVariable.
 	(self type isMetaType and: [ self type instanceType == self ]) ifTrue: [ 
 		self type setLocalSymbol: symbol value: globalVariable.
 	].
+]
+
+{ #category : #initialization }
+MbndBasicType >> setMethodDictionaryRequired [
+	<compileTime>
+	self addFlag: #methodDictionaryRequired
 ]
 
 { #category : #initialization }

@@ -411,11 +411,6 @@ MbndAstNode >> isGCClassDefinitionNode [
 ]
 
 { #category : #testing }
-MbndAstNode >> isGCVariableDataArrayElementReferenceNode [
-	^ false
-]
-
-{ #category : #testing }
 MbndAstNode >> isGeneratedIdentifierNode [
 	^ false
 ]

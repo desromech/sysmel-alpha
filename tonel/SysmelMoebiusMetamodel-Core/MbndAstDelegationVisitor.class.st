@@ -288,11 +288,6 @@ MbndAstDelegationVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstDelegationVisitor >> visitGCVariableDataArrayElementReferenceNode: node [
-	^ self delegateNodeVisit: node
-]
-
-{ #category : #visiting }
 MbndAstDelegationVisitor >> visitGetFieldReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

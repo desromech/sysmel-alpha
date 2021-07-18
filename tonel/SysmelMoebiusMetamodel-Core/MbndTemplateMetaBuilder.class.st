@@ -75,12 +75,6 @@ MbndTemplateMetaBuilder >> function [
 ]
 
 { #category : #'as yet unclassified' }
-MbndTemplateMetaBuilder >> gcclass [
-	self checkTemplateArguments.
-	^ self delegateToMetaBuilder: MbndGCClassMetaBuilder
-]
-
-{ #category : #'as yet unclassified' }
 MbndTemplateMetaBuilder >> message [
 	self checkTemplateArguments.
 	^ self delegateToMetaBuilder: MbndMethodMetaBuilder

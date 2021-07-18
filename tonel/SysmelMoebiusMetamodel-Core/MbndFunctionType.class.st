@@ -211,16 +211,7 @@ MbndFunctionType >> nativeStackBlockClosure [
 
 { #category : #testing }
 MbndFunctionType >> needsSpecialTypedSelector [
-	| dynobjectType |
-	dynobjectType := self compilationTarget dynamicObjectType.
-	dynobjectType ifNil: [ ^ true ].
-	cvariadic ifTrue: [ ^ true ].
-	
-	argumentTypes do: [ :arg |
-		arg ~~ dynobjectType ifTrue: [ ^ true ].
-	].
-
-	^ returnType isGarbageCollectedType not
+	^ true
 ]
 
 { #category : #'as yet unclassified' }

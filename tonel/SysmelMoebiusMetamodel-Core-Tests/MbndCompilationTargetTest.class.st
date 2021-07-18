@@ -346,19 +346,6 @@ MbndCompilationTargetTest >> testFunctionType [
 ]
 
 { #category : #'basic types' }
-MbndCompilationTargetTest >> testGCClassType [
-	| classType classType2 |
-	classType := compilationTarget createNamedType: #Test ofKind: MbndGCClassType.
-	classType2 := compilationTarget createNamedType: #Test ofKind: MbndGCClassType.
-	self assert: classType isAbstractClassType.
-	self assert: classType isGCClassType.
-	self assert: classType isGarbageCollectedType.
-	self assert: classType2 isAbstractClassType.
-	self assert: classType2 isGCClassType.
-	self assert: classType ~~ classType2
-]
-
-{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInputChannelType [
 	| type messageType |
 	messageType := compilationTarget uint32Type.

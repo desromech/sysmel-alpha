@@ -105,41 +105,6 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 		].
 	].
 
-	closureDefinition kind = #gc ifTrue: [
-		self assert: mbndFunctionType canHaveDynamicMethodWrapper.
-		dynamicCallAdapter := moduleCodeGenerator getOrCreateDynamicFunctionCallAdapterFor: mbndFunctionType.
-		dynamicCallAdapterSlotIndex := self gcBlockClosureHeaderDynamicCallAdapterSlotIndex + 1.
-		numArgsSlotIndex := self gcBlockClosureHeaderNumArgsSlotIndex + 1.
-
-		header := self gcBlockClosureHeaderConstant copy.
-		(capturedTypes anySatisfy: [:each | each hasGarbageCollectedAddressSpace not and: [each isPOD not ]]) ifTrue: [
-			self halt
-		] ifFalse: [
-			| dynamicCaptureCount |
-			dynamicCaptureCount := 0.
-			capturedTypes do: [ :each |
-				each hasGarbageCollectedAddressSpace ifTrue: [ 
-					each isArrayType ifTrue: [
-						dynamicCaptureCount := dynamicCaptureCount + each elements.
-					] ifFalse: [ 
-						dynamicCaptureCount := dynamicCaptureCount + 1
-					]
-				]
-			].
-			header slots at: simpleGCBlockClosureDynamicCaptureCountSlotIndex + 1 put:
-				((header slots at: simpleGCBlockClosureDynamicCaptureCountSlotIndex + 1) copy value: dynamicCaptureCount)
-		].
-
-		header slots
-			at: dynamicCallAdapterSlotIndex put: (
-				SLVMConstant pointer: dynamicCallAdapter castTo: (header slots at: dynamicCallAdapterSlotIndex) type
-			);
-			at: numArgsSlotIndex put:
-			((header slots at: numArgsSlotIndex) copy
-				value: mbndFunctionType argumentTypes size - "closure pointer" 1).
-		prototype slots at: 1 put: header.
-	].
-
 	^ prototype
 ]
 

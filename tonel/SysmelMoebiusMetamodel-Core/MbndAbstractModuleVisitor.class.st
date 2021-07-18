@@ -107,11 +107,6 @@ MbndAbstractModuleVisitor >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
-MbndAbstractModuleVisitor >> visitDynamicMethodWrapper: method [
-	self subclassResponsibility
-]
-
-{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitEnumType: type [
 	self subclassResponsibility
 ]
@@ -163,11 +158,6 @@ MbndAbstractModuleVisitor >> visitGCBlockClosureType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitGCClassType: type [
-	self subclassResponsibility
-]
-
-{ #category : #visiting }
-MbndAbstractModuleVisitor >> visitGCClassVariableDataArrayType: type [
 	self subclassResponsibility
 ]
 

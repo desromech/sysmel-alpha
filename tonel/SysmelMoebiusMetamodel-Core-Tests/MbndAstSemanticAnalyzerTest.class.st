@@ -695,35 +695,6 @@ MbndAstSemanticAnalyzerTest >> testFloatingPointToIntegerCast [
 ]
 
 { #category : #tests }
-MbndAstSemanticAnalyzerTest >> testGCClassDeclarationBuilderExpansion [
-	| node analyzedNode |
-	node := builder identifier: #gcclass.
-	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
-	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isGCClassDeclarationNode.
-	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
-	self assert: analyzedNode binding isNotNil.
-	self assert: analyzedNode binding isGCClassType.
-
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testGCClassDefinitionBuilderExpansion [
-	| node analyzedNode |
-	node := builder identifier: #gcclass.
-	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
-	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
-		builder sequence: #()
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isGCClassDefinitionNode.
-	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
-	self assert: analyzedNode binding isNotNil.
-	self assert: analyzedNode binding isGCClassType.
-
-]
-
-{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableAssignment [
 	| node analyzedNode |
 	node := builder sequence: { 

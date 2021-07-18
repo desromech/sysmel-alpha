@@ -182,17 +182,8 @@ MbndSlovimDebugInformationTranslator >> translateLexicalScope: lexicalScope [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> translateParentScope: parentScope [
-	| debugScope |
 	parentScope isSystemProvidedTypeTemplateInstance ifTrue: [ ^ nil ].
-	debugScope := self translateProgramEntityDebugInformation: parentScope.
-	parentScope isMbndType ifTrue: [ 
-		parentScope isGarbageCollectedType ifTrue: [ 
-			self assert: debugScope isDebugDerivedType.
-			^ debugScope baseType.
-		].
-	].
-	^ debugScope
-
+	^ self translateProgramEntityDebugInformation: parentScope.
 ]
 
 { #category : #'code generation' }
@@ -414,11 +405,6 @@ MbndSlovimDebugInformationTranslator >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugInformationTranslator >> visitDynamicMethodWrapper: method [
-	^ self visitConcreteMessageMethod: method
-]
-
-{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 	| debugType |
 	enumType isTrait ifTrue: [ ^ self visitTraitType: enumType ].
@@ -510,22 +496,6 @@ MbndSlovimDebugInformationTranslator >> visitGCClassType: classType [
 	self addAggregateDebugType: debugType membersFrom: classType.
 	
 	^ gcClassPointerType
-]
-
-{ #category : #visiting }
-MbndSlovimDebugInformationTranslator >> visitGCClassVariableDataArrayType: arrayType [
-	| debugType |
-	arrayType isTrait ifTrue: [ ^ self visitTraitType: arrayType ].
-	
-	debugType := SLVMDebugCompositeType new makeArray.
-	translatedEntities at: arrayType put: debugType.
-	debugType
-		byteSize: arrayType instanceSize;
-		byteAlignment: arrayType instanceAlignment;
-		arrayRange: 0;
-		baseType: (self translateDebugType: arrayType elementType).
-	
-	^ debugType
 ]
 
 { #category : #visiting }

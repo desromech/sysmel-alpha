@@ -484,9 +484,7 @@ MbndSlovimSymbolNameMangler >> mangleProgramModule: module componentNamed: compo
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> mangleType: type [
-	type isGarbageCollectedType ifTrue: [ output nextPut: $P ].
 	self mangleProgramEntityContentName: type.
-	type isGarbageCollectedType ifTrue: [ self recordNewSubstitutionElement: { #pointer . type } ].
 
 ]
 
@@ -617,11 +615,6 @@ MbndSlovimSymbolNameMangler >> visitDecoratedType: type [
 	].
 
 
-]
-
-{ #category : #visiting }
-MbndSlovimSymbolNameMangler >> visitDynamicMethodWrapper: method [
-	^ self visitGenericFunction: method
 ]
 
 { #category : #visiting }

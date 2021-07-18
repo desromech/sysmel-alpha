@@ -63,9 +63,6 @@ MbndCompilerGeneratedMethod >> module: anObject [
 
 { #category : #testing }
 MbndCompilerGeneratedMethod >> requiresCompiledMethodMetadata [
-	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
-	(parent isMbndType and: [parent isGarbageCollectedType]) ifTrue: [ ^ true ].
-	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
 	^ false
 ]
 

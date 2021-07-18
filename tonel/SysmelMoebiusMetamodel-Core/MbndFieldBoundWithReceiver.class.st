@@ -9,7 +9,7 @@ Class {
 
 { #category : #'semantic analysis' }
 MbndFieldBoundWithReceiver >> analyzeReferenceNode: referenceNode with: analyzer [
-	| receiverReference receiverReferenceType getterClass getterNode result |
+	| receiverReference receiverReferenceType getterClass getterNode |
 	receiverReference := receiver analyzeReferenceNode: referenceNode with: analyzer.
 	receiverReferenceType := receiverReference type withoutTopDecorations.
 	getterClass := ((receiverReferenceType isReferenceLikeValueType or: [ receiverReferenceType isTypePassedByReference ]) and: [ field bits isNil ])
@@ -22,22 +22,7 @@ MbndFieldBoundWithReceiver >> analyzeReferenceNode: referenceNode with: analyzer
 		field: field;
 		yourself.
 
-	result := analyzer visitNode: getterNode.
-	(referenceNode shouldBeAccessedAsDynamicObject and: [ field valueType isGarbageCollectedType ]) ifTrue: [
-		| dynamicObjectType |
-		dynamicObjectType := analyzer compilationTarget dynamicObjectType.
-		result type withoutReferences withoutTopDecorations ~~ dynamicObjectType ifTrue: [ 
-			result type isReferenceType ifTrue: [
-				result := (analyzer astBuilder reinterpretCast: result to: (dynamicObjectType refFor: result type addressSpace))
-					position: referenceNode.
-			] ifFalse: [ 
-				result := (analyzer astBuilder implicitCast: result to: dynamicObjectType)
-					position: referenceNode.
-			].
-			result := analyzer visitNode: result.
-		]
-	].
-	^ result
+	^ analyzer visitNode: getterNode
 ]
 
 { #category : #accessing }

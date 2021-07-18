@@ -12,12 +12,6 @@ MbndArraySliceType class >> typeName [
 	^ #_ArraySliceType
 ]
 
-{ #category : #initialization }
-MbndArraySliceType >> aArraySliceType [
-	<compileTime>
-	^ self
-]
-
 { #category : #visiting }
 MbndArraySliceType >> accept: aVisitor [
 	^ aVisitor visitArraySliceType: self
@@ -72,6 +66,12 @@ MbndArraySliceType >> addInstanceMacros [
 				isOneBasedIndex: true;
 				yourself.
 		]
+]
+
+{ #category : #initialization }
+MbndArraySliceType >> asArraySliceType [
+	<compileTime>
+	^ self
 ]
 
 { #category : #converting }

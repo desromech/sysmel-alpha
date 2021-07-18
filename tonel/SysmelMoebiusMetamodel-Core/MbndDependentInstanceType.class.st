@@ -21,9 +21,3 @@ MbndDependentInstanceType >> asResultTypeWithReceiver: receiverNode withArgument
 	receiverType isMetaType ifTrue: [ ^ receiverType instanceType ].
 	^ receiverType asDefaultInstanceType
 ]
-
-{ #category : #'testing methods' }
-MbndDependentInstanceType >> isGarbageCollectedType [
-	self flag: 'HACK: for basicNew new'.
-	^ true
-]

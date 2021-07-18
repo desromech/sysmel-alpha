@@ -39,9 +39,6 @@ MbndSlovimTypeTranslator >> importTranslatedType: aType fromModule: typeDefiniti
 	codeModuleGenerator ssaModule
 		importType: importedType fromModule: importedSSAModule;
 		addHighLevelEntity: aType mapToStructureType: importedType.
-	aType isGCClassType ifTrue: [
-		^ SLVMPointerType size: self slvmCompilationTarget pointerSize baseType: importedType storage: SLVMType gcStorage
-	].
 
 	^ importedType
 ]
@@ -74,22 +71,12 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: type
 		structureName := (aggregateType name isNotNil or: [aggregateType parent isNotNil and: [aggregateType parent isTemplateInstance]]) ifTrue: [
 			(aggregateType unmangledStructureTypePrefix , (codeModuleGenerator unmangledNameForProgramEntity: aggregateType)) asSymbol
 		].
-		(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
-			structureName := (aggregateType unmangledStructureTypePrefix ,  (codeModuleGenerator unmangledNameForProgramEntity: aggregateType instanceType) , '::__Meta__') asSymbol
-		].
 	].
 
 	ssaStructureType := typeKindClass name: structureName
 		types: #() kind: typeKindClass genericKind names: #().
 
 	ssaValueType := ssaStructureType.
-	aggregateType isGCClassType ifTrue: [ 
-		ssaValueType := SLVMPointerType
-			size: self slvmCompilationTarget pointerSize
-			baseType: ssaStructureType
-			storage: #gc.
-	].
-
 	translatedTypes at: aggregateType put: ssaValueType.
 
 	aggregateType isDefined ifTrue: [
@@ -213,13 +200,6 @@ MbndSlovimTypeTranslator >> visitGCClassType: structureType [
 ]
 
 { #category : #visiting }
-MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArrayType [
-	| elementType |
-	elementType := self translateType: variableDataArrayType elementType.
-	^ SLVMArrayType baseType: elementType elements: 0
-]
-
-{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitInputChannelType: type [
 	| messageType |
 	type specialSemantics ifNotNil: [
@@ -235,11 +215,7 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitNamespaceType: namespaceType [
 	^ self compilationTarget moduleNamespaceInformationClass ifNotNil: [ :cls |
-		cls isGarbageCollectedType ifTrue: [
-			self translateType: cls
-		] ifFalse: [
-			self translateType: cls pointer
-		]
+		self translateType: cls pointer
 	] ifNil: [
 		self slvmCompilationTarget voidPointerType
 	]
@@ -329,16 +305,12 @@ MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 	self compilationTarget isGPU ifTrue: [ ^ self slvmCompilationTarget voidPointerPointerType ].
 	metaType instanceType ifNotNil: [ :it |
 		it programEntityInformationDataClass ifNotNil: [ :typeInfoClass |
-			^ self translateType: (typeInfoClass isGarbageCollectedType
-				ifTrue: [ typeInfoClass ]
-				ifFalse: [typeInfoClass pointer])
+			^ self translateType: typeInfoClass pointer
 		].
 	].
 
 	metaType programEntityInformationDataClass ifNotNil: [ :typeInfoClass |
-		^ self translateType: (typeInfoClass isGarbageCollectedType
-			ifTrue: [ typeInfoClass ]
-			ifFalse: [typeInfoClass pointer])
+		^ self translateType: typeInfoClass pointer
 	].
 
 	^ self slvmCompilationTarget voidPointerPointerType

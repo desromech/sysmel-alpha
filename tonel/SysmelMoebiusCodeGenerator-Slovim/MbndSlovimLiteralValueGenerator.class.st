@@ -11,25 +11,14 @@ Class {
 
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> ensureValidSSALiteralValue: convertedLiteralValue ofType: literalType [
-	| expectedTargetType |
 	(convertedLiteralValue isSLVMObject and: [ convertedLiteralValue isSSAValue ]) ifTrue: [
-		literalType isGarbageCollectedType ifTrue: [ 
-			expectedTargetType := self translateType: literalType.
-			convertedLiteralValue type ~~ literalType type ifTrue: [ 
-				convertedLiteralValue isFunction ifTrue: [ 
-					^ SLVMConstant value: convertedLiteralValue compiledMethodMetaDataValue bitcast: expectedTargetType
-				].
-				^ SLVMConstant value: convertedLiteralValue bitcast: expectedTargetType
-			]
-		].
 		^ convertedLiteralValue
 	].
 	convertedLiteralValue isMbndProgramEntity ifTrue: [
 		^ self ensureValidSSALiteralValue: (self translateProgramEntity: convertedLiteralValue) ssaValue ofType: literalType
 	].
 
-	self assert: literalType isGarbageCollectedType.
-	^ self ensureValidSSALiteralValue: (self slvmCompilationTarget objectModel convertDynamicLiteralToConstant: convertedLiteralValue) ofType: literalType
+	self error: 'Unexpected literal value here.'
 ]
 
 { #category : #accessing }
@@ -80,9 +69,6 @@ MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTrans
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> translateObject: targetType content: content [
 	literalValue := content.
-	targetType isGarbageCollectedType ifTrue: [ 
-		^ self visitAggregateType: targetType
-	].
 
 	literalValue ifNil: [ ^ (self translateType: targetType) baseType defaultConstant ].
 	^ self visitAggregateType: literalValue type
@@ -107,7 +93,6 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	].
 
 	slvmType := codeModuleGenerator translateType: type.
-	type isGarbageCollectedType ifTrue: [ slvmType := slvmType baseType ].
 	
 	hasBiggerArrayAtTheEnd := false.
 	convertedSlots doWithIndex: [ :convertedSlot :index |
@@ -135,8 +120,27 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 ]
 
 { #category : #visiting }
-MbndSlovimLiteralValueGenerator >> visitArraySliceType: specialStructure [
-	^ self visitSpecialStructureType: specialStructure
+MbndSlovimLiteralValueGenerator >> visitArraySliceType: arraySliceType [
+	"HACK for nil strings. "
+	literalValue ifNil: [
+		^ codeModuleGenerator translateLiteralValue: arraySliceType makeInstance ofType: arraySliceType
+	].
+
+	literalValue isArray ifTrue: [ 
+		| elements arrayType |
+		literalValue isEmpty ifTrue: [ 
+			^ codeModuleGenerator translateLiteralValue: arraySliceType makeInstance ofType: arraySliceType 
+		].
+	
+		arrayType := arraySliceType elementType array: literalValue size.
+		elements := codeModuleGenerator translateLiteralValue: (arrayType makeInstance slots: literalValue; yourself) ofType: arrayType.
+		^ codeModuleGenerator translateLiteralValue: (arraySliceType makeInstance
+			setField: #size value: literalValue size;
+			setField: #elements value: (SLVMConstant pointerToConstant: elements
+				pointerType: (self translateType: arraySliceType elementType pointer));
+			yourself) ofType: arraySliceType
+	].
+	^ self visitSpecialStructureType: arraySliceType
 ]
 
 { #category : #'code generation' }
@@ -204,11 +208,6 @@ MbndSlovimLiteralValueGenerator >> visitGCClassType: type [
 	] ifFalse: [ 
 		objectModel convertNonInlineLiteral: literalValue.
 	].
-]
-
-{ #category : #visiting }
-MbndSlovimLiteralValueGenerator >> visitGCClassVariableDataArrayType: type [
-	^ self visitArrayType: type
 ]
 
 { #category : #visiting }
@@ -357,7 +356,6 @@ MbndSlovimLiteralValueGenerator >> visitTupleType: type [
 	].
 
 	slvmType := codeModuleGenerator translateType: type.
-	type isGarbageCollectedType ifTrue: [ slvmType := slvmType baseType ].
 	
 	convertedSlots doWithIndex: [ :convertedSlot :index |
 		|slotType expectedType|

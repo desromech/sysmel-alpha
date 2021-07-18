@@ -99,6 +99,11 @@ TMbndProgramEntity >> name [
 	^ self explicitRequirement
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndProgramEntity >> programEntityMetadaType [
+	^ self type
+]
+
 { #category : #scope }
 TMbndProgramEntity >> programEntityScope [
 	^ self programEntityScopeClass new programEntity: self
