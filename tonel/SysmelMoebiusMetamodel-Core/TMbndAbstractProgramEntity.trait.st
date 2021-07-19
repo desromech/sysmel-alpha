@@ -88,14 +88,34 @@ TMbndAbstractProgramEntity >> evaluateAllPendingDefinitionFragments [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> extractProgramEntityDictionaryElements: dictionary [
+	^ ((dictionary associations select: [ :each |
+		self isChildMetadataEmittedForReflection: each value
+	] thenCollect: [ :each | each key -> each value asProgramEntityForReflectionMetadata ])
+		select: [ :each | each value isNotNil ]) asArray sorted
+]
+
+{ #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> fillProgramEntityCommonInfoInstance: programEntityInfoInstance [
 	programEntityInfoInstance setField: #name ifExistsWith: [ self name ].
+	programEntityInfoInstance setField: #qualifiedName ifExistsWith: [ self qualifiedName ].
 	programEntityInfoInstance setField: #staticlyDefinedChildren ifExistsWith: [
 		((self children select: [:child | self isChildMetadataEmittedForReflection: child ]
 			thenCollect: [:child | child asProgramEntityForReflectionMetadata ] )
 		select: [:each | each isNotNil ]) asArray
-	]
-		
+	].
+
+	programEntityInfoInstance setField: #staticlyDefinedMethodDictionary ifExistsWith: [
+		self extractProgramEntityDictionaryElements: self methodDict
+	].
+
+	programEntityInfoInstance setField: #staticlyDefinedOverloadedMethodDictionary ifExistsWith: [
+		self extractProgramEntityDictionaryElements: self overloadedMethodDict
+	].
+
+	programEntityInfoInstance setField: #staticlyDefinedMacroMethodDictionary ifExistsWith: [
+		self extractProgramEntityDictionaryElements: self macroMethodDict
+	].
 ]
 
 { #category : #'as yet unclassified' }

@@ -79,6 +79,13 @@ MbndDecoratedType >> asUndecoratedClassType [
 	^ baseType asUndecoratedClassType
 ]
 
+{ #category : #testing }
+MbndDecoratedType >> canUnderstand: aSelector [
+	<compileTime>
+	(super canUnderstand: aSelector) ifTrue: [ ^ true ].
+	^ baseType ifNil: [ false ] ifNotNil: [ baseType canUnderstand: aSelector ]
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

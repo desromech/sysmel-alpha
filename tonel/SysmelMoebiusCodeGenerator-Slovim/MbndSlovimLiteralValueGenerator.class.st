@@ -77,6 +77,11 @@ MbndSlovimLiteralValueGenerator >> translateObject: targetType content: content 
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
+	(literalValue isSLVMObject and: [ literalValue isSSAValue ]) ifTrue: [
+		self assert: (codeModuleGenerator translateType: type) == literalValue type.
+		^ literalValue
+	].
+
 	literalValue isString ifTrue: [ 
 		self assert: type isArraySliceType.
 		literalValue := MbndAggregateTypeInstanceValue new
@@ -126,12 +131,19 @@ MbndSlovimLiteralValueGenerator >> visitArraySliceType: arraySliceType [
 		^ codeModuleGenerator translateLiteralValue: arraySliceType makeInstance ofType: arraySliceType
 	].
 
+	((literalValue isString or: [literalValue isArray]) and: [literalValue isEmpty]) ifTrue: [ 
+		^ codeModuleGenerator translateLiteralValue: arraySliceType makeInstance ofType: arraySliceType 
+	].
+
+	literalValue isString ifTrue: [ 
+		^ codeModuleGenerator translateLiteralValue: (arraySliceType makeInstance
+			setField: #size value: literalValue size;
+			setField: #elements value: literalValue;
+			yourself) ofType: arraySliceType
+	].
+
 	literalValue isArray ifTrue: [ 
 		| elements arrayType |
-		literalValue isEmpty ifTrue: [ 
-			^ codeModuleGenerator translateLiteralValue: arraySliceType makeInstance ofType: arraySliceType 
-		].
-	
 		arrayType := arraySliceType elementType array: literalValue size.
 		elements := codeModuleGenerator translateLiteralValue: (arrayType makeInstance slots: literalValue; yourself) ofType: arrayType.
 		^ codeModuleGenerator translateLiteralValue: (arraySliceType makeInstance
@@ -165,8 +177,19 @@ MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
 ]
 
 { #category : #visiting }
-MbndSlovimLiteralValueGenerator >> visitAssociationType: specialStructure [
-	^ self visitSpecialStructureType: specialStructure
+MbndSlovimLiteralValueGenerator >> visitAssociationType: associationType [
+	literalValue isAssociation ifTrue: [ 
+		| key value |
+		key := codeModuleGenerator translateLiteralValue: literalValue key ofType: associationType keyType.
+		value := codeModuleGenerator translateLiteralValue: literalValue value ofType: associationType valueType.
+		
+		^ codeModuleGenerator translateLiteralValue: (associationType makeInstance
+			setField: #key value: key;
+			setField: #value value: value;
+			yourself) ofType: associationType
+	].
+
+	^ self visitSpecialStructureType: associationType
 ]
 
 { #category : #visiting }
