@@ -1,0 +1,22 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+ProgramEntityMetadata definition: {
+    private field runtimeInformationOnceCreation type: Std OnceFlag.
+    private field runtimeInformation type: ProgramEntityRef.
+
+    method runtimeInformation => ProgramEntityRef const ref := {
+        runtimeInformationOnceCreation do: {
+            runtimeInformation := self createRuntimeInformationObject.
+            runtimeInformation initializeWithMetadata: self address
+        }.
+
+        runtimeInformation.
+    }.
+
+    virtual method createRuntimeInformationObject => ProgramEntityRef
+        := ProgramEntity new.
+}.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

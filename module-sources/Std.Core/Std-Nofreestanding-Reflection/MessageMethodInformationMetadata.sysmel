@@ -1,0 +1,10 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+MessageMethodInformationMetadata definition: {
+    override method createRuntimeInformationObject => ProgramEntityRef
+        := MessageMethodInformation new upCastFor: ProgramEntity.
+}.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

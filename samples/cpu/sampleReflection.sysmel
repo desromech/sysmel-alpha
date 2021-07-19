@@ -20,25 +20,43 @@ class SubClassWithMethodDictionary2  superclass: ClassWithMethodDictionary; defi
 
 
 Std MainEntryPoint: {:args :: Int32 |
-    let typeInfo := ClassWithMethodDictionary asTypeInformationMetadata.
-    Std stdout << "typeInfo " << typeInfo << ": " << typeInfo _ name << " children " << typeInfo _ staticlyDefinedChildren size; nl.
-    typeInfo _ staticlyDefinedChildren do: {:child :: Void |
-        Std stdout << "child " << child << ": " << child _ name; nl.
-        child _ isFunctionalObjectInformationMetadata ifTrue: {
-            let functionalObject := child castTo: Std Reflection FunctionalObjectInformationMetadata pointer.
-            Std stdout << "    entryPoint " << functionalObject _ entryPoint; nl.
-            Std stdout << "    type " << functionalObject _ type; nl.
+    let typeInfo := ClassWithMethodDictionary asTypeInformation.
+    Std stdout << "typeInfo " << typeInfo << ": " << typeInfo name << " children " << typeInfo children size; nl.
+
+    typeInfo children do: {:child :: Void |
+        Std stdout << "child " << child << ": " << child name; nl.
+        child isFunctionalObjectInformation ifTrue: {
+            let functionalObject := child downCastFor: Std Reflection FunctionalObjectInformation.
+            Std stdout << "    entryPoint " << functionalObject entryPoint; nl.
+            Std stdout << "    type " << functionalObject type; nl.
         }.
     }.
 
-    typeInfo _ subclasses do: {:subclass :: Void |
-        Std stdout << "subclass " << subclass _ name; nl.
+    let typeInfoMetadata := typeInfo metadata castTo: Std Reflection TypeInformationMetadata pointer.
+    Std stdout << "staticlyDefinedMethodDictionary"; nl.
+    typeInfoMetadata _ staticlyDefinedMethodDictionary do: {:assoc :: Void |
+        Std stdout << assoc key << " : " << assoc value; nl.
     }.
 
-    let module := typeInfo _ module.
+    Std stdout << "staticlyDefinedOverloadedMethodDictionary"; nl.
+    typeInfoMetadata _ staticlyDefinedOverloadedMethodDictionary do: {:assoc :: Void |
+        Std stdout << assoc key << " : " << assoc value; nl.
+    }.
+
+    Std stdout << "staticlyDefinedMacroMethodDictionary"; nl.
+    typeInfoMetadata _ staticlyDefinedMacroMethodDictionary do: {:assoc :: Void |
+        Std stdout << assoc key << " : " << assoc value; nl.
+    }.
+
+    typeInfo subclasses do: {:subclass :: Void |
+        Std stdout << "subclass " << subclass name; nl.
+    }.
+
+    #*
+    let module := typeInfo module.
     module ifNotNil: {
         Std stdout << "module " << module << ": " << module _ name ; nl.
-    }.
+    }.*#
 
     0
 }.

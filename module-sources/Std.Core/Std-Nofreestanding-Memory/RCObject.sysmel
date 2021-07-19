@@ -344,11 +344,22 @@ template RCRef(PT: Type)
 	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self ifNil: `,nilAction ifNotNil: `,notNilAction).
 	macro method ifNotNil: notNilAction  := ``(`,self ifNil: void ifNotNil: `,notNilAction).
 
-    macro method printOnNativeTextStreamWriter: out
-        := ``(`,self __rcPointer__ _ printOnNativeTextStreamWriter: `,out).
-
     macro method doesNotUnderstand: aMessage
         := ``(`,self __rcPointer__ _ __macroSendMessage: `,aMessage).
+
+    macro method printOnNativeTextStreamWriter: out := {
+        let stream := __astBuilder gensym: #stream.
+        let ref := __astBuilder gensym: #ref.
+        ``{
+            let `,stream ref := `,out.
+            let `,ref ref := `,self.
+            `,ref __rcPointer__ getPointer ifNil: {
+                `,stream << "(nil)"
+            } ifNotNil: {
+                `,ref __rcPointer__ getPointer _ printOnNativeTextStreamWriter: `,stream
+            }.
+        } asSequenceWithoutLexicalScope
+    }.
 }.
 
 #**
@@ -438,6 +449,8 @@ template WeakRCRef(PT: Type)
 
     macro method doesNotUnderstand: aMessage
         := ``(`,self __weakRCPointer__ lock _ __macroSendMessage: `,aMessage).
+
+    macro method printOnNativeTextStreamWriter: out := ``(`,self asRCRef printOnNativeTextStreamWriter: `,out).
 }.
 
 ## I am a native object that is reference counted.

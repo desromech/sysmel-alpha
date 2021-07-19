@@ -1,0 +1,12 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+
+class FunctionInformation superclass: FunctionalObjectInformation; definition: {
+    const override method isFunctionInformation => Boolean8 := true.
+}.
+
+compileTime constant FunctionInformationRef := FunctionInformation rcRef.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

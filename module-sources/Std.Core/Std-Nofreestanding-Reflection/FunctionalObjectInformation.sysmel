@@ -1,0 +1,32 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+
+class FunctionalObjectInformation superclass: ModuleDefinedProgramEntity; definition: {
+    field entryPoint type: Void pointer.
+    field type type: TypeInformationWeakRef.
+
+    const inline method entryPoint => Void pointer
+        := entryPoint.
+
+    const inline method type => TypeInformationRef
+        := type asRCRef.
+
+    override method initializeWithMetadata: (theMetadata: ProgramEntityMetadata pointer) ::=> Void := {
+        super initializeWithMetadata: theMetadata.
+
+        let functionalMetadata := theMetadata castTo: FunctionalObjectInformationMetadata pointer.
+        entryPoint := functionalMetadata _ entryPoint.
+        functionalMetadata _ type ifNotNil: {:t :: Void |
+            type := t _ runtimeTypeInformation.
+        }.
+    }.
+
+    const override method isFunctionalObjectInformation => Boolean8 := true.
+
+}.
+
+compileTime constant FunctionalObjectInformationRef := FunctionalObjectInformation rcRef.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

@@ -1,0 +1,29 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+class ModuleDefinedProgramEntity superclass: ProgramEntity; definition: {
+    field children type: Std Collections Vector(ProgramEntity rcRef).
+
+    override method initializeWithMetadata: (theMetadata: ProgramEntityMetadata pointer) ::=> Void := {
+        super initializeWithMetadata: theMetadata.
+
+        let castedMetadata := theMetadata castTo: ModuleDefinedProgramEntityMetadata pointer.
+        children reserve: castedMetadata _ staticlyDefinedChildren size.
+        castedMetadata _ staticlyDefinedChildren do: {:child :: Void |
+            child ifNotNil: {
+                children add: child _ runtimeInformation
+            }
+        }.
+    }.
+
+    method children => ProgramEntity rcRef const arraySlice
+        := children asArraySlice.
+
+
+    const override method isModuleDefinedProgramEntity => Boolean8 := true.
+}.
+
+compileTime constant ModuleDefinedProgramEntityRef := ModuleDefinedProgramEntity rcRef.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

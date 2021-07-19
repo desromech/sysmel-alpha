@@ -1,0 +1,104 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+
+class TypeInformation superclass: ModuleDefinedProgramEntity; definition: {
+
+    field instanceDataSize type: UIntPointer.
+    field instanceDataAlignment type: UIntPointer.
+    field subclasses type: Std Collections Vector(TypeInformation rcRef).
+
+    field superclass type: TypeInformation weakRCRef.
+
+    field basicInitializationFunctionPointer type: BasicInitializeFunctionPointerType.
+    field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
+    field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.
+    field finalizeFunctionPointer type: FinalizeFunctionPointerType.
+
+    override method initializeWithMetadata: (theMetadata: ProgramEntityMetadata pointer) ::=> Void := {
+        super initializeWithMetadata: theMetadata.
+
+        let typeMetadata := theMetadata castTo: TypeInformationMetadata pointer.
+        typeMetadata _ superclass ifNotNil: {:sc :: Void |
+            superclass := sc _ runtimeTypeInformation
+        }.
+
+        instanceDataSize := typeMetadata _ instanceDataSize.
+        instanceDataAlignment := typeMetadata _ instanceDataAlignment.
+
+        basicInitializationFunctionPointer := typeMetadata _ basicInitializationFunctionPointer.
+        copyConstructorFunctionPointer := typeMetadata _ copyConstructorFunctionPointer.
+        moveConstructorFunctionPointer := typeMetadata _ moveConstructorFunctionPointer.
+        finalizeFunctionPointer := typeMetadata _ finalizeFunctionPointer.
+    }.
+
+    const override method isTypeInformation => Boolean8 := true.
+
+    const inline method instanceDataSize => UIntPointer
+        := instanceDataSize.
+
+    const inline method instanceDataAlignment => UIntPointer
+        := instanceDataAlignment.
+
+    const inline method instanceDataAlignedSize => UIntPointer
+        := instanceDataSize alignedTo: instanceDataAlignment.
+    
+    method registerInSystem => Void := {
+        superclass ifNotNil: {
+            superclass registerSubclass: self asRCRef
+        }.
+    }.
+
+    method unregisterFromSystem => Void := {
+        superclass ifNotNil: {
+            superclass unregisterSubclass: self asRCRef
+        }.
+    }.
+
+    method registerSubclass: (subclass: TypeInformation rcRef const ref) ::=> Void := {
+        subclasses add: subclass
+    }.
+
+    method unregisterSubclass: (subclass: TypeInformation rcRef const ref) ::=> Void := {
+        subclasses remove: subclass
+    }.
+
+    method subclasses => TypeInformation rcRef const arraySlice
+        := subclasses asArraySlice.
+
+
+    method basicNativeNew => Void pointer := {
+        let allocatedObject := zmalloc(self instanceDataAlignedSize).
+        allocatedObject ifNil: {
+            return: nil.
+        }.
+
+        basicInitializationFunctionPointer ifNotNil: {
+            basicInitializationFunctionPointer(allocatedObject)
+        }.
+
+        allocatedObject
+    }.
+
+    method rcNewPtr => RCObjectPtr := {
+        let allocatedObject := self basicNativeNew reinterpretCastTo: RCObject pointer.
+        allocatedObject ifNotNil: {
+            allocatedObject _ initialize
+        }.
+
+        RCObjectPtr forNew: allocatedObject.
+    }.
+
+    method rcNewRef => RCObjectRef
+        := self rcNewPtr asRCRef.
+}.
+
+compileTime constant TypeInformationRef := TypeInformation rcRef.
+compileTime constant TypeInformationWeakRef := TypeInformation weakRCRef.
+
+_BehaviorType extend: {
+    macro method asTypeInformation := ``(`,self asTypeInformationMetadata _ runtimeTypeInformation).
+}.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

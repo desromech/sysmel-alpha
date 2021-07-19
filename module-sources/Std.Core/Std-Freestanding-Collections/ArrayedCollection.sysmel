@@ -10,7 +10,7 @@ macro method ArrayedCollectionMacrosMixin := ``{
             0 until: `,collection size do: {:(UIntPointer)`,index :: Void |
                 `,aBlock __macroInlineBlock: `,collection[`,index]
             }
-        }
+        } asSequenceWithoutLexicalScope
     }.
 
     macro method reverseDo: aBlock := {
@@ -23,8 +23,48 @@ macro method ArrayedCollectionMacrosMixin := ``{
             0 until: `,size do: {:(UIntPointer)`,index :: Void |
                 `,aBlock __macroInlineBlock: `,collection[`,size - `,index - 1]
             }
-        }
+        } asSequenceWithoutLexicalScope
     }.
+
+    macro method anySatisfy: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		let size := __astBuilder gensym: #size.
+		let result := __astBuilder gensym: #result.
+		``{
+			let `,collection ref := `,self.
+			let `,size := `,collection size.
+			let `,index mutable type: UIntPointer := 0.
+			let `,result mutable := false.
+			while: `,result not && `,index < `,size do: {
+                (`,aBlock __macroInlineBlock: `,collection[`,index]) ifTrue: {
+                    `,result := true
+                }
+            } continueWith: (`,index := `,index + 1u).
+
+			`,result
+		} asSequenceWithoutLexicalScope
+	}.
+
+    macro method allSatisfy: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		let size := __astBuilder gensym: #size.
+		let result := __astBuilder gensym: #result.
+		``{
+			let `,collection ref := `,self.
+			let `,size := `,collection size.
+			let `,index mutable type: UIntPointer := 0.
+			let `,result mutable := true.
+			while: `,result && `,index < `,size do: {
+                (`,aBlock __macroInlineBlock: `,collection[`,index]) ifFalse: {
+                    `,result := false
+                }
+            } continueWith: (`,index := `,index + 1u).
+
+			`,result
+		} asSequenceWithoutLexicalScope
+	}.
 }.
 
 }. ## End of namespace Collections

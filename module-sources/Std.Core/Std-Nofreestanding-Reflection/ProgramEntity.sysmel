@@ -1,0 +1,37 @@
+namespace Std definition: {
+namespace Reflection definition: {
+
+class ProgramEntity superclass: RCObject; definition: {
+    field metadata type: ProgramEntityMetadata pointer.
+    field name type: Std String.
+    field qualifiedName type: Std String.
+
+    const inline method metadata => ProgramEntityMetadata pointer
+        := metadata.
+
+    const inline method name => Std String const ref
+        := name.
+
+    const inline method qualifiedName => Std String const ref
+        := qualifiedName.
+
+    virtual method initializeWithMetadata: (theMetadata: ProgramEntityMetadata pointer) ::=> Void := {
+        metadata := theMetadata.
+        name := theMetadata _ name.
+        qualifiedName := theMetadata _ qualifiedName.
+    }.
+
+    const virtual method isModuleInformation => Boolean8 := false.
+    const virtual method isModuleDefinedProgramEntity => Boolean8 := false.
+    const virtual method isTypeInformation => Boolean8 := false.
+
+    const virtual method isFunctionalObjectInformation => Boolean8 := false.
+    const virtual method isFunctionInformation => Boolean8 := false.
+    const virtual method isMessageMethodInformation => Boolean8 := false.
+    const virtual method isMacroMessageMethodInformation => Boolean8 := false.
+}.
+
+compileTime constant ProgramEntityRef := ProgramEntity rcRef.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Std

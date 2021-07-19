@@ -5,20 +5,12 @@ namespace Testing definition: {
  * I am a class that is used for writing tests for native code
  *#
 class TestCase superclass: TestAsserter; definition: {
-    SelfType setRequiredRTTI.
     SelfType setMethodDictionaryRequired.
 
-    meta macro method test: testIdentifier with: body := {
-        let testIdentifierSymbol := testIdentifier asLiteralSymbolNodeFor: Compiler compilationTarget.
-
-        ``{
-            ## Create the test method.
-            method `,testIdentifierSymbol => Void := `,body.
-
-            ## Register the test case and the test method with the TestRunner.
-            Std Testing TestRunner registerTestCase: `,self instanceType testNamed: `,testIdentifierSymbol
-        }.
-    }.
+    meta macro method test: testIdentifier with: body := ``(
+        method `,(testIdentifier asLiteralSymbolNodeFor: Compiler compilationTarget) => Void
+            := `,body
+    ).
 
     override method initialize => Void := {
         self setUp.

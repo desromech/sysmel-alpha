@@ -1,64 +1,6 @@
 namespace Std definition: {
 namespace Testing definition: {
 
-class TestCaseTestFactory definition: {
-    abstract method name => ImmutableString.
-    abstract method execute => Void.
-}.
-
-class TestCaseFactory definition: {
-    public field testFactories type: Std Collections Vector(TestCaseTestFactory pointer).
-
-    method initialize => Void := {
-        TestRunner defaultInstance registerTestCaseFactory: self address
-    }.
-
-    method finalize => Void := {
-        TestRunner defaultInstance unregisterTestCaseFactory: self address
-    }.
-
-    abstract method name => ImmutableString.
-
-    method addTestFactory: (testFactory: TestCaseTestFactory pointer) ::=> Void := {
-        ## Assume this only happens in a single module, on module loading time
-        ## and that this does not produce a race condition.
-        testFactories add: testFactory.
-    }.
-}.
-
-template TestCaseInstanceFactory(TC: Type)
-    := sealed class superclass: TestCaseFactory; definition: {
-
-    compileTime constant TestCaseClass := TC.
-
-    global Factory mutable type: SelfType.
-
-    override method name => ImmutableString
-        := TestCaseClass qualifiedName.
-}.
-
-template TestCaseTestInstanceFactory(TC: Type, TS: _LiteralSymbol)
-    := sealed class superclass: TestCaseTestFactory; definition: {
-
-    compileTime constant TestCaseClass := TC.
-    compileTime constant TestSelector := TS.
-
-    global Factory mutable type: SelfType.
-
-    method initialize => Void := {
-        TestCaseInstanceFactory(TC) Factory addTestFactory: self address.
-    }.
-
-    override method name => ImmutableString
-        := TestSelector.
-
-    override method execute => Void := {
-        let testCase mutable := TestCaseClass rcNew.
-        testCase _ perform: TestSelector
-
-    }.
-}.
-
 #**
  * I a class that takes care of running tests.
  *#
@@ -74,14 +16,7 @@ class TestRunner superclass: Object; definition: {
 
             defaultInstance _
         }.
-
-        macro method registerTestCase: TestCaseClass testNamed: testName := ``{
-            Std Testing TestCaseTestInstanceFactory(`,TestCaseClass, `,testName)
-        }.
     }.
-
-    field testRunnerMutex type: Std Mutex.
-    field testCaseFactories type: Std Collections Vector(TestCaseFactory pointer).
 
     public field errorTestCount type: UInt32.
     public field failingTestCount type: UInt32.
@@ -91,18 +26,6 @@ class TestRunner superclass: Object; definition: {
 
     method runningTestCount => UInt32
         := errorTestCount + failingTestCount + passingTestCount.
-
-    method registerTestCaseFactory: (factory: TestCaseFactory pointer) ::=> Void := {
-        testRunnerMutex withLock: {
-            testCaseFactories add: factory
-        }.
-    }.
-
-    method unregisterTestCaseFactory: (factory: TestCaseFactory pointer) ::=> Void := {
-        testRunnerMutex withLock: {
-            testCaseFactories remove: factory
-        }
-    }.
 
     method printReport => Void := {
         Std stdout << "==============================================="; nl.
@@ -122,9 +45,14 @@ class TestRunner superclass: Object; definition: {
     }.
 
     method runAllTests => Boolean8 := {
-        let casesToRun mutable type: Std Collections Vector(TestCaseFactory pointer).
-        testRunnerMutex withLock: {
-            casesToRun := testCaseFactories
+        let casesToRun mutable type: Std Collections Vector(Std Reflection TypeInformationRef).
+       
+        TestCase asTypeInformation subclasses do: {:testCaseClass :: Void |
+            (testCaseClass children anySatisfy: {:(Std Reflection ProgramEntityRef const ref)child :: Boolean8 |
+                self isValidUnitTestMethod: child
+            }) ifTrue: {
+                casesToRun add: testCaseClass
+            }
         }.
 
         casesToRun do: {:testCase :: Void |
@@ -134,19 +62,26 @@ class TestRunner superclass: Object; definition: {
         self failingTestCount == 0 && self errorTestCount == 0.
     }.
 
-    method runTestCase: (factory: TestCaseFactory pointer) ::=> Void := {
-        Std stdout << "--- Running test case " << factory _ name; nl.
-        factory _ testFactories do: {:testCaseTestFactory :: Void |
-            self runTestCaseTest: testCaseTestFactory
-        }
+    method isValidUnitTestMethod: (programEntity: Std Reflection ProgramEntityRef const ref) ::=> Boolean8
+        := programEntity isMessageMethodInformation
+        && (programEntity name startsWith: "test")
+        && (programEntity name includes: ':') not.
+
+    method runTestCase: (testCase: Std Reflection TypeInformationRef const ref) ::=> Void := {
+        Std stdout << "--- Running test case " << testCase qualifiedName; nl.
+        testCase children do: {:child :: Void |
+            (self isValidUnitTestMethod: child) ifTrue: {
+                self runTestCase: testCase test: (child downCastFor: Std Reflection MessageMethodInformation)
+            }
+        }.
     }.
 
-    method runTestCaseTest: (factory: TestCaseTestFactory pointer) ::=> Void := {
-        Std stdout << factory _ name << "... ".
+    method runTestCase: (testCase: Std Reflection TypeInformationRef const ref) test: (test: Std Reflection MessageMethodInformationRef const ref) ::=> Void := {
+        Std stdout << test name << "... ".
         Std stdout flush.
 
         isCurrentTestPassing := true.
-        self runTestCaseCatchingSmalltalkExceptions: factory.
+        self runTestCase: testCase testCatchingNativeExceptions: test.
         isCurrentTestPassing ifTrue: {
             Std stdout << "Passing."; nl.
         }.
@@ -154,15 +89,12 @@ class TestRunner superclass: Object; definition: {
         self countPassingTest.
     }.
 
-    method runTestCaseCatchingSmalltalkExceptions: (factory: TestCaseTestFactory pointer) ::=> Void := {
-        self runTestCaseCatchingNativeExceptions: factory.
-    }.
 
-    method runTestCaseCatchingNativeExceptions: (factory: TestCaseTestFactory pointer) ::=> Void := {
+    method runTestCase: (testCase: Std Reflection TypeInformationRef const ref) testCatchingNativeExceptions: (test: Std Reflection MessageMethodInformationRef const ref) ::=> Void := {
         try: {
             try: {
                 try: {
-                    factory _ execute
+                    self doRunTestCase: testCase testCatchingNativeExceptions: test
                 } catch: TestSkipException doing: {:exception :: Void |
                     self countSkippedTest.
                     Std stdout << "Skipped."; nl.
@@ -177,6 +109,12 @@ class TestRunner superclass: Object; definition: {
             Std stdout << "Error:"; nl.
             Std stdout << exception; nl.
         }
+    }.
+
+    method doRunTestCase: (testCase: Std Reflection TypeInformationRef const ref) testCatchingNativeExceptions: (test: Std Reflection MessageMethodInformationRef const ref) ::=> Void := {
+        let testCaseObject := testCase rcNewRef downCastFor: TestCase.
+        let testFunctionPointer := test entryPoint reinterpretCastTo: ((TestCase pointer) => Void) pointer.
+        testFunctionPointer(testCaseObject rcObjectAddress)
     }.
 
     method countPassingTest => Void := {

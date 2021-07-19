@@ -1,1 +1,14 @@
+loadFileOnce: "ProgramEntity.sysmel".
+loadFileOnce: "ModuleDefinedProgramEntity.sysmel".
+loadFileOnce: "TypeInformation.sysmel".
+
+loadFileOnce: "FunctionalObjectInformation.sysmel".
+loadFileOnce: "FunctionInformation.sysmel".
+loadFileOnce: "MessageMethodInformation.sysmel".
+loadFileOnce: "MacroMessageMethodInformation.sysmel".
+
+loadFileOnce: "ProgramEntityMetadata.sysmel".
 loadFileOnce: "TypeInformationMetadata.sysmel".
+loadFileOnce: "FunctionInformationMetadata.sysmel".
+loadFileOnce: "MacroMessageMethodInformationMetadata.sysmel".
+loadFileOnce: "MessageMethodInformationMetadata.sysmel".

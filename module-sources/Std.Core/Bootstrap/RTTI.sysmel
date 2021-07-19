@@ -1,7 +1,7 @@
 namespace Std definition: {
 namespace Reflection definition: {
 
-class ProgramEntityMetadata superclass: Object.
+class ProgramEntityMetadata.
 class ModuleInformationMetadata superclass: ProgramEntityMetadata.
 class SharedProgramEntityMetadata superclass: ProgramEntityMetadata.
 class ModuleDefinedProgramEntityMetadata superclass: ProgramEntityMetadata.
@@ -15,23 +15,30 @@ class FunctionInformationMetadata superclass: FunctionalObjectInformationMetadat
 class MessageMethodInformationMetadata superclass: FunctionalObjectInformationMetadata.
 class MacroMessageMethodInformationMetadata superclass: FunctionalObjectInformationMetadata.
 
+compileTime constant ProgramEntityMetadataList := ProgramEntityMetadata pointer arraySlice.
+compileTime constant ProgramEntityMetadataDictionary := (Char8 const arraySlice --> ProgramEntityMetadata pointer) arraySlice.
+
 ## I am an instance of a program entity reflection data.
 ProgramEntityMetadata definition: {
     public field name type: Char8 const arraySlice.
+    public field qualifiedName type: Char8 const arraySlice.
     public field parent type: ProgramEntityMetadata pointer.
 
-    virtual method isModuleInformationMetadata => Boolean8 := false.
-    virtual method isFunctionalObjectInformationMetadata => Boolean8 := false.
-    virtual method isFunctionInformationMetadata => Boolean8 := false.
-    virtual method isMessageMethodInformationMetadata => Boolean8 := false.
-    virtual method isMacroMessageMethodInformationMetadata => Boolean8 := false.
+    const virtual method isModuleInformationMetadata => Boolean8 := false.
+    const virtual method isModuleDefinedProgramEntityMetadata => Boolean8 := false.
+    const virtual method isTypeInformationMetadata => Boolean8 := false.
+
+    const virtual method isFunctionalObjectInformationMetadata => Boolean8 := false.
+    const virtual method isFunctionInformationMetadata => Boolean8 := false.
+    const virtual method isMessageMethodInformationMetadata => Boolean8 := false.
+    const virtual method isMacroMessageMethodInformationMetadata => Boolean8 := false.
 }.
 
 ModuleDefinedProgramEntityMetadata definition: {
     public field module type: ModuleInformationMetadata pointer.
-    public field staticlyDefinedChildren type: ProgramEntityMetadata pointer arraySlice. ## For now suppress the generation of these children.
+    public field staticlyDefinedChildren type: ProgramEntityMetadataList. ## For now suppress the generation of these children.
 
-    override method isModuleInformationMetadata => Boolean8 := true.
+    const override method isModuleDefinedProgramEntityMetadata => Boolean8 := true.
 }.
 
 ## I am an instance of basic type information. I provide the bare minimun that is
@@ -46,6 +53,10 @@ TypeInformationMetadata definition: {
     public field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
     public field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.
     public field finalizeFunctionPointer type: FinalizeFunctionPointerType.
+
+    public field staticlyDefinedMethodDictionary type: ProgramEntityMetadataDictionary. ## For now suppress the generation of these children.
+    public field staticlyDefinedOverloadedMethodDictionary type: ProgramEntityMetadataDictionary. ## For now suppress the generation of these children.
+    public field staticlyDefinedMacroMethodDictionary type: ProgramEntityMetadataDictionary. ## For now suppress the generation of these children.
 
     const inline method instanceSize => UIntPointer
         := instanceDataSize.
@@ -64,6 +75,8 @@ TypeInformationMetadata definition: {
 
         false
     }.
+
+    const override method isTypeInformationMetadata => Boolean8 := true.
 }.
 
 Object extend: {
@@ -80,6 +93,9 @@ ModuleNamespaceInformationMetadata definition: {
 
 ModuleInformationMetadata definition: {
     public field globalNamespace type: ModuleNamespaceInformationMetadata pointer.
+
+    const override method isModuleInformationMetadata => Boolean8 := true.
+
 }.
 
 function typeInformationMetadataFromPointerToVTable(vtablePointer: Void const pointer) => TypeInformationMetadata pointer
@@ -90,23 +106,23 @@ FunctionalObjectInformationMetadata definition: {
     public field entryPoint type: Void pointer.
     public field type type: TypeInformationMetadata pointer.
 
-    override method isFunctionalObjectInformationMetadata => Boolean8 := true.
+    const override method isFunctionalObjectInformationMetadata => Boolean8 := true.
 }.
 
 FunctionInformationMetadata definition: {
-    override method isFunctionInformationMetadata => Boolean8 := true.
+    const override method isFunctionInformationMetadata => Boolean8 := true.
 }.
 
 MessageMethodInformationMetadata definition: {
-    override method isMessageMethodInformationMetadata => Boolean8 := true.
+    const override method isMessageMethodInformationMetadata => Boolean8 := true.
 }.
 
 MacroMessageMethodInformationMetadata definition: {
-    override method isMacroMessageMethodInformationMetadata => Boolean8 := true.
+    const override method isMacroMessageMethodInformationMetadata => Boolean8 := true.
 }.
 
 _BehaviorType extend: {
-    macro method asTypeInformationMetadata := ``(`,self reinterpretCastTo: Std Reflection TypeInformationMetadata const pointer).
+    macro method asTypeInformationMetadata := ``(`,self reinterpretCastTo: Std Reflection TypeInformationMetadata pointer).
 }.
 
 Compiler compilationTarget

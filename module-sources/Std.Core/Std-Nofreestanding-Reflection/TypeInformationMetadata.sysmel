@@ -2,21 +2,20 @@ namespace Std definition: {
 namespace Reflection definition: {
 
 TypeInformationMetadata definition: {
-    field subclasses type: Std Collections Vector(TypeInformationMetadata pointer).
-    
-    override method initialize => Void := {
-        superclass ifNotNil: {
-            superclass _ addSubclass: self address
-        }
+    override method createRuntimeInformationObject => ProgramEntityRef
+        := TypeInformation new upCastFor: ProgramEntity.
+
+    method runtimeTypeInformation => TypeInformationRef
+        := self runtimeInformation downCastFor: TypeInformation.
+
+    method initialize => Void := {
+        self runtimeTypeInformation registerInSystem
     }.
 
-    method addSubclass: (subclass: TypeInformationMetadata pointer) ::=> Void := {
-        subclasses add: subclass
+    method finalize => Void := {
+        self runtimeTypeInformation unregisterFromSystem
     }.
 
-    const method subclasses => TypeInformationMetadata pointer const arraySlice
-        := subclasses asArraySlice.
-        
     const method copyValueIntoNativeHeap: (value: Void const pointer) ::=> Void pointer := {
         let result := zmalloc(instanceDataSize).
         result ifNil: {
