@@ -77,6 +77,15 @@ MbndSysmelSampleBuildScripts class >> buildSampleRendering3D [
 ]
 
 { #category : #samples }
+MbndSysmelSampleBuildScripts class >> buildSampleTaskQueue [
+	<example>
+	self newNoRTTIBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript guiProgramWithSource: 'samples/cpu/sampleTaskQueue.sysmel'
+		]
+]
+
+{ #category : #samples }
 MbndSysmelSampleBuildScripts class >> newNoRTTIBuildEnvironment [
 	^ WBTBuildEnvironment forCurrentPlatformWithLLD
 		setReleaseWithDebugInfoBuildMode;
