@@ -1,0 +1,13 @@
+namespace Std definition: {
+
+#**
+ * I am a specific state in the lifetime of a task.
+ *#
+enum TaskState valueType: UInt32; values: #{
+    New:.
+    Pending:.
+    Running:.
+    Finished:.
+}.
+
+}. ## End of namespace Std

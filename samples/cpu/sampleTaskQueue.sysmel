@@ -1,0 +1,31 @@
+class PrintStringTask superclass: Std Task; definition: {
+    public field string type: Std String.
+    override method run => Void := {
+        Std stdout << string.
+    }.
+}.
+
+function enqueueTasksOn(taskQueue: Std TaskQueueRef const ref) ::=> Void := {
+    PrintStringTask new string: "PrintStringTask: 1\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 2\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 3\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 4\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 5\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 6\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 8\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 9\n"; enqueueOn: taskQueue.
+    PrintStringTask new string: "PrintStringTask: 10\n"; enqueueOn: taskQueue.
+}.
+
+Std MainEntryPoint: {:args :: Int32 |
+    {
+        Std stdout << "Run on synchronous queue:"; nl.
+        let synchronousQueue := Std TaskQueue new.
+        enqueueTasksOn(synchronousQueue).
+        synchronousQueue runAllPendingTasks
+    }.
+
+    Std stdout << "TODO: Run on main asynchronous queue:"; nl.
+
+    0
+}.

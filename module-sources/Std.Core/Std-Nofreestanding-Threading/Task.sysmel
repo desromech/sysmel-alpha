@@ -1,0 +1,50 @@
+namespace Std definition: {
+
+#**
+ * I am a cooperative task that is executed in a specific task queue.
+ *#
+class Task superclass: RCObject; definition: {
+    public field taskQueueEntryState type: TaskQueueEntryState.
+
+    const inline method state: (newState: TaskState) ::=> Void := {
+        taskQueueEntryState state store: newState with: MemoryOrder Release
+    }.
+
+    const inline method state => TaskState
+        := taskQueueEntryState state loadWith: MemoryOrder Acquire.
+
+    const inline method isNewTask => Boolean8
+        := self state = TaskState New.
+
+    const inline method isFinished => Boolean8
+        := self state = TaskState Finished.
+
+    const inline method isPending => Boolean8
+        := self state = TaskState Pending.
+
+    const inline method isRunning => Boolean8
+        := self state = TaskState Running.
+
+    #**
+     * I am the method that is called by a task queue for actually running a task.
+     *#
+    virtual method run => Void := {
+    }.
+
+    #**
+     * Convenience method for enqueueing the task with a specific priority.
+     *#
+    method enqueueOn: (queue: TaskQueue rcRef) withPriority: (priority: TaskPriority) ::=> Void
+        := queue enqueue: self asRCRef withPriority: priority.
+
+    #**
+     * Convenience method for enqueueing the task.
+     *#
+    method enqueueOn: (queue: TaskQueue rcRef) ::=> Void
+        := queue enqueue: self asRCRef
+
+}.
+
+compileTime constant TaskRef := Task rcRef.
+
+}. ## End of namespace Std

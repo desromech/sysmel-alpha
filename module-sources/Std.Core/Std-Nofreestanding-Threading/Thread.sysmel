@@ -22,4 +22,4 @@ function callThreadEntryPointWithFunctionObject(threadPointer: Void pointer) => 
         _ entryPointWithFunctionObject.
 }.
 
-}.
+}. ## End of namespace Std

@@ -1,0 +1,140 @@
+namespace Std definition: {
+
+#**
+ * I am the task queue bookkeeping state that has to be hold in the task object itself.
+ *#
+struct TaskQueueEntryState definition: {
+    public field state type: Atomic(TaskState).
+    public field nextPendingTask type: TaskRef.
+}.
+
+#**
+ * I am a queue of task.
+ *#
+sealed class TaskQueue superclass: RCObject; definition: {
+    #**
+    * I hold a linked list of per-priority tasks.
+    *#
+    struct TaskLinkedList definition: {
+        public field firstEntry type: TaskRef.
+        public field lastEntry type: TaskRef.
+
+        inline method insertEntry: (task: TaskRef) ::=> Void := {
+            lastEntry ifNil: {
+                firstEntry := lastEntry := task.
+                void
+            } ifNotNil: {
+                lastEntry taskQueueEntryState nextPendingTask: task.
+                lastEntry := task
+            }
+        }.
+
+        inline method removeNextEntry => TaskRef := {
+            let result := firstEntry.
+            result ifNotNil: {
+                firstEntry := firstEntry taskQueueEntryState nextPendingTask.
+                firstEntry ifNil: {
+                    lastEntry := nil
+                }.
+            }.
+
+            result
+        }
+    }.
+
+    private field mutex type: Mutex.
+    private field pendingWorkCondition type: ConditionVariable.
+    private field shuttingDown type: Boolean8.
+    private field priorityEntries type: (TaskLinkedList array: TaskPriority Count value).
+
+    method enqueue: (task: TaskRef const ref) ::=> Void
+        := self enqueue: task withPriority: TaskPriority Default.
+
+    method enqueue: (task: TaskRef const ref) withPriority: (priority: TaskPriority) ::=> Void := {
+        Std assert: task isPending not.
+        Std assert: shuttingDown not.
+
+        mutex withLock: {
+            task state: TaskState Pending.
+
+            priorityEntries[priority value] insertEntry: task.
+            pendingWorkCondition notifyOne.
+        }.
+    }.
+
+    method privateDequeueNextPendingTask => TaskRef := {
+        priorityEntries do: {:eachEntry :: Void |
+            let task := eachEntry removeNextEntry.
+            task ifNotNil: {
+                return: task
+            }
+        }.
+
+        TaskRef nil
+    }.
+
+    method dequeueNextPendingTask => TaskRef := {
+        mutex withLock: {
+            return: self privateDequeueNextPendingTask
+        }.
+    }.
+
+    method waitAndDequeueNextPendingTask => TaskRef := {
+        mutex withLock: {
+            let task mutable := self privateDequeueNextPendingTask.
+            
+            while: task isNil && shuttingDown not do: {
+                pendingWorkCondition wait: mutex.
+                task := self privateDequeueNextPendingTask
+            }.
+
+            return: task
+        }.
+    }.
+
+    method runPendingTask: (task: TaskRef const ref) ::=> Boolean8 := {
+        task ifNil: {
+            return: false
+        }.
+
+        Std assert: task isPending.
+
+        task
+            state: TaskState Running;
+            run;
+            state: TaskState Finished.
+
+        true
+    }.
+
+    method runNextPendingTask => Boolean8
+        := self runPendingTask: self dequeueNextPendingTask.
+
+    method waitAndRunNextTask => Boolean8
+        := self runPendingTask: self waitAndDequeueNextPendingTask.
+
+    #**
+     * Convenience method for running all of the pending tasks in a synchronous way.
+     *#
+    method runAllPendingTasks => Boolean8 := {
+        let result mutable := false.
+        while: self runNextPendingTask do: {
+            result := true
+        }.
+
+        result
+    }.
+
+    #**
+     * I am the main loop for a worker thread whose job is to execute asynchronous tasks.
+     *#
+    method workerThreadMainLoop => Void := {
+        while: self waitAndRunNextTask do: {
+            ## Nothing is required here.
+        }
+    }.
+}.
+
+compileTime constant TaskQueueRef := TaskQueue rcRef.
+
+}. ## End of namespace Std

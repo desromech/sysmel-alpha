@@ -1,0 +1,15 @@
+namespace Std definition: {
+
+#**
+ * I am a priority for executing a task in a task queue.
+ *#
+enum TaskPriority valueType: UInt8; values: #{
+    High:.
+    Middle:.
+    Low:.
+    Count:.
+
+    Default: Middle
+}.
+
+}. ## End of namespace Std
