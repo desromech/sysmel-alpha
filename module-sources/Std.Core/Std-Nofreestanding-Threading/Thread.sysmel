@@ -2,24 +2,23 @@ namespace Std definition: {
 
 class Thread definition: {
     compileTime constant NativeEntryPointFunctionType := (Void pointer) => IntPointer.
-    compileTime constant EntryPointFunctionType := (Void) => Void.
 
-    field entryPointFunctionObject type: Function(EntryPointFunctionType).
+    field runnable type: RunnableRef.
 
-    method start: (entryPoint: EntryPointFunctionType nativeStackBlockClosure) ::=> Void := {
-        entryPointFunctionObject := entryPoint.
-        self start: callThreadEntryPointWithFunctionObject address with: self address
+    method start: (theRunnable: RunnableRef const ref) ::=> Void := {
+        runnable := theRunnable.
+        self start: callThreadEntryPointWithRunnable address with: self address
     }.
 
-    method entryPointWithFunctionObject => IntPointer := {
-        entryPointFunctionObject().
+    method entryPointWithRunnable => IntPointer := {
+        runnable run.
         0
     }.
 }.
 
-function callThreadEntryPointWithFunctionObject(threadPointer: Void pointer) => IntPointer := {
+function callThreadEntryPointWithRunnable(threadPointer: Void pointer) => IntPointer := {
     (threadPointer reinterpretCastTo: Thread pointer)
-        _ entryPointWithFunctionObject.
+        _ entryPointWithRunnable.
 }.
 
 }. ## End of namespace Std

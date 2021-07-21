@@ -1,0 +1,31 @@
+namespace Std definition: {
+
+#**
+ * I am an a runnable object that wraps a function.
+ *#
+class RunnableFunction superclass: Runnable; definition: {
+    public field functionObject type: Function(Void => Void).
+
+    #**
+     * I am the method that is called by a task queue for actually running a task.
+     *#
+    override method run => Void := {
+        functionObject()
+    }.
+}.
+
+compileTime constant RunnableFunctionRef := RunnableFunction rcRef.
+
+Runnable extend: {
+    meta definition: {
+        method for: (closure: (Void => Void) nativeStackBlockClosure) ::=> Runnable rcRef
+            := RunnableFunction new functionObject: closure; upCastFor: Runnable.
+    }.
+}.
+
+Thread extend: {
+    method start: (closure: (Void => Void) nativeStackBlockClosure) ::=> Void
+        := self start: (Runnable for: closure).
+}.
+
+}. ## End of namespace Std

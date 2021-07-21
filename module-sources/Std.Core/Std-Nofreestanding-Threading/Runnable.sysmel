@@ -1,0 +1,16 @@
+namespace Std definition: {
+
+#**
+ * I am an object that implements the run method
+ *#
+class Runnable superclass: RCObject; definition: {
+    #**
+     * I am the method that is called by a task queue for actually running a task.
+     *#
+    virtual method run => Void := {
+    }.
+}.
+
+compileTime constant RunnableRef := Runnable rcRef.
+
+}. ## End of namespace Std

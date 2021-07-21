@@ -3,7 +3,7 @@ namespace Std definition: {
 #**
  * I am a cooperative task that is executed in a specific task queue.
  *#
-class Task superclass: RCObject; definition: {
+class Task superclass: Runnable; definition: {
     public field taskQueueEntryState type: TaskQueueEntryState.
 
     const inline method state: (newState: TaskState) ::=> Void := {
@@ -24,12 +24,6 @@ class Task superclass: RCObject; definition: {
 
     const inline method isRunning => Boolean8
         := self state = TaskState Running.
-
-    #**
-     * I am the method that is called by a task queue for actually running a task.
-     *#
-    virtual method run => Void := {
-    }.
 
     #**
      * Convenience method for enqueueing the task with a specific priority.

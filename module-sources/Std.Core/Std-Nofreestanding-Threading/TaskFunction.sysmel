@@ -1,0 +1,26 @@
+namespace Std definition: {
+
+#**
+ * I am a task that wraps a function
+ *#
+class TaskFunction superclass: Task; definition: {
+    public field functionObject type: Function(Void => Void).
+
+    #**
+     * I am the method that is called by a task queue for actually running a task.
+     *#
+    override method run => Void := {
+        functionObject()
+    }.
+}.
+
+compileTime constant TaskFunctionRef := RunnableFunction rcRef.
+
+Task extend: {
+    meta definition: {
+        method for: (closure: (Void => Void) nativeStackBlockClosure) ::=> Task rcRef
+            := TaskFunction new functionObject: closure; upCastFor: Task.
+    }.
+}.
+
+}. ## End of namespace Std

@@ -15,6 +15,17 @@ function enqueueTasksOn(taskQueue: Std TaskQueueRef const ref) ::=> Void := {
     PrintStringTask new string: "PrintStringTask: 8\n"; enqueueOn: taskQueue.
     PrintStringTask new string: "PrintStringTask: 9\n"; enqueueOn: taskQueue.
     PrintStringTask new string: "PrintStringTask: 10\n"; enqueueOn: taskQueue.
+
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 1\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 2\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 3\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 4\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 5\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 6\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 7\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 8\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 9\n"}) enqueueOn: taskQueue.
+    (Std Task for: {:: Void | Std stdout << "ClosureTask: 10\n"}) enqueueOn: taskQueue.
 }.
 
 Std MainEntryPoint: {:args :: Int32 |
