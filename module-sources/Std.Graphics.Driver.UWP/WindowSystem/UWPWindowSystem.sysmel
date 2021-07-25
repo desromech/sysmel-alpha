@@ -79,7 +79,7 @@ class SysmelUWPWindowSystemCallbacks definition: {
 class UWPWindowSystem superclass: WindowSystem; definition: {
     compileTime constant MaxGameControllerCount := 8.
 
-    private field activeWindow type: UWPWindow rcPointer.
+    private field activeWindow type: UWPWindow rcRef.
     private field lastMousePosition type: Float32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field buttonState type: MouseButtonMask.
@@ -96,19 +96,26 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     method currentKeyModifiers => KeyModifiers
         := lastKeyModifiers.
 
-    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcPointer := {
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window rcRef := {
         activeWindow ifNotNil: {
-            return: Window rcPointer nil
+            return: Window rcRef nil
         }.
 
-        activeWindow := UWPWindow rcNew.
-        activeWindow _
+        activeWindow := UWPWindow new
             extent: (creationInfo extent castTo: UInt32x2);
             animated: creationInfo animated;
-            vsyncDisabled: creationInfo vsyncDisabled.
+            vsyncDisabled: creationInfo vsyncDisabled;
+            windowSystem: self asWeakRCRef;
+            yourself.
         activeWindow upCastFor: Window.
     }.
 
+    method windowClosed: (aWindow: UWPWindow rcRef) ::=> Void := {
+        activeWindow == aWindow ifTrue: {
+            activeWindow := nil
+        }
+    }.
+    
     override method runMainLoop => Int32 := {
         let callbacks mutable := SysmelUWPWindowSystemCallbacks()
             windowSystem: self address;
@@ -126,7 +133,7 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     }.
 
     override method hasAnimatedWindow => Boolean8
-        := activeWindow isNotNil && activeWindow _ animated.
+        := activeWindow isNotNil && activeWindow animated.
 
     override method waitForNextEventOrTimeout => Void := {
         sysmel_uwp_waitForEvents().
@@ -135,13 +142,13 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
     override method broadcastEvent: (event: Event ref) ::=> Void := {
         super broadcastEvent: event.
         activeWindow ifNotNil: {
-            activeWindow _ deliverEvent: event
+            activeWindow deliverEvent: event
         }.
     }.
 
     method onSetWindow: (windowHandle: Void pointer) ::=> Void := {
         activeWindow ifNotNil: {
-            activeWindow _
+            activeWindow
                 handle: windowHandle
         }
     }.
@@ -200,7 +207,7 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
                 position: lastMousePosition;
                 button: MouseButton Left;
                 yourself.
-            activeWindow _ deliverEvent: convertedEvent
+            activeWindow deliverEvent: convertedEvent
         }
     }.
 
@@ -213,7 +220,7 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
                 position: lastMousePosition;
                 button: MouseButton Left;
                 yourself.
-            activeWindow _ deliverEvent: convertedEvent
+            activeWindow deliverEvent: convertedEvent
         }
     }.
 
@@ -228,7 +235,7 @@ class UWPWindowSystem superclass: WindowSystem; definition: {
                 buttonState: buttonState;
                 delta: delta;
                 yourself.
-            activeWindow _ deliverEvent: convertedEvent
+            activeWindow deliverEvent: convertedEvent
         }
     }.
 }.
@@ -240,8 +247,8 @@ class UWPWindowSystemFactory superclass: WindowsSystemFactory; definition: {
         global Singleton mutable type: UWPWindowSystemFactory.
     }.
 
-    override method createWindowSystem => WindowSystem rcPointer := {
-        UWPWindowSystem rcNew upCastFor: WindowSystem.
+    override method createWindowSystem => WindowSystem rcRef := {
+        UWPWindowSystem new upCastFor: WindowSystem.
     }.
 }.
 

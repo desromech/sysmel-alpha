@@ -8,9 +8,10 @@ function sysmel_uwp_getExtent externC(windowHandle: Void pointer, outWidth: UInt
 
 class UWPWindow superclass: Window; definition: {
     public field handle type: Void pointer.
-    protected field renderingDevice type: RenderingDevicePtr.
-    protected field activeSwapChain type: SwapChainPtr.
+    protected field renderingDevice type: RenderingDeviceRef.
+    protected field activeSwapChain type: SwapChainRef.
     public field extent type: UInt32x2.
+    public field windowSystem type: UWPWindowSystem weakRCRef.
 
     override method extent => UInt32x2 := {
         handle ifNotNil: {
@@ -26,16 +27,18 @@ class UWPWindow superclass: Window; definition: {
 
     override method close => Void := {
         renderingDevice ifNotNil: {
-            renderingDevice _ waitForIdle
+            renderingDevice waitForIdle
         }.
 
         ## Destroy the active swap chain.
         activeSwapChain ifNotNil: {
-            activeSwapChain _ destroy.
+            activeSwapChain destroy.
         }.
+
+        windowSystem ifNotNil: {:ws :: Void | ws windowClosed: self asRCRef}
     }.
 
-    override method renderingDevice => RenderingDevice rcPointer := {
+    override method renderingDevice => RenderingDeviceRef := {
         renderingDevice ifNil: {
             renderingDevice := RenderingDriverRegistry defaultDriver _ getMainDevice
         }.
@@ -43,13 +46,13 @@ class UWPWindow superclass: Window; definition: {
         renderingDevice
     }.
 
-    override method renderingDevice: (theRenderingDevice: RenderingDevice rcPointer) ::=> Void := {
+    override method renderingDevice: (theRenderingDevice: RenderingDeviceRef const ref) ::=> Void := {
         renderingDevice := theRenderingDevice
     }.
 
-    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueueRef const ref) ::=> SwapChainRef := {
         handle ifNil: {
-            return: SwapChainPtr nil
+            return: SwapChainRef nil
         }.
 
         let adaptedCreationInfo mutable := swapChainCreationInfo.
@@ -80,18 +83,18 @@ class UWPWindow superclass: Window; definition: {
         ## Supply the old swap chain, and make sure it is not on active use anymore.
         activeSwapChain ifNotNil: {
             adaptedCreationInfo oldSwapChain: activeSwapChain.
-            renderingDevice _ waitForIdle.
+            renderingDevice waitForIdle.
         }.
 
-        let newActiveSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
+        let newActiveSwapChain := renderingDevice createSwapChain: adaptedCreationInfo for: renderingQueue.
         activeSwapChain ifNotNil: {
-            activeSwapChain _ destroy
+            activeSwapChain destroy
         }.
         activeSwapChain := newActiveSwapChain
     }.
 
-    override method createScene2DRenderer => WindowScene2DRendererPtr := {
-        (WindowSwapChain2DSceneRenderer for: (self asRCPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
+    override method createScene2DRenderer => WindowScene2DRendererRef := {
+        (WindowSwapChain2DSceneRenderer for: (self asRCRef upCastFor: Window)) upCastFor: WindowScene2DRenderer
     }.
 
 }.

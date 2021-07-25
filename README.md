@@ -53,48 +53,9 @@ Metacello new
 ```
 
 ## Compiler invocation in a playground
+The following classes have build scripts for constructing the samples:
+
 ```smalltalk
-"CPU Hello sample"
-MbndCompilationEnvironment llvm_x86_64
-	withDebugInformation;
-	monolithic;
-	executable; "shared" "object" "assembly" "llvmAssembly"
-	outputDirectory: 'out';
-	loadRuntimeCoreLibrary;
-	"beginModule: #Hello;"
-	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
-	finishAndEmitModule
-
-"CPU native sample game"
-MbndCompilationEnvironment llvm_x86_64
-	withDebugInformation;
-	noRTTI;
-	monolithic;
-	executable;
-	outputDirectory: 'out';
-	loadRuntimeCoreLibrary;
-	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
-	finishAndEmitModule
-
-"Runtime libraries tests"
-MbndCompilationEnvironment llvm_x86_64
-	withDebugInformation;
-	noRTTI;
-	monolithic;
-	executable;
-	outputDirectory: 'out';
-	loadRuntimeCoreLibrary;
-	evaluateFileNamedOnce: 'tests/RuntimeLibrariesTests.sysmel';
-	finishAndEmitModule
-
-"Sample Vulkan shaders"
-MbndCompilationEnvironment spirv_vulkan
-	monolithic;
-	executable;
-	loadRuntimeCoreLibrary;
-	outputDirectory: 'out';
-	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
-	finishAndEmitModule
 ```
 
 ## Syntax overview
@@ -294,4 +255,12 @@ Transcript show: 'GPU execution time: ';
 Transcript show: 'CPU execution time: ';
     show: [((1 to: n) collect: [ :x | (x + 10) * 2 ]) sum ] timeToRun asMilliSeconds;
     cr.
+```
+
+## Special platform targets
+
+### UWP Platform target
+There is partial support implemented for generating packages for the Universal Windows Platform (UWP). See the **MbndSysmelUWPSampleBuildScripts** Pharo class for the sample build scripts. The unbundled sources can be locally registered for testing without installing by running the following command in powershell: 
+```powershell
+Add-AppxPackage -Register .\AppxManifest.xml
 ```
