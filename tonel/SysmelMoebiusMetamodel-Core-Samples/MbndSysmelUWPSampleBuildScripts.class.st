@@ -63,10 +63,19 @@ MbndSysmelUWPSampleBuildScripts class >> buildSampleRendering3D [
 ]
 
 { #category : #'native samples' }
+MbndSysmelUWPSampleBuildScripts class >> buildSampleTaskQueue [
+	<example>
+	self newNoRTTIBuildEnvironment
+		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
+			packageScript bundleWithSource: 'samples/cpu/sampleTaskQueue.sysmel'
+		]
+]
+
+{ #category : #'native samples' }
 MbndSysmelUWPSampleBuildScripts class >> newNoRTTIBuildEnvironment [
 	^ WBTBuildEnvironment forUWPLLDX64
 		setReleaseWithDebugInfoBuildMode;
-		buildDirectory: 'build-sysmel-uwp-native';
+		buildDirectory: 'build-sysmel-uwp-nortti';
 		setSysmelSettingsWith: [ :settings | settings noRTTI ];
 		yourself
 ]

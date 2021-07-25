@@ -81,7 +81,7 @@ MbndSysmelSampleBuildScripts class >> buildSampleTaskQueue [
 	<example>
 	self newNoRTTIBuildEnvironment
 		buildMainPackageInFolder: MbndCoreAssets location with: [ :packageScript |
-			packageScript guiProgramWithSource: 'samples/cpu/sampleTaskQueue.sysmel'
+			packageScript programWithSource: 'samples/cpu/sampleTaskQueue.sysmel'
 		]
 ]
 
