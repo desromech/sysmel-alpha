@@ -14,4 +14,4 @@ function downloadAndExtractZip {
 downloadAndExtractZip "$PharoVM_URL" "pharo-vm.zip" "pharo-vm"
 downloadAndExtractZip "$PharoImage_URL" "pharo-image.zip" "."
 
-.\pharo-vm\PharoConsole.exe (get-item .\Pharo*.image).FullName st scripts/loadImage.st
+.\pharo-vm\PharoConsole.exe --headless (get-item .\Pharo*.image).FullName st scripts/loadImage.st

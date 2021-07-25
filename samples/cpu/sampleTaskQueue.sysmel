@@ -62,7 +62,7 @@ Std MainEntryPoint: {:args :: Int32 |
         Std stdout << "============================================="; nl.
         Std stdout << "Run on default asynchronous task queue"; nl.
         Std stdout << "============================================="; nl.
-        enqueueTasksOn(Std AsynchronousTaskProcessor default taskQueue).
+        enqueueTasksOn(Std TaskQueue defaultAsync).
     }.
 
     0

@@ -83,8 +83,28 @@ definition: {
 Thread extend: {
     public field handle type: Win32 HANDLE.
 
-    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void := {
+    meta definition: {
+        static method availableProcessorCount => UInt32 := {
+            let systemInfo mutable type: Win32 SYSTEM_INFO.
+            Win32 GetSystemInfo(systemInfo address).
+            systemInfo dwNumberOfProcessors
+        }.
+    }.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Boolean8
+        := self start: entryPoint inProcessor: -1 with: argument.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) inProcessor: (processorIndex: Int32) with: (argument: Void pointer) ::=> Boolean8 := {
         handle := Win32 _beginthreadex(nil, 0, entryPoint reinterpretCastTo: Win32 CTHREAD_START_ROUTINE, argument, 0, nil).
+        handle ifNil: {
+            return: false
+        }.
+
+        processorIndex >= 0 && processorIndex < 64 ifTrue: {
+            Win32 SetThreadIdealProcessor(handle, processorIndex castTo: Win32 DWORD).
+        }.
+
+        true
     }.
 
     method detach => Void := {

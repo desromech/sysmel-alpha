@@ -63,6 +63,21 @@ struct PROCESS_INFORMATION definition: {
     public field dwThreadId type: DWORD.
 }.
 
+struct SYSTEM_INFO definition: {
+    public field wProcessorArchitecture type: WORD.
+    public field wReserved type: WORD.
+
+    public field dwPageSize type: DWORD.
+    public field lpMinimumApplicationAddress type: Void pointer.
+    public field lpMaximumApplicationAddress type: Void pointer.
+    public field dwActiveProcessorMask type: DWORD pointer.
+    public field dwNumberOfProcessors type: DWORD.
+    public field dwProcessorType type: DWORD.
+    public field dwAllocationGranularity type: DWORD.
+    public field wProcessorLevel type: WORD.
+    public field wProcessorRevision type: WORD.
+}.
+
 compileTime constant CRITICAL_SECTION := RTL_CRITICAL_SECTION.
 compileTime constant CONDITION_VARIABLE := RTL_CONDITION_VARIABLE.
 
@@ -96,6 +111,9 @@ function CreateThread apicall externC(lpThreadAttributes: SECURITY_ATTRIBUTES po
 
 function GetCurrentThread apicall externC() => HANDLE.
 function GetCurrentProcess apicall externC() => HANDLE.
+
+function GetSystemInfo apicall externC(lpSystemInfo: SYSTEM_INFO pointer) => Void.
+function SetThreadIdealProcessor apicall externC(hThread: HANDLE, dwIdealProcessor: DWORD) => DWORD.
 
 function WaitForMultipleObjects apicall externC(nCount: DWORD, lpHandles: HANDLE const pointer, bWaitAll: BOOL, dwMilliseconds: DWORD) => DWORD.
 function WaitForMultipleObjectsEx apicall externC(nCount: DWORD, lpHandles: HANDLE const pointer, bWaitAll: BOOL, dwMilliseconds: DWORD, bAlertable: BOOL) => DWORD.

@@ -158,10 +158,7 @@ function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void :=
     }.
 
     let nativeException := (catchedContext _ unwindPayload reinterpretCastTo: Exception pointer).
-    let typeInfo := nativeException _ __typeInformationMetadata.
-    typeInfo _ isGarbageCollectedType ifFalse: {
-        nativeException nativeDelete.
-    }.
+    nativeException nativeDelete.
 }.
 
 function __sysmel_eh_cleanUpEnd externC(cleanUpContext: Void pointer) => Void := {
