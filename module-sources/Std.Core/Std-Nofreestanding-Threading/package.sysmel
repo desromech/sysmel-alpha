@@ -4,6 +4,7 @@ loadFileOnce: "Task.sysmel".
 loadFileOnce: "TaskPriority.sysmel".
 loadFileOnce: "TaskQueue.sysmel".
 loadFileOnce: "TaskState.sysmel".
+loadFileOnce: "AsynchronousTaskProcessor.sysmel".
 
 loadFileOnce: "RunnableFunction.sysmel".
 loadFileOnce: "TaskFunction.sysmel".

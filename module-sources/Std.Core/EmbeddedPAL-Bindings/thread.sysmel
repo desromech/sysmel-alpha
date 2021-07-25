@@ -16,9 +16,11 @@ function sysmel_epal_condition_wait externC(condition: ConditionVariable pointer
 function sysmel_epal_condition_signalOne externC(condition: ConditionVariable pointer) => Void.
 function sysmel_epal_condition_signalAll externC(condition: ConditionVariable pointer) => Void.
 
-function sysmel_epal_thread_create externC(thread: Thread pointer, entryPoint: ThreadEntryPoint, argument: Void pointer) => Int32.
+function sysmel_epal_thread_create externC(thread: Thread pointer, processorIndex: Int32, entryPoint: ThreadEntryPoint, argument: Void pointer) => Int32.
 function sysmel_epal_thread_join externC(thread: Thread pointer) => Int32.
 function sysmel_epal_thread_detach externC(thread: Thread pointer) => Int32.
+
+function sysmel_epal_thread_getAvailableProcessorCount externC() => UInt32.
 
 function sysmel_epal_tls_lastExceptionContext externC() => Void pointer pointer.
 

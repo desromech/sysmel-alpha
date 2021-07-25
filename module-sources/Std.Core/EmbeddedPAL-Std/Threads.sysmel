@@ -87,8 +87,13 @@ definition: {
 Thread extend: {
     public field handle type: EmbeddedPAL Thread.
 
-    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void := {
-        EmbeddedPAL sysmel_epal_thread_create(handle address, entryPoint reinterpretCastTo: EmbeddedPAL ThreadEntryPoint, argument).
+    meta definition: {
+        static method availableProcessorCount => UInt32
+            := EmbeddedPAL sysmel_epal_thread_getAvailableProcessorCount().
+    }.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) inProcessor: (processorIndex: Int32) with: (argument: Void pointer) ::=> Void := {
+        EmbeddedPAL sysmel_epal_thread_create(handle address, processorIndex, entryPoint reinterpretCastTo: EmbeddedPAL ThreadEntryPoint, argument).
     }.
 
     method detach => Void := {

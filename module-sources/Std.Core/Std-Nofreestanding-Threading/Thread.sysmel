@@ -5,9 +5,12 @@ class Thread definition: {
 
     field runnable type: RunnableRef.
 
-    method start: (theRunnable: RunnableRef const ref) ::=> Void := {
+    method start: (theRunnable: RunnableRef const ref) ::=> Boolean8
+        := self start: theRunnable inProcessor: -1.
+
+    method start: (theRunnable: RunnableRef const ref) inProcessor: (processorIndex: Int32) ::=> Boolean8 := {
         runnable := theRunnable.
-        self start: callThreadEntryPointWithRunnable address with: self address
+        self start: callThreadEntryPointWithRunnable address inProcessor: processorIndex with: self address
     }.
 
     method entryPointWithRunnable => IntPointer := {

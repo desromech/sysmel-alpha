@@ -1,0 +1,81 @@
+namespace Std definition: {
+
+#**
+ * I am a processor for asynchronous tasks.
+ * I manage a pool of threads (one thread per code) for processing the tasks present in a task queue.
+ *#
+sealed class AsynchronousTaskProcessor superclass: Std RCObject; definition: {
+    meta definition: {
+        let default mutable type: AsynchronousTaskProcessor rcRef.
+        let defaultOnceCreation mutable type: Std OnceFlag.
+
+        static method default => AsynchronousTaskProcessor rcRef const ref := {
+            defaultOnceCreation do: {
+                default := InstanceType new startDefault; yourself
+            }.
+
+            default
+        }.
+    }.
+
+    #**
+    * I am the worker thread runnable for processing asnchronous tasks.
+     *#
+    sealed class WorkerThread superclass: Std Runnable; definition: {
+        public field taskQueue type: Std TaskQueueRef.
+
+        override method run => Void := {
+            taskQueue workerThreadMainLoop
+        }.
+    }.
+
+    private field taskQueue type: Std TaskQueueRef.
+    private field threads type: Std Collections Vector(Std Thread).
+
+    const inline method taskQueue => Std TaskQueueRef const ref
+        := taskQueue.
+
+    override method initialize => Void := {
+        taskQueue := Std TaskQueue new.
+    }.
+
+    override method finalize => Void := {
+        taskQueue shutdown.
+        threads do: {:each :: Void |
+            each join
+        }
+    }.
+
+    method startDefault => Void := {
+        self startWithProcessorCount: Std Thread availableProcessorCount
+    }.
+
+    method startWithProcessorCount: (count: UInt32) ::=> Void := {
+        Std assert: threads isEmpty.
+        threads resizeTo: count.
+        0 until: count do: {:i :: Void |
+            threads[i] start: (WorkerThread new
+                taskQueue: taskQueue;
+                upCastFor: Std Runnable) inProcessor: (i castTo: Int32)
+        }
+    }.
+}.
+
+compileTime constant AsynchronousTaskProcessorRef := AsynchronousTaskProcessor rcRef.
+
+TaskQueue extend: {
+    meta definition: {
+        const inline method defaultAsync => TaskQueue rcRef const ref
+            := AsynchronousTaskProcessor default taskQueue.
+    }.
+}.
+
+Task extend: {
+    method startAsync => Void
+        := self enqueueOn: TaskQueue defaultAsync.
+
+    method startAsyncWithPriority: (priority: TaskPriority) ::=> Void
+        := self enqueueOn: TaskQueue defaultAsync withPriority: priority.
+}.
+
+}. ## End of namespace Std

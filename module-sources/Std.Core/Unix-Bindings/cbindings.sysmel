@@ -8,4 +8,9 @@ function sysmelUnix_stat_exists externC(filename: Char8 const pointer, filenameS
 
 function sysmelUnix_dirent64_d_name externC(dirent: dirent64 pointer) => Char8 const pointer.
 
+if: Compiler compilationTarget isWebAssembly not then: {
+    function sysmelUnix_thread_getAvailableProcessorCount externC() => UInt32.
+    function sysmelUnix_thread_setThreadAffinityToProcessor externC(thread: pthread_t, targetProcessor: UInt32) => Int32.
+}.
+
 }.

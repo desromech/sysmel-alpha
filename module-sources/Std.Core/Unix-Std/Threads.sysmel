@@ -135,8 +135,24 @@ definition: {
 Thread extend: {
     public field handle type: Unix pthread_t.
 
-    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer)::=> Void := {
-        Unix pthread_create(handle address, nil, entryPoint reinterpretCastTo: Unix pthread_start_routine_t pointer, argument).
+    meta definition: {
+        static method availableProcessorCount => UInt32
+            := Unix sysmelUnix_thread_getAvailableProcessorCount().
+    }.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Boolean8
+        := self start: entryPoint inProcessor: -1 with: argument.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) inProcessor: (processorIndex: Int32) with: (argument: Void pointer) ::=> Boolean8 := {
+        Unix pthread_create(handle address, nil, entryPoint reinterpretCastTo: Unix pthread_start_routine_t pointer, argument) ~= 0 ifTrue: {
+            return: false
+        }.
+
+        processorIndex >= 0 ifTrue: {
+            Unix sysmelUnix_thread_setThreadAffinityToProcessor(handle, processorIndex castTo: UInt32)
+        }.
+        
+        true
     }.
 
     method detach => Void := {

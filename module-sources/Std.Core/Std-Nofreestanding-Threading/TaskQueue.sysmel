@@ -47,6 +47,14 @@ sealed class TaskQueue superclass: RCObject; definition: {
     private field shuttingDown type: Boolean8.
     private field priorityEntries type: (TaskLinkedList array: TaskPriority Count value).
 
+    method shutdown => Void := {
+        mutex withLock: {
+            Std assert: shuttingDown not.
+            shuttingDown := true.
+            pendingWorkCondition notifyAll
+        }.
+    }.
+
     method enqueue: (task: TaskRef const ref) ::=> Void
         := self enqueue: task withPriority: TaskPriority Default.
 

@@ -30,13 +30,40 @@ function enqueueTasksOn(taskQueue: Std TaskQueueRef const ref) ::=> Void := {
 
 Std MainEntryPoint: {:args :: Int32 |
     {
+        Std stdout << "============================================="; nl.
         Std stdout << "Run on synchronous queue:"; nl.
+        Std stdout << "============================================="; nl.
         let synchronousQueue := Std TaskQueue new.
         enqueueTasksOn(synchronousQueue).
         synchronousQueue runAllPendingTasks
     }.
 
-    Std stdout << "TODO: Run on main asynchronous queue:"; nl.
+    {
+        Std stdout << "============================================="; nl.
+        Std stdout << "Run on explicit asynchronous task processor with single thread:"; nl.
+        Std stdout << "============================================="; nl.
+        let taskProcessor := Std AsynchronousTaskProcessor new
+            startWithProcessorCount: 1;
+            yourself.
+        enqueueTasksOn(taskProcessor taskQueue).
+    }.
+
+    {
+        Std stdout << "============================================="; nl.
+        Std stdout << "Run on explicit asynchronous task processor with two threads:"; nl.
+        Std stdout << "============================================="; nl.
+        let taskProcessor := Std AsynchronousTaskProcessor new
+            startWithProcessorCount: 2;
+            yourself.
+        enqueueTasksOn(taskProcessor taskQueue).
+    }.
+
+    {
+        Std stdout << "============================================="; nl.
+        Std stdout << "Run on default asynchronous task queue"; nl.
+        Std stdout << "============================================="; nl.
+        enqueueTasksOn(Std AsynchronousTaskProcessor default taskQueue).
+    }.
 
     0
 }.

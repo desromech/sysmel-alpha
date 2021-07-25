@@ -60,6 +60,14 @@ definition: {
 }.
 
 Thread extend: {
+    meta definition: {
+        static method availableProcessorCount => UInt32
+            := 0.
+
+        static method setThisThreadAffinityToCpu: (targetCpu: UInt32) => Boolean8
+            := false.
+    }.
+
     method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void
          := void.
 

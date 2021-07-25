@@ -4,9 +4,10 @@ loadFileOnce: "dirent.sysmel".
 loadFileOnce: "unistd.sysmel".
 loadFileOnce: "fcntl.sysmel".
 loadFileOnce: "time.sysmel".
-loadFileOnce: "cbindings.sysmel".
 
 if: Compiler compilationTarget isWebAssembly not then: {
     loadFileOnce: "pthreads.sysmel".
     loadFileOnce: "mmap.sysmel".
 }.
+
+loadFileOnce: "cbindings.sysmel".
