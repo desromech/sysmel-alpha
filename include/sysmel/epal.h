@@ -73,9 +73,11 @@ SYSMEL_EPAL_EXPORT void sysmel_epal_condition_wait(sysmel_epal_condition_t *cond
 SYSMEL_EPAL_EXPORT void sysmel_epal_condition_signalOne(sysmel_epal_condition_t *condition);
 SYSMEL_EPAL_EXPORT void sysmel_epal_condition_signalAll(sysmel_epal_condition_t *condition);
 
-SYSMEL_EPAL_EXPORT int sysmel_epal_thread_create(sysmel_epal_thread_t *thread, sysmel_epal_thread_entry_point_t entryPoint, void *argument);
+SYSMEL_EPAL_EXPORT int sysmel_epal_thread_create(sysmel_epal_thread_t *thread, int processorIndex, sysmel_epal_thread_entry_point_t entryPoint, void *argument);
 SYSMEL_EPAL_EXPORT int sysmel_epal_thread_join(sysmel_epal_thread_t *thread);
 SYSMEL_EPAL_EXPORT int sysmel_epal_thread_detach(sysmel_epal_thread_t *thread);
+
+SYSMEL_EPAL_EXPORT uint32_t sysmel_epal_thread_getAvailableProcessorCount();
 
 SYSMEL_EPAL_EXPORT void** sysmel_epal_tls_lastExceptionContext();
 

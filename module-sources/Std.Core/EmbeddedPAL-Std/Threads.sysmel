@@ -92,8 +92,8 @@ Thread extend: {
             := EmbeddedPAL sysmel_epal_thread_getAvailableProcessorCount().
     }.
 
-    method start: (entryPoint: NativeEntryPointFunctionType pointer) inProcessor: (processorIndex: Int32) with: (argument: Void pointer) ::=> Void := {
-        EmbeddedPAL sysmel_epal_thread_create(handle address, processorIndex, entryPoint reinterpretCastTo: EmbeddedPAL ThreadEntryPoint, argument).
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) inProcessor: (processorIndex: Int32) with: (argument: Void pointer) ::=> Boolean8 := {
+        EmbeddedPAL sysmel_epal_thread_create(handle address, processorIndex, entryPoint reinterpretCastTo: EmbeddedPAL ThreadEntryPoint, argument) ~= 0.
     }.
 
     method detach => Void := {
@@ -101,7 +101,7 @@ Thread extend: {
     }.
 
     method join => Void := {
-        EmbeddedPAL sysmel_epal_thread_detach(handle address).
+        EmbeddedPAL sysmel_epal_thread_join(handle address).
     }.
 }.
 

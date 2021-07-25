@@ -50,10 +50,11 @@ definition: {
             return: 0
         }.
 
-        let writeEnd := offset + size min: dataSize.
-        let toWrite := writeEnd - offset.
+        let offsetMemorySize := offset castTo: UIntPointer.
+        let writeEnd := offsetMemorySize + size min: dataSize.
+        let toWrite := writeEnd - offsetMemorySize.
         toWrite > 0 ifTrue: {
-            memcpy(basePointer + offset, buffer, toWrite).
+            memcpy(basePointer + offsetMemorySize, buffer, toWrite).
         }.
 
         toWrite castTo: IntPointer
@@ -74,10 +75,11 @@ definition: {
             return: 0
         }.
 
-        let readEnd := offset + size min: dataSize.
-        let toRead := readEnd - offset.
+        let offsetMemorySize := offset castTo: UIntPointer.
+        let readEnd := offsetMemorySize + size min: dataSize.
+        let toRead := readEnd - offsetMemorySize.
         toRead > 0 ifTrue: {
-            memcpy(buffer, basePointer + offset, toRead).
+            memcpy(buffer, basePointer + offsetMemorySize, toRead).
         }.
 
         toRead castTo: IntPointer
